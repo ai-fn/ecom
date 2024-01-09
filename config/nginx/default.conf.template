@@ -1,0 +1,40 @@
+upstream gunicorn_app {
+    server unix:/code/gunicorn.sock fail_timeout=0;
+}
+
+# HTTP Server - Redirect to HTTPS
+server {
+    listen 80;
+    server_name .shop.ru;  # Wildcard for all subdomains
+
+    return 301 https://$host$request_uri;  # Redirect to the same subdomain on HTTPS
+}
+
+# HTTPS Server
+server {
+    listen 443 ssl;
+    ssl_certificate /code/ssl/live/shop.ru/fullchain.pem;  # Wildcard certificate if available
+    ssl_certificate_key /code/ssl/live/shop.ru/privkey.pem;
+    server_name .shop.ru;  # Wildcard for all subdomains
+
+    error_log stderr warn;
+    access_log /dev/stdout main;
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_connect_timeout 75s;
+        proxy_read_timeout 300s;
+        proxy_pass http://gunicorn_app;
+    }
+
+    location /static/ {
+        alias /code/static/;
+    }
+
+    location /media/ {
+        alias /code/media/;
+    }
+}

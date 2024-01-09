@@ -1,0 +1,5 @@
+db.sqlite3
+__pycache__
+celerybeat-schedule
+data/cache/dump.rdb
+.venv
