@@ -13,6 +13,8 @@ from account.models import CustomUser
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 
+from shop.models import Characteristic, CharacteristicValue, Price, Product, Review, Setting
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -59,3 +61,73 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "category",
+            "title",
+            "description",
+            "image",
+            "slug",
+            "created_at",
+        ]
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = [
+            "id",
+            "product",
+            "name",
+            "rating",
+            "review",
+            "created_at",
+        ]
+
+
+class CharacteristicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Characteristic
+        fields = [
+            "id",
+            "name",
+            "category",
+        ]
+
+
+class CharacteristicValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CharacteristicValue
+        fields = [
+            "id",
+            "product",
+            "characteristic",
+            "value",
+        ]
+
+
+class PriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Price
+        fields = [
+            "id",
+            "product",
+            "city",
+            "price",
+        ]
+
+
+class SettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Setting
+        fields = [
+            "id",
+            "key",
+            "type",
+            "value",
+        ]

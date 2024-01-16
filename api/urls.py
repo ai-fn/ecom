@@ -4,13 +4,25 @@ from rest_framework_simplejwt import views as jwt_views
 
 from api import views
 from api.views import (
+    CharacteristicValueViewSet,
+    CharacteristicViewSet,
     MyTokenObtainPairView,
+    PriceViewSet,
+    ProductViewSet,
+    ReviewViewSet,
+    SettingViewSet,
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
 router = routers.DefaultRouter()
+router.register(r"products", ProductViewSet)
+router.register(r"reviews", ReviewViewSet)
+router.register(r"characteristics", CharacteristicViewSet)
+router.register(r"characteristics-values", CharacteristicValueViewSet)
+router.register(r"prices", PriceViewSet)
+router.register(r"settings", SettingViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),  # Including router URLs here

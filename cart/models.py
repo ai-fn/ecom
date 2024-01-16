@@ -1,10 +1,10 @@
 from django.db import models
 
-from account.models import CustomUser
+from account.models import CustomUser, TimeBasedModel
 from shop.models import Product
 
 
-class Order(models.Model):
+class Order(TimeBasedModel):
     customer = models.ForeignKey(
         CustomUser,
         related_name="customer",
@@ -26,7 +26,7 @@ class Order(models.Model):
         return f"{self.customer} - {self.created}"
 
 
-class ProductsInOrder(models.Model):
+class ProductsInOrder(TimeBasedModel):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
     product = models.ForeignKey(
         Product,

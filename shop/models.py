@@ -99,7 +99,7 @@ class Product(TimeBasedModel):
         )
 
 
-class Review(models.Model):
+class Review(TimeBasedModel):
     product = models.ForeignKey(
         Product, related_name="reviews", on_delete=models.PROTECT, verbose_name="Товар"
     )
@@ -163,3 +163,41 @@ class Price(TimeBasedModel):
 
     def __str__(self):
         return f"{self.product.title} - {self.city.name}: {self.price}"
+
+
+class SETTING_CHOICES(models.TextChoices):
+    MAINTENANCE = "Тех. работы"
+    CDN_ENABLED = "Включен ли CCDN"
+    CDN_ADDRESS = "Адрес CDN"
+    MULTIDOMAINS_ENABLED = "Включен ли Multidomains"
+    # TODO добавить настройки платежных систем
+    # TODO добавить доступность прямой оплаты
+    # TODO добавить настройки водяного знака на изображение
+    # TODO включение CMS режима
+
+
+class SETTINGS_TYPE_CHOICES(models.TextChoices):
+    BOOLEAN = "Boolean"
+    STRING = "Строка"
+    NUMBER = "Число"
+
+
+class Setting(TimeBasedModel):
+    class Meta:
+        verbose_name = "Настройка"
+        verbose_name_plural = "Настройки"
+
+    key = models.CharField(
+        verbose_name="Ключ",
+        choices=SETTING_CHOICES.choices,
+        default=SETTING_CHOICES.MAINTENANCE,
+    )
+    type = models.CharField(
+        verbose_name="Тип",
+        choices=SETTINGS_TYPE_CHOICES.choices,
+        default=SETTINGS_TYPE_CHOICES.BOOLEAN,
+    )
+    value = models.CharField(verbose_name="Значение", max_length=128, null=True)
+
+    def __str__(self) -> str:
+        return f"{self.key} {self.value}"
