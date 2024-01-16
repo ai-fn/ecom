@@ -179,8 +179,8 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Telephony Project API",
-    "DESCRIPTION": "Api For Telephony",
+    "TITLE": "Megashop Project API",
+    "DESCRIPTION": "Api For Megashop",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
