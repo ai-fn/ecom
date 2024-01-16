@@ -22,6 +22,11 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 from blog import views
 from blog.sitemaps import ArticleSitemap
@@ -35,22 +40,35 @@ sitemaps = {
 }
 
 urlpatterns = (
-        [
-            path("shop/", include(("shop.urls", "shop"), namespace="shop")),
-            path("cart/", include("cart.urls")),
-            path("account/", include("account.urls")),
-            path("admin/", admin.site.urls),
-            path("", views.view_home, name="home"),
-            path("search/", view=search_views.search_view, name="search"),
-            path(
-                "sitemap.xml",
-                sitemap,
-                {"sitemaps": sitemaps},
-                name="django.contrib.sitemaps.views.sitemap",
-            ),
-        ]
-        + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-        + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    [
+        path("shop/", include(("shop.urls", "shop"), namespace="shop")),
+        path("cart/", include("cart.urls")),
+        path("account/", include("account.urls")),
+        path("admin/", admin.site.urls),
+        path("", views.view_home, name="home"),
+        path("search/", view=search_views.search_view, name="search"),
+        path(
+            "sitemap.xml",
+            sitemap,
+            {"sitemaps": sitemaps},
+            name="django.contrib.sitemaps.views.sitemap",
+        ),
+        path("api/", include("api.urls")),
+        path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+        # Optional UI:
+        path(
+            "api/schema/swagger-ui/",
+            SpectacularSwaggerView.as_view(url_name="schema"),
+            name="swagger-ui",
+        ),
+        path(
+            "api/schema/redoc/",
+            SpectacularRedocView.as_view(url_name="schema"),
+            name="redoc",
+        ),
+    ]
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 )
 
 if settings.DEBUG:
@@ -59,3 +77,5 @@ if settings.DEBUG:
     ]
 
 urlpatterns += staticfiles_urlpatterns()
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

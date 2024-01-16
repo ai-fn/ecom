@@ -26,8 +26,11 @@ SECRET_KEY = "django-insecure-dqm6w2nl1q2i!%t%+z1*r)!-%8lg9@fm81k&ms$2z2pnej3%xt
 DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1"]
+# TODO попробовать убрать ALLOW_ALL
+CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOWED_ORIGINS = [
+    "http://188.235.34.60:3000",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://api.zadarma.com",
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
     "cart.apps.CartConfig",
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
+    "api",
 ]
 
 AUTH_USER_MODEL = "account.CustomUser"
@@ -100,8 +104,12 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB", "default_db_name"),
+        "USER": os.environ.get("POSTGRES_USER", "default_user"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
+        "HOST": "db",  # Или другой хост, если он определён
+        "PORT": "5432",  # Стандартный порт для PostgreSQL
     }
 }
 
@@ -136,13 +144,40 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=15),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+    "JTI_CLAIM": "jti",
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.MyTokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "Telephony Project API",
     "DESCRIPTION": "Api For Telephony",
@@ -169,10 +204,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATIC_URL = "/static/"
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 LOGIN_URL = "login"
 MEDIA_URL = "/media/"
@@ -183,4 +216,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"
-CELERY_RESULT_BACKEND = "db+sqlite:///results.sqlite"
+CELERY_RESULT_BACKEND = f"db+postgresql://{os.environ.get('POSTGRES_USER', 'default_user')}:{os.environ.get('POSTGRES_PASSWORD', 'default_password')}@db/{os.environ.get('POSTGRES_DB', 'default_db_name')}"

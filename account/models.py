@@ -26,4 +26,6 @@ class City(TimeBasedModel):
 
 class CustomUser(AbstractUser):
     phone = models.CharField(verbose_name="Номер телефона", max_length=16, null=True)
-    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, related_name="customers")
+    city = models.ForeignKey(
+        City, on_delete=models.SET_NULL, null=True, related_name="customers"
+    )

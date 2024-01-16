@@ -39,6 +39,31 @@ class Category(MPTTModel, TimeBasedModel):
         )
 
 
+class CategoryMetaData(TimeBasedModel):
+    class Meta:
+        verbose_name = "Метаданные категории"
+        verbose_name_plural = "Метаданные категорий"
+
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name="category_meta",
+    )
+    title = models.CharField(
+        verbose_name="Title",
+        max_length=128,
+        null=True,
+    )
+    description = models.CharField(
+        verbose_name="Описание",
+        max_length=128,
+        null=True,
+    )
+
+    def __str__(self) -> str:
+        return f"{self.category.name} метаданные"
+
+
 class Product(TimeBasedModel):
     category = models.ForeignKey(
         Category,
