@@ -3,10 +3,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from account.models import City
 
 from api.serializers import (
     CharacteristicSerializer,
     CharacteristicValueSerializer,
+    CitySerializer,
     MyTokenObtainPairSerializer,
     PriceSerializer,
     ProductSerializer,
@@ -15,7 +17,14 @@ from api.serializers import (
 )
 from rest_framework import permissions, status, viewsets
 
-from shop.models import Characteristic, CharacteristicValue, Price, Product, Review, Setting
+from shop.models import (
+    Characteristic,
+    CharacteristicValue,
+    Price,
+    Product,
+    Review,
+    Setting,
+)
 
 
 # Create your views here.
@@ -87,7 +96,19 @@ class SettingViewSet(viewsets.ModelViewSet):
     Args:
         viewsets (_type_): _description_
     """
-    
+
     queryset = Setting.objects.all().order_by("-created_at")
     serializer_class = SettingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class CityViewSet(viewsets.ModelViewSet):
+    """Возвращает города
+
+    Args:
+        viewsets (_type_): _description_
+    """
+
+    queryset = City.objects.all().order_by("-created_at")
+    serializer_class = CitySerializer
     permission_classes = [permissions.IsAuthenticated]

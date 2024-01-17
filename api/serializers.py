@@ -9,7 +9,7 @@ from rest_framework.serializers import (
 )
 from rest_framework import serializers
 
-from account.models import CustomUser
+from account.models import City, CustomUser
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 
@@ -130,4 +130,14 @@ class SettingSerializer(serializers.ModelSerializer):
             "key",
             "type",
             "value",
+        ]
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = [
+            "id",
+            "name",
+            "domain",
         ]
