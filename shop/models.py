@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from account.models import City, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
+from django.core.exceptions import ValidationError
 
 
 class Category(MPTTModel, TimeBasedModel):
@@ -20,6 +21,12 @@ class Category(MPTTModel, TimeBasedModel):
         blank=True,
         related_name="children",
         verbose_name="Каталог",
+    )
+    icon = models.FileField(
+        upload_to="category_icons/",
+        verbose_name="Иконка",
+        null=True,
+        blank=True,
     )
 
     class Meta:
@@ -62,6 +69,27 @@ class CategoryMetaData(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"{self.category.name} метаданные"
+
+
+class Brand(TimeBasedModel):
+    class Meta:
+        verbose_name = "Бренд"
+        verbose_name_plural = "Бренды"
+
+    name = models.CharField(
+        verbose_name="Имя бренда",
+        default="Нет имени",
+        max_length=128,
+    )
+    icon = models.FileField(
+        upload_to="category_icons/",
+        verbose_name="Иконка",
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self) -> str:
+        return f"{self.name}"
 
 
 class Product(TimeBasedModel):
@@ -155,6 +183,12 @@ class Price(TimeBasedModel):
     )
     city = models.ForeignKey(City, related_name="prices", on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    old_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Старая цена (для скидки)",
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Цена"
@@ -165,21 +199,21 @@ class Price(TimeBasedModel):
         return f"{self.product.title} - {self.city.name}: {self.price}"
 
 
-class SETTING_CHOICES(models.TextChoices):
-    MAINTENANCE = "Тех. работы"
-    CDN_ENABLED = "Включен ли CCDN"
-    CDN_ADDRESS = "Адрес CDN"
-    MULTIDOMAINS_ENABLED = "Включен ли Multidomains"
+class SettingChoices(models.TextChoices):
+    MAINTENANCE = "maintenance", "Тех. работы"
+    CDN_ENABLED = "cdn_enabled", "Включен ли CDN"
+    CDN_ADDRESS = "cdn_address", "Адрес CDN"
+    MULTIDOMAINS_ENABLED = "multidomains_enabled", "Включен ли Multidomains"
     # TODO добавить настройки платежных систем
     # TODO добавить доступность прямой оплаты
     # TODO добавить настройки водяного знака на изображение
     # TODO включение CMS режима
 
 
-class SETTINGS_TYPE_CHOICES(models.TextChoices):
-    BOOLEAN = "Boolean"
-    STRING = "Строка"
-    NUMBER = "Число"
+class SettingsTypeChoices(models.TextChoices):
+    BOOLEAN = "boolean", "Boolean"
+    STRING = "string", "Строка"
+    NUMBER = "number", "Число"
 
 
 class Setting(TimeBasedModel):
@@ -188,16 +222,63 @@ class Setting(TimeBasedModel):
         verbose_name_plural = "Настройки"
 
     key = models.CharField(
-        verbose_name="Ключ",
-        choices=SETTING_CHOICES.choices,
-        default=SETTING_CHOICES.MAINTENANCE,
+        verbose_name="Ключ", choices=SettingChoices.choices, max_length=255, unique=True
     )
     type = models.CharField(
         verbose_name="Тип",
-        choices=SETTINGS_TYPE_CHOICES.choices,
-        default=SETTINGS_TYPE_CHOICES.BOOLEAN,
+        choices=SettingsTypeChoices.choices,
+        max_length=50,
+        default=SettingsTypeChoices.BOOLEAN,
     )
-    value = models.CharField(verbose_name="Значение", max_length=128, null=True)
+    value_string = models.CharField(
+        verbose_name="Строковое значение", max_length=255, null=True, blank=True
+    )
+    value_boolean = models.BooleanField(
+        verbose_name="Логическое значение", null=True, blank=True
+    )
+    value_number = models.IntegerField(
+        verbose_name="Числовое значение", null=True, blank=True
+    )
+    predefined_key = models.CharField(
+        verbose_name="Предопределенный ключ",
+        choices=SettingChoices.choices,
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    custom_key = models.CharField(
+        verbose_name="Пользовательский ключ",
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+    )
+
+    def clean(self):
+        if not self.predefined_key and not self.custom_key:
+            raise ValidationError(
+                "Необходимо указать либо предопределенный ключ, либо пользовательский ключ."
+            )
+        if self.predefined_key and self.custom_key:
+            raise ValidationError(
+                "Укажите только один ключ: либо предопределенный, либо пользовательский."
+            )
+
+    def get_value(self):
+        if self.type == SettingsTypeChoices.BOOLEAN:
+            return self.value_boolean
+        elif self.type == SettingsTypeChoices.STRING:
+            return self.value_string
+        elif self.type == SettingsTypeChoices.NUMBER:
+            return self.value_number
+        return None
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def get_key(self):
+        return self.predefined_key or self.custom_key
 
     def __str__(self) -> str:
-        return f"{self.key} {self.value}"
+        return f"{self.get_key()}: {self.get_value()}"

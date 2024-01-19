@@ -9,11 +9,21 @@ from rest_framework.serializers import (
 )
 from rest_framework import serializers
 
-from account.models import City, CustomUser
+from account.models import City, CityGroup, CustomUser
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
+from cart.models import Order, ProductsInOrder
 
-from shop.models import Characteristic, CharacteristicValue, Price, Product, Review, Setting
+from shop.models import (
+    Category,
+    CategoryMetaData,
+    Characteristic,
+    CharacteristicValue,
+    Price,
+    Product,
+    Review,
+    Setting,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -140,4 +150,69 @@ class CitySerializer(serializers.ModelSerializer):
             "id",
             "name",
             "domain",
+        ]
+
+
+class CityGroupSerializer(serializers.ModelSerializer):
+    main_city = CitySerializer(read_only=True)
+    cities = CitySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CityGroup
+        fields = [
+            "id",
+            "name",
+            "main_city",
+            "cities",
+        ]
+
+
+class CategoryMetaDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CategoryMetaData
+        fields = ["title", "description"]
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+    category_meta = CategoryMetaDataSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ["id", "name", "slug", "parent", "children", "category_meta"]
+
+    def get_children(self, obj):
+        if obj.is_leaf_node():
+            return None
+        return CategorySerializer(obj.get_children(), many=True).data
+
+
+class CategoryDetailSerializer(serializers.ModelSerializer):
+    category_meta = CategoryMetaDataSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ["id", "name", "slug", "parent", "category_meta"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "customer",
+            "products",
+            "created_at",
+        ]
+
+
+class ProductsInOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductsInOrder
+        fields = [
+            "id",
+            "order",
+            "product",
+            "quantity",
+            "created_at",
         ]

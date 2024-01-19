@@ -8,6 +8,7 @@ from shop.models import (
     Price,
     Product,
     Review,
+    Setting,
 )
 from mptt.admin import DraggableMPTTAdmin
 
@@ -64,3 +65,30 @@ class PriceAdmin(admin.ModelAdmin):
         "city",
         "price",
     )
+
+
+@admin.register(Setting)
+class SettingAdmin(admin.ModelAdmin):
+    list_display = ("get_key", "type", "get_value")
+    fields = (
+        "predefined_key",
+        "custom_key",
+        "type",
+        "value_string",
+        "value_boolean",
+        "value_number",
+    )
+    list_filter = ("type",)
+    search_fields = ("predefined_key", "custom_key")
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(SettingAdmin, self).get_form(request, obj, **kwargs)
+        if obj:
+            if obj.predefined_key:
+                form.base_fields["custom_key"].disabled = True
+            elif obj.custom_key:
+                form.base_fields["predefined_key"].disabled = True
+        else:
+            form.base_fields["predefined_key"].disabled = False
+            form.base_fields["custom_key"].disabled = False
+        return form

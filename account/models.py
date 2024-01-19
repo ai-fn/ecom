@@ -12,9 +12,15 @@ class TimeBasedModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+from django.db import models
+
+# Определение моделей ...
+
+
 class City(TimeBasedModel):
-    name = models.CharField(max_length=255, verbose_name="Город")
-    domain = models.CharField(max_length=255, verbose_name="Домен")
+    name = models.CharField(max_length=255, verbose_name="Город", null=True)
+    domain = models.CharField(max_length=255, verbose_name="Домен", null=True)
+    address = models.CharField(max_length=256, verbose_name="Адрес", null=True)
 
     class Meta:
         verbose_name = "Город"
@@ -22,6 +28,24 @@ class City(TimeBasedModel):
 
     def __str__(self):
         return self.name
+
+
+class CityGroup(TimeBasedModel):
+    name = models.CharField(max_length=255, verbose_name="Город")
+    main_city = models.ForeignKey(
+        "City",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="main_city_for_group",
+        verbose_name="Главный город",
+    )
+    cities = models.ManyToManyField(
+        City, related_name="city_group", verbose_name="Города"
+    )
+
+    class Meta:
+        verbose_name = "Группа городов"
+        verbose_name_plural = "Группы городов"
 
 
 class CustomUser(AbstractUser):

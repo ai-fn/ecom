@@ -44,5 +44,11 @@ GIT_TOKEN - git token пользователя
 docker compose exec web python manage.py collectstatic --settings=megashop.settings.prod
 ```
 ## RELEASE NOTES
-<!-- ### Версия 1.2.0 (08.12.2023) -->
+### Версия 1.1.1 (19.01.2024)
 
+**Добавлено:**
+- Инициализация системы
+- Базовые CRUD API
+
+**Исправлено:**
+- 
