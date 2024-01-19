@@ -24,7 +24,7 @@ SECRET_KEY = "django-insecure-dqm6w2nl1q2i!%t%+z1*r)!-%8lg9@fm81k&ms$2z2pnej3%xt
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+CSRF_TRUSTED_ORIGINS = ['https://*.altawest.ru','https://*.127.0.0.1']
 ALLOWED_HOSTS = ["127.0.0.1"]
 # TODO попробовать убрать ALLOW_ALL
 CORS_ORIGIN_ALLOW_ALL = True
@@ -34,6 +34,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://api.zadarma.com",
+    "https://dev-api-shop.altawest.ru",
 ]
 # Application definition
 
