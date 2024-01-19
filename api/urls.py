@@ -4,11 +4,17 @@ from rest_framework_simplejwt import views as jwt_views
 
 from api import views
 from api.views import (
+    CategoryMetaDataViewSet,
+    CategoryViewSet,
     CharacteristicValueViewSet,
     CharacteristicViewSet,
+    CityGroupViewSet,
+    CityViewSet,
     MyTokenObtainPairView,
+    OrderViewSet,
     PriceViewSet,
     ProductViewSet,
+    ProductsInOrderViewSet,
     ReviewViewSet,
     SettingViewSet,
 )
@@ -23,6 +29,13 @@ router.register(r"characteristics", CharacteristicViewSet)
 router.register(r"characteristics-values", CharacteristicValueViewSet)
 router.register(r"prices", PriceViewSet)
 router.register(r"settings", SettingViewSet)
+router.register(r"cities", CityViewSet)
+router.register(r"cities-groups", CityGroupViewSet)
+router.register(r"categories", CategoryViewSet)
+router.register(r"categories-metadata", CategoryMetaDataViewSet)
+router.register(r"orders", OrderViewSet)
+router.register(r"products-in-order", ProductsInOrderViewSet)
+
 
 urlpatterns = [
     path("", include(router.urls)),  # Including router URLs here
