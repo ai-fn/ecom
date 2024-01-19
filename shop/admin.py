@@ -3,6 +3,7 @@ from mptt.admin import MPTTModelAdmin
 
 from shop.models import (
     Category,
+    CategoryMetaData,
     Characteristic,
     CharacteristicValue,
     Price,
@@ -18,6 +19,22 @@ class CustomMPTTModelAdmin(DraggableMPTTAdmin):
 
 
 admin.site.register(Category, CustomMPTTModelAdmin)
+
+
+class CategoryMetaDataInline(admin.TabularInline):
+    model = CategoryMetaData
+    extra = 1  # Количество пустых форм для новых записей
+
+
+class CustomCategoryAdmin(admin.ModelAdmin):
+    inlines = [CategoryMetaDataInline]
+    list_display = ["name", "slug", "parent"]
+    prepopulated_fields = {"slug": ("name",)}
+
+
+# Заменяем предыдущую регистрацию на новую с встроенным редактором
+admin.site.unregister(Category)
+admin.site.register(Category, CustomCategoryAdmin)
 
 
 @admin.register(Product)
