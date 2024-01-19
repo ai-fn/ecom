@@ -26,7 +26,7 @@ class CategoryMetaDataInline(admin.TabularInline):
     extra = 1  # Количество пустых форм для новых записей
 
 
-class CustomCategoryAdmin(admin.ModelAdmin):
+class CustomCategoryAdmin(CustomMPTTModelAdmin):
     inlines = [CategoryMetaDataInline]
     list_display = ["name", "slug", "parent"]
     prepopulated_fields = {"slug": ("name",)}
