@@ -21,7 +21,6 @@ class CategoryMetaDataInline(admin.TabularInline):
 
 class CustomMPTTModelAdmin(DraggableMPTTAdmin):
     inlines = [CategoryMetaDataInline]
-    list_display = ["name", "slug", "parent"]
     prepopulated_fields = {"slug": ("name",)}
     mptt_level_indent = 30
 
