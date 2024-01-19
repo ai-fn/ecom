@@ -14,28 +14,26 @@ from shop.models import (
 from mptt.admin import DraggableMPTTAdmin
 
 
+class CustomMPTTModelAdmin(DraggableMPTTAdmin):
+    mptt_level_indent = 30
+
+
+admin.site.register(Category, CustomMPTTModelAdmin)
+
+
 class CategoryMetaDataInline(admin.TabularInline):
     model = CategoryMetaData
     extra = 1  # Количество пустых форм для новых записей
 
 
-class CustomCategoryAdmin(DraggableMPTTAdmin):
-    mptt_level_indent = 30
+class CustomCategoryAdmin(admin.ModelAdmin):
     inlines = [CategoryMetaDataInline]
-    list_display = [
-        "tree_actions",
-        "indented_title",
-        "name",
-        "slug",
-        "parent",
-    ]  # Обновленный list_display
+    list_display = ["name", "slug", "parent"]
     prepopulated_fields = {"slug": ("name",)}
 
-    def indented_title(self, item):
-        return item.indented_title
 
-    indented_title.short_description = "Категория"
-
+# Заменяем предыдущую регистрацию на новую с встроенным редактором
+admin.site.unregister(Category)
 admin.site.register(Category, CustomCategoryAdmin)
 
 
