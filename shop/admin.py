@@ -36,9 +36,6 @@ class CustomCategoryAdmin(DraggableMPTTAdmin):
 
     indented_title.short_description = "Категория"
 
-
-# Заменяем предыдущую регистрацию на новую с встроенным редактором
-admin.site.unregister(Category)
 admin.site.register(Category, CustomCategoryAdmin)
 
 
