@@ -34,6 +34,21 @@ from shop.models import (
     Review,
     Setting,
 )
+from rest_framework import permissions
+
+
+class ReadOnlyOrAdminPermission(permissions.BasePermission):
+    """
+    Разрешение, которое позволяет только чтение для всех пользователей, но полный доступ для администраторов.
+    """
+
+    def has_permission(self, request, view):
+        # Проверка, является ли пользователь администратором
+        if request.user and request.user.is_staff:
+            return True
+
+        # Проверка типа запроса: разрешить только запросы на чтение
+        return request.method in permissions.SAFE_METHODS
 
 
 # Create your views here.
@@ -48,7 +63,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     queryset = Product.objects.all().order_by("-created_at")
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -60,7 +75,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     queryset = Review.objects.all().order_by("-created_at")
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class CharacteristicViewSet(viewsets.ModelViewSet):
@@ -72,7 +87,7 @@ class CharacteristicViewSet(viewsets.ModelViewSet):
 
     queryset = Characteristic.objects.all().order_by("-created_at")
     serializer_class = CharacteristicSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class CharacteristicValueViewSet(viewsets.ModelViewSet):
@@ -84,7 +99,7 @@ class CharacteristicValueViewSet(viewsets.ModelViewSet):
 
     queryset = CharacteristicValue.objects.all().order_by("-created_at")
     serializer_class = CharacteristicValueSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class PriceViewSet(viewsets.ModelViewSet):
@@ -96,7 +111,7 @@ class PriceViewSet(viewsets.ModelViewSet):
 
     queryset = Price.objects.all().order_by("-created_at")
     serializer_class = PriceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class SettingViewSet(viewsets.ModelViewSet):
@@ -119,7 +134,7 @@ class CityViewSet(viewsets.ModelViewSet):
 
     queryset = City.objects.all().order_by("-created_at")
     serializer_class = CitySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class CityGroupViewSet(viewsets.ModelViewSet):
@@ -131,13 +146,13 @@ class CityGroupViewSet(viewsets.ModelViewSet):
 
     queryset = CityGroup.objects.all().order_by("-created_at")
     serializer_class = CityGroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
         if self.action in ["retrieve"]:
@@ -148,7 +163,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class CategoryMetaDataViewSet(viewsets.ModelViewSet):
     queryset = CategoryMetaData.objects.all().order_by("-created_at")
     serializer_class = CategoryMetaDataSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class OrderViewSet(viewsets.ModelViewSet):
