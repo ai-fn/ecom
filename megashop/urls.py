@@ -32,12 +32,30 @@ from blog import views
 from blog.sitemaps import ArticleSitemap
 from search import views as search_views
 from shop.sitemaps import ProductSitemap, CategorySitemap
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 
 sitemaps = {
     "articles": ArticleSitemap,
     "products": ProductSitemap,
     "categories": CategorySitemap,
 }
+
+
+@login_required
+def custom_swagger_view(request, *args, **kwargs):
+    return SpectacularSwaggerView.as_view(url_name="schema")(request, *args, **kwargs)
+
+
+@login_required
+def custom_redoc_view(request, *args, **kwargs):
+    return SpectacularRedocView.as_view(url_name="schema")(request, *args, **kwargs)
+
+
+@login_required
+def custom_schema_view(request, *args, **kwargs):
+    return SpectacularAPIView.as_view()(request, *args, **kwargs)
+
 
 urlpatterns = (
     [
@@ -54,18 +72,9 @@ urlpatterns = (
             name="django.contrib.sitemaps.views.sitemap",
         ),
         path("api/", include("api.urls")),
-        path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-        # Optional UI:
-        path(
-            "api/schema/swagger-ui/",
-            SpectacularSwaggerView.as_view(url_name="schema"),
-            name="swagger-ui",
-        ),
-        path(
-            "api/schema/redoc/",
-            SpectacularRedocView.as_view(url_name="schema"),
-            name="redoc",
-        ),
+        path("api/schema/", never_cache(custom_schema_view), name="schema"),
+        path("api/swagger/", never_cache(custom_swagger_view), name="swagger-ui"),
+        path("api/redoc/", never_cache(custom_redoc_view), name="redoc"),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
