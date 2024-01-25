@@ -34,6 +34,7 @@ class Category(MPTTModel, TimeBasedModel):
         null=True,
         blank=True,
     )
+
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
@@ -49,11 +50,13 @@ class Category(MPTTModel, TimeBasedModel):
         return reverse(
             "shop:product_list_by_category", kwargs={"category_slug": self.slug}
         )
+
     def clean(self):
         # Проверяем, является ли категория главной (не имеет родителя)
         if self.parent and self.image:
-            raise ValidationError("Изображение может быть добавлено только к главной категории.")
-
+            raise ValidationError(
+                "Изображение может быть добавлено только к главной категории."
+            )
 
 
 class CategoryMetaData(TimeBasedModel):
@@ -107,7 +110,13 @@ class Product(TimeBasedModel):
         Category,
         on_delete=models.PROTECT,
         related_name="products",
-        verbose_name="Категория",
+        verbose_name="Каноническая категория",
+    )
+    additional_categories = models.ManyToManyField(
+        Category,
+        related_name="additional_products",
+        verbose_name="Дополнительные категории",
+        blank=True,
     )
 
     brand = models.ForeignKey(
