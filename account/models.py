@@ -21,6 +21,19 @@ class City(TimeBasedModel):
     name = models.CharField(max_length=255, verbose_name="Город", null=True)
     domain = models.CharField(max_length=255, verbose_name="Домен", null=True)
     address = models.CharField(max_length=256, verbose_name="Адрес", null=True)
+    number = models.BigIntegerField(
+        verbose_name="Номер телефона",
+        default=0,
+    )
+    how_to_get_office = models.CharField(
+        verbose_name="Как добраться до офиса",
+        null=True,
+        max_length=512,
+    )
+    schedule = models.TextField(
+        verbose_name="График работы",
+        default="Отсутствует",
+    )
 
     class Meta:
         verbose_name = "Город"

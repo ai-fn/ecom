@@ -2,6 +2,7 @@ from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
 
 from shop.models import (
+    Brand,
     Category,
     CategoryMetaData,
     Characteristic,
@@ -24,8 +25,24 @@ class CustomMPTTModelAdmin(DraggableMPTTAdmin):
     prepopulated_fields = {"slug": ("name",)}
     mptt_level_indent = 30
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(CustomMPTTModelAdmin, self).get_form(request, obj, **kwargs)
+        if obj and obj.parent:  # Проверяем, есть ли у категории родитель
+            form.base_fields["image"].disabled = True
+        else:
+            form.base_fields["image"].disabled = False
+        return form
+
 
 admin.site.register(Category, CustomMPTTModelAdmin)
+
+
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+    )
 
 
 @admin.register(Product)
@@ -36,7 +53,10 @@ class ProductAdmin(admin.ModelAdmin):
     )
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ("title",)
-    list_filter = ("category",)
+    list_filter = (
+        "category",
+        "brand",
+    )
 
 
 @admin.register(Review)
