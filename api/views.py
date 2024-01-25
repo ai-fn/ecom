@@ -35,6 +35,8 @@ from shop.models import (
     Setting,
 )
 from rest_framework import permissions
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from rest_framework import filters
 
 
 class ReadOnlyOrAdminPermission(permissions.BasePermission):
@@ -102,16 +104,18 @@ class CharacteristicValueViewSet(viewsets.ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
 
+class PriceFilter(FilterSet):
+    class Meta:
+        model = Price
+        fields = ["city"]
+
+
 class PriceViewSet(viewsets.ModelViewSet):
-    """Возвращает цены
-
-    Args:
-        viewsets (_type_): _description_
-    """
-
     queryset = Price.objects.all().order_by("-created_at")
     serializer_class = PriceSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = PriceFilter
 
 
 class SettingViewSet(viewsets.ModelViewSet):
