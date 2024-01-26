@@ -73,20 +73,6 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = [
-            "id",
-            "category",
-            "title",
-            "description",
-            "image",
-            "slug",
-            "created_at",
-        ]
-
-
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
@@ -111,13 +97,76 @@ class CharacteristicSerializer(serializers.ModelSerializer):
 
 
 class CharacteristicValueSerializer(serializers.ModelSerializer):
+    characteristic_name = serializers.CharField(source="characteristic.name")
+
     class Meta:
         model = CharacteristicValue
+        fields = ["characteristic_name", "value"]
+
+
+# class ProductSerializer(serializers.ModelSerializer):
+#     city_price = serializers.DecimalField(
+#         max_digits=10, decimal_places=2, required=False, read_only=True
+#     )
+#     characteristic_values = CharacteristicValueSerializer(many=True, read_only=True)
+
+#     class Meta:
+#         model = Product
+#         fields = [
+#             "id",
+#             "category",
+#             "title",
+#             "description",
+#             "image",
+#             "slug",
+#             "created_at",
+#             "city_price",
+#             "characteristic_values",
+#         ]
+
+
+class ProductCatalogSerializer(serializers.ModelSerializer):
+    city_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False, read_only=True
+    )
+    old_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False, read_only=True
+    )
+
+    class Meta:
+        model = Product
         fields = [
             "id",
-            "product",
-            "characteristic",
-            "value",
+            "title",
+            "image",
+            "slug",
+            "city_price",
+            "old_price",
+        ]
+
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    city_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False, read_only=True
+    )
+    old_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False, read_only=True
+    )
+    characteristic_values = CharacteristicValueSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "category",
+            "title",
+            "description",
+            "image",
+            "slug",
+            "created_at",
+            "city_price",
+            "old_price",
+            "characteristic_values",
         ]
 
 

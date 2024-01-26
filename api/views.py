@@ -4,6 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from account.models import City, CityGroup
+from django.db import models
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+
 
 from api.serializers import (
     CategoryDetailSerializer,
@@ -16,11 +19,13 @@ from api.serializers import (
     MyTokenObtainPairSerializer,
     OrderSerializer,
     PriceSerializer,
-    ProductSerializer,
+    ProductCatalogSerializer,
+    ProductDetailSerializer,
     ProductsInOrderSerializer,
     ReviewSerializer,
     SettingSerializer,
 )
+from rest_framework.decorators import action
 from rest_framework import permissions, status, viewsets
 from cart.models import Order, ProductsInOrder
 
@@ -60,12 +65,74 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 class ProductViewSet(viewsets.ModelViewSet):
     """
-    Возвращает пользователей МойСклад
+    Возвращает товары с учетом цены в заданном городе.
     """
 
     queryset = Product.objects.all().order_by("-created_at")
-    serializer_class = ProductSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ProductCatalogSerializer
+        elif self.action == "productdetail":
+            return ProductDetailSerializer
+        return (
+            ProductDetailSerializer  # Или какой-либо другой сериализатор по умолчанию
+        )
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="city",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Название города для фильтрации цен",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        city = request.query_params.get("city")
+        if city:
+            self.queryset = self.queryset.annotate(
+                city_price=models.Subquery(
+                    Price.objects.filter(
+                        product=models.OuterRef("pk"), city__name=city
+                    ).values("price")[:1]
+                ),
+                old_price=models.Subquery(
+                    Price.objects.filter(
+                        product=models.OuterRef("pk"), city__name=city
+                    ).values("old_price")[:1]
+                ),
+            )
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="city",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Название города для фильтрации цен",
+            )
+        ]
+    )
+    @action(detail=True, methods=["get"])
+    def productdetail(self, request, pk=None):
+        product = self.get_object()
+        city = request.query_params.get("city")
+        if city:
+            price_data = (
+                Price.objects.filter(product=product, city__name=city)
+                .values("price", "old_price")
+                .first()
+            )
+            if price_data:
+                product.city_price = price_data.get("price")
+                product.old_price = price_data.get("old_price")
+
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

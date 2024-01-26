@@ -2,7 +2,7 @@
 ## CI CD
 https://gist.github.com/s-lyn/81767ed6c67138eaba681d7739a9db61
 # Пошаговый деплой
-1. ```git clone https://github.com/vyual/megashop```
+1. ```git clone https://gitlab.altawest.ru/products/shop-backend```
 2. ```cd megashop/```
 3. ```sudo apt install certbot python3-certbot-nginx```
 4. ```sudo certbot certonly --nginx -d <ВСТАВИТЬ URL> --config-dir ssl/```
@@ -10,9 +10,10 @@ https://gist.github.com/s-lyn/81767ed6c67138eaba681d7739a9db61
 6. ```docker compose exec web python manage.py migrate```
 7. ```docker compose exec web python manage.py createsuperuser```
 # Запуск окружения разработчика
-1. ```git clone https://github.com/vyual/megashop```
+1. ```git clone https://gitlab.altawest.ru/products/shop-backend```
 2. ```cd megashop/```
 3. ```docker compose -f docker-compose-dev.yml up```
+Открываем новый терминал
 4. ```docker compose -f docker-compose-dev.yml exec web python manage.py migrate```
 5. ```docker compose -f docker-compose-dev.yml exec web python manage.py createsuperuser```
 ## Важное

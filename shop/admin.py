@@ -20,8 +20,18 @@ class CategoryMetaDataInline(admin.TabularInline):
     extra = 1  # Количество пустых форм для новых записей
 
 
+class CharacteristicInline(admin.TabularInline):
+    model = Characteristic
+    extra = 1
+
+
+class CharacteristicValueInline(admin.TabularInline):
+    model = CharacteristicValue
+    extra = 1
+
+
 class CustomMPTTModelAdmin(DraggableMPTTAdmin):
-    inlines = [CategoryMetaDataInline]
+    inlines = [CategoryMetaDataInline, CharacteristicInline]
     prepopulated_fields = {"slug": ("name",)}
     mptt_level_indent = 30
 
@@ -57,6 +67,7 @@ class ProductAdmin(admin.ModelAdmin):
         "category",
         "brand",
     )
+    inlines = [CharacteristicValueInline]
 
 
 @admin.register(Review)
