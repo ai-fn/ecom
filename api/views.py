@@ -107,6 +107,12 @@ class ProductViewSet(viewsets.ModelViewSet):
                 location=OpenApiParameter.QUERY,
                 description="Фильтр по бренду",
             ),
+            OpenApiParameter(
+                name="category",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр по категории",
+            ),
         ]
     )
     def list(self, request, *args, **kwargs):
@@ -114,6 +120,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         price_lte = request.query_params.get("price_lte")
         price_gte = request.query_params.get("price_gte")
         brands = request.query_params.get("brand")
+        category = request.query_params.get("category")
 
         if city or price_gte or price_lte or brands:
             filter_conditions = Q()
@@ -138,6 +145,11 @@ class ProductViewSet(viewsets.ModelViewSet):
             if brands:
                 brands_list = brands.split(",")
                 filter_conditions &= Q(brand__name__in=brands_list)
+
+            if category:
+                filter_conditions &= Q(category__slug=category) | Q(
+                    additional_categories__slug=category
+                )
 
             filtered_queryset = self.queryset.filter(filter_conditions)
 
