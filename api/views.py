@@ -113,9 +113,9 @@ class ProductViewSet(viewsets.ModelViewSet):
         city = request.query_params.get("city")
         price_lte = request.query_params.get("price_lte")
         price_gte = request.query_params.get("price_gte")
-        brand = request.query_params.get("brand")
+        brands = request.query_params.get("brand")
 
-        if city or price_gte or price_lte or brand:
+        if city or price_gte or price_lte or brands:
             filter_conditions = Q()
 
             if city:
@@ -135,8 +135,9 @@ class ProductViewSet(viewsets.ModelViewSet):
                     old_price=Subquery(price_filter.values("old_price")[:1]),
                 )
 
-            if brand:
-                filter_conditions &= Q(brand__name=brand)
+            if brands:
+                brands_list = brands.split(",")
+                filter_conditions &= Q(brand__name__in=brands_list)
 
             filtered_queryset = self.queryset.filter(filter_conditions)
 
