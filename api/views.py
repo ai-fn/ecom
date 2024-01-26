@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from account.models import City, CityGroup
 from django.db import models
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from django.db.models import Q, Subquery, OuterRef
 
 
 from api.serializers import (
@@ -114,22 +115,36 @@ class ProductViewSet(viewsets.ModelViewSet):
         price_gte = request.query_params.get("price_gte")
         brand = request.query_params.get("brand")
 
-        if city:
-            price_filter = Price.objects.filter(
-                product=models.OuterRef("pk"), city__name=city
-            )
+        if city or price_gte or price_lte or brand:
+            filter_conditions = Q()
 
-            if price_lte is not None:
-                price_filter = price_filter.filter(price__lte=price_lte)
-            if price_gte is not None:
-                price_filter = price_filter.filter(price__gte=price_gte)
+            if city:
+                price_filter = Price.objects.filter(
+                    product=OuterRef("pk"), city__name=city
+                )
 
-            self.queryset = self.queryset.annotate(
-                city_price=models.Subquery(price_filter.values("price")[:1]),
-                old_price=models.Subquery(price_filter.values("old_price")[:1]),
-            )
-        if brand:
-            self.queryset = self.queryset.filter(brand__name=brand)
+                if price_lte is not None:
+                    price_filter = price_filter.filter(price__lte=price_lte)
+                if price_gte is not None:
+                    price_filter = price_filter.filter(price__gte=price_gte)
+
+                filter_conditions &= Q(id__in=Subquery(price_filter.values("product")))
+
+                self.queryset = self.queryset.annotate(
+                    city_price=Subquery(price_filter.values("price")[:1]),
+                    old_price=Subquery(price_filter.values("old_price")[:1]),
+                )
+
+            if brand:
+                filter_conditions &= Q(brand__name=brand)
+
+            filtered_queryset = self.queryset.filter(filter_conditions)
+
+            if not filtered_queryset.exists():
+                return Response([])
+
+            self.queryset = filtered_queryset
+
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
