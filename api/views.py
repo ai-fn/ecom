@@ -87,24 +87,49 @@ class ProductViewSet(viewsets.ModelViewSet):
                 type=str,
                 location=OpenApiParameter.QUERY,
                 description="Название города для фильтрации цен",
-            )
+            ),
+            OpenApiParameter(
+                name="price_gte",
+                type=float,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр цены: больше или равно",
+            ),
+            OpenApiParameter(
+                name="price_lte",
+                type=float,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр цены: меньше или равно",
+            ),
+            OpenApiParameter(
+                name="brand",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр по бренду",
+            ),
         ]
     )
     def list(self, request, *args, **kwargs):
         city = request.query_params.get("city")
+        price_lte = request.query_params.get("price_lte")
+        price_gte = request.query_params.get("price_gte")
+        brand = request.query_params.get("brand")
+
         if city:
-            self.queryset = self.queryset.annotate(
-                city_price=models.Subquery(
-                    Price.objects.filter(
-                        product=models.OuterRef("pk"), city__name=city
-                    ).values("price")[:1]
-                ),
-                old_price=models.Subquery(
-                    Price.objects.filter(
-                        product=models.OuterRef("pk"), city__name=city
-                    ).values("old_price")[:1]
-                ),
+            price_filter = Price.objects.filter(
+                product=models.OuterRef("pk"), city__name=city
             )
+
+            if price_lte is not None:
+                price_filter = price_filter.filter(price__lte=price_lte)
+            if price_gte is not None:
+                price_filter = price_filter.filter(price__gte=price_gte)
+
+            self.queryset = self.queryset.annotate(
+                city_price=models.Subquery(price_filter.values("price")[:1]),
+                old_price=models.Subquery(price_filter.values("old_price")[:1]),
+            )
+        if brand:
+            self.queryset = self.queryset.filter(brand__name=brand)
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
