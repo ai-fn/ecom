@@ -84,10 +84,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         parameters=[
             OpenApiParameter(
-                name="city",
+                name="city_domain",
                 type=str,
                 location=OpenApiParameter.QUERY,
-                description="Название города для фильтрации цен",
+                description="Домен города для фильтрации цен",
             ),
             OpenApiParameter(
                 name="price_gte",
@@ -116,18 +116,18 @@ class ProductViewSet(viewsets.ModelViewSet):
         ]
     )
     def list(self, request, *args, **kwargs):
-        city = request.query_params.get("city")
+        city_domain = request.query_params.get("city_domain")
         price_lte = request.query_params.get("price_lte")
         price_gte = request.query_params.get("price_gte")
         brands = request.query_params.get("brand")
         category = request.query_params.get("category")
 
-        if city or price_gte or price_lte or brands:
+        if city_domain or price_gte or price_lte or brands:
             filter_conditions = Q()
 
-            if city:
+            if city_domain:
                 price_filter = Price.objects.filter(
-                    product=OuterRef("pk"), city__name=city
+                    product=OuterRef("pk"), city__domain=city_domain
                 )
 
                 if price_lte is not None:
@@ -163,20 +163,20 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         parameters=[
             OpenApiParameter(
-                name="city",
+                name="city_domain",
                 type=str,
                 location=OpenApiParameter.QUERY,
-                description="Название города для фильтрации цен",
+                description="Домен города для получения цены товара",
             )
         ]
     )
     @action(detail=True, methods=["get"])
     def productdetail(self, request, pk=None):
         product = self.get_object()
-        city = request.query_params.get("city")
-        if city:
+        city_domain = request.query_params.get("city_domain")
+        if city_domain:
             price_data = (
-                Price.objects.filter(product=product, city__name=city)
+                Price.objects.filter(product=product, city__domain=city_domain)
                 .values("price", "old_price")
                 .first()
             )
