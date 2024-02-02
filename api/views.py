@@ -7,8 +7,7 @@ from account.models import City, CityGroup
 from django.db import models
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django.db.models import Q, Subquery, OuterRef
-
-
+from rest_framework.views import APIView
 from api.serializers import (
     CategoryDetailSerializer,
     CategoryMetaDataSerializer,
@@ -29,7 +28,6 @@ from api.serializers import (
 from rest_framework.decorators import action
 from rest_framework import permissions, status, viewsets
 from cart.models import Order, ProductsInOrder
-
 from shop.models import (
     Category,
     CategoryMetaData,
@@ -43,6 +41,10 @@ from shop.models import (
 from rest_framework import permissions
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 from rest_framework import filters
+from rest_framework.parsers import FileUploadParser
+import openpyxl  # Для работы с xlsx
+import csv  # Для работы с csv
+from django.db import transaction
 
 
 class ReadOnlyOrAdminPermission(permissions.BasePermission):
@@ -247,7 +249,7 @@ class SettingViewSet(viewsets.ModelViewSet):
 
     queryset = Setting.objects.all().order_by("-created_at")
     serializer_class = SettingSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
 
 class CityViewSet(viewsets.ModelViewSet):
@@ -300,3 +302,73 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
     queryset = ProductsInOrder.objects.all().order_by("-created_at")
     serializer_class = ProductsInOrderSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class XlsxFileUploadView(APIView):
+    parser_classes = [FileUploadParser]
+    permission_classes = [ReadOnlyOrAdminPermission]
+
+    def put(self, request, filename, format=None):
+        file_obj = request.data["file"]
+        upload_type = request.query_params.get(
+            "type"
+        )  # Получение параметра type из строки запроса
+
+        # Проверка на поддерживаемые типы
+        if upload_type not in ["PRODUCTS", "BRANDS"]:
+            return Response(
+                {"error": "Unsupported type parameter."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if filename.endswith(".xlsx"):
+            result = self.handle_xlsx_file(file_obj, upload_type)
+        elif filename.endswith(".csv"):
+            result = self.handle_csv_file(file_obj, upload_type)
+        else:
+            return Response(
+                {"error": "Unsupported file format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if result is False:
+            return Response(
+                {"error": "Error processing file."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def handle_xlsx_file(self, file, upload_type):
+        try:
+            workbook = openpyxl.load_workbook(file)
+            sheet = workbook.active
+            with transaction.atomic():
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    if upload_type == "PRODUCTS":
+                        # Логика обработки для продуктов
+                        pass
+                    elif upload_type == "BRANDS":
+                        # Логика обработки для брендов
+                        pass
+            return True
+        except Exception as e:
+            # Логирование ошибки e
+            return False
+
+    def handle_csv_file(self, file, upload_type):
+        try:
+            reader = csv.reader(file.decode("utf-8").splitlines())
+            next(reader)  # Пропускаем заголовок
+            with transaction.atomic():
+                for row in reader:
+                    if upload_type == "PRODUCTS":
+                        # Логика обработки для продуктов
+                        pass
+                    elif upload_type == "BRANDS":
+                        # Логика обработки для брендов
+                        pass
+            return True
+        except Exception as e:
+            # Логирование ошибки e
+            return False
