@@ -138,6 +138,7 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
+            "brand",
             "image",
             "slug",
             "city_price",
@@ -160,6 +161,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "id",
             "category",
             "title",
+            "brand",
             "description",
             "image",
             "slug",
