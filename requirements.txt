@@ -21,3 +21,6 @@ sqlalchemy~=2.0.23
 whitenoise~=6.6.0
 django-filter~=23.5
 openpyxl~=3.1.2
+pandas~=2.2.0
+python-magic~=0.4.27
+pytils~=0.4.1

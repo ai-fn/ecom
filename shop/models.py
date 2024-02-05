@@ -12,7 +12,7 @@ class Category(MPTTModel, TimeBasedModel):
         verbose_name="Категория",
     )
 
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=256)
 
     parent = TreeForeignKey(
         "self",
@@ -138,7 +138,7 @@ class Product(TimeBasedModel):
         upload_to="catalog/",
         verbose_name="Изображение",
     )
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=256)
 
     class Meta:
         verbose_name = "Товар"
@@ -180,10 +180,11 @@ class Characteristic(TimeBasedModel):
         verbose_name = "Характеристика"
         verbose_name_plural = "Характеристики"
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(
-        Category, related_name="characteristics", on_delete=models.CASCADE
+        Category, related_name="characteristics", on_delete=models.CASCADE, null=True,
     )
+
 
     def __str__(self):
         return self.name

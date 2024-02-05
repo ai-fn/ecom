@@ -101,7 +101,11 @@ class CharacteristicValueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CharacteristicValue
-        fields = ["characteristic_name", "value"]
+        fields = [
+            "id",
+            "characteristic_name",
+            "value",
+        ]
 
 
 # class ProductSerializer(serializers.ModelSerializer):
