@@ -308,6 +308,16 @@ class XlsxFileUploadView(APIView):
     parser_classes = [FileUploadParser]
     permission_classes = [ReadOnlyOrAdminPermission]
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="type",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Тип данных для импорта (PRODUCTS, BRANDS)",
+            ),
+        ]
+    )
     def put(self, request, filename, format=None):
         file_obj = request.data["file"]
         upload_type = request.query_params.get(
