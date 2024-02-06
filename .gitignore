@@ -22,3 +22,4 @@ ssl/keys/
 ssl/options-ssl-nginx.conf
 ssl/renewal/
 ssl/ssl-dhparams.pem
+.env
