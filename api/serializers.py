@@ -21,6 +21,7 @@ from shop.models import (
     CharacteristicValue,
     Price,
     Product,
+    ProductImage,
     Review,
     Setting,
 )
@@ -108,28 +109,15 @@ class CharacteristicValueSerializer(serializers.ModelSerializer):
         ]
 
 
-# class ProductSerializer(serializers.ModelSerializer):
-#     city_price = serializers.DecimalField(
-#         max_digits=10, decimal_places=2, required=False, read_only=True
-#     )
-#     characteristic_values = CharacteristicValueSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = Product
-#         fields = [
-#             "id",
-#             "category",
-#             "title",
-#             "description",
-#             "image",
-#             "slug",
-#             "created_at",
-#             "city_price",
-#             "characteristic_values",
-#         ]
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ["image"]
 
 
 class ProductCatalogSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True, source='images')
+
     city_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, required=False, read_only=True
     )
@@ -147,10 +135,13 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
             "slug",
             "city_price",
             "old_price",
+            "images", 
         ]
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True, source='images')
+
     city_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, required=False, read_only=True
     )
@@ -173,6 +164,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "city_price",
             "old_price",
             "characteristic_values",
+            "images",
         ]
 
 

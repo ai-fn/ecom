@@ -9,6 +9,7 @@ from shop.models import (
     CharacteristicValue,
     Price,
     Product,
+    ProductImage,
     Review,
     Setting,
 )
@@ -68,6 +69,11 @@ class ProductAdmin(admin.ModelAdmin):
         "brand",
     )
     inlines = [CharacteristicValueInline]
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = "product"
 
 
 @admin.register(Review)

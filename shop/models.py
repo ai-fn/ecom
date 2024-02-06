@@ -154,6 +154,26 @@ class Product(TimeBasedModel):
         )
 
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="images",
+        verbose_name="Товар",
+    )
+    image = models.ImageField(
+        upload_to="catalog/products/",
+        verbose_name="Изображение",
+    )
+
+    class Meta:
+        verbose_name = "Изображение товара"
+        verbose_name_plural = "Изображения товаров"
+
+    def __str__(self):
+        return f"Image for {self.product.title}"
+
+
 class Review(TimeBasedModel):
     product = models.ForeignKey(
         Product, related_name="reviews", on_delete=models.PROTECT, verbose_name="Товар"
@@ -182,9 +202,11 @@ class Characteristic(TimeBasedModel):
 
     name = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(
-        Category, related_name="characteristics", on_delete=models.CASCADE, null=True,
+        Category,
+        related_name="characteristics",
+        on_delete=models.CASCADE,
+        null=True,
     )
-
 
     def __str__(self):
         return self.name
