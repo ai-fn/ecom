@@ -177,7 +177,7 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True, source="images")
+    images = ProductImageSerializer(many=True, read_only=True)
 
     city_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, required=False, read_only=True
