@@ -1,4 +1,5 @@
 from tempfile import NamedTemporaryFile
+from django.http import HttpResponse
 import pandas as pd
 from django.shortcuts import render
 from loguru import logger
@@ -50,7 +51,6 @@ import csv  # Для работы с csv
 from django.db import transaction
 import magic  # Библиотека для определения MIME-типа файла
 from pytils.translit import slugify
-
 
 
 class ReadOnlyOrAdminPermission(permissions.BasePermission):
@@ -313,8 +313,9 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
 class XlsxFileUploadView(APIView):
     parser_classes = [FileUploadParser]
     queryset = Product.objects.all()
-    
+    # permission_classes = [permissions.IsAuthenticated]
     permission_classes = []
+
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -356,91 +357,113 @@ class XlsxFileUploadView(APIView):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
     def handle_xlsx_file(self, file_obj, upload_type):
         try:
             # Проверка MIME-типа файла для удостоверения, что это действительно Excel файл
             mime_type = magic.from_buffer(file_obj.read(2048), mime=True)
             file_obj.seek(0)  # Возвращаем указатель в начало файла после чтения
-
+            # Определите список колонок, которые вы хотите игнорировать
+            ignored_columns = [
+                "TITLE",
+                "DESCRIPTION",
+                "IMAGES",
+                "CATEGORIES",
+                "SKU",
+            ]
             # Создание временного файла для хранения содержимого .xlsx файла
             with NamedTemporaryFile(suffix=".xlsx", delete=True) as tmp:
                 tmp.write(file_obj.read())
                 tmp.flush()
                 tmp.seek(0)
 
-                df = pd.read_excel(tmp.name, engine='openpyxl')
+                df = pd.read_excel(tmp.name, engine="openpyxl")
                 try:
+                    # TODO проверка наличия ключей
                     with transaction.atomic():
                         for _, row in df.iterrows():
-                            category_path = row['CATEGORIES'].split(' | ')
+                            category_path = row["CATEGORIES"].split(" | ")
                             category = None
-                            for cat_name in category_path[0:-1]:  # Правильное исключение последнего элемента
-                                if cat_name:  # Дополнительная проверка на непустое имя категории
+                            for cat_name in category_path[
+                                0:-1
+                            ]:  # Правильное исключение последнего элемента
+                                if (
+                                    cat_name
+                                ):  # Дополнительная проверка на непустое имя категории
                                     cat_slug = slugify(cat_name)
                                     if cat_slug:  # Проверяем, что slug не пустой
                                         parent_category = category
-                                        category, created = Category.objects.get_or_create(
-                                            name=cat_name,
-                                            defaults={'slug': cat_slug, 'parent': parent_category}
+                                        category, created = (
+                                            Category.objects.get_or_create(
+                                                name=cat_name,
+                                                defaults={
+                                                    "slug": cat_slug,
+                                                    "parent": parent_category,
+                                                },
+                                            )
                                         )
                                         # Обновляем parent только если категория была только что создана или если parent отличается
-                                        if created or (category.parent != parent_category and parent_category is not None):
+                                        if created or (
+                                            category.parent != parent_category
+                                            and parent_category is not None
+                                        ):
                                             category.parent = parent_category
                                             category.save()
                                     else:
-                                        logger.error(f"Unable to create slug for category name '{cat_name}'. Skipping category creation.")
+                                        logger.error(
+                                            f"Unable to create slug for category name '{cat_name}'. Skipping category creation."
+                                        )
                                 else:
-                                    logger.error("Empty category name encountered. Skipping category creation.")
+                                    logger.error(
+                                        "Empty category name encountered. Skipping category creation."
+                                    )
 
-                            product_title = row['TITLE']
+                            product_title = row["TITLE"]
                             product_slug = slugify(product_title)
+                            # TODO добавить DESCRIPTION потом
                             if product_slug:  # Проверяем, что slug продукта не пустой
                                 product, created = Product.objects.get_or_create(
                                     title=product_title,
                                     defaults={
-                                        'description': "row['DESCRIPTION']",
-                                        'category': category,
-                                        'slug': product_slug,
-                                    }
+                                        "description": "row['DESCRIPTION']",
+                                        "category": category,
+                                        "slug": product_slug,
+                                    },
                                 )
+                                 # Обработка характеристик и их значений
+                                for column_name in df.columns:
+                                    if column_name not in ignored_columns:
+                                        characteristic_value = row[column_name]
+                                        if pd.notna(characteristic_value):  # Проверка наличия значения
+                                            # Проверка существования характеристики и создание, если не существует
+                                            characteristic, _ = Characteristic.objects.get_or_create(
+                                                name=column_name,
+                                                defaults={'category': category}
+                                            )
+                                            # Создание значения характеристики для продукта
+                                            CharacteristicValue.objects.create(
+                                                product=product,
+                                                characteristic=characteristic,
+                                                value=str(characteristic_value)
+                                            )
                             else:
-                                logger.error(f"Unable to create slug for product title '{product_title}'. Skipping product creation.")
+                                logger.error(
+                                    f"Unable to create slug for product title '{product_title}'. Skipping product creation."
+                                )
                 except Exception as err:
                     logger.error(err)
-                
-                # Определите список колонок, которые вы хотите игнорировать
-                ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU"]
 
-                # Получите список колонок, которые не игнорируются
-                columns_to_save = [col for col in df.columns if col not in ignored_columns]
 
-                # Оставьте только нужные колонки в DataFrame
-                df = df[columns_to_save]
-                # Создание и сохранение характеристик в базе данных
-                try:
-                    characteristics_to_create = []
-                    for index, row in df.iterrows():
-                        for column_name in columns_to_save:
-                            characteristic = Characteristic(name=column_name, category=None)
-                            characteristics_to_create.append(characteristic)
-                    # Вне цикла, создаем все объекты одним вызовом
-                    Characteristic.objects.bulk_create(characteristics_to_create)
-                except Exception as err:
-                    logger.error(err)
-                    pass
-                
         except Exception as e:
             # logger.error("Error processing Excel file: " + str(e))
             return False
-        
+
     def handle_csv_file(self, file, upload_type):
         try:
             # Чтение файла CSV в DataFrame
             df = pd.read_csv(file)
             # Логгирование структуры DataFrame
             logger.debug(df.head())
-            
+
             with transaction.atomic():
                 if upload_type == "PRODUCTS":
                     # Обработка данных о продуктах
@@ -457,3 +480,43 @@ class XlsxFileUploadView(APIView):
             logger.error(e)
             # Логирование ошибки
             return False
+
+
+class DataExportView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        data_type = request.query_params.get("type", "PRODUCTS")
+        if data_type not in ["PRODUCTS", "BRANDS"]:
+            return Response(
+                {"error": "Unsupported type parameter."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Логика для выбора данных и формата файла (CSV или Excel) на основе параметров запроса
+        # Например, экспорт данных о продуктах в CSV
+        if data_type == "PRODUCTS":
+            products = Product.objects.all()
+            serializer = ProductCatalogSerializer(products, many=True)
+            response = HttpResponse(content_type="text/csv")
+            response["Content-Disposition"] = 'attachment; filename="products.csv"'
+            writer = csv.writer(response)
+            # ЗаголовкиDataExportView
+            writer.writerow(["ID", "Title", "Brand", "Category", "Description"])
+            # Данные
+            for product in serializer.data:
+                writer.writerow(
+                    [
+                        product["id"],
+                        product["title"],
+                        product.get("brand", ""),
+                        product.get("category", ""),
+                        product["description"],
+                    ]
+                )
+            return response
+        # Добавьте логику для других типов данных и форматов файлов по аналогии
+
+        return Response(
+            {"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST
+        )

@@ -10,6 +10,7 @@ from api.views import (
     CharacteristicViewSet,
     CityGroupViewSet,
     CityViewSet,
+    DataExportView,
     MyTokenObtainPairView,
     OrderViewSet,
     PriceViewSet,
@@ -44,5 +45,6 @@ urlpatterns = [
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
-    re_path(r'^upload/(?P<filename>[^/]+)$', XlsxFileUploadView.as_view())
+    re_path(r'^upload/(?P<filename>[^/]+)$', XlsxFileUploadView.as_view()),
+    re_path(r"^export", DataExportView.as_view())
 ]

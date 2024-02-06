@@ -73,7 +73,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
-    list_display = "product"
+    list_display = [
+        "product",
+    ]
 
 
 @admin.register(Review)

@@ -70,6 +70,43 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
+class CategoryMetaDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CategoryMetaData
+        fields = ["title", "description"]
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+    category_meta = CategoryMetaDataSerializer(many=True, read_only=True)
+    image_url = (
+        serializers.SerializerMethodField()
+    )  # Добавляем поле для URL изображения
+
+    class Meta:
+        model = Category
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "parent",
+            "children",
+            "category_meta",
+            "icon",
+            "image_url",
+        ]
+
+    def get_children(self, obj):
+        if obj.is_leaf_node():
+            return None
+        return CategorySerializer(obj.get_children(), many=True).data
+
+    def get_image_url(self, obj):
+        if obj.image:  # Проверяем, есть ли у категории изображение
+            return obj.image.url  # Возвращаем URL изображения
+        return None  # Если изображения нет, возвращаем None
+
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
@@ -116,7 +153,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductCatalogSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True, source='images')
+    images = ProductImageSerializer(many=True, read_only=True, source="images")
 
     city_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, required=False, read_only=True
@@ -135,12 +172,12 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
             "slug",
             "city_price",
             "old_price",
-            "images", 
+            "images",
         ]
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True, source='images')
+    images = ProductImageSerializer(many=True, read_only=True, source="images")
 
     city_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, required=False, read_only=True
@@ -149,6 +186,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         max_digits=10, decimal_places=2, required=False, read_only=True
     )
     characteristic_values = CharacteristicValueSerializer(many=True, read_only=True)
+    category = CategorySerializer()
 
     class Meta:
         model = Product
@@ -232,43 +270,6 @@ class CityGroupSerializer(serializers.ModelSerializer):
             "main_city",
             "cities",
         ]
-
-
-class CategoryMetaDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CategoryMetaData
-        fields = ["title", "description"]
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField()
-    category_meta = CategoryMetaDataSerializer(many=True, read_only=True)
-    image_url = (
-        serializers.SerializerMethodField()
-    )  # Добавляем поле для URL изображения
-
-    class Meta:
-        model = Category
-        fields = [
-            "id",
-            "name",
-            "slug",
-            "parent",
-            "children",
-            "category_meta",
-            "icon",
-            "image_url",
-        ]
-
-    def get_children(self, obj):
-        if obj.is_leaf_node():
-            return None
-        return CategorySerializer(obj.get_children(), many=True).data
-
-    def get_image_url(self, obj):
-        if obj.image:  # Проверяем, есть ли у категории изображение
-            return obj.image.url  # Возвращаем URL изображения
-        return None  # Если изображения нет, возвращаем None
 
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
