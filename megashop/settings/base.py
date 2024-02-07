@@ -109,7 +109,7 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django_prometheus.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "default_db_name"),
         "USER": os.environ.get("POSTGRES_USER", "default_user"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
