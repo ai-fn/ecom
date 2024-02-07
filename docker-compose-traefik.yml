@@ -71,8 +71,19 @@ services:
     depends_on:
       - db
       - cache
-
     
+  prometheus:
+    image: prom/prometheus:v2.30.0
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - web
+      - db
+      - cache
+      - nginx
+      
 networks:
   traefik:
     external: true
