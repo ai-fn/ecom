@@ -386,11 +386,9 @@ class XlsxFileUploadView(APIView):
                             for cat_name in category_path[
                                 0:-1
                             ]:  # Правильное исключение последнего элемента
-                                if (
-                                    cat_name
-                                ):  # Дополнительная проверка на непустое имя категории
+                                if cat_name:  # Дополнительная проверка на непустое имя категории
                                     cat_slug = slugify(cat_name)
-                                    if cat_slug:  # Проверяем, что slug не пустой
+                                    if cat_slug:
                                         parent_category = category
                                         category, created = (
                                             Category.objects.get_or_create(

@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s # By default, scrape targets every 15 seconds.
+
+scrape_configs:
+  - job_name: 'django'
+    static_configs:
+      - targets: ['web:8000'] # Адрес сервиса Django, предполагается что метрики доступны по стандартному маршруту /metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:80']
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['db:5432']
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['cache:6379']
