@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -62,13 +61,11 @@ INSTALLED_APPS = [
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
     "api",
-    "django_prometheus",
 ]
 
 AUTH_USER_MODEL = "account.CustomUser"
 
 MIDDLEWARE = [
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -80,7 +77,6 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",  # Дебаг тулбар
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Статичесикие файлы
     "shop.middlewares.SubdomainMiddleware",  # middleware на получение 3 субдомена
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = "megashop.urls"
