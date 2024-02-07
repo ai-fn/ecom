@@ -82,8 +82,7 @@ services:
       - web
       - db
       - cache
-      - nginx
-      
+
 networks:
   traefik:
     external: true
