@@ -76,7 +76,7 @@ urlpatterns = (
         path("api/schema/", never_cache(custom_schema_view), name="schema"),
         path("api/swagger/", never_cache(custom_swagger_view), name="swagger-ui"),
         path("api/redoc/", never_cache(custom_redoc_view), name="redoc"),
-        # path("", include("django_prometheus.urls")),
+        path("", include("django_prometheus.urls")),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
