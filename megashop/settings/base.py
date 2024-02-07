@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -61,11 +62,13 @@ INSTALLED_APPS = [
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
     "api",
+    "django_prometheus",
 ]
 
 AUTH_USER_MODEL = "account.CustomUser"
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -77,6 +80,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",  # Дебаг тулбар
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Статичесикие файлы
     "shop.middlewares.SubdomainMiddleware",  # middleware на получение 3 субдомена
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = "megashop.urls"
@@ -105,7 +109,7 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django_prometheus.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "default_db_name"),
         "USER": os.environ.get("POSTGRES_USER", "default_user"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
