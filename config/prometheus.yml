@@ -10,7 +10,6 @@ rule_files:
 
 scrape_configs:
   - job_name: 'django'
-    metrics_path: '/metrics' # Указывается, если отличается от стандартного
     static_configs:
       - targets: ['web:8000'] # Адрес сервиса Django, предполагается что метрики доступны по стандартному маршруту /metrics
   - job_name: 'nginx'
