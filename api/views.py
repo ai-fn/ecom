@@ -316,8 +316,8 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
 class XlsxFileUploadView(APIView):
     parser_classes = [FileUploadParser]
     queryset = Product.objects.all()
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = []
 
     @extend_schema(
         parameters=[
