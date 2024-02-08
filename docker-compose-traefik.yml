@@ -82,7 +82,10 @@ services:
       - web
       - db
       - cache
-
+    networks:
+      - traefik
+      - internal
+      
 networks:
   traefik:
     external: true
