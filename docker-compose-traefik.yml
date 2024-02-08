@@ -49,7 +49,7 @@ services:
 
   celery:
     build: .
-    command: celery -A celery_config worker --loglevel=info --pool=solo
+    command: celery -A megashop worker --loglevel=info --pool=solo
     restart: always
     volumes:
       - .:/code
@@ -61,7 +61,7 @@ services:
 
   celerybeat:
     build: .
-    command: celery -A celery_config beat --loglevel=debug
+    command: celery -A megashop beat --loglevel=debug
     restart: always
     volumes:
       - .:/code

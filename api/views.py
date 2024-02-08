@@ -51,6 +51,9 @@ import csv  # Для работы с csv
 from django.db import transaction
 import magic  # Библиотека для определения MIME-типа файла
 from pytils.translit import slugify
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from api.tasks import handle_xlsx_file_task, handle_csv_file_task
 
 
 class ReadOnlyOrAdminPermission(permissions.BasePermission):
@@ -328,9 +331,12 @@ class XlsxFileUploadView(APIView):
     )
     def put(self, request, filename, format=None):
         file_obj = request.data["file"]
-        upload_type = request.query_params.get(
-            "type"
-        )  # Получение параметра type из строки запроса
+        upload_type = request.query_params.get("type")
+
+        file_name = default_storage.save(
+            "tmp/" + filename, ContentFile(file_obj.read())
+        )
+        file_path = default_storage.path(file_name)
 
         # Проверка на поддерживаемые типы
         if upload_type not in ["PRODUCTS", "BRANDS"]:
@@ -340,9 +346,9 @@ class XlsxFileUploadView(APIView):
             )
 
         if filename.endswith(".xlsx"):
-            result = self.handle_xlsx_file(file_obj.file, upload_type)
+            result = handle_xlsx_file_task.delay(file_path, upload_type)
         elif filename.endswith(".csv"):
-            result = self.handle_csv_file(file_obj.file, upload_type)
+            result = handle_csv_file_task.delay(file_path, upload_type)
         else:
             return Response(
                 {"error": "Unsupported file format."},
@@ -356,128 +362,6 @@ class XlsxFileUploadView(APIView):
             )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def handle_xlsx_file(self, file_obj, upload_type):
-        try:
-            # Проверка MIME-типа файла для удостоверения, что это действительно Excel файл
-            mime_type = magic.from_buffer(file_obj.read(2048), mime=True)
-            file_obj.seek(0)  # Возвращаем указатель в начало файла после чтения
-            # Определите список колонок, которые вы хотите игнорировать
-            ignored_columns = [
-                "TITLE",
-                "DESCRIPTION",
-                "IMAGES",
-                "CATEGORIES",
-                "SKU",
-            ]
-            # Создание временного файла для хранения содержимого .xlsx файла
-            with NamedTemporaryFile(suffix=".xlsx", delete=True) as tmp:
-                tmp.write(file_obj.read())
-                tmp.flush()
-                tmp.seek(0)
-
-                df = pd.read_excel(tmp.name, engine="openpyxl")
-                try:
-                    # TODO проверка наличия ключей
-                    with transaction.atomic():
-                        for _, row in df.iterrows():
-                            category_path = row["CATEGORIES"].split(" | ")
-                            category = None
-                            for cat_name in category_path[
-                                0:-1
-                            ]:  # Правильное исключение последнего элемента
-                                if cat_name:  # Дополнительная проверка на непустое имя категории
-                                    cat_slug = slugify(cat_name)
-                                    if cat_slug:
-                                        parent_category = category
-                                        category, created = (
-                                            Category.objects.get_or_create(
-                                                name=cat_name,
-                                                defaults={
-                                                    "slug": cat_slug,
-                                                    "parent": parent_category,
-                                                },
-                                            )
-                                        )
-                                        # Обновляем parent только если категория была только что создана или если parent отличается
-                                        if created or (
-                                            category.parent != parent_category
-                                            and parent_category is not None
-                                        ):
-                                            category.parent = parent_category
-                                            category.save()
-                                    else:
-                                        logger.error(
-                                            f"Unable to create slug for category name '{cat_name}'. Skipping category creation."
-                                        )
-                                else:
-                                    logger.error(
-                                        "Empty category name encountered. Skipping category creation."
-                                    )
-
-                            product_title = row["TITLE"]
-                            product_slug = slugify(product_title)
-                            # TODO добавить DESCRIPTION потом
-                            if product_slug:  # Проверяем, что slug продукта не пустой
-                                product, created = Product.objects.get_or_create(
-                                    title=product_title,
-                                    defaults={
-                                        "description": "row['DESCRIPTION']",
-                                        "category": category,
-                                        "slug": product_slug,
-                                    },
-                                )
-                                 # Обработка характеристик и их значений
-                                for column_name in df.columns:
-                                    if column_name not in ignored_columns:
-                                        characteristic_value = row[column_name]
-                                        if pd.notna(characteristic_value):  # Проверка наличия значения
-                                            # Проверка существования характеристики и создание, если не существует
-                                            characteristic, _ = Characteristic.objects.get_or_create(
-                                                name=column_name,
-                                                defaults={'category': category}
-                                            )
-                                            # Создание значения характеристики для продукта
-                                            CharacteristicValue.objects.create(
-                                                product=product,
-                                                characteristic=characteristic,
-                                                value=str(characteristic_value)
-                                            )
-                            else:
-                                logger.error(
-                                    f"Unable to create slug for product title '{product_title}'. Skipping product creation."
-                                )
-                except Exception as err:
-                    logger.error(err)
-
-
-        except Exception as e:
-            # logger.error("Error processing Excel file: " + str(e))
-            return False
-
-    def handle_csv_file(self, file, upload_type):
-        try:
-            # Чтение файла CSV в DataFrame
-            df = pd.read_csv(file)
-            # Логгирование структуры DataFrame
-            logger.debug(df.head())
-
-            with transaction.atomic():
-                if upload_type == "PRODUCTS":
-                    # Обработка данных о продуктах
-                    for index, row in df.iterrows():
-                        # Здесь ваша логика обработки для каждой строки данных о продуктах
-                        pass
-                elif upload_type == "BRANDS":
-                    # Обработка данных о брендах
-                    for index, row in df.iterrows():
-                        # Здесь ваша логика обработки для каждой строки данных о брендах
-                        pass
-            return True
-        except Exception as e:
-            logger.error(e)
-            # Логирование ошибки
-            return False
 
 
 class DataExportView(APIView):

@@ -2,7 +2,7 @@ import os
 
 from celery import Celery, shared_task
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'megashop.settings.prod')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'megashop.settings.local')
 
 app = Celery('megashop')
 
@@ -16,5 +16,6 @@ app.autodiscover_tasks()
 @shared_task
 def add(x, y):
     return x + y
+
 
 

@@ -25,3 +25,4 @@ pandas~=2.2.0
 python-magic~=0.4.27
 pytils~=0.4.1
 django-prometheus
+unidecode
