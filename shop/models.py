@@ -34,6 +34,10 @@ class Category(MPTTModel, TimeBasedModel):
         null=True,
         blank=True,
     )
+    is_visible = models.BooleanField(
+        verbose_name="Видна ли категория (ВЕЗДЕ)",
+        default=True,
+    )
 
     class Meta:
         verbose_name = "Категория"

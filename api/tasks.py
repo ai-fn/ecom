@@ -10,8 +10,10 @@ from django.utils.text import slugify as django_slugify
 from shop.models import Category, Characteristic, CharacteristicValue, Product
 from unidecode import unidecode
 
+
 def custom_slugify(value):
     return django_slugify(unidecode(value))
+
 
 @shared_task
 def handle_xlsx_file_task(file_path, upload_type):

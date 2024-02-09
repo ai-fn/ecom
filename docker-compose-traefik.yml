@@ -18,6 +18,7 @@ services:
       - ./data/cache:/data
     networks:
       - internal
+
   web:
     build: .
     command: [ "./wait-for-it.sh", "db:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=0.0.0.0:8000", "megashop.wsgi:application" ]
@@ -76,8 +77,6 @@ services:
       - cache
     networks:
       - internal
-
-      
     
   prometheus:
     image: prom/prometheus:v2.30.0
