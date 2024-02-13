@@ -6,6 +6,7 @@ from .user import UserSerializer
 from .review import ReviewSerializer
 from .city import CitySerializer
 from .city_group import CityGroupSerializer
+from .promo import PromoSerializer
 from .order import OrderSerializer
 from .characteristic import CharacteristicSerializer
 from .characteristic_value import CharacteristicValueSerializer

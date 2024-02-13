@@ -379,7 +379,7 @@ class DataExportView(APIView):
         # Например, экспорт данных о продуктах в CSV
         if data_type == "PRODUCTS":
             products = Product.objects.all()
-            serializer = ProductCatalogSerializer(products, many=True)
+            serializer = ProductDetailSerializer(products, many=True)
             response = HttpResponse(content_type="text/csv")
             response["Content-Disposition"] = 'attachment; filename="products.csv"'
             writer = csv.writer(response)

@@ -178,6 +178,40 @@ class ProductImage(models.Model):
         return f"Image for {self.product.title}"
 
 
+class Promo(TimeBasedModel):
+    class Meta:
+        verbose_name = "Акция"
+        verbose_name_plural = "Акции"
+
+    name = models.CharField(
+        verbose_name="Название акции",
+        max_length=64,
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    image = models.ImageField(
+        upload_to="promo/",
+        verbose_name="Изображение",
+    )
+    cities = models.ManyToManyField(
+        City,
+        related_name="promos",
+        null=False,
+    )
+    acitve_to = models.DateField(verbose_name="До какого времени акция активна?")
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Review(TimeBasedModel):
     product = models.ForeignKey(
         Product, related_name="reviews", on_delete=models.PROTECT, verbose_name="Товар"

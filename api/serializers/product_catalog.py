@@ -3,6 +3,7 @@ from rest_framework import serializers
 from api.serializers import ProductImageSerializer
 from shop.models import Product
 
+
 class ProductCatalogSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(
         many=True,

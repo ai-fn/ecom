@@ -26,6 +26,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "category_meta_id",
             "icon",
             "image_url",
+            "is_visible",
         ]
 
     def get_children(self, obj):
