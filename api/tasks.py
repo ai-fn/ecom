@@ -1,4 +1,7 @@
+import csv
+import os
 from celery import shared_task
+from django.conf import settings
 from django.db import transaction
 from loguru import logger
 import pandas as pd
@@ -6,9 +9,11 @@ import magic
 from tempfile import NamedTemporaryFile
 from pytils import translit
 from django.utils.text import slugify as django_slugify
+from api.serializers.product_detail import ProductDetailSerializer
 
 from shop.models import Category, Characteristic, CharacteristicValue, Product
 from unidecode import unidecode
+from django.core.mail import EmailMessage
 
 
 def custom_slugify(value):
@@ -133,3 +138,26 @@ def process_dataframe(df, upload_type):
     except Exception as err:
         # Логирование ошибки
         print(f"Error processing data: {err}")
+
+
+@shared_task
+def export_products_to_csv(email_to):
+    # Экспорт данных в CSV
+    products = Product.objects.all()
+    serializer = ProductDetailSerializer(products, many=True)
+    file_path = os.path.join(settings.MEDIA_ROOT, "products.csv")
+    with open(file_path, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["ID", "Title", "Brand", "Category", "Description"])
+        for product in serializer.data:
+            writer.writerow(
+                [
+                    product["id"],
+                    product["title"],
+                    product.get("brand", ""),
+                    product.get("category", ""),
+                    product["description"],
+                ]
+            )
+
+    return file_path

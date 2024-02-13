@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import pandas as pd
 from django.shortcuts import render
 from loguru import logger
@@ -54,7 +54,11 @@ import magic  # Библиотека для определения MIME-типа
 from pytils.translit import slugify
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from api.tasks import handle_xlsx_file_task, handle_csv_file_task
+from api.tasks import (
+    export_products_to_csv,
+    handle_xlsx_file_task,
+    handle_csv_file_task,
+)
 
 
 class ReadOnlyOrAdminPermission(permissions.BasePermission):
@@ -259,7 +263,7 @@ class SettingViewSet(viewsets.ModelViewSet):
 
     queryset = Setting.objects.all().order_by("-created_at")
     serializer_class = SettingSerializer
-    permission_classes = [ReadOnlyOrAdminPermission]
+    permission_classes = [permissions.IsAdminUser]
 
 
 class CityViewSet(viewsets.ModelViewSet):
@@ -317,7 +321,7 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
 class XlsxFileUploadView(APIView):
     parser_classes = [FileUploadParser]
     queryset = Product.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     # permission_classes = []
 
     @extend_schema(
@@ -366,7 +370,8 @@ class XlsxFileUploadView(APIView):
 
 
 class DataExportView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
+    # permission_classes = []
 
     def get(self, request, format=None):
         data_type = request.query_params.get("type", "PRODUCTS")
@@ -376,29 +381,24 @@ class DataExportView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Логика для выбора данных и формата файла (CSV или Excel) на основе параметров запроса
-        # Например, экспорт данных о продуктах в CSV
         if data_type == "PRODUCTS":
-            products = Product.objects.all()
-            serializer = ProductDetailSerializer(products, many=True)
-            response = HttpResponse(content_type="text/csv")
-            response["Content-Disposition"] = 'attachment; filename="products.csv"'
-            writer = csv.writer(response)
-            # ЗаголовкиDataExportView
-            writer.writerow(["ID", "Title", "Brand", "Category", "Description"])
-            # Данные
-            for product in serializer.data:
-                writer.writerow(
-                    [
-                        product["id"],
-                        product["title"],
-                        product.get("brand", ""),
-                        product.get("category", ""),
-                        product["description"],
-                    ]
+            # Убедитесь, что пользователь аутентифицирован
+            if not request.user.is_authenticated:
+                return Response(
+                    {"error": "Authentication is required to export products."},
+                    status=status.HTTP_401_UNAUTHORIZED,
                 )
-            return response
-        # Добавьте логику для других типов данных и форматов файлов по аналогии
+
+            # Получаем адрес электронной почты пользователя
+            user_email = request.user.email
+
+            # Инициируем задачу экспорта в фоне с передачей адреса электронной почты
+            task = export_products_to_csv.delay(user_email)
+            return JsonResponse(
+                {
+                    "message": "Export started. You will receive the products file by email."
+                }
+            )
 
         return Response(
             {"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST
