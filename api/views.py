@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from account.models import City, CityGroup
-from django.db import models
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django.db.models import Q, Subquery, OuterRef
 from rest_framework.views import APIView
@@ -31,6 +30,7 @@ from api.serializers import (
 )
 from rest_framework.decorators import action
 from rest_framework import permissions, status, viewsets
+from api.serializers.brand import BrandSerializer
 from cart.models import Order, ProductsInOrder
 from shop.models import (
     Category,
@@ -41,6 +41,7 @@ from shop.models import (
     Product,
     Review,
     Setting,
+    Brand,
 )
 from rest_framework import permissions
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
@@ -402,3 +403,9 @@ class DataExportView(APIView):
         return Response(
             {"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class BrandView(viewsets.ModelViewSet):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    permission_classes = [ReadOnlyOrAdminPermission]

@@ -1,7 +1,13 @@
 from rest_framework import serializers
 
-from api.serializers import CategorySerializer, CharacteristicValueSerializer, ProductImageSerializer
-from shop.models import Category, Product
+from api.serializers import (
+    CategorySerializer,
+    CharacteristicValueSerializer,
+    ProductImageSerializer,
+)
+from api.serializers import BrandSerializer
+from shop.models import Brand, Category, Product
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
@@ -16,6 +22,12 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), write_only=True, source="category"
     )
+    brand = BrandSerializer(read_only=True)
+    brand_id = serializers.PrimaryKeyRelatedField(
+        queryset=Brand.objects.all(),
+        write_only=True,
+        source="brand",
+    )
 
     class Meta:
         model = Product
@@ -25,6 +37,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "category_id",
             "title",
             "brand",
+            "brand_id",
             "description",
             "image",
             "slug",

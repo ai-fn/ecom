@@ -12,6 +12,7 @@ from .characteristic import CharacteristicSerializer
 from .characteristic_value import CharacteristicValueSerializer
 from .category import CategorySerializer
 from .product_image import ProductImageSerializer
+from .brand import BrandSerializer
 from .product_catalog import ProductCatalogSerializer
 from .product_detail import ProductDetailSerializer
 from .setting import SettingSerializer
