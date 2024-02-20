@@ -13,4 +13,3 @@ class ReadOnlyOrAdminPermission(permissions.BasePermission):
 
         # Проверка типа запроса: разрешить только запросы на чтение
         return request.method in permissions.SAFE_METHODS
-

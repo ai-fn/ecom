@@ -21,7 +21,7 @@ services:
 
   web:
     build: .
-    command: [ "./wait-for-it.sh", "db:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=0.0.0.0:8000", "megashop.wsgi:application" ]
+    command: [ "./wait-for-it.sh", "db:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=0.0.0.0:8000", "megashop.wsgi:application"]
     restart: always
     volumes:
       - .:/code
@@ -33,7 +33,6 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
-
       - "traefik.docker.network=traefik"
       - "traefik.http.services.megashop.loadbalancer.server.port=8000"
       - "traefik.http.routers.megashop.rule=Host(`dev-api-shop.altawest.ru`)"

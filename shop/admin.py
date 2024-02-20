@@ -10,6 +10,7 @@ from shop.models import (
     Price,
     Product,
     ProductImage,
+    Promo,
     Review,
     Setting,
 )
@@ -139,3 +140,18 @@ class SettingAdmin(admin.ModelAdmin):
             form.base_fields["predefined_key"].disabled = False
             form.base_fields["custom_key"].disabled = False
         return form
+
+
+@admin.register(Promo)
+class PromoAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "category",
+        "product",
+        "image",
+    )
+    list_filter = (
+        "category",
+        "cities",
+    )

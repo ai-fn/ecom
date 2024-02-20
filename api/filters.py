@@ -1,4 +1,4 @@
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from django_filters.rest_framework import FilterSet
 
 from shop.models import Price
 
