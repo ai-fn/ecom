@@ -34,10 +34,9 @@ def handle_xlsx_file_task(file_path, upload_type):
                 tmp.flush()
                 tmp.seek(0)
                 df = pd.read_excel(tmp.name, engine="openpyxl")
-                # Вызовите функцию обработки DataFrame
+                # Вызов функции обработки DataFrame
                 process_dataframe(df, upload_type)
     except Exception as e:
-        # Здесь код для логирования ошибок
         print(f"Error processing Excel file: {e}")
         return False
 
@@ -47,7 +46,7 @@ def handle_csv_file_task(file_path, upload_type):
     try:
         with open(file_path, "r", encoding="utf-8") as file_obj:
             df = pd.read_csv(file_obj)
-            # Вызовите функцию обработки DataFrame
+            # Вызов функцию обработки DataFrame
             process_dataframe(df, upload_type)
     except Exception as e:
         # Здесь код для логирования ошибок

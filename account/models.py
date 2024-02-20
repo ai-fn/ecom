@@ -66,3 +66,7 @@ class CustomUser(AbstractUser):
     city = models.ForeignKey(
         City, on_delete=models.SET_NULL, null=True, related_name="customers"
     )
+    is_customer = models.BooleanField(
+        verbose_name="Покупатель ли юзер?",
+        default=False,
+    )

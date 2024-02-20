@@ -21,6 +21,10 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
         required=False,
         read_only=True,
     )
+    category_slug = serializers.SerializerMethodField()
+
+    def get_category_slug(self, obj):
+        return obj.category.slug
 
     class Meta:
         model = Product
@@ -33,4 +37,5 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
             "city_price",
             "old_price",
             "images",
+            "category_slug",
         ]

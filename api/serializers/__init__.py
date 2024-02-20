@@ -3,6 +3,7 @@ from ._jwt import TokenObtainPairSerializer
 from .category_meta_data import CategoryMetaDataSerializer
 from .user import UserCreateSerializer
 from .user import UserSerializer
+from .user import UserRegistrationSerializer
 from .review import ReviewSerializer
 from .city import CitySerializer
 from .city_group import CityGroupSerializer

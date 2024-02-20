@@ -30,7 +30,7 @@ from api.serializers import (
 )
 from rest_framework.decorators import action
 from rest_framework import permissions, status, viewsets
-from api.serializers.brand import BrandSerializer
+from api.serializers import BrandSerializer, UserRegistrationSerializer
 from cart.models import Order, ProductsInOrder
 from shop.models import (
     Category,
@@ -73,6 +73,20 @@ class ReadOnlyOrAdminPermission(permissions.BasePermission):
 
         # Проверка типа запроса: разрешить только запросы на чтение
         return request.method in permissions.SAFE_METHODS
+
+
+class UserRegistrationView(APIView):
+    permission_classes = []  # Разрешить доступ неавторизованным пользователям
+
+    def post(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                {"message": "User registered successfully"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Create your views here.
@@ -127,7 +141,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 name="category",
                 type=str,
                 location=OpenApiParameter.QUERY,
-                description="Фильтр по категории",
+                description="Фильтр по категории (slug)",
             ),
         ]
     )
@@ -370,8 +384,8 @@ class XlsxFileUploadView(APIView):
 
 
 class DataExportView(APIView):
-    permission_classes = [permissions.IsAdminUser]
-    # permission_classes = []
+    # permission_classes = [permissions.IsAdminUser]
+    permission_classes = []
 
     def get(self, request, format=None):
         data_type = request.query_params.get("type", "PRODUCTS")

@@ -122,7 +122,6 @@ class Product(TimeBasedModel):
         verbose_name="Дополнительные категории",
         blank=True,
     )
-
     brand = models.ForeignKey(
         Brand,
         on_delete=models.PROTECT,
@@ -130,19 +129,19 @@ class Product(TimeBasedModel):
         verbose_name="Бренд",
         null=True,
     )
-
     title = models.CharField(
         max_length=255,
         verbose_name="Наименование",
     )
-
     description = models.TextField(verbose_name="Описание")
-
     image = models.ImageField(
         upload_to="catalog/",
         verbose_name="Изображение",
     )
-    slug = models.SlugField(unique=True, max_length=256)
+    slug = models.SlugField(
+        unique=True,
+        max_length=256,
+    )
 
     class Meta:
         verbose_name = "Товар"
