@@ -4,6 +4,7 @@ from account.models import CityGroup
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.city_group import CityGroupSerializer
 
+
 class CityGroupViewSet(viewsets.ModelViewSet):
     """Возвращает группы городов
 
@@ -14,4 +15,3 @@ class CityGroupViewSet(viewsets.ModelViewSet):
     queryset = CityGroup.objects.all().order_by("-created_at")
     serializer_class = CityGroupSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
-
