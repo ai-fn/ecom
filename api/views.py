@@ -152,8 +152,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         brands = request.query_params.get("brand")
         category = request.query_params.get("category")
 
+        filter_conditions = Q()
+
+        if category:
+            filter_conditions &= Q(category__slug=category) | Q(
+                additional_categories__slug=category
+            )
         if city_domain or price_gte or price_lte or brands:
-            filter_conditions = Q()
 
             if city_domain:
                 price_filter = Price.objects.filter(
@@ -175,11 +180,6 @@ class ProductViewSet(viewsets.ModelViewSet):
             if brands:
                 brands_list = brands.split(",")
                 filter_conditions &= Q(brand__name__in=brands_list)
-
-            if category:
-                filter_conditions &= Q(category__slug=category) | Q(
-                    additional_categories__slug=category
-                )
 
             filtered_queryset = self.queryset.filter(filter_conditions)
 

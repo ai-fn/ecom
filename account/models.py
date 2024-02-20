@@ -12,15 +12,22 @@ class TimeBasedModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-from django.db import models
-
-# Определение моделей ...
-
-
 class City(TimeBasedModel):
-    name = models.CharField(max_length=255, verbose_name="Город", null=True)
-    domain = models.CharField(max_length=255, verbose_name="Домен", null=True)
-    address = models.CharField(max_length=256, verbose_name="Адрес", null=True)
+    name = models.CharField(
+        max_length=255,
+        verbose_name="Город",
+        null=True,
+    )
+    domain = models.CharField(
+        max_length=255,
+        verbose_name="Домен",
+        null=True,
+    )
+    address = models.CharField(
+        max_length=256,
+        verbose_name="Адрес",
+        null=True,
+    )
     number = models.BigIntegerField(
         verbose_name="Номер телефона",
         default=0,
@@ -53,7 +60,9 @@ class CityGroup(TimeBasedModel):
         verbose_name="Главный город",
     )
     cities = models.ManyToManyField(
-        City, related_name="city_group", verbose_name="Города"
+        City,
+        related_name="city_group",
+        verbose_name="Города",
     )
 
     class Meta:
