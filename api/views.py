@@ -181,12 +181,12 @@ class ProductViewSet(viewsets.ModelViewSet):
                 brands_list = brands.split(",")
                 filter_conditions &= Q(brand__name__in=brands_list)
 
-            filtered_queryset = self.queryset.filter(filter_conditions)
+        filtered_queryset = self.queryset.filter(filter_conditions)
 
-            if not filtered_queryset.exists():
-                return Response([])
+        if not filtered_queryset.exists():
+            return Response([])
 
-            self.queryset = filtered_queryset
+        self.queryset = filtered_queryset
 
         return super().list(request, *args, **kwargs)
 
