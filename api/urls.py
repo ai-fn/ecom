@@ -44,7 +44,6 @@ router.register(r"brands", BrandView)
 
 urlpatterns = [
     path("", include(router.urls)),  # Including router URLs here
-    path("login", MyTokenObtainPairView.as_view()),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     re_path(r"^upload/(?P<filename>[^/]+)$", XlsxFileUploadView.as_view()),
