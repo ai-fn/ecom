@@ -14,6 +14,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -231,3 +233,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CELERY_BROKER_URL = "redis://cache:6379/0"
 CELERY_RESULT_BACKEND = f"db+postgresql://{os.environ.get('POSTGRES_USER', 'default_user')}:{os.environ.get('POSTGRES_PASSWORD', 'default_password')}@db/{os.environ.get('POSTGRES_DB', 'default_db_name')}"
+
+# Default token generator setting
+DEFAULT_TOKEN_GENERATOR = PasswordResetTokenGenerator()
+
+# Email settings
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
