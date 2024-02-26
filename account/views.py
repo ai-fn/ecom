@@ -16,21 +16,6 @@ from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 
-# from .forms import UserRegistrationForm
-
-
-# def register(request):
-#     if request.method == "POST":
-#         user_form = UserRegistrationForm(request.POST)
-#         if user_form.is_valid():
-#             new_user = user_form.save(commit=False)
-#             new_user.set_password(user_form.cleaned_data["password"])
-#             new_user.save()
-#             return render(request, "account/register_done.html", {"new_user": new_user})
-#     else:
-#         user_form = UserRegistrationForm()
-
-#     return render(request, "account/register.html", {"user_form": user_form})
 
 class Register(GenericAPIView):
 
@@ -44,9 +29,14 @@ class Register(GenericAPIView):
         if serializer.is_valid():
             new_user = serializer.create(serializer.validated_data)
             self._send_confirm_email(request, new_user)
+
+            if new_user.phone:
+                self._send_verify_sms()
+
             return Response({'message': 'Successfullly signed up'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+    
     
     def _generate_unique_token(
             self,
@@ -65,7 +55,6 @@ class Register(GenericAPIView):
             "token": settings.DEFAULT_TOKEN_GENERATOR.make_token(user),
             "protocol": ['https', 'http'][settings.DEBUG]
         }
-        print(context)
         return context
 
     def _send_confirm_email(
@@ -82,11 +71,10 @@ class Register(GenericAPIView):
             body,
             settings.EMAIL_HOST_USER,
             [user.email],
-            False,
+            True,
             settings.EMAIL_HOST_USER,
             settings.EMAIL_HOST_PASSWORD,
         )
-        print(result)
         if result:
             return Response({"message": "Message sent successfully"}, status=status.HTTP_200_OK)
         else:
@@ -111,6 +99,5 @@ class EmailVerifyView(APIView):
             uid = urlsafe_base64_decode(uid64).decode()
             user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist) as e:
-            # logger.warning(f"User %s tried to verify email, but got error %s", user, e)
             user = None
         return user

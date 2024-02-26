@@ -1,7 +1,5 @@
 from django.urls import include, path, re_path
 from rest_framework import routers
-from rest_framework_simplejwt import views as jwt_views
-from api import views
 from api.views import (
     BrandView,
     CategoryMetaDataViewSet,
@@ -20,6 +18,8 @@ from api.views import (
     SettingViewSet,
     UserRegistrationView,
     XlsxFileUploadView,
+    SendConfirmSMS,
+    VerifyConfirmCode
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -48,4 +48,6 @@ urlpatterns = [
     re_path(r"^upload/(?P<filename>[^/]+)$", XlsxFileUploadView.as_view()),
     re_path(r"^export", DataExportView.as_view()),
     path("register/", UserRegistrationView.as_view(), name="register"),
+    path("sms-confirm/", SendConfirmSMS.as_view(), name="sms-confirm"),
+    path("verify-code/", VerifyConfirmCode.as_view(), name="verify-code")
 ]

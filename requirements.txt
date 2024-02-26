@@ -11,6 +11,7 @@ drf-spectacular~=0.26.5
 drf-spectacular-sidecar~=2023.10.1
 django_celery_results~=2.5.1
 redis~=5.0.1
+requests~=2.31.0
 psycopg2-binary~=2.9.9
 gunicorn~=21.2.0
 celery~=5.3.4
@@ -24,5 +25,7 @@ openpyxl~=3.1.2
 pandas~=2.2.0
 python-magic~=0.4.27
 pytils~=0.4.1
+phonenumbers~=8.13.30
+pymorphy2~=0.9.1
 django-prometheus
 unidecode

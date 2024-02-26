@@ -10,4 +10,10 @@ class CitySerializer(serializers.ModelSerializer):
             "id",
             "name",
             "domain",
+            "nominative_case",
+            "genitive_case",
+            "dative_case",
+            "accusative_case",
+            "instrumental_case",
+            "prepositional_case",
         ]
