@@ -12,15 +12,25 @@ https://gist.github.com/s-lyn/81767ed6c67138eaba681d7739a9db61
 # Запуск окружения разработчика
 1. ```git clone https://gitlab.altawest.ru/products/shop-backend```
 2. ```cd megashop/```
-3. ```docker compose -f docker-compose-dev.yml up```
+3. ```docker compose -f docker-compose.yml up```
 Открываем новый терминал
-4. ```docker compose -f docker-compose-dev.yml exec web python manage.py migrate```
-5. ```docker compose -f docker-compose-dev.yml exec web python manage.py createsuperuser```
-## Важное
+4. ```docker compose -f docker-compose.yml exec web python manage.py migrate```
+5. ```docker compose -f docker-compose.yml exec web python manage.py createsuperuser```
+6. ```docker compose -f docker-compose.yml exec web python manage.py search_index --create```
+7. ```docker compose -f docker-compose.yml exec web python manage.py search_index --rebuild```
+#
+# Важное
 - Настроить переменные Github actions secret
 - ЕСЛИ ОШИБКА ДОСТУПА К ФАЙЛУ wait-for-it.sh
 ```
 chmod +x wait-for-it.sh 
+```
+- Если ошибка доступа к кэшу ElasticSearch
+
+```
+sudo chown -R 1000:1000 ./data/elasticsearch
+sudo chmod -R 755 ./data/elasticsearch
+
 ```
 - Получение сертификата
 ```

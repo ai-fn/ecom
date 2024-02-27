@@ -45,6 +45,11 @@ class City(TimeBasedModel):
     class Meta:
         verbose_name = "Город"
         verbose_name_plural = "Города"
+        indexes = [
+            models.Index(fields=["name"], name="city_name_idx"),
+            models.Index(fields=["domain"], name="city_domain_idx"),
+            models.Index(fields=["address"], name="city_address_idx"),
+        ]
 
     def __str__(self):
         return self.name
@@ -68,6 +73,10 @@ class CityGroup(TimeBasedModel):
     class Meta:
         verbose_name = "Группа городов"
         verbose_name_plural = "Группы городов"
+        indexes = [
+            models.Index(fields=["name"], name="citygroup_name_idx"),
+            models.Index(fields=["main_city"], name="citygroup_main_city_idx"),
+        ]
 
 
 class CustomUser(AbstractUser):
@@ -79,3 +88,9 @@ class CustomUser(AbstractUser):
         verbose_name="Покупатель ли юзер?",
         default=False,
     )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["phone"], name="customuser_phone_idx"),
+            models.Index(fields=["city"], name="customuser_city_idx"),
+        ]
