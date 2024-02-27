@@ -26,3 +26,5 @@ python-magic~=0.4.27
 pytils~=0.4.1
 django-prometheus
 unidecode
+django-elasticsearch-dsl~=8.0
+django-elasticsearch-dsl-drf~=0.22.5

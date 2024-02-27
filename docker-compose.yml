@@ -92,3 +92,26 @@ services:
       - db
       - cache
       - nginx
+
+  elasticsearch:
+    image: elasticsearch:7.17.0
+    environment:
+      - "discovery.type=zen"  # Используйте Zen Discovery для продакшен-кластеров
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # Настройте Java-параметры в соответствии с вашей средой
+      - "xpack.security.enabled=true"
+      - "ELASTIC_PASSWORD=k1fjic392h9io"  # Задайте пароль для встроенного пользователя elastic
+      - "bootstrap.memory_lock=true"  # Предотвратить своппинг Elasticsearch
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"  # Обратите внимание на безопасность сети в продакшене
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 5
