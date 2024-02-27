@@ -69,7 +69,7 @@ class City(TimeBasedModel):
     prepositional_case = models.CharField(
         verbose_name="Предложный падеж",
         null=True,
-        max_length=128
+        max_length=128,
     )
 
 
@@ -102,9 +102,12 @@ class CityGroup(TimeBasedModel):
 
 
 class CustomUser(AbstractUser):
-    phone = models.CharField(
-        null=True, blank=True, unique=True
-    )
+    phone = models.CharField(verbose_name="Номер телефона",
+                            null=True,
+                            blank=True,
+                            unique=True,
+                            max_length=16
+                            )
     city = models.ForeignKey(
         City, on_delete=models.SET_NULL, null=True, related_name="customers"
     )
