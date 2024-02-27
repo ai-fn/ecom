@@ -41,6 +41,37 @@ class City(TimeBasedModel):
         verbose_name="График работы",
         default="Отсутствует",
     )
+    nominative_case = models.CharField(
+        verbose_name="Именительный падеж",
+        null=True,
+        max_length=128
+    )
+    genitive_case = models.CharField(
+        verbose_name="Родительный падеж",
+        null=True,
+        max_length=128
+    )
+    dative_case = models.CharField(
+        verbose_name="Дательный падеж",
+        null=True,
+        max_length=128
+    )
+    accusative_case = models.CharField(
+        verbose_name="Винительный падеж",
+        null=True,
+        max_length=128
+    )
+    instrumental_case = models.CharField(
+        verbose_name="Творительный падеж",
+        null=True,
+        max_length=128
+    )
+    prepositional_case = models.CharField(
+        verbose_name="Предложный падеж",
+        null=True,
+        max_length=128,
+    )
+
 
     class Meta:
         verbose_name = "Город"
@@ -71,7 +102,12 @@ class CityGroup(TimeBasedModel):
 
 
 class CustomUser(AbstractUser):
-    phone = models.CharField(verbose_name="Номер телефона", max_length=16, null=True)
+    phone = models.CharField(verbose_name="Номер телефона",
+                            null=True,
+                            blank=True,
+                            unique=True,
+                            max_length=16
+                            )
     city = models.ForeignKey(
         City, on_delete=models.SET_NULL, null=True, related_name="customers"
     )

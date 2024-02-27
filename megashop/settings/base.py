@@ -240,8 +240,13 @@ DEFAULT_TOKEN_GENERATOR = PasswordResetTokenGenerator()
 # Email settings
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', True)
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', False)
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+# SMS settings
+SMS_RU_TOKEN = os.environ.get("SMS_RU_TOKEN", "default_db_name")
+
+CONFIRM_CODE_LIFE_TIME = os.environ.get("CONFIRM_CODE_LIFE_TIME", 60)

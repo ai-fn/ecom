@@ -15,3 +15,7 @@ from .products_in_order import ProductsInOrderViewSet
 from .review import ReviewViewSet
 from .setting import SettingViewSet
 from .user import UserRegistrationView
+from .confirm_register import (
+    SendConfirmSMS,
+    VerifyConfirmCode
+)

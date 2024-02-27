@@ -15,4 +15,9 @@ class Migration(migrations.Migration):
             name='is_customer',
             field=models.BooleanField(default=False, verbose_name='Покупатель ли юзер?'),
         ),
+        migrations.AlterField(
+            model_name='customuser',
+            name='phone',
+            field=models.CharField(blank=True, null=True, unique=True),
+        ),
     ]
