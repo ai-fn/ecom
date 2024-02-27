@@ -22,3 +22,4 @@ from .category_detail import CategoryDetailSerializer
 from .order import OrderSerializer
 from .price import PriceSerializer
 from .products_in_order import ProductsInOrderSerializer
+from .cart_item import CartItemSerializer
