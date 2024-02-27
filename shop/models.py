@@ -48,6 +48,11 @@ class Category(MPTTModel, TimeBasedModel):
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
         ordering = ("-id",)
+        indexes = [
+            models.Index(fields=["name"]),
+            models.Index(fields=["slug"]),
+            models.Index(fields=["parent"]),
+        ]
 
     class MPTTMeta:
         order_insertion_by = ["name"]
@@ -97,6 +102,9 @@ class Brand(TimeBasedModel):
     class Meta:
         verbose_name = "Бренд"
         verbose_name_plural = "Бренды"
+        indexes = [
+            models.Index(fields=["name"]),
+        ]
 
     name = models.CharField(
         verbose_name="Имя бренда",
@@ -155,6 +163,11 @@ class Product(TimeBasedModel):
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["slug"]),
+            models.Index(fields=["category"]),
+        ]
 
     def __str__(self):
         return self.title
@@ -236,6 +249,10 @@ class Review(TimeBasedModel):
     class Meta:
         verbose_name = "Отзыв"
         verbose_name_plural = "Отзывы"
+        indexes = [
+            models.Index(fields=["product"]),
+            models.Index(fields=["rating"]),
+        ]
 
     def __str__(self):
         return self.name
@@ -290,6 +307,11 @@ class Price(TimeBasedModel):
         verbose_name = "Цена"
         verbose_name_plural = "Цены"
         unique_together = ("product", "city")
+        indexes = [
+            models.Index(
+                fields=["product", "city"]
+            ),  # Compound index for common queries involving both fields
+        ]
 
     def __str__(self):
         return f"{self.product.title} - {self.city.name}: {self.price}"

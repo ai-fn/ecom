@@ -29,3 +29,5 @@ phonenumbers~=8.13.30
 pymorphy2~=0.9.1
 django-prometheus
 unidecode
+django-elasticsearch-dsl~=8.0
+django-elasticsearch-dsl-drf~=0.22.5
