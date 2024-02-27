@@ -1,5 +1,10 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
+from .signals import (
+    set_brand_order,
+    set_category_order,
+    )
+from django.core.signals import setting_changed
 
 from shop.models import (
     Brand,
@@ -15,6 +20,11 @@ from shop.models import (
     Setting,
 )
 from mptt.admin import DraggableMPTTAdmin
+
+
+def ready():
+    setting_changed.connect(set_brand_order)
+    setting_changed.connect(set_category_order)
 
 
 class CategoryMetaDataInline(admin.TabularInline):

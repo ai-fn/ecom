@@ -21,6 +21,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "id",
             "name",
             "slug",
+            "order",
             "parent",
             "children",
             "parents",
