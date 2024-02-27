@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
     "drf_spectacular_sidecar",
+    "django_elasticsearch_dsl",
+    "django_elasticsearch_dsl_drf",
     "corsheaders",
     "django_prometheus",
     "django_celery_beat",
@@ -202,6 +204,12 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
     # OTHER SETTINGS
+}
+ELASTICSEARCH_DSL = {
+    "default": {
+        "hosts": "http://elasticsearch:9200",
+        # "http_auth": ("elastic", "k1fjic392h9io"),
+    }
 }
 
 # Internationalization

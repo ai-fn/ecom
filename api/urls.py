@@ -25,6 +25,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+from api.views.general_search import GeneralSearchView
+
 router = routers.DefaultRouter()
 router.register(r"products", ProductViewSet)
 router.register(r"reviews", ReviewViewSet)
@@ -48,6 +50,5 @@ urlpatterns = [
     re_path(r"^upload/(?P<filename>[^/]+)$", XlsxFileUploadView.as_view()),
     re_path(r"^export", DataExportView.as_view()),
     path("register/", UserRegistrationView.as_view(), name="register"),
-    path("sms-confirm/", SendConfirmSMS.as_view(), name="sms-confirm"),
-    path("verify-code/", VerifyConfirmCode.as_view(), name="verify-code")
+    path('search/', GeneralSearchView.as_view(), name='general-search'),
 ]

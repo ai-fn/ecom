@@ -70,3 +70,16 @@ services:
     depends_on:
       - db
       - cache
+  
+  elasticsearch:
+    image: elasticsearch:7.17.0
+    environment:
+      - "discovery.type=single-node"
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: always
+
+    mem_limit: 2g  # Установите лимит памяти, например, в 2 гигабайта
