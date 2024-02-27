@@ -5,6 +5,8 @@ from .models import Category, Product, Review, Brand  # Import your models here
 
 @registry.register_document
 class CategoryDocument(Document):
+    id = fields.IntegerField(attr="id")
+
     class Index:
         # Name of the Elasticsearch index
         name = "categories"
@@ -31,6 +33,7 @@ class CategoryDocument(Document):
 
 @registry.register_document
 class ProductDocument(Document):
+    id = fields.IntegerField(attr="id")
     category = fields.ObjectField(
         properties={
             "name": fields.TextField(),

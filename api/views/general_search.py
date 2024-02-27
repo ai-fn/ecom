@@ -1,3 +1,4 @@
+from loguru import logger
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from elasticsearch_dsl import Search, Q
@@ -12,6 +13,8 @@ from api.serializers import (
 )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+
+from shop.models import Category, Product
 
 
 @extend_schema(
@@ -66,16 +69,33 @@ class GeneralSearchView(APIView):
 
         response = search.execute()
 
+        # Collect IDs for batch queries
+        category_ids = []
+        product_ids = []
+        review_hits = []  # Assuming Review documents contain all necessary info
+        for hit in response:
+            if hit.meta.index == CategoryDocument._index._name:
+                category_ids.append(hit.id)
+            elif hit.meta.index == ProductDocument._index._name:
+                product_ids.append(hit.id)
+            elif hit.meta.index == ReviewDocument._index._name:
+                review_hits.append(hit)
+
+        # Perform batch queries
+        categories = {c.id: c for c in Category.objects.filter(id__in=category_ids)}
+        products = {p.id: p for p in Product.objects.filter(id__in=product_ids)}
+
+        # Serialize and collect results
         results = []
         for hit in response:
             if hit.meta.index == CategoryDocument._index._name:
-                serializer = CategoryDocumentSerializer(hit)
+                serializer = CategoryDocumentSerializer(categories.get(hit.id))
+                results.append(serializer.data)
             elif hit.meta.index == ProductDocument._index._name:
-                serializer = ProductDocumentSerializer(hit)
+                serializer = ProductDocumentSerializer(products.get(hit.id))
+                results.append(serializer.data)
             elif hit.meta.index == ReviewDocument._index._name:
                 serializer = ReviewDocumentSerializer(hit)
-            else:
-                continue
-            results.append(serializer.data)
+                results.append(serializer.data)
 
         return Response({"results": results})
