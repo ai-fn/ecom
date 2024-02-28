@@ -27,7 +27,11 @@ class Order(TimeBasedModel):
 
 
 class ProductsInOrder(TimeBasedModel):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        verbose_name="Заказ"
+    )
     product = models.ForeignKey(
         Product,
         on_delete=models.PROTECT,
@@ -37,3 +41,20 @@ class ProductsInOrder(TimeBasedModel):
     quantity = models.PositiveSmallIntegerField(
         verbose_name="Количество товара в заказе"
     )
+
+    def __str__(self) -> str:
+        return "Корзина %s" % self.id
+
+class CartItem(TimeBasedModel):
+    customer = models.ForeignKey(CustomUser,
+                                related_name="cart",
+                                on_delete=models.CASCADE,
+                                verbose_name="Покупатель")
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE,
+                                verbose_name="Торвар")
+    quantity = models.PositiveIntegerField(verbose_name="Количество")
+
+    class Meta:
+        verbose_name = "Продукт в корзине пользователя"
+        verbose_name_plural = "Продукт в корзине пользователя"

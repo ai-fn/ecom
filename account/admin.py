@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from account.models import City, CityGroup, CustomUser
+from django.core.signals import setting_changed
+
+from .signals import set_cases
 
 # Register your models here.
 
@@ -28,3 +31,6 @@ class CityGroupAdmin(admin.ModelAdmin):
         "main_city",
         
     )
+
+def ready():
+    setting_changed.connect(set_cases)

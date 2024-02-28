@@ -39,6 +39,11 @@ class Category(MPTTModel, TimeBasedModel):
         default=True,
     )
 
+    order = models.BigIntegerField(
+        verbose_name="Порядковый номер категории",
+        blank=True
+    )
+
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
@@ -111,6 +116,10 @@ class Brand(TimeBasedModel):
         verbose_name="Иконка",
         null=True,
         blank=True,
+    )
+    order = models.BigIntegerField(
+        verbose_name="Порядковый номер бренда",
+        blank=True
     )
 
     def __str__(self) -> str:
