@@ -207,8 +207,8 @@ SPECTACULAR_SETTINGS = {
 }
 ELASTICSEARCH_DSL = {
     "default": {
-        "hosts": "http://localhost:9200",
-        "http_auth": ("elastic", "k1fjic392h9io"),
+        "hosts": "http://elastic:9200",
+        # "http_auth": ("elastic", "k1fjic392h9io"),
     }
 }
 
