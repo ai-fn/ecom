@@ -10,4 +10,5 @@ ALLOWED_HOSTS = [
     "dev-api-shop.altawest.ru",
     "web",
     "mail.altawest.ru",
+    "80.242.57.47"
 ]
