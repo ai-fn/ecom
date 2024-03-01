@@ -16,7 +16,6 @@ from drf_spectacular.types import OpenApiTypes
 
 from shop.models import Category, Product
 
-@extend_schema(
     parameters=[
         OpenApiParameter(
             name="q",
@@ -53,21 +52,30 @@ class GeneralSearchView(APIView):
 
         query = request.query_params.get("q", "")
         if query:
-            # Replace '*' with actual wildcard character you want to use in your search.
-            # Note: Be careful with the usage of wildcard queries, as they can be slow,
-            # especially with leading wildcards.
-            wildcard_query = f"*{query}*"
+            # Enhancing flexibility by combining multi-match for broader search across fields,
+            # wildcard for partial matches, and boosting fields to prioritize their relevance.
+            multi_match_query = Q("multi_match", query=query, fields=[
+                'name^3',  # Boost name field
+                'title^2',  # Boost title field
+                'description',
+                'review',
+                'category__name',
+                'brand__name'
+            ], type='best_fields')
+
+            wildcard_query = Q("bool", should=[
+                Q("wildcard", name={"value": f"*{query}*"}),
+                Q("wildcard", title={"value": f"*{query}*"}),
+                Q("wildcard", description={"value": f"*{query}*"}),
+                Q("wildcard", review={"value": f"*{query}*"}),
+                Q("wildcard", category__name={"value": f"*{query}*"}),
+                Q("wildcard", brand__name={"value": f"*{query}*"})
+            ], minimum_should_match=1)
+
             search = search.query(
                 "bool",
-                should=[
-                    Q("wildcard", name={"value": wildcard_query}),
-                    Q("wildcard", title={"value": wildcard_query}),
-                    Q("wildcard", description={"value": wildcard_query}),
-                    Q("wildcard", review={"value": wildcard_query}),
-                    Q("wildcard", category__name={"value": wildcard_query}),
-                    Q("wildcard", brand__name={"value": wildcard_query}),
-                ],
-                minimum_should_match=1,
+                should=[multi_match_query, wildcard_query],
+                minimum_should_match=1
             )
 
         response = search.execute()
@@ -75,7 +83,7 @@ class GeneralSearchView(APIView):
         # Collect IDs for batch queries
         category_ids = []
         product_ids = []
-        review_hits = []  # Assuming Review documents contain all necessary info
+        review_hits = []
         for hit in response:
             if hit.meta.index == CategoryDocument._index._name:
                 category_ids.append(hit.id)
