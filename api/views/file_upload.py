@@ -52,10 +52,10 @@ class XlsxFileUploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if result is False:
+        if not result:
             return Response(
                 {"error": "Error processing file."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+        return Response({'result': result.get()}, status=status.HTTP_200_OK)
