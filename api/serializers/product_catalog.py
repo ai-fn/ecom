@@ -38,4 +38,5 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
             "old_price",
             "images",
             "category_slug",
+            "similar_products",
         ]

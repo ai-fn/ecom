@@ -1,5 +1,6 @@
 import csv
 import os
+import uuid
 from celery import shared_task
 from django.conf import settings
 from django.db import transaction
@@ -16,14 +17,19 @@ from pytils import translit
 from django.utils.text import slugify as django_slugify
 from api.serializers.product_detail import ProductDetailSerializer
 
-from shop.models import Category, Characteristic, CharacteristicValue, Product, ProductImage
+from shop.models import (
+    Category,
+    Characteristic,
+    CharacteristicValue,
+    Product,
+    ProductImage,
+)
 from unidecode import unidecode
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
 def custom_slugify(value):
     return django_slugify(unidecode(value))
-
 
 
 @shared_task
@@ -42,10 +48,12 @@ def handle_xlsx_file_task(file_path, upload_type):
                 tmp.seek(0)
                 df = pd.read_excel(tmp.name, engine="openpyxl")
                 # Вызов функции обработки DataFrame
-                process_dataframe(df, upload_type)
+                result = process_dataframe(df, upload_type)
+                return result
     except Exception as e:
         print(f"Error processing Excel file: {e}")
         return False
+
 
 @shared_task
 def handle_csv_file_task(file_path, upload_type):
@@ -53,7 +61,8 @@ def handle_csv_file_task(file_path, upload_type):
         with open(file_path, "r", encoding="utf-8") as file_obj:
             df = pd.read_csv(file_obj)
             # Вызов функцию обработки DataFrame
-            process_dataframe(df, upload_type)
+            result = process_dataframe(df, upload_type)
+            return result
     except Exception as e:
         # Здесь код для логирования ошибок
         print(f"Error processing CSV file: {e}")
@@ -62,6 +71,7 @@ def handle_csv_file_task(file_path, upload_type):
 
 def process_dataframe(df, upload_type):
     ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU"]
+    failed_images = []
     try:
         with transaction.atomic():
             # Адаптируйте ниже код обработки DataFrame в соответствии с вашей логикой
@@ -102,7 +112,6 @@ def process_dataframe(df, upload_type):
                                 "Empty category name encountered. Skipping category creation."
                             )
 
-
                     product_title = row["TITLE"]
                     product_slug = translit.slugify(product_title)
                     # TODO добавить DESCRIPTION потом
@@ -116,41 +125,41 @@ def process_dataframe(df, upload_type):
                             },
                         )
 
-                        product_image_urls = row['IMAGES'].split(',')
+                        product_image_urls = row["IMAGES"].split(",")
                         if len(product_image_urls) > 0:
                             for image_url in product_image_urls:
                                 try:
                                     data = requests.get(image_url).content
-                                    file_name = os.path.basename(image_url)
                                 except Exception as err:
                                     print(err)
                                     continue
 
-                                
-
                                 try:
                                     pil_image = Image.open(BytesIO(data))
 
-                                    # Convert PIL image to bytes
+                                    # Конвертация PIL фото в байты
                                     img_byte_array = BytesIO()
-                                    pil_image.save(img_byte_array, format='PNG')
+                                    pil_image.save(img_byte_array, format="WEBP")
                                     img_byte_array.seek(0)
                                     product_image = ProductImage(product=product)
 
+                                    result_filename = f"{uuid.uuid4()}.webp"
+
                                     product_image.image.save(
-                                        file_name,
+                                        result_filename,
                                         InMemoryUploadedFile(
                                             img_byte_array,
                                             None,
-                                            file_name,
-                                            'image/png',
+                                            result_filename,
+                                            "image/webp",
                                             img_byte_array.tell(),
-                                            None
-                                        )
+                                            None,
+                                        ),
                                     )
 
                                     print(f"{product_image} successfully saved")
                                 except Exception as err:
+                                    failed_images.append(image_url)
                                     print("Error while save ProductImage: %s" % err)
 
                         # Обработка характеристик и их значений
@@ -178,7 +187,8 @@ def process_dataframe(df, upload_type):
                             f"Unable to create slug for product title '{product_title}'. Skipping product creation."
                         )
             # Добавьте логику для BRANDS, если необходимо
-
+        print(f"Products in tasks.py: {Product.objects.count()}")
+        return failed_images or []
     except Exception as err:
         # Логирование ошибки
         print(f"Error processing data: {err}")
