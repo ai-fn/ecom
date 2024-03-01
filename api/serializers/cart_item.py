@@ -23,5 +23,5 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.quantity = validated_data.get('quantity', instance.quantity)
-        instance.save(updated_fields=['quantity'])
+        instance.save(update_fields=['quantity'])
         return instance
