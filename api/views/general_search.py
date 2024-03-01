@@ -16,7 +16,6 @@ from drf_spectacular.types import OpenApiTypes
 
 from shop.models import Category, Product
 
-
 @extend_schema(
     parameters=[
         OpenApiParameter(
@@ -35,7 +34,7 @@ from shop.models import Category, Product
         )
     ],
     responses={
-        200: OpenApiTypes.OBJECT,  # Укажите здесь более конкретные типы, если это необходимо
+        200: OpenApiTypes.OBJECT,  # Specify more specific types here if necessary
     },
 )
 class GeneralSearchView(APIView):
@@ -54,15 +53,19 @@ class GeneralSearchView(APIView):
 
         query = request.query_params.get("q", "")
         if query:
+            # Replace '*' with actual wildcard character you want to use in your search.
+            # Note: Be careful with the usage of wildcard queries, as they can be slow,
+            # especially with leading wildcards.
+            wildcard_query = f"*{query}*"
             search = search.query(
                 "bool",
                 should=[
-                    Q("fuzzy", name={"value": query, "fuzziness": 2}),
-                    Q("fuzzy", title={"value": query, "fuzziness": 2}),
-                    Q("fuzzy", description={"value": query, "fuzziness": 2}),
-                    Q("fuzzy", review={"value": query, "fuzziness": 2}),
-                    Q("fuzzy", category__name={"value": query, "fuzziness": 2}),
-                    Q("fuzzy", brand__name={"value": query, "fuzziness": 2}),
+                    Q("wildcard", name={"value": wildcard_query}),
+                    Q("wildcard", title={"value": wildcard_query}),
+                    Q("wildcard", description={"value": wildcard_query}),
+                    Q("wildcard", review={"value": wildcard_query}),
+                    Q("wildcard", category__name={"value": wildcard_query}),
+                    Q("wildcard", brand__name={"value": wildcard_query}),
                 ],
                 minimum_should_match=1,
             )

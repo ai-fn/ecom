@@ -6,22 +6,29 @@ from django.db import transaction
 from loguru import logger
 import pandas as pd
 import magic
+import requests
+
+from PIL import Image
+from io import BytesIO
+
 from tempfile import NamedTemporaryFile
 from pytils import translit
 from django.utils.text import slugify as django_slugify
 from api.serializers.product_detail import ProductDetailSerializer
 
-from shop.models import Category, Characteristic, CharacteristicValue, Product
+from shop.models import Category, Characteristic, CharacteristicValue, Product, ProductImage
 from unidecode import unidecode
-from django.core.mail import EmailMessage
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
 def custom_slugify(value):
     return django_slugify(unidecode(value))
 
 
+
 @shared_task
 def handle_xlsx_file_task(file_path, upload_type):
+    print(file_path)
     try:
         with open(file_path, "rb") as file_obj:
             # Проверка MIME-типа файла для удостоверения, что это действительно Excel файл
@@ -39,7 +46,6 @@ def handle_xlsx_file_task(file_path, upload_type):
     except Exception as e:
         print(f"Error processing Excel file: {e}")
         return False
-
 
 @shared_task
 def handle_csv_file_task(file_path, upload_type):
@@ -61,7 +67,7 @@ def process_dataframe(df, upload_type):
             # Адаптируйте ниже код обработки DataFrame в соответствии с вашей логикой
             # Пример обработки для PRODUCT
             if upload_type == "PRODUCTS":
-                for _, row in df.iterrows():
+                for idx, row in df.iterrows():
                     category_path = row["CATEGORIES"].split(" | ")
                     category = None
                     for cat_name in category_path[
@@ -96,6 +102,7 @@ def process_dataframe(df, upload_type):
                                 "Empty category name encountered. Skipping category creation."
                             )
 
+
                     product_title = row["TITLE"]
                     product_slug = translit.slugify(product_title)
                     # TODO добавить DESCRIPTION потом
@@ -108,6 +115,44 @@ def process_dataframe(df, upload_type):
                                 "slug": product_slug,
                             },
                         )
+
+                        product_image_urls = row['IMAGES'].split(',')
+                        if len(product_image_urls) > 0:
+                            for image_url in product_image_urls:
+                                try:
+                                    data = requests.get(image_url).content
+                                    file_name = os.path.basename(image_url)
+                                except Exception as err:
+                                    print(err)
+                                    continue
+
+                                
+
+                                try:
+                                    pil_image = Image.open(BytesIO(data))
+
+                                    # Convert PIL image to bytes
+                                    img_byte_array = BytesIO()
+                                    pil_image.save(img_byte_array, format='PNG')
+                                    img_byte_array.seek(0)
+                                    product_image = ProductImage(product=product)
+
+                                    product_image.image.save(
+                                        file_name,
+                                        InMemoryUploadedFile(
+                                            img_byte_array,
+                                            None,
+                                            file_name,
+                                            'image/png',
+                                            img_byte_array.tell(),
+                                            None
+                                        )
+                                    )
+
+                                    print(f"{product_image} successfully saved")
+                                except Exception as err:
+                                    print("Error while save ProductImage: %s" % err)
+
                         # Обработка характеристик и их значений
                         for column_name in df.columns:
                             if column_name not in ignored_columns:
