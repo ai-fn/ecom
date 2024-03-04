@@ -122,6 +122,10 @@ DATABASES = {
     }
 }
 
+# Pagination settings
+PAGINATE_BY = os.getenv('PAGINATE_BY') or 9
+PAGE_SIZE = os.getenv('PAGE_SIZE') or 32
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -149,7 +153,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 32,
+    "PAGE_SIZE": PAGE_SIZE,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
