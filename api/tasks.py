@@ -77,7 +77,7 @@ def process_dataframe(df, upload_type):
             # Адаптируйте ниже код обработки DataFrame в соответствии с вашей логикой
             # Пример обработки для PRODUCT
             if upload_type == "PRODUCTS":
-                for idx, row in df.iterrows():
+                for _, row in df.iterrows():
                     category_path = row["CATEGORIES"].split(" | ")
                     category = None
                     for cat_name in category_path[
@@ -131,7 +131,7 @@ def process_dataframe(df, upload_type):
                                 try:
                                     data = requests.get(image_url).content
                                 except Exception as err:
-                                    print(err)
+                                    print("Error with image url: %s" % err)
                                     continue
 
                                 try:
@@ -158,6 +158,17 @@ def process_dataframe(df, upload_type):
                                     )
 
                                     print(f"{product_image} successfully saved")
+
+                                    # Стандартизация размеров изображений при импорте
+                                    # 16:9 format (the maximum resolution is HD - 1280:720)
+                                    image = Image.open(product_image.image.file.name)
+                                    width, height = image.size
+                                    
+                                    width = int(min(width, 1280))
+                                    height = int((width * 9) / 16)
+
+                                    image.resize((width, height)).save(product_image.image.file.name)
+                                    image.close()
                                 except Exception as err:
                                     failed_images.append(image_url)
                                     print("Error while save ProductImage: %s" % err)
@@ -187,7 +198,6 @@ def process_dataframe(df, upload_type):
                             f"Unable to create slug for product title '{product_title}'. Skipping product creation."
                         )
             # Добавьте логику для BRANDS, если необходимо
-        print(f"Products in tasks.py: {Product.objects.count()}")
         return failed_images or []
     except Exception as err:
         # Логирование ошибки
