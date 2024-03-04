@@ -168,7 +168,27 @@ def process_dataframe(df, upload_type):
                                     height = int((width * 9) / 16)
 
                                     image.resize((width, height)).save(product_image.image.file.name)
+
+                                    # Добавление водяного знака на изображение
+                                    
+                                    try:
+                                        path_to_watermark = settings.WATERMARK_PATH # /path/to/watermark/
+                                        watermark = Image.open(path_to_watermark)
+                                        watermark = watermark.resize((100, 100))
+
+                                        overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+                                    except Exception as err:
+                                        print("Error while adding watermark to image: %s" % err)
+                                        continue
+                                    
+                                    position = (image.width - watermark.width, image.height - watermark.height)
+                                    overlay.paste(watermark, position)
+
+                                    Image.alpha_composite(image.convert('RGBA', overlay)).save(product_image.image.file.name)
+
                                     image.close()
+                                    overlay.close()
+                                    watermark.close()
                                 except Exception as err:
                                     failed_images.append(image_url)
                                     print("Error while save ProductImage: %s" % err)

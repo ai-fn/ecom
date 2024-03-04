@@ -238,6 +238,8 @@ LOGIN_URL = "login"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+WATERMARK_PATH = os.getenv('WATERMARK_PATH') or 'watermark.png'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
