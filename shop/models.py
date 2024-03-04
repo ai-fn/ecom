@@ -141,6 +141,7 @@ class Product(TimeBasedModel):
         related_name="products",
         verbose_name="Бренд",
         null=True,
+        blank=True
     )
     title = models.CharField(
         max_length=255,
@@ -156,7 +157,11 @@ class Product(TimeBasedModel):
         max_length=256,
     )
 
-    similar_products = models.ManyToManyField("self", blank=True)
+    similar_products = models.ManyToManyField(
+        "self",
+        blank=True,
+        verbose_name='Похожие продукты',
+    )
 
     class Meta:
         verbose_name = "Товар"
