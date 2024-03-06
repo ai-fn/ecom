@@ -34,7 +34,6 @@ def custom_slugify(value):
 
 @shared_task
 def handle_xlsx_file_task(file_path, upload_type):
-    print(file_path)
     try:
         with open(file_path, "rb") as file_obj:
             # Проверка MIME-типа файла для удостоверения, что это действительно Excel файл
@@ -172,20 +171,20 @@ def process_dataframe(df, upload_type):
                                     # Добавление водяного знака на изображение
                                     
                                     try:
-                                        path_to_watermark = settings.WATERMARK_PATH # /path/to/watermark/
+                                        path_to_watermark = settings.WATERMARK_PATH
                                         watermark = Image.open(path_to_watermark)
                                         watermark = watermark.resize((100, 100))
 
                                         overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+
+                                        position = (image.width - watermark.width, image.height - watermark.height)
+                                        overlay.paste(watermark, position)
+
+                                        Image.alpha_composite(image.convert('RGBA', overlay)).save(product_image.image.file.name)
                                     except Exception as err:
                                         print("Error while adding watermark to image: %s" % err)
                                         continue
                                     
-                                    position = (image.width - watermark.width, image.height - watermark.height)
-                                    overlay.paste(watermark, position)
-
-                                    Image.alpha_composite(image.convert('RGBA', overlay)).save(product_image.image.file.name)
-
                                     image.close()
                                     overlay.close()
                                     watermark.close()
