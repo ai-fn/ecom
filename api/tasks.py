@@ -180,7 +180,7 @@ def process_dataframe(df, upload_type):
                                         position = (image.width - watermark.width, image.height - watermark.height)
                                         overlay.paste(watermark, position)
 
-                                        Image.alpha_composite(image.convert('RGBA', overlay)).save(product_image.image.file.name)
+                                        Image.alpha_composite(image.convert('RGBA'), overlay).save(product_image.image.file.name)
                                     except Exception as err:
                                         print("Error while adding watermark to image: %s" % err)
                                         continue
