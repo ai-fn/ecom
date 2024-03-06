@@ -172,12 +172,16 @@ def process_dataframe(df, upload_type):
                                     
                                     try:
                                         path_to_watermark = settings.WATERMARK_PATH
+                                        opacity = int(255 * 0.2) # 20% opacity
                                         watermark = Image.open(path_to_watermark)
                                         watermark = watermark.resize((100, 100))
 
-                                        overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+                                        set_opacity(watermark, 0.2)
 
-                                        position = (image.width - watermark.width, image.height - watermark.height)
+                                        overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+                                        margin = 30 # margin in pixels
+
+                                        position = (image.width - watermark.width - margin, image.height - watermark.height - margin)
                                         overlay.paste(watermark, position)
 
                                         Image.alpha_composite(image.convert('RGBA'), overlay).save(product_image.image.file.name)
@@ -222,6 +226,16 @@ def process_dataframe(df, upload_type):
         # Логирование ошибки
         print(f"Error processing data: {err}")
 
+def set_opacity(image: Image, opacity: float):
+    if not 0 <= opacity <= 1:
+        return
+    
+    opacity = int(255 * opacity)
+    for x in range(image.width):
+        for y in range(image.height):
+            r, g, b, a = image.getpixel((x, y))
+            if a > 100:
+                image.putpixel((x, y), (r, g, b, opacity))
 
 @shared_task
 def export_products_to_csv(email_to):
