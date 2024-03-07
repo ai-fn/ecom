@@ -2,7 +2,7 @@ from shop.models import  Category, Brand, Product
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
-from transliterate import translit
+from unidecode import unidecode
 
 
 @receiver(pre_save, sender=Category)
@@ -18,8 +18,7 @@ def set_brand_order(sender, instance, **kwargs):
 @receiver(post_save, sender=Product)
 def set_product_slug(sender, created, instance, **kwargs):
     if created:
-        translit_string = translit(instance.title, 'ru', reversed=True)
-        instance.slug = slugify(translit_string) + "-%s" % instance.id
+        instance.slug = slugify(unidecode(instance.title)) + "-%s" % instance.id
         instance.save()
 
 
