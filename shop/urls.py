@@ -6,7 +6,7 @@ app_name = "shop"
 
 urlpatterns = [
     path(
-        "similar-products/<int:product_id>/",
+        "<int:product_id>/similar-products/",
         SimilarProducts.as_view(),
         name="similar_products",
     ),
