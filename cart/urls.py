@@ -13,6 +13,7 @@ app_name = "cart"
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("cart-count/", views.CartCountView.as_view(), name='cart-count'),
     path(
         "add/",
         views.add_to_cart,
