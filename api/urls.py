@@ -48,11 +48,6 @@ urlpatterns = [
     path("shop/", include('shop.urls')),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path(
-        "similar-products/<int:product_id>/",
-        SimilarProducts.as_view(),
-        name="similar_products",
-    ),
     re_path(
         r"^upload/(?P<filename>[^/]+)$",
         XlsxFileUploadView.as_view(),
