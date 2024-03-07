@@ -45,6 +45,8 @@ router.register(r"brands", BrandView)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("shop/", include('shop.urls')),
+    path("cart/", include('cart.urls')),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path(
