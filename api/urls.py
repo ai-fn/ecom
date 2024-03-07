@@ -20,6 +20,7 @@ from api.views import (
     XlsxFileUploadView,
     SendConfirmSMS,
     VerifyConfirmCode,
+    SimilarProducts,
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -42,9 +43,10 @@ router.register(r"orders", OrderViewSet)
 router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 
-
 urlpatterns = [
     path("", include(router.urls)),
+    path("shop/", include('shop.urls')),
+    path("cart/", include('cart.urls')),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     re_path(
