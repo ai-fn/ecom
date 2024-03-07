@@ -19,3 +19,4 @@ from .confirm_register import (
     SendConfirmSMS,
     VerifyConfirmCode
 )
+from .similar_products import SimilarProducts

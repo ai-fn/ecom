@@ -5,10 +5,11 @@ from shop.forms import ReviewForm
 from shop.models import Product, Category
 
 from django.db.models import Q
+from django.conf import settings
 
 
 class ProductListView(ListView):
-    paginate_by = 9
+    paginate_by = settings.PAGINATE_BY
     context_object_name = "products_list"
 
     def get_queryset(self):

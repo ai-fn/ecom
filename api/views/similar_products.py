@@ -9,12 +9,11 @@ class SimilarProducts(generics.GenericAPIView):
     serializer_class = ProductCatalogSerializer
     queryset = Product.objects.all()
 
-    def post(self, request):
-        product_id = request.data.get('product_id')
+    def get(self, request, product_id):
         try:
             product = Product.objects.get(pk=product_id)
         except Product.DoesNotExist as err:
-            return response.Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
+            return response.Response({'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
         
         serialized_products = self.serializer_class(product.similar_products, many=True).data
-        return response.Response({'products': serialized_products}, status=status.HTTP_200_OK)
+        return response.Response({'similar_products': serialized_products}, status=status.HTTP_200_OK)

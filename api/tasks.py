@@ -34,7 +34,6 @@ def custom_slugify(value):
 
 @shared_task
 def handle_xlsx_file_task(file_path, upload_type):
-    print(file_path)
     try:
         with open(file_path, "rb") as file_obj:
             # Проверка MIME-типа файла для удостоверения, что это действительно Excel файл
@@ -77,7 +76,7 @@ def process_dataframe(df, upload_type):
             # Адаптируйте ниже код обработки DataFrame в соответствии с вашей логикой
             # Пример обработки для PRODUCT
             if upload_type == "PRODUCTS":
-                for idx, row in df.iterrows():
+                for _, row in df.iterrows():
                     category_path = row["CATEGORIES"].split(" | ")
                     category = None
                     for cat_name in category_path[
@@ -131,7 +130,7 @@ def process_dataframe(df, upload_type):
                                 try:
                                     data = requests.get(image_url).content
                                 except Exception as err:
-                                    print(err)
+                                    print("Error with image url: %s" % err)
                                     continue
 
                                 try:
@@ -158,6 +157,41 @@ def process_dataframe(df, upload_type):
                                     )
 
                                     print(f"{product_image} successfully saved")
+
+                                    # Стандартизация размеров изображений при импорте
+                                    # 16:9 format (the maximum resolution is HD - 1280:720)
+                                    image = Image.open(product_image.image.file.name)
+                                    width, height = image.size
+                                    
+                                    width = int(min(width, 1280))
+                                    height = int((width * 9) / 16)
+
+                                    image.resize((width, height)).save(product_image.image.file.name)
+
+                                    # Добавление водяного знака на изображение
+                                    
+                                    try:
+                                        path_to_watermark = settings.WATERMARK_PATH
+                                        opacity = int(255 * 0.2) # 20% opacity
+                                        watermark = Image.open(path_to_watermark)
+                                        watermark = watermark.resize((100, 100))
+
+                                        set_opacity(watermark, 0.2)
+
+                                        overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+                                        margin = 30 # margin in pixels
+
+                                        position = (image.width - watermark.width - margin, image.height - watermark.height - margin)
+                                        overlay.paste(watermark, position)
+
+                                        Image.alpha_composite(image.convert('RGBA'), overlay).save(product_image.image.file.name)
+                                    except Exception as err:
+                                        print("Error while adding watermark to image: %s" % err)
+                                        continue
+                                    
+                                    image.close()
+                                    overlay.close()
+                                    watermark.close()
                                 except Exception as err:
                                     failed_images.append(image_url)
                                     print("Error while save ProductImage: %s" % err)
@@ -187,12 +221,21 @@ def process_dataframe(df, upload_type):
                             f"Unable to create slug for product title '{product_title}'. Skipping product creation."
                         )
             # Добавьте логику для BRANDS, если необходимо
-        print(f"Products in tasks.py: {Product.objects.count()}")
         return failed_images or []
     except Exception as err:
         # Логирование ошибки
         print(f"Error processing data: {err}")
 
+def set_opacity(image: Image, opacity: float):
+    if not 0 <= opacity <= 1:
+        return
+    
+    opacity = int(255 * opacity)
+    for x in range(image.width):
+        for y in range(image.height):
+            r, g, b, a = image.getpixel((x, y))
+            if a > 100:
+                image.putpixel((x, y), (r, g, b, opacity))
 
 @shared_task
 def export_products_to_csv(email_to):
