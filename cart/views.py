@@ -12,23 +12,21 @@ from api.serializers import CartItemSerializer, OrderSerializer
 
 
 def add_to_cart(request):
-    path = request.GET.get('next')
+    path = request.GET.get("next")
 
-    if request.method == 'POST':
-        product_id = request.GET.get('product_id')
+    if request.method == "POST":
+        product_id = request.GET.get("product_id")
 
-        if 'cart' not in request.session:
-            request.session['cart'] = {}
+        if "cart" not in request.session:
+            request.session["cart"] = {}
 
-        cart = request.session.get('cart')
+        cart = request.session.get("cart")
 
         if product_id in cart:
-            cart[product_id]['quantity'] += 1
+            cart[product_id]["quantity"] += 1
 
         else:
-            cart[product_id] = {
-                'quantity': 1
-            }
+            cart[product_id] = {"quantity": 1}
 
     request.session.modified = True
     return redirect(path)
@@ -81,9 +79,10 @@ def add_to_cart(request):
 
 #     return redirect('cart:cart')
 
+
 class OrderViewSet(viewsets.ModelViewSet):
-    
-    queryset = Order.objects.all().order_by('-created_at')
+
+    queryset = Order.objects.all().order_by("-created_at")
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -92,12 +91,16 @@ class OrderViewSet(viewsets.ModelViewSet):
         cart_items = CartItem.objects.filter(customer=customer)
 
         if not cart_items.exists():
-            return  Response({"error": "Корзина пуста."}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"error": "Корзина пуста."}, status=status.HTTP_404_NOT_FOUND
+            )
+
         with transaction.atomic():
             order = Order.objects.create(customer=customer)
             for item in cart_items:
-                ProductsInOrder.objects.create(order=order, product=item.product, quantity=item.quantity)
+                ProductsInOrder.objects.create(
+                    order=order, product=item.product, quantity=item.quantity
+                )
                 item.delete()
 
             serializer = self.get_serializer(order)
@@ -105,6 +108,13 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class CartItemViewSet(viewsets.ModelViewSet):
-    queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Returns only the cart items that belong to the current user.
+        return CartItem.objects.filter(customer=self.request.user)
+
+    def perform_create(self, serializer):
+        # Associates the new cart item with the current user.
+        serializer.save(customer=self.request.user)
