@@ -119,9 +119,10 @@ class CartItemViewSet(viewsets.ModelViewSet):
         
         return super().get_serializer_class()
 
-    @action(detail=True, methods=["get"])
+    @action(detail=False, methods=["get"])
     def cartitemsdetail(self, request):
-        queryset = CartItem.objects.filter(customer=request.user).values("product")
+        id_lists = list(CartItem.objects.filter(customer=request.user).values_list("product", flat=True))
+        queryset = Product.objects.filter(id__in=id_lists)
 
         if queryset.exists():
 
