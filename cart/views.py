@@ -1,10 +1,9 @@
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db import transaction
-from django.db.models import Subquery, OuterRef
+from django.db.models import Sum
 
-from rest_framework import status, permissions, viewsets, generics, views
+from rest_framework import status, permissions, viewsets, views
 from rest_framework.response import Response 
 from rest_framework.decorators import action
 
@@ -148,6 +147,6 @@ class CartCountView(views.APIView):
     def get(self, request):
         queryset = CartItem.objects.filter(customer=request.user)
         if queryset.exists():
-            return Response({'count': queryset.count()}, status=status.HTTP_200_OK)
+            return Response({'count': queryset.aggregate(total_quantity=Sum("quantity"))['total_quantity']}, status=status.HTTP_200_OK)
         
         return Response({'messsage': 'Cart items for user with pk %s not found' % request.user.pk})
