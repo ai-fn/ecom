@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db import transaction
 
-from rest_framework import status, permissions, viewsets, generics
-from rest_framework.response import Response
+from rest_framework import status, permissions, viewsets, generics, views
+from rest_framework.response import Response 
 
 from account.models import CustomUser
 from cart.models import Order, ProductsInOrder, CartItem
@@ -118,3 +118,14 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Associates the new cart item with the current user.
         serializer.save(customer=self.request.user)
+
+class CartCountView(views.APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        queryset = CartItem.objects.filter(customer=request.user)
+        if queryset.exists():
+            return Response({'count': queryset.count()}, status=status.HTTP_200_OK)
+        
+        return Response({'messsage': 'Cart items for user with pk %s not found' % request.user.pk})

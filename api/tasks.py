@@ -1,5 +1,6 @@
 import csv
 import os
+import uuid
 from celery import shared_task
 from django.conf import settings
 from django.db import transaction
@@ -16,7 +17,13 @@ from pytils import translit
 from django.utils.text import slugify as django_slugify
 from api.serializers.product_detail import ProductDetailSerializer
 
-from shop.models import Category, Characteristic, CharacteristicValue, Product, ProductImage
+from shop.models import (
+    Category,
+    Characteristic,
+    CharacteristicValue,
+    Product,
+    ProductImage,
+)
 from unidecode import unidecode
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
@@ -25,10 +32,8 @@ def custom_slugify(value):
     return django_slugify(unidecode(value))
 
 
-
 @shared_task
 def handle_xlsx_file_task(file_path, upload_type):
-    print(file_path)
     try:
         with open(file_path, "rb") as file_obj:
             # Проверка MIME-типа файла для удостоверения, что это действительно Excel файл
@@ -42,10 +47,12 @@ def handle_xlsx_file_task(file_path, upload_type):
                 tmp.seek(0)
                 df = pd.read_excel(tmp.name, engine="openpyxl")
                 # Вызов функции обработки DataFrame
-                process_dataframe(df, upload_type)
+                result = process_dataframe(df, upload_type)
+                return result
     except Exception as e:
         print(f"Error processing Excel file: {e}")
         return False
+
 
 @shared_task
 def handle_csv_file_task(file_path, upload_type):
@@ -53,7 +60,8 @@ def handle_csv_file_task(file_path, upload_type):
         with open(file_path, "r", encoding="utf-8") as file_obj:
             df = pd.read_csv(file_obj)
             # Вызов функцию обработки DataFrame
-            process_dataframe(df, upload_type)
+            result = process_dataframe(df, upload_type)
+            return result
     except Exception as e:
         # Здесь код для логирования ошибок
         print(f"Error processing CSV file: {e}")
@@ -62,12 +70,13 @@ def handle_csv_file_task(file_path, upload_type):
 
 def process_dataframe(df, upload_type):
     ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU"]
+    failed_images = []
     try:
         with transaction.atomic():
             # Адаптируйте ниже код обработки DataFrame в соответствии с вашей логикой
             # Пример обработки для PRODUCT
             if upload_type == "PRODUCTS":
-                for idx, row in df.iterrows():
+                for _, row in df.iterrows():
                     category_path = row["CATEGORIES"].split(" | ")
                     category = None
                     for cat_name in category_path[
@@ -102,7 +111,6 @@ def process_dataframe(df, upload_type):
                                 "Empty category name encountered. Skipping category creation."
                             )
 
-
                     product_title = row["TITLE"]
                     product_slug = translit.slugify(product_title)
                     # TODO добавить DESCRIPTION потом
@@ -116,41 +124,76 @@ def process_dataframe(df, upload_type):
                             },
                         )
 
-                        product_image_urls = row['IMAGES'].split(',')
+                        product_image_urls = row["IMAGES"].split(",")
                         if len(product_image_urls) > 0:
                             for image_url in product_image_urls:
                                 try:
                                     data = requests.get(image_url).content
-                                    file_name = os.path.basename(image_url)
                                 except Exception as err:
-                                    print(err)
+                                    print("Error with image url: %s" % err)
                                     continue
-
-                                
 
                                 try:
                                     pil_image = Image.open(BytesIO(data))
 
-                                    # Convert PIL image to bytes
+                                    # Конвертация PIL фото в байты
                                     img_byte_array = BytesIO()
-                                    pil_image.save(img_byte_array, format='PNG')
+                                    pil_image.save(img_byte_array, format="WEBP")
                                     img_byte_array.seek(0)
                                     product_image = ProductImage(product=product)
 
+                                    result_filename = f"{uuid.uuid4()}.webp"
+
                                     product_image.image.save(
-                                        file_name,
+                                        result_filename,
                                         InMemoryUploadedFile(
                                             img_byte_array,
                                             None,
-                                            file_name,
-                                            'image/png',
+                                            result_filename,
+                                            "image/webp",
                                             img_byte_array.tell(),
-                                            None
-                                        )
+                                            None,
+                                        ),
                                     )
 
                                     print(f"{product_image} successfully saved")
+
+                                    # Стандартизация размеров изображений при импорте
+                                    # 16:9 format (the maximum resolution is HD - 1280:720)
+                                    image = Image.open(product_image.image.file.name)
+                                    width, height = image.size
+                                    
+                                    width = int(min(width, 1280))
+                                    height = int((width * 9) / 16)
+
+                                    image.resize((width, height)).save(product_image.image.file.name)
+
+                                    # Добавление водяного знака на изображение
+                                    
+                                    try:
+                                        path_to_watermark = settings.WATERMARK_PATH
+                                        opacity = int(255 * 0.2) # 20% opacity
+                                        watermark = Image.open(path_to_watermark)
+                                        watermark = watermark.resize((100, 100))
+
+                                        set_opacity(watermark, 0.2)
+
+                                        overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+                                        margin = 30 # margin in pixels
+
+                                        position = (image.width - watermark.width - margin, image.height - watermark.height - margin)
+                                        overlay.paste(watermark, position)
+
+                                        Image.alpha_composite(image.convert('RGBA'), overlay).save(product_image.image.file.name)
+                                    except Exception as err:
+                                        print("Error while adding watermark to image: %s" % err)
+                                        continue
+                                    
+                                    image.close()
+                                    overlay.close()
+                                    watermark.close()
                                 except Exception as err:
+                                    failed_images.append(image_url)
                                     print("Error while save ProductImage: %s" % err)
 
                         # Обработка характеристик и их значений
@@ -178,11 +221,21 @@ def process_dataframe(df, upload_type):
                             f"Unable to create slug for product title '{product_title}'. Skipping product creation."
                         )
             # Добавьте логику для BRANDS, если необходимо
-
+        return failed_images or []
     except Exception as err:
         # Логирование ошибки
         print(f"Error processing data: {err}")
 
+def set_opacity(image: Image, opacity: float):
+    if not 0 <= opacity <= 1:
+        return
+    
+    opacity = int(255 * opacity)
+    for x in range(image.width):
+        for y in range(image.height):
+            r, g, b, a = image.getpixel((x, y))
+            if a > 100:
+                image.putpixel((x, y), (r, g, b, opacity))
 
 @shared_task
 def export_products_to_csv(email_to):

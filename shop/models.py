@@ -40,8 +40,7 @@ class Category(MPTTModel, TimeBasedModel):
     )
 
     order = models.BigIntegerField(
-        verbose_name="Порядковый номер категории",
-        blank=True
+        verbose_name="Порядковый номер категории", blank=True
     )
 
     class Meta:
@@ -117,10 +116,7 @@ class Brand(TimeBasedModel):
         null=True,
         blank=True,
     )
-    order = models.BigIntegerField(
-        verbose_name="Порядковый номер бренда",
-        blank=True
-    )
+    order = models.BigIntegerField(verbose_name="Порядковый номер бренда", blank=True)
 
     def __str__(self) -> str:
         return f"{self.name}"
@@ -145,6 +141,7 @@ class Product(TimeBasedModel):
         related_name="products",
         verbose_name="Бренд",
         null=True,
+        blank=True
     )
     title = models.CharField(
         max_length=255,
@@ -158,6 +155,12 @@ class Product(TimeBasedModel):
     slug = models.SlugField(
         unique=True,
         max_length=256,
+    )
+
+    similar_products = models.ManyToManyField(
+        "self",
+        blank=True,
+        verbose_name='Похожие продукты',
     )
 
     class Meta:

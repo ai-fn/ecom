@@ -19,7 +19,8 @@ from api.views import (
     UserRegistrationView,
     XlsxFileUploadView,
     SendConfirmSMS,
-    VerifyConfirmCode
+    VerifyConfirmCode,
+    SimilarProducts,
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -42,13 +43,18 @@ router.register(r"orders", OrderViewSet)
 router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 
-
 urlpatterns = [
     path("", include(router.urls)),
+    path("shop/", include('shop.urls')),
+    path("cart/", include('cart.urls')),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    re_path(r"^upload/(?P<filename>[^/]+)$", XlsxFileUploadView.as_view()),
+    re_path(
+        r"^upload/(?P<filename>[^/]+)$",
+        XlsxFileUploadView.as_view(),
+        name="upload_products",
+    ),
     re_path(r"^export", DataExportView.as_view()),
     path("register/", UserRegistrationView.as_view(), name="register"),
-    path('search/', GeneralSearchView.as_view(), name='general-search'),
+    path("search/", GeneralSearchView.as_view(), name="general-search"),
 ]
