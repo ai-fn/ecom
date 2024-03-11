@@ -117,6 +117,13 @@ class CartItemViewSet(viewsets.ModelViewSet):
             return ProductDetailSerializer
         
         return super().get_serializer_class()
+    
+    def create(self, request, *args, **kwargs):
+        serializer = CartItemSerializer(data=request.data, many=True, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        serialized_data = serializer.data
+        return Response(serialized_data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["get"])
     def cartitemsdetail(self, request):
