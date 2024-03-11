@@ -2,13 +2,17 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db import transaction
+from django.db.models import Subquery, OuterRef
 
 from rest_framework import status, permissions, viewsets, generics, views
 from rest_framework.response import Response 
+from rest_framework.decorators import action
 
 from account.models import CustomUser
 from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import CartItemSerializer, OrderSerializer
+from api.serializers import ProductDetailSerializer
+from shop.models import Product
 
 
 def add_to_cart(request):
@@ -108,6 +112,24 @@ class CartItemViewSet(viewsets.ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == 'cartitemsdetail':
+            return ProductDetailSerializer
+        
+        return super().get_serializer_class()
+
+    @action(detail=True, methods=["get"])
+    def cartitemsdetail(self, request):
+        queryset = CartItem.objects.filter(customer=request.user).values("product")
+
+        if queryset.exists():
+
+            serialized_data = self.get_serializer(queryset, many=True).data
+
+            return Response(serialized_data, status=status.HTTP_200_OK)
+        
+        return Response({'message': 'Cart items for user with pk %s not found' % request.user.pk}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CartCountView(views.APIView):
