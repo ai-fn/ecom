@@ -3,6 +3,7 @@ from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
 from shop.models import Price, Product
+from cart.models import CartItem
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django.db.models import Q, Subquery, OuterRef
 from rest_framework.response import Response
@@ -97,6 +98,10 @@ class ProductViewSet(viewsets.ModelViewSet):
                 filter_conditions &= Q(brand__name__in=brands_list)
 
         filtered_queryset = self.queryset.filter(filter_conditions)
+        if self.request.user.is_authenticated:
+            filtered_queryset.annotate(cart_quantity=Subquery(
+                CartItem.objects.filter(customer=self.request.user, product=OuterRef("pk")).count()
+            ))
 
         if not filtered_queryset.exists():
             return Response([])
