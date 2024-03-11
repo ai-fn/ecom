@@ -17,6 +17,13 @@ class CartItemSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request", None)
         customer = request.user  # Assuming the customer is the logged-in user
+
+        # Remove 'customer' from validated_data if it exists to avoid conflict
+        validated_data.pop(
+            "customer", None
+        )  # This removes 'customer' if it's present, and does nothing if it's not
+
+        # Now create the CartItem with the customer set to the current user and the rest from validated_data
         cart_item = CartItem.objects.create(customer=customer, **validated_data)
 
         return cart_item
