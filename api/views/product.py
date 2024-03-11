@@ -99,9 +99,13 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         filtered_queryset = self.queryset.filter(filter_conditions)
         if self.request.user.is_authenticated:
-            filtered_queryset.annotate(cart_quantity=Subquery(
-                CartItem.objects.filter(customer=self.request.user, product=OuterRef("pk")).count()
-            ))
+            filtered_queryset.annotate(
+                cart_quantity=Subquery(
+                    CartItem.objects.filter(
+                        customer=self.request.user, product=OuterRef("pk")
+                    ).values("quantity")[:1]
+                )
+            )
 
         if not filtered_queryset.exists():
             return Response([])
