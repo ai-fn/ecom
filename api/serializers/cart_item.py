@@ -5,23 +5,23 @@ from api.serializers import ProductCatalogSerializer
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductCatalogSerializer(read_only=True)
-    product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), write_only=True, source='product')
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), write_only=True, source="product"
+    )
 
     class Meta:
         model = CartItem
-        fields = [
-            'id',
-            'product',
-            'product_id',
-            'quantity'
-        ]
-        read_only_fields = ('id',)
-    
+        fields = ["id", "product", "product_id", "quantity"]
+        read_only_fields = ("id",)
+
     def create(self, validated_data):
-        cart_item = CartItem.objects.create(**validated_data)
+        request = self.context.get("request", None)
+        customer = request.user  # Assuming the customer is the logged-in user
+        cart_item = CartItem.objects.create(customer=customer, **validated_data)
+
         return cart_item
 
     def update(self, instance, validated_data):
-        instance.quantity = validated_data.get('quantity', instance.quantity)
-        instance.save(update_fields=['quantity'])
+        instance.quantity = validated_data.get("quantity", instance.quantity)
+        instance.save(update_fields=["quantity"])
         return instance
