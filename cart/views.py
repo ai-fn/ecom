@@ -15,7 +15,9 @@ from shop.models import Product
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
-
+@extend_schema(
+    tags=['Cart']
+)
 def add_to_cart(request):
     path = request.GET.get("next")
 
@@ -37,54 +39,9 @@ def add_to_cart(request):
     return redirect(path)
 
 
-# def view_cart(request):
-#     path = request.GET.get('next')
-
-#     context = {
-#         'next': path,
-#     }
-
-#     cart = request.session.get('cart', None)
-
-#     if cart:
-#         products = {}
-#         product_list = Product.objects.filter(pk__in=cart.keys()).values('id', 'title', 'description')
-
-#         for product in product_list:
-#             products[str(product['id'])] = product
-
-#         for key in cart.keys():
-#             cart[key]['product'] = products[key]
-
-#         context['cart'] = cart
-
-#     return render(request, 'cart/cart.html', context)
-
-
-# @login_required(login_url='login')
-# def view_order(request):
-#     if request.method == 'POST':
-#         user_id = request.user.pk
-#         customer = CustomUser.objects.get(pk=user_id)
-
-#         cart = request.session['cart']
-
-#         if len(cart) > 0:
-#             order = Order.objects.create(customer=customer)
-
-#             for key, value in cart.items():
-#                 product = Product.objects.get(pk=key)
-#                 quantity = value['quantity']
-#                 ProductsInOrder.objects.create(order=order, product=product, quantity=quantity)
-
-#             request.session['cart'] = {}
-#             request.session.modified = True
-
-#             messages.success(request, 'Заказ принят')
-
-#     return redirect('cart:cart')
-
-
+@extend_schema(
+    tags=['Order']
+)
 class OrderViewSet(viewsets.ModelViewSet):
 
     queryset = Order.objects.all().order_by("-created_at")
@@ -112,6 +69,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(
+    tags=['Cart']
+)
 class CartItemViewSet(viewsets.ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
@@ -131,7 +91,12 @@ class CartItemViewSet(viewsets.ModelViewSet):
                         "product": {
                             "id": 1,
                             "title": "Чердачная лестница Standard Termo",
-                            "brand": 1,
+                            "brand": {
+                                "id": 1,
+                                "name": "Deke",
+                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                                "order": 1,
+                            },
                             "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                             "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
                             "city_price": "4865",
@@ -150,7 +115,12 @@ class CartItemViewSet(viewsets.ModelViewSet):
                         "product": {
                             "id": 2,
                             "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                            "brand": 2,
+                            "brand": {
+                                "id": 1,
+                                "name": "Deke",
+                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                                "order": 1,
+                            },
                             "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                             "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
                             "city_price": "6865",
@@ -186,23 +156,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
         responses={201: CartItemSerializer()},
         examples=[
             OpenApiExample(
-                name="Create Request Example",
-                request_only=True,
-                value=[
-                    {
-                        "product_id": 3732,
-                        "quantity": 15,
-                    },
-                    {
-                        "product_id": 3736,
-                        "quantity": 20,
-                    },
-                ],
-                description="Пример запроса на добавление новых элементов в корзину в Swagger UI",
-                summary="Пример запроса на добавление новых элементов в корзину",
-                media_type="application/json",
-            ),
-            OpenApiExample(
                 name="Create Response Example",
                 response_only=True,
                 value=[
@@ -211,12 +164,21 @@ class CartItemViewSet(viewsets.ModelViewSet):
                         "product": {
                             "id": 3732,
                             "title": "Чердачная лестница Standard Termo",
-                            "brand": 1,
+                            "brand": {
+                                "id": 1,
+                                "name": "Deke",
+                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                                "order": 1,
+                            },
                             "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                             "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
                             "city_price": "4865",
                             "old_price": "3465",
-                            "images": [{"image_url": "catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"}],
+                            "images": [
+                                {
+                                    "image_url": "catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"
+                                }
+                            ],
                             "category_slug": "deke",
                         },
                         "quantity": 15,
@@ -226,12 +188,21 @@ class CartItemViewSet(viewsets.ModelViewSet):
                         "product": {
                             "id": 3736,
                             "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                            "brand": 2,
+                            "brand": {
+                                "id": 1,
+                                "name": "Deke",
+                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                                "order": 1,
+                            },
                             "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                             "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
                             "city_price": "6865",
-                            "old_price":"3865",
-                            "images": [{"image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"}],
+                            "old_price": "3865",
+                            "images": [
+                                {
+                                    "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                }
+                            ],
                             "category_slug": "deke",
                         },
                         "quantity": 20,
@@ -253,378 +224,170 @@ class CartItemViewSet(viewsets.ModelViewSet):
         return Response(serialized_data, status=status.HTTP_201_CREATED)
 
     @extend_schema(
-        description="Получение подробной информации о товаре в корзине",
-        summary="Получение подробной информации о товаре в корзине",
+        description="Получить информацию о конкретном элементе корзины",
+        summary="Информация о элементе корзины",
         responses={200: ProductDetailSerializer()},
         examples=[
             OpenApiExample(
-                name="Create Request Example",
-                request_only=True,
-                value=[
-  {
-    "id": 3732,
-    "category": {
-      "id": 132,
-      "name": "Серия Premium",
-      "slug": "seriya-premium",
-      "order": 15,
-      "parent": 128,
-      "children": null,
-      "parents": [
-        [
-          "Деке",
-          "deke"
-        ],
-        [
-          "Водосточные системы",
-          "vodostochnyie-sistemyi"
-        ]
-      ],
-      "category_meta": [],
-      "icon": null,
-      "image_url": null,
-      "is_visible": true
-    },
-    "title": "Желоб водосточный 3 м Premium, пломбир",
-    "brand": null,
-    "description": "row['DESCRIPTION']",
-    "image": null,
-    "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
-    "created_at": "2024-03-11T13:45:13.024897+03:00",
-    "characteristic_values": [
-      {
-        "id": 89965,
-        "characteristic_name": "Выбранный цвет",
-        "value": "Пломбир (RAL 9003)"
-      },
-      {
-        "id": 89966,
-        "characteristic_name": "Вес брутто",
-        "value": "18.3 кг"
-      },
-      {
-        "id": 89967,
-        "characteristic_name": "Выбранный цвет2",
-        "value": "Пломбир (RAL 9003)"
-      },
-      {
-        "id": 89968,
-        "characteristic_name": "Кол-во в упаковке",
-        "value": "10 шт"
-      },
-      {
-        "id": 89969,
-        "characteristic_name": "Тип упаковки",
-        "value": "Полиэтилен"
-      },
-      {
-        "id": 89970,
-        "characteristic_name": "Толщина стенок",
-        "value": "1.8 мм"
-      },
-      {
-        "id": 89971,
-        "characteristic_name": "Для кровли",
-        "value": "150..250 м2"
-      },
-      {
-        "id": 89972,
-        "characteristic_name": "Глубина желоба",
-        "value": "76 мм"
-      },
-      {
-        "id": 89973,
-        "characteristic_name": "Внешние размеры упаковки (ДхШхВ)",
-        "value": "3000x130x130 мм"
-      },
-      {
-        "id": 89974,
-        "characteristic_name": "Длина",
-        "value": "3 м"
-      },
-      {
-        "id": 89975,
-        "characteristic_name": "Ширина желоба",
-        "value": "120.65 мм"
-      },
-      {
-        "id": 89976,
-        "characteristic_name": "Вес",
-        "value": "1.91 кг"
-      },
-      {
-        "id": 90075,
-        "characteristic_name": "Выбранный цвет",
-        "value": "Пломбир (RAL 9003)"
-      },
-      {
-        "id": 90076,
-        "characteristic_name": "Вес брутто",
-        "value": "18.3 кг"
-      },
-      {
-        "id": 90077,
-        "characteristic_name": "Выбранный цвет2",
-        "value": "Пломбир (RAL 9003)"
-      },
-      {
-        "id": 90078,
-        "characteristic_name": "Кол-во в упаковке",
-        "value": "10 шт"
-      },
-      {
-        "id": 90079,
-        "characteristic_name": "Тип упаковки",
-        "value": "Полиэтилен"
-      },
-      {
-        "id": 90080,
-        "characteristic_name": "Толщина стенок",
-        "value": "1.8 мм"
-      },
-      {
-        "id": 90081,
-        "characteristic_name": "Для кровли",
-        "value": "150..250 м2"
-      },
-      {
-        "id": 90082,
-        "characteristic_name": "Глубина желоба",
-        "value": "76 мм"
-      },
-      {
-        "id": 90083,
-        "characteristic_name": "Внешние размеры упаковки (ДхШхВ)",
-        "value": "3000x130x130 мм"
-      },
-      {
-        "id": 90084,
-        "characteristic_name": "Длина",
-        "value": "3 м"
-      },
-      {
-        "id": 90085,
-        "characteristic_name": "Ширина желоба",
-        "value": "120.65 мм"
-      },
-      {
-        "id": 90086,
-        "characteristic_name": "Вес",
-        "value": "1.91 кг"
-      }
-    ],
-    "images": [
-      {
-        "image_url": "http://127.0.0.1:8000/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
-      },
-      {
-        "image_url": "http://127.0.0.1:8000/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
-      }
-    ]
-  },
-  {
-    "id": 3733,
-    "category": {
-      "id": 132,
-      "name": "Серия Premium",
-      "slug": "seriya-premium",
-      "order": 15,
-      "parent": 128,
-      "children": null,
-      "parents": [
-        [
-          "Деке",
-          "deke"
-        ],
-        [
-          "Водосточные системы",
-          "vodostochnyie-sistemyi"
-        ]
-      ],
-      "category_meta": [],
-      "icon": null,
-      "image_url": null,
-      "is_visible": true
-    },
-    "title": "Желоб водосточный 3 м Premium, шоколад",
-    "brand": null,
-    "description": "row['DESCRIPTION']",
-    "image": null,
-    "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
-    "created_at": "2024-03-11T13:45:20.574851+03:00",
-    "characteristic_values": [
-      {
-        "id": 89977,
-        "characteristic_name": "Выбранный цвет",
-        "value": "Шоколад (RAL 8019)"
-      },
-      {
-        "id": 89978,
-        "characteristic_name": "Вес брутто",
-        "value": "18.3 кг"
-      },
-      {
-        "id": 89979,
-        "characteristic_name": "Выбранный цвет2",
-        "value": "Шоколад (RAL 8019)"
-      },
-      {
-        "id": 89980,
-        "characteristic_name": "Кол-во в упаковке",
-        "value": "10 шт"
-      },
-      {
-        "id": 89981,
-        "characteristic_name": "Тип упаковки",
-        "value": "Полиэтилен"
-      },
-      {
-        "id": 89982,
-        "characteristic_name": "Толщина стенок",
-        "value": "1.8 мм"
-      },
-      {
-        "id": 89983,
-        "characteristic_name": "Для кровли",
-        "value": "150..250 м2"
-      },
-      {
-        "id": 89984,
-        "characteristic_name": "Глубина желоба",
-        "value": "76 мм"
-      },
-      {
-        "id": 89985,
-        "characteristic_name": "Внешние размеры упаковки (ДхШхВ)",
-        "value": "3000x130x130 мм"
-      },
-      {
-        "id": 89986,
-        "characteristic_name": "Длина",
-        "value": "3 м"
-      },
-      {
-        "id": 89987,
-        "characteristic_name": "Ширина желоба",
-        "value": "120.65 мм"
-      },
-      {
-        "id": 89988,
-        "characteristic_name": "Вес",
-        "value": "1.91 кг"
-      },
-      {
-        "id": 90087,
-        "characteristic_name": "Выбранный цвет",
-        "value": "Шоколад (RAL 8019)"
-      },
-      {
-        "id": 90088,
-        "characteristic_name": "Вес брутто",
-        "value": "18.3 кг"
-      },
-      {
-        "id": 90089,
-        "characteristic_name": "Выбранный цвет2",
-        "value": "Шоколад (RAL 8019)"
-      },
-      {
-        "id": 90090,
-        "characteristic_name": "Кол-во в упаковке",
-        "value": "10 шт"
-      },
-      {
-        "id": 90091,
-        "characteristic_name": "Тип упаковки",
-        "value": "Полиэтилен"
-      },
-      {
-        "id": 90092,
-        "characteristic_name": "Толщина стенок",
-        "value": "1.8 мм"
-      },
-      {
-        "id": 90093,
-        "characteristic_name": "Для кровли",
-        "value": "150..250 м2"
-      },
-      {
-        "id": 90094,
-        "characteristic_name": "Глубина желоба",
-        "value": "76 мм"
-      },
-      {
-        "id": 90095,
-        "characteristic_name": "Внешние размеры упаковки (ДхШхВ)",
-        "value": "3000x130x130 мм"
-      },
-      {
-        "id": 90096,
-        "characteristic_name": "Длина",
-        "value": "3 м"
-      },
-      {
-        "id": 90097,
-        "characteristic_name": "Ширина желоба",
-        "value": "120.65 мм"
-      },
-      {
-        "id": 90098,
-        "characteristic_name": "Вес",
-        "value": "1.91 кг"
-      }
-    ],
-    "images": [
-      {
-        "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
-      },
-      {
-        "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
-      }
-    ]
-  }
-],
-                description="Пример ответа подробной информации о товаре в корзине в Swagger UI",
-                summary="Пример подробной информации о товаре в корзине",
+                name="Retrieve Response Example",
+                response_only=True,
+                value={
+                    "id": 24,
+                    "product": {
+                        "id": 3732,
+                        "title": "Желоб водосточный 3 м Premium, пломбир",
+                        "brand": {
+                            "id": 1,
+                            "name": "Deke",
+                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                            "order": 1,
+                        },
+                        "image": "http://127.0.0.1:8000/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
+                        "images": [
+                            {
+                                "image_url": "http://127.0.0.1:8000/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
+                            },
+                            {
+                                "image_url": "http://127.0.0.1:8000/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
+                            },
+                        ],
+                        "category_slug": "seriya-premium",
+                    },
+                    "quantity": 100,
+                },
+                description="Пример ответа для получения информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример ответа для получения информации о конкретном элементе корзины",
                 media_type="application/json",
             ),
+        ],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        description="Получение подробной информации о товарах в корзине",
+        summary="Получение подробной информации о товарах в корзине",
+        responses={200: ProductDetailSerializer(many=True)},
+        examples=[
             OpenApiExample(
-                name="Create Response Example",
+                name="Get Detail Info Request Example",
                 response_only=True,
                 value=[
                     {
-                        "id": 1,
-                        "product": {
-                            "id": 3732,
-                            "title": "Чердачная лестница Standard Termo",
-                            "brand": 1,
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
-                            "city_price": "4865",
-                            "old_price": "3465",
-                            "images": [{"image_url": "catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"}],
-                            "category_slug": "deke",
+                        "id": 3732,
+                        "category": {
+                            "id": 132,
+                            "name": "Серия Premium",
+                            "slug": "seriya-premium",
+                            "order": 15,
+                            "parent": 128,
+                            "children": ["Деке", "deke"],
+                            "parents": [
+                                ["Деке", "deke"],
+                                ["Водосточные системы", "vodostochnyie-sistemyi"],
+                            ],
+                            "category_meta": [
+                                {
+                                    "title": "dummy title",
+                                    "description": "dummy description ",
+                                },
+                            ],
+                            "icon": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                            "image_url": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                            "is_visible": True,
                         },
-                        "quantity": 15,
+                        "title": "Желоб водосточный 3 м Premium, пломбир",
+                        "brand": {
+                            "id": 1,
+                            "name": "Deke",
+                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                            "order": 1,
+                        },
+                        "description": "Желоб водосточный 3 м Premium, пломбир",
+                        "image": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
+                        "created_at": "2024-03-11T13:45:13.024897+03:00",
+                        "characteristic_values": [
+                            {
+                                "id": 89965,
+                                "characteristic_name": "Выбранный цвет",
+                                "value": "Пломбир (RAL 9003)",
+                            },
+                            {
+                                "id": 89966,
+                                "characteristic_name": "Вес брутто",
+                                "value": "18.3 кг",
+                            },
+                        ],
+                        "images": [
+                            {
+                                "image_url": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
+                            },
+                            {
+                                "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
+                            },
+                        ],
                     },
                     {
-                        "id": 2,
-                        "product": {
-                            "id": 3736,
-                            "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                            "brand": 2,
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                            "city_price": "6865",
-                            "old_price":"3865",
-                            "images": [{"image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"}],
-                            "category_slug": "deke",
+                        "id": 3733,
+                        "category": {
+                            "id": 132,
+                            "name": "Серия Premium",
+                            "slug": "seriya-premium",
+                            "order": 15,
+                            "parent": 128,
+                            "children": [
+                                ["Водосточные системы", "vodostochnyie-sistemyi"]
+                            ],
+                            "parents": [
+                                ["Деке", "deke"],
+                            ],
+                            "category_meta": [
+                                {
+                                    "title": "dummy title",
+                                    "description": "dummy description ",
+                                },
+                            ],
+                            "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "is_visible": True,
                         },
-                        "quantity": 20,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": {
+                            "id": 1,
+                            "name": "Deke",
+                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                            "order": 1,
+                        },
+                        "description": "Желоб водосточный 3 м Premium, пломбир",
+                        "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
+                        "created_at": "2024-03-11T13:45:20.574851+03:00",
+                        "characteristic_values": [
+                            {
+                                "id": 89977,
+                                "characteristic_name": "Выбранный цвет",
+                                "value": "Шоколад (RAL 8019)",
+                            },
+                            {
+                                "id": 89978,
+                                "characteristic_name": "Вес брутто",
+                                "value": "18.3 кг",
+                            },
+                        ],
+                        "images": [
+                            {
+                                "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                            },
+                            {
+                                "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                            },
+                        ],
                     },
                 ],
-                description="Пример ответа на добавление новых элементов в корзину в Swagger UI",
-                summary="Пример ответа на добавление новых элементов в корзину",
+                description="Пример ответа подробной информации о товарах в корзине в Swagger UI",
+                summary="Пример подробной информации о товарах в корзине",
                 media_type="application/json",
             ),
         ],
@@ -649,6 +412,128 @@ class CartItemViewSet(viewsets.ModelViewSet):
             status=status.HTTP_404_NOT_FOUND,
         )
 
+    @extend_schema(
+        description="Обновить информацию о конкретном элементе корзины",
+        summary="Обновление информации о элементе корзины",
+        responses={200: CartItemSerializer()},
+        examples=[
+            OpenApiExample(
+                name="Update Request Example",
+                request_only=True,
+                value={
+                    "product_id": 3736,
+                    "quantity": 20
+                },
+                description="Пример запроса на обновление информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример запроса на обновление информации о конкретном элементе корзины",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name="Update Response Example",
+                response_only=True,
+                value={
+                        "id": 2,
+                        "product": {
+                            "id": 3736,
+                            "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
+                            "brand": {
+                                "id": 1,
+                                "name": "Deke",
+                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                                "order": 1,
+                            },
+                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                            "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
+                            "city_price": "6865",
+                            "old_price": "3865",
+                            "images": [
+                                {
+                                    "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                }
+                            ],
+                            "category_slug": "deke",
+                        },
+                        "quantity": 20,
+                    },
+            ),
+        ],
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        description="Частично обновить информацию о конкретном элементе корзины",
+        summary="Частичное обновление информации о элементе корзины",
+        responses={200: ProductDetailSerializer()},
+        examples=[
+            OpenApiExample(
+                name='Partial Update Request Example',
+                request_only=True,
+                value={
+                    "quantity": 20,
+                },
+                description="Пример запроса на частичное обновление информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример запроса на частичное обновление информации о конкретном элементе корзины",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name='Partial Update Response Example',
+                response_only=True,
+                value={
+                        "id": 2,
+                        "product": {
+                            "id": 3736,
+                            "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
+                            "brand": {
+                                "id": 1,
+                                "name": "Deke",
+                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                                "order": 1,
+                            },
+                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                            "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
+                            "city_price": "6865",
+                            "old_price": "3865",
+                            "images": [
+                                {
+                                    "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                }
+                            ],
+                            "category_slug": "deke",
+                        },
+                        "quantity": 20,
+                    },
+                description="Пример ответа на частичное обновление информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример ответа на частичное обновление информации о конкретном элементе корзины",
+                media_type="application/json",
+            ),
+        ]
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        description="Удалить конкретный элемент из корзины",
+        summary="Удаление элемента из корзины",
+        responses={204: "No Content"},
+        examples=[
+            OpenApiExample(
+                name='Delete Request Example',
+                request_only=True,
+                value=None,
+                description="Удаление элемента из корзины"
+            ),
+            OpenApiExample(
+                name='Delete Response Example',
+                response_only=True,
+                value=None,
+                description="Удаление элемента из корзины"
+            )
+        ]
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
     def get_queryset(self):
         # Returns only the cart items that belong to the current user.
         return CartItem.objects.filter(customer=self.request.user)
@@ -662,6 +547,21 @@ class CartCountView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        description="Получение количества товаров в корзине для текущего пользователя",
+        summary="Получение количества товаров в корзине для текущего пользователя",
+        responses={200: "Success"},
+        examples=[
+            OpenApiExample(
+                name='Get Count Response Example',
+                response_only=True,
+                value={
+                    "count": 100
+                },
+                description="Получение количества товаров в корзине для текущего пользователя"
+            )
+        ]
+    )
     def get(self, request):
         queryset = CartItem.objects.filter(customer=request.user)
         if queryset.exists():

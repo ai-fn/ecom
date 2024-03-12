@@ -39,7 +39,6 @@ router.register(r"cities", CityViewSet)
 router.register(r"cities-groups", CityGroupViewSet)
 router.register(r"categories", CategoryViewSet)
 router.register(r"categories-metadata", CategoryMetaDataViewSet)
-router.register(r"orders", OrderViewSet)
 router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 

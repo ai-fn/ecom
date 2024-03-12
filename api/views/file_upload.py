@@ -24,7 +24,8 @@ class XlsxFileUploadView(APIView):
                 location=OpenApiParameter.QUERY,
                 description="Тип данных для импорта (PRODUCTS, BRANDS)",
             ),
-        ]
+        ],
+        tags=["Settings"],
     )
     def put(self, request, filename, format=None):
         file_obj = request.data["file"]
@@ -57,5 +58,5 @@ class XlsxFileUploadView(APIView):
                 {"error": "Error processing file."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-    
-        return Response({'result': result.get()}, status=status.HTTP_200_OK)
+
+        return Response({"result": result.get()}, status=status.HTTP_200_OK)

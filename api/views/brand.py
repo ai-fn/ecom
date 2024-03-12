@@ -5,6 +5,9 @@ from rest_framework import viewsets
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 
+@extend_schema(
+    tags=['Shop']
+)
 class BrandView(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer

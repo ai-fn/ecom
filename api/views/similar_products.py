@@ -1,8 +1,11 @@
 from rest_framework import generics, permissions, response, status
 from api.serializers import ProductCatalogSerializer
 from shop.models import Product
+from drf_spectacular.utils import extend_schema
 
-
+@extend_schema(
+    tags=['Shop']
+)
 class SimilarProducts(generics.GenericAPIView):
     
     permission_classes = [permissions.AllowAny]

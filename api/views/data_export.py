@@ -5,7 +5,11 @@ from rest_framework import status
 
 from api.tasks import export_products_to_csv
 
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    tags=['Settings']
+)
 class DataExportView(APIView):
     # permission_classes = [permissions.IsAdminUser]
     permission_classes = []

@@ -60,8 +60,6 @@ def custom_schema_view(request, *args, **kwargs):
 
 urlpatterns = (
     [
-        path("shop/", include(("shop.urls", "shop"), namespace="shop")),
-        path("cart/", include("cart.urls")),
         path("account/", include("account.urls")),
         path("admin/", admin.site.urls),
         path("", views.view_home, name="home"),
