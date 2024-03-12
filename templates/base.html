@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>
       {% block title %}
-[eq
+      shop API
       {% endblock %}
     </title>
     <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -31,7 +31,6 @@
     <link href="https://assets-global.website-files.com/img/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <link href="https://assets-global.website-files.com/img/webclip.png" rel="apple-touch-icon" />
     <script src="{% static 'jquery.js' %}"></script>
-    {% comment %} <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}" /> {% endcomment %}
     <link rel="stylesheet" href="{% static 'main.css' %}" />
   </head>
   <body>
@@ -54,50 +53,13 @@
                 <img src="https://assets-global.website-files.com/64ccd138d29f94a9a4696ae1/64d9e54db17072671784842b_box.svg" loading="lazy" alt="" />
                 <div>Избранное</div>
               </a>
-              <a href="{% url 'cart:cart' %}" class="cart-row-link cart w-inline-block">
-                <div class="basket-block-1">
-                  <img src="https://assets-global.website-files.com/64ccd138d29f94a9a4696ae1/64d9e4955ffe295130f17c33_cart.svg" loading="lazy" alt="" />
-                  <div class="cart-notify"></div>
-                </div>
-                <div>Корзина</div>
-              </a>
+
             </div>
             <div data-hover="false" data-delay="0" class="dropdown w-dropdown">
               <div class="dropdown-toggle w-dropdown-toggle">
                 <img src="https://assets-global.website-files.com/64ccd138d29f94a9a4696ae1/64d6287e1d63eed9f02a0c9e_menu.svg" loading="lazy" width="21" alt="" class="image-2" />
                 <div>Каталог</div>
               </div>
-              <nav class="dropdown-list w-dropdown-list">
-                <div class="dropdown-toggle-list"></div>
-                {% for category in categories %}
-                  <div class="dropdown-toggle-block">
-                    <!-- Level 1 Category -->
-                    <div data-hover="true" data-delay="0"  class="dropdown-toggle-inside-div w-dropdown">
-                      <div class="dropdown-toggle-inside w-dropdown-toggle">
-                        <div class="w-icon-dropdown-toggle"></div>
-                        <div>{{ category.name }}</div>
-                      </div>
-                      <nav class="dropdown-list-header-div w-dropdown-list">
-                        <div class="dropdown-list-header">{{ category.name }}</div>
-                        <div class="categories-row">
-                          {% for subcategory in category.get_children %}
-                            <div class="dropdown-card-div">
-                              <!-- Level 2 Category -->
-                              <div class="dropdown-card-header">{{ subcategory.name }}</div>
-                              <div class="dropdown-card-link-div">
-                                {% for child in subcategory.get_children %}
-                                  <!-- Level 3 Category -->
-                                  <a href="#" class="dropdown-card-link">{{ child.name }}</a>
-                                {% endfor %}
-                              </div>
-                            </div>
-                          {% endfor %}
-                        </div>
-                      </nav>
-                    </div>
-                  </div>
-                {% endfor %}
-              </nav>
             </div>
             <div class="top-menu">
               <div class="block-address">
