@@ -147,7 +147,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
-    def deletecart(self, request, *args, **kwargs):
+    def delete_cart(self, request, *args, **kwargs):
         queryset = CartItem.objects.filter(customer=request.user)
         
         if queryset.exists():
@@ -426,7 +426,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
         ],
     )
     @action(detail=False, methods=["get"])
-    def cartitemsdetail(self, request):
+    def cartitems_detail(self, request):
         id_lists = list(
             CartItem.objects.filter(customer=request.user).values_list(
                 "product", flat=True
