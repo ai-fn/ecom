@@ -7,7 +7,12 @@ from shop.models import Category
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from drf_spectacular.utils import extend_schema
 
+
+@extend_schema(
+    tags=['Shop']
+)
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer

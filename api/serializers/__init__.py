@@ -8,6 +8,7 @@ from .review import ReviewSerializer
 from .city import CitySerializer
 from .city_group import CityGroupSerializer
 from .promo import PromoSerializer
+from .products_in_order import ProductsInOrderSerializer
 from .order import OrderSerializer
 from .characteristic import CharacteristicSerializer
 from .characteristic_value import CharacteristicValueSerializer
@@ -21,7 +22,6 @@ from .review import ReviewSerializer
 from .category_detail import CategoryDetailSerializer
 from .order import OrderSerializer
 from .price import PriceSerializer
-from .products_in_order import ProductsInOrderSerializer
 from .cart_item import CartItemSerializer
 from .cart_item import SimplifiedCartItemSerializer
 from ._document import CategoryDocumentSerializer

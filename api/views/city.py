@@ -4,7 +4,11 @@ from account.models import City
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.city import CitySerializer
 
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    tags=['City']
+)
 class CityViewSet(viewsets.ModelViewSet):
     """Возвращает города
     Args:

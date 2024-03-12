@@ -4,6 +4,11 @@ from rest_framework.permissions import IsAdminUser
 
 from shop.models import Setting
 
+from drf_spectacular.utils import extend_schema
+
+@extend_schema(
+    tags=['Settings']
+)
 class SettingViewSet(viewsets.ModelViewSet):
     """Возвращает настройки
 

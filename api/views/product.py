@@ -10,6 +10,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 
+from drf_spectacular.utils import extend_schema
+
+@extend_schema(
+    tags=['Shop']
+)
 class ProductViewSet(viewsets.ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.

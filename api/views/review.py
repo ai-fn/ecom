@@ -3,7 +3,11 @@ from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.review import ReviewSerializer
 from shop.models import Review
 
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    tags=['Reviews']
+)
 class ReviewViewSet(viewsets.ModelViewSet):
     """Возвращает отзывы
 

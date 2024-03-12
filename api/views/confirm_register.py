@@ -19,7 +19,11 @@ from account.models import CustomUser
 
 CACHE_KEY_PREFIX = "CONFIRMATION_CODE"
 
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    tags=['Account']
+)
 class SendConfirmSMS(GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = PhoneSerializer
@@ -58,6 +62,9 @@ class SendConfirmSMS(GenericAPIView):
             return Response({'message': 'Confirmation code successfuly sent'}, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=['Account']
+)
 class VerifyConfirmCode(GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = ConfirmCodeSerializer
