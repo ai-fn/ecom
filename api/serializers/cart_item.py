@@ -38,3 +38,9 @@ class CartItemSerializer(serializers.ModelSerializer):
         instance.quantity = validated_data.get("quantity", instance.quantity)
         instance.save(update_fields=["quantity"])
         return instance
+
+
+class SimplifiedCartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['product_id', 'quantity']
