@@ -85,7 +85,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
         existing_cart_items = CartItem.objects.filter(customer=request.user)
 
         # Transform existing cart items into a dictionary using product_id for easier processing
-        existing_cart_dict = {item.id: item for item in existing_cart_items}
+        existing_cart_dict = {item.product.id: item for item in existing_cart_items}
 
         # Process incoming data
         for incoming_item in request.data:
