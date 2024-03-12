@@ -74,11 +74,13 @@ class CartItemViewSet(viewsets.ModelViewSet):
             return ProductDetailSerializer
 
         return super().get_serializer_class()
-    
+
     @extend_schema(
         request=CartItemSerializer(many=True),
-        responses={201: SimplifiedCartItemSerializer(many=True)},  # Change response serializer here
-        description="Merge provided cart items with the existing cart, then return the updated cart."
+        responses={
+            201: SimplifiedCartItemSerializer(many=True)
+        },  # Change response serializer here
+        description="Merge provided cart items with the existing cart, then return the updated cart.",
     )
     def create(self, request, *args, **kwargs):
         # Get current user's cart items
@@ -89,24 +91,28 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
         # Process incoming data
         for incoming_item in request.data:
-            product_id = incoming_item.get('product_id')
-            quantity = incoming_item.get('quantity', 0)
+            product_id = incoming_item.get("product_id")
+            new_quantity = incoming_item.get("quantity", 0)
 
             # Update existing item or create a new one
             if product_id in existing_cart_dict:
                 # Update quantity of existing item
                 existing_item = existing_cart_dict[product_id]
-                existing_item.quantity = quantity  # Or your logic for merging quantities
+                existing_item.quantity = new_quantity  # Add to the existing quantity
                 existing_item.save()
             else:
                 # Create a new cart item for this user
-                CartItem.objects.create(customer=request.user, product_id=product_id, quantity=quantity)
+                CartItem.objects.create(
+                    customer=request.user, product_id=product_id, quantity=new_quantity
+                )
 
         # After updating the cart, return the updated cart items for the user
         updated_cart_items = CartItem.objects.filter(customer=request.user)
-        response_serializer = SimplifiedCartItemSerializer(updated_cart_items, many=True)  # Change to SimplifiedCartItemSerializer here
+        response_serializer = SimplifiedCartItemSerializer(
+            updated_cart_items, many=True
+        )
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-    
+
     @extend_schema(
         summary="Retrieve cart items details",
         responses={200: ProductDetailSerializer(many=True)},
