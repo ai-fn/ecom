@@ -21,6 +21,10 @@ class CategoryDocumentSerializer(DocumentSerializer):
 
 class ProductDocumentSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
+    category_slug = serializers.SlugField(
+        source="category.slug",
+        read_only=True,
+    )
 
     class Meta:
         model = Product
@@ -28,7 +32,9 @@ class ProductDocumentSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "description",
-            "images",  # Ensure images are included
+            "images",
+            "category_slug",
+            "slug",
         ]
 
 

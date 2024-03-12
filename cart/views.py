@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db import transaction
 from django.db.models import Sum
+from api.serializers import SimplifiedCartItemSerializer
 
 from rest_framework import status, permissions, viewsets, views
 from rest_framework.response import Response
@@ -12,6 +13,7 @@ from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import CartItemSerializer, OrderSerializer
 from api.serializers import ProductDetailSerializer
 from shop.models import Product
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
@@ -42,6 +44,7 @@ def add_to_cart(request):
 @extend_schema(
     tags=['Order']
 )
+
 class OrderViewSet(viewsets.ModelViewSet):
 
     queryset = Order.objects.all().order_by("-created_at")
@@ -215,13 +218,35 @@ class CartItemViewSet(viewsets.ModelViewSet):
         ],
     )
     def create(self, request, *args, **kwargs):
-        serializer = CartItemSerializer(
-            data=request.data, many=True, context={"request": request}
+        # Get current user's cart items
+        existing_cart_items = CartItem.objects.filter(customer=request.user)
+
+        # Transform existing cart items into a dictionary using product_id for easier processing
+        existing_cart_dict = {item.product.id: item for item in existing_cart_items}
+
+        # Process incoming data
+        for incoming_item in request.data:
+            product_id = incoming_item.get("product_id")
+            new_quantity = incoming_item.get("quantity", 0)
+
+            # Update existing item or create a new one
+            if product_id in existing_cart_dict:
+                # Update quantity of existing item
+                existing_item = existing_cart_dict[product_id]
+                existing_item.quantity = new_quantity  # Add to the existing quantity
+                existing_item.save()
+            else:
+                # Create a new cart item for this user
+                CartItem.objects.create(
+                    customer=request.user, product_id=product_id, quantity=new_quantity
+                )
+
+        # After updating the cart, return the updated cart items for the user
+        updated_cart_items = CartItem.objects.filter(customer=request.user)
+        response_serializer = SimplifiedCartItemSerializer(
+            updated_cart_items, many=True
         )
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        serialized_data = serializer.data
-        return Response(serialized_data, status=status.HTTP_201_CREATED)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
     @extend_schema(
         description="Получить информацию о конкретном элементе корзины",
@@ -542,7 +567,9 @@ class CartItemViewSet(viewsets.ModelViewSet):
         # Associates the new cart item with the current user.
         serializer.save(customer=self.request.user)
 
-
+@extend_schema(
+    tags=['Cart']
+)
 class CartCountView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]

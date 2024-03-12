@@ -16,14 +16,7 @@
         </div>
         <div class="container mb-5">
           <div class="row">
-            {% for product in article.products.all %}
-              <div class="col-md-4">
-                <h2>{{ product.title }}</h2>
-                <a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}" width="120" /></a>
-                <p>{{ product.description }}</p>
-                {% include 'cart/add_to_cart.html' %}
-              </div>
-            {% endfor %}
+
           </div>
         </div>
       </div>
