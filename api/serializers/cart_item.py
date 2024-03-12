@@ -24,7 +24,6 @@ class CartItemSerializer(serializers.ModelSerializer):
         )  # This removes 'customer' if it's present, and does nothing if it's not
 
         # Now create the CartItem with the customer set to the current user and the rest from validated_data
-        print("validated_data:", validated_data)
         queryset = CartItem.objects.filter(customer=customer, product=validated_data['product'])
         if not queryset.exists():
             cart_item = CartItem.objects.create(customer=customer, **validated_data)
