@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db import transaction
 from django.db.models import Sum
+from api.serializers import SimplifiedCartItemSerializer
 
 from rest_framework import status, permissions, viewsets, views
 from rest_framework.response import Response
@@ -73,21 +74,39 @@ class CartItemViewSet(viewsets.ModelViewSet):
             return ProductDetailSerializer
 
         return super().get_serializer_class()
-
+    
     @extend_schema(
         request=CartItemSerializer(many=True),
-        responses={201: CartItemSerializer(many=True)},
-        description="Create multiple cart items in a single request",
+        responses={201: SimplifiedCartItemSerializer(many=True)},  # Change response serializer here
+        description="Merge provided cart items with the existing cart, then return the updated cart."
     )
     def create(self, request, *args, **kwargs):
-        serializer = CartItemSerializer(
-            data=request.data, many=True, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        serialized_data = serializer.data
-        return Response(serialized_data, status=status.HTTP_201_CREATED)
+        # Get current user's cart items
+        existing_cart_items = CartItem.objects.filter(customer=request.user)
 
+        # Transform existing cart items into a dictionary using product_id for easier processing
+        existing_cart_dict = {item.id: item for item in existing_cart_items}
+
+        # Process incoming data
+        for incoming_item in request.data:
+            product_id = incoming_item.get('product_id')
+            quantity = incoming_item.get('quantity', 0)
+
+            # Update existing item or create a new one
+            if product_id in existing_cart_dict:
+                # Update quantity of existing item
+                existing_item = existing_cart_dict[product_id]
+                existing_item.quantity = quantity  # Or your logic for merging quantities
+                existing_item.save()
+            else:
+                # Create a new cart item for this user
+                CartItem.objects.create(customer=request.user, product_id=product_id, quantity=quantity)
+
+        # After updating the cart, return the updated cart items for the user
+        updated_cart_items = CartItem.objects.filter(customer=request.user)
+        response_serializer = SimplifiedCartItemSerializer(updated_cart_items, many=True)  # Change to SimplifiedCartItemSerializer here
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+    
     @extend_schema(
         summary="Retrieve cart items details",
         responses={200: ProductDetailSerializer(many=True)},
