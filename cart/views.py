@@ -146,6 +146,14 @@ class CartItemViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
+    def deletecart(self, request, *args, **kwargs):
+        queryset = CartItem.objects.filter(customer=request.user)
+        
+        if queryset.exists():
+            queryset.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_class(self):
         if self.action == "cartitemsdetail":
