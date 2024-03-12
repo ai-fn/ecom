@@ -4,7 +4,12 @@ from api.serializers.characteristic import CharacteristicSerializer
 
 from shop.models import Characteristic
 
+from drf_spectacular.utils import extend_schema
 
+
+@extend_schema(
+    tags=['Shop']
+)
 class CharacteristicViewSet(viewsets.ModelViewSet):
     """Возвращает характеристики продукта
 

@@ -18,6 +18,7 @@ from shop.models import Category, Product
 
 
 @extend_schema(
+    tags=['Search'],
     parameters=[
         OpenApiParameter(
             name="q",

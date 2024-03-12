@@ -7,7 +7,11 @@ from rest_framework import filters
 
 from shop.models import Price
 
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    tags=['Shop']
+)
 class PriceViewSet(viewsets.ModelViewSet):
     queryset = Price.objects.all().order_by("-created_at")
     serializer_class = PriceSerializer

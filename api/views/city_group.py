@@ -4,7 +4,11 @@ from account.models import CityGroup
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.city_group import CityGroupSerializer
 
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    tags=['City']
+)
 class CityGroupViewSet(viewsets.ModelViewSet):
     """Возвращает группы городов
 
