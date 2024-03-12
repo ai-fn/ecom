@@ -23,6 +23,7 @@ from .order import OrderSerializer
 from .price import PriceSerializer
 from .products_in_order import ProductsInOrderSerializer
 from .cart_item import CartItemSerializer
+from .cart_item import SimplifiedCartItemSerializer
 from ._document import CategoryDocumentSerializer
 from ._document import ProductDocumentSerializer
 from ._document import ReviewDocumentSerializer
