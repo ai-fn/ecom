@@ -40,7 +40,6 @@ class ProductDocument(Document):
             "slug": fields.TextField(),
         }
     )
-
     brand = fields.ObjectField(
         properties={
             "name": fields.TextField(),
