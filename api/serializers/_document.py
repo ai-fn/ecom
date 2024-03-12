@@ -34,6 +34,7 @@ class ProductDocumentSerializer(serializers.ModelSerializer):
             "description",
             "images",
             "category_slug",
+            "slug",
         ]
 
 
