@@ -16,7 +16,41 @@ from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
+
+@extend_schema(
+    tags=['Account'],
+    description="Регистрация пользователя",
+    summary="Регистрация пользователя",
+    responses={200: UserRegistrationSerializer()},
+    examples=[
+        OpenApiExample(
+            response_only=True,
+            name="Register Responce Example",
+            value={
+                "username": "root_user",
+                "email": "user@example.com",
+                "password": "q3465rwdseewq3411_&3q",
+                "phone": {
+                    "phone_number": "+79983543246"
+                }
+            }
+        ),
+        OpenApiExample(
+            request_only=True,
+            name="Register Request Example",
+            value={
+                "username": "root_user",
+                "email": "user@example.com",
+                "password": "q3465rwdseewq3411_&3q",
+                "phone": {
+                    "phone_number": "+79983543246"
+                }
+            }
+        )
+    ]
+)
 class Register(GenericAPIView):
 
     serializer_class = UserRegistrationSerializer
@@ -81,6 +115,11 @@ class Register(GenericAPIView):
             return Response({"message": "Message sent failed"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=['Account'],
+    description="Подтверждение регистрации пользователя",
+    summary="Подтверждение регистрации пользователя",
+)
 class EmailVerifyView(APIView):
     permission_classes = [AllowAny]
 

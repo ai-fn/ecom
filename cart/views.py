@@ -1,5 +1,4 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.db import transaction
 from django.db.models import Sum
 from api.serializers import SimplifiedCartItemSerializer
@@ -8,49 +7,108 @@ from rest_framework import status, permissions, viewsets, views
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from account.models import CustomUser
 from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import CartItemSerializer, OrderSerializer
 from api.serializers import ProductDetailSerializer
 from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-
 from drf_spectacular.utils import extend_schema, OpenApiExample
-
-@extend_schema(
-    tags=['Cart']
-)
-def add_to_cart(request):
-    path = request.GET.get("next")
-
-    if request.method == "POST":
-        product_id = request.GET.get("product_id")
-
-        if "cart" not in request.session:
-            request.session["cart"] = {}
-
-        cart = request.session.get("cart")
-
-        if product_id in cart:
-            cart[product_id]["quantity"] += 1
-
-        else:
-            cart[product_id] = {"quantity": 1}
-
-    request.session.modified = True
-    return redirect(path)
 
 
 @extend_schema(
     tags=['Order']
 )
-
 class OrderViewSet(viewsets.ModelViewSet):
 
     queryset = Order.objects.all().order_by("-created_at")
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        description="Получить список всех заказов",
+        summary="Список заказов",
+        responses={200: OrderSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                name='List Response Example',
+                response_only=True,
+                value=[
+                    {
+                        "id": 1,
+                        "customer": "John Doe",
+                        "products": [1, 2, 3],
+                        "created_at": "2024-03-12T12:00:00Z"
+                    },
+                    {
+                        "id": 2,
+                        "customer": "Jane Smith",
+                        "products": [4, 5],
+                        "created_at": "2024-03-12T13:00:00Z"
+                    }
+                ],
+                description="Пример ответа для получения списка всех заказов в Swagger UI",
+                summary="Пример ответа для получения списка всех заказов",
+                media_type="application/json",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        description="Получить информацию о конкретном заказе",
+        summary="Информация о заказе",
+        responses={200: OrderSerializer()},
+        examples=[
+            OpenApiExample(
+                name='Retrieve Response Example',
+                response_only=True,
+                value={
+                    "id": 1,
+                    "customer": "John Doe",
+                    "products": [1, 2, 3],
+                    "created_at": "2024-03-12T12:00:00Z"
+                },
+                description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
+                summary="Пример ответа для получения информации о конкретном заказе",
+                media_type="application/json",
+            ),
+        ]
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        description="Создать новый заказ",
+        summary="Создание заказа",
+        request=OrderSerializer,
+        responses={201: OrderSerializer()},
+        examples=[
+            OpenApiExample(
+                name='Create Request Example',
+                request_only=True,
+                value={
+                    "customer": "John Doe",
+                    "products": [1, 2, 3],
+                },
+                description="Пример запроса на создание нового заказа в Swagger UI",
+                summary="Пример запроса на создание нового заказа",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name='Create Response Example',
+                response_only=True,
+                value={
+                    "id": 3,
+                    "customer": "John Doe",
+                    "products": [1, 2, 3],
+                    "created_at": "2024-03-12T15:00:00Z"
+                },
+                description="Пример ответа на создание нового заказа в Swagger UI",
+                summary="Пример ответа на создание нового заказа",
+                media_type="application/json",
+            ),
+        ]
+    )
     def create(self, request, *args, **kwargs):
         customer = request.user
         cart_items = CartItem.objects.filter(customer=customer)
@@ -70,6 +128,84 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             serializer = self.get_serializer(order)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @extend_schema(
+        description="Обновить информацию о конкретном заказе",
+        summary="Обновление заказа",
+        request=OrderSerializer,
+        responses={200: OrderSerializer()},
+        examples=[
+            OpenApiExample(
+                name='Update Request Example',
+                request_only=True,
+                value={
+                    "customer": 2,
+                    "products": [4, 5, 6]
+                },
+                description="Пример запроса на обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример запроса на обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name='Update Response Example',
+                response_only=True,
+                value={
+                    "id": 1,
+                    "customer": 2,
+                    "products": [4, 5, 6],
+                    "created_at": "2024-03-12T12:00:00Z"
+                },
+                description="Пример ответа на обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример ответа на обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+        ]
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        description="Частично обновить информацию о конкретном заказе",
+        summary="Частичное обновление заказа",
+        request=OrderSerializer,
+        responses={200: OrderSerializer()},
+        examples=[
+            OpenApiExample(
+                name='Partial Update Request Example',
+                request_only=True,
+                value={
+                    "products": [4, 5, 6]
+                },
+                description="Пример запроса на частичное обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример запроса на частичное обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name='Partial Update Response Example',
+                response_only=True,
+                value={
+                    "id": 1,
+                    "customer": 1,
+                    "products": [4, 5, 6],
+                    "created_at": "2024-03-12T12:00:00Z"
+                },
+                description="Пример ответа на частичное обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример ответа на частичное обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+        ]
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        description="Удалить заказ",
+        summary="Удаление заказа",
+        responses={204: "No Content"},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
 
 
 @extend_schema(
@@ -164,59 +300,36 @@ class CartItemViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Добавить новые элементы в корзину",
         summary="Добавление новых элементов в корзину",
-        responses={201: CartItemSerializer()},
+        responses={201: CartItemSerializer(many=True)},
         examples=[
+            OpenApiExample(
+                name="Create Request Example",
+                request_only=True,
+                value=[
+                    {
+                    "product_id": 3732,
+                    "quantity": 15
+                    },
+                    {
+                    "product_id": 3733,
+                    "quantity": 13
+                    },
+                ],
+                description="Пример запроса на добавление новых элементов в корзину в Swagger UI",
+                summary="Пример запроса на добавление новых элементов в корзину",
+                media_type="application/json",
+            ),
             OpenApiExample(
                 name="Create Response Example",
                 response_only=True,
                 value=[
                     {
-                        "id": 1,
-                        "product": {
-                            "id": 3732,
-                            "title": "Чердачная лестница Standard Termo",
-                            "brand": {
-                                "id": 1,
-                                "name": "Deke",
-                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                                "order": 1,
-                            },
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
-                            "city_price": "4865",
-                            "old_price": "3465",
-                            "images": [
-                                {
-                                    "image_url": "catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"
-                                }
-                            ],
-                            "category_slug": "deke",
-                        },
-                        "quantity": 15,
+                    "product_id": 3732,
+                    "quantity": 15
                     },
                     {
-                        "id": 2,
-                        "product": {
-                            "id": 3736,
-                            "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                            "brand": {
-                                "id": 1,
-                                "name": "Deke",
-                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                                "order": 1,
-                            },
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                            "city_price": "6865",
-                            "old_price": "3865",
-                            "images": [
-                                {
-                                    "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
-                                }
-                            ],
-                            "category_slug": "deke",
-                        },
-                        "quantity": 20,
+                    "product_id": 3733,
+                    "quantity": 13
                     },
                 ],
                 description="Пример ответа на добавление новых элементов в корзину в Swagger UI",
@@ -548,7 +661,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить конкретный элемент из корзины",
         summary="Удаление элемента из корзины",
-        responses={204: "No Content"},
+        responses={204: "Export started. You will receive the products file by email."},
         examples=[
             OpenApiExample(
                 name='Delete Request Example',
