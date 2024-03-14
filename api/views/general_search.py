@@ -18,7 +18,9 @@ from shop.models import Category, Product
 
 
 @extend_schema(
-    tags=['Search'],
+    tags=["Search"],
+    summary="Поиск товаров в катологе",
+    description="Поиск товаров в катологе",
     parameters=[
         OpenApiParameter(
             name="q",
@@ -35,8 +37,45 @@ from shop.models import Category, Product
             ],
         )
     ],
+    examples=[
+        OpenApiExample(
+                    "Example search",
+                    summary="Simple example",
+                    description='Example of a search query, for instance, "tv"',
+                    value={
+                        "categories": [
+                            {
+                                "name": "Dummy Category",
+                                "slug": "dummy-category",
+                                "is_visible": True,
+                            }
+                        ],
+                        "products": [
+                            {
+                                "id": 1,
+                                "title": "Dummy Product",
+                                "description": "Dummy Product Description",
+                                "images": [
+                                    {
+                                        "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                    }
+                                ],
+                                "category_slug": "dummy-category",
+                                "slug": "dummy-product",
+                            }
+                        ],
+                        "reviews": [
+                            {
+                                "name": "Dummy User Name",
+                                "rating": 5,
+                                "review": "Dummy review",
+                            }
+                        ],
+                    },
+                ),
+    ],
     responses={
-        200: OpenApiTypes.OBJECT,  # Specify more specific types here if necessary
+        200: OpenApiTypes.OBJECT,
     },
 )
 class GeneralSearchView(APIView):
