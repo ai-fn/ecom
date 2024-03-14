@@ -1,9 +1,6 @@
-<<<<<<< cart/views.py
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
-=======
 from django.shortcuts import redirect
->>>>>>> cart/views.py
 from django.db import transaction
 from django.db.models import Sum
 from api.serializers import SimplifiedCartItemSerializer
