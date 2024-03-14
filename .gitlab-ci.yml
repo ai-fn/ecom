@@ -22,4 +22,4 @@ deploy:
         StrictHostKeyChecking no
       END
       echo "Running deploy..."
-      ssh target-shop "cd shop-backend/ && docker compose -f docker-compose-traefik.yml down && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git && docker compose -f docker-compose-traefik.yml build && docker compose -f docker-compose-traefik.yml up -d --force-recreate && docker compose exec web python manage.py migrate --settings=megashop.settings.local && docker compose exec web python manage.py migrate --settings=megashop.settings.local && docker compose -f docker-compose-traefik.yml exec web python manage.py search_index --rebuild --skip-checks"
+      ssh target-shop "cd shop-backend/ && docker compose -f docker-compose-traefik.yml down && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git && docker compose -f docker-compose-traefik.yml build && docker compose -f docker-compose-traefik.yml up -d --force-recreate && docker compose exec web python manage.py migrate --settings=megashop.settings.local && docker compose exec web python manage.py migrate --settings=megashop.settings.local"
