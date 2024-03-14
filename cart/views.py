@@ -288,6 +288,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
+    @action(methods=["delete"], detail=False)
     def delete_cart(self, request, *args, **kwargs):
         queryset = CartItem.objects.filter(customer=request.user)
         
