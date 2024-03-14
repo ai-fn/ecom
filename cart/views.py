@@ -156,7 +156,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_class(self):
-        if self.action == "cartitemsdetail":
+        if self.action == "cartitems_detail":
             return ProductDetailSerializer
         elif self.action == "partial_update":
             return SimplifiedCartItemSerializer
