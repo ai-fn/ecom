@@ -8,8 +8,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from cart.models import Order, ProductsInOrder, CartItem
-from api.serializers import CartItemSerializer, OrderSerializer
-from api.serializers import ProductDetailSerializer
+from api.serializers import (
+    CartItemSerializer,
+    OrderSerializer,
+    ProductDetailSerializer,
+    )
 from shop.models import Product
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
@@ -294,8 +297,44 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "cartitemsdetail":
             return ProductDetailSerializer
+        elif self.action == "get_simple_prods":
+            return SimplifiedCartItemSerializer
 
         return super().get_serializer_class()
+    
+    @extend_schema(
+        description="Получить список минимальной информации об элементах корзины",
+        summary="Список минимальной информации об элементах корзины",
+        responses={200: SimplifiedCartItemSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                name="List Response Example",
+                response_only=True,
+                value=[
+                    {
+                        "product_id": 1,
+                        "quantity": 15,
+                    },
+                    {
+                        "product_id": 2,
+                        "quantity": 12,
+                    },
+                ],
+                description="Пример ответа для получения списка минимальной информации об элементах корзины в Swagger UI",
+                summary="Пример ответа для получения списка минимальной информации об элементах корзины",
+                media_type="application/json",
+            ),
+        ],
+    )
+    @action(detail=False, methods=["get"])
+    def get_simple_prods(self, request, *args, **kwargs):
+        queryset = CartItem.objects.filter(customer=request.user)
+        if queryset.exists():
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response({'error': 'Cart items for provided user not found'}, status=status.HTTP_400_BAD_REQUEST)
+
 
     @extend_schema(
         description="Добавить новые элементы в корзину",
