@@ -137,61 +137,50 @@ def process_dataframe(df, upload_type):
                                     pil_image = Image.open(BytesIO(data))
 
                                     # Конвертация PIL фото в байты
-                                    img_byte_array = BytesIO()
-                                    pil_image.save(img_byte_array, format="WEBP")
-                                    img_byte_array.seek(0)
                                     product_image = ProductImage(product=product)
-
-                                    result_filename = f"{uuid.uuid4()}.webp"
-
-                                    product_image.image.save(
-                                        result_filename,
-                                        InMemoryUploadedFile(
-                                            img_byte_array,
-                                            None,
-                                            result_filename,
-                                            "image/webp",
-                                            img_byte_array.tell(),
-                                            None,
-                                        ),
-                                    )
-
-                                    print(f"{product_image} successfully saved")
 
                                     # Стандартизация размеров изображений при импорте
                                     # 16:9 format (the maximum resolution is HD - 1280:720)
-                                    image = Image.open(product_image.image.file.name)
-                                    width, height = image.size
+                                    width, height = pil_image.size
                                     
                                     width = int(min(width, 1280))
                                     height = int((width * 9) / 16)
 
-                                    image.resize((width, height)).save(product_image.image.file.name)
+                                    pil_image = pil_image.resize((width, height))
 
                                     # Добавление водяного знака на изображение
-                                    
-                                    try:
-                                        path_to_watermark = settings.WATERMARK_PATH
-                                        opacity = int(255 * 0.2) # 20% opacity
-                                        watermark = Image.open(path_to_watermark)
-                                        watermark = watermark.resize((100, 100))
+                                    path_to_watermark = settings.WATERMARK_PATH
+                                    opacity = 0.6 # 20% opacity
+                                    watermark = Image.open(path_to_watermark)
+                                    set_opacity(watermark, opacity)
+                                    watermark = watermark.resize((100, 100))
 
-                                        set_opacity(watermark, 0.2)
+                                    overlay = Image.new("RGBA", pil_image.size, (0, 0, 0, 0))
+                                    margin = 30 # margin in pixels
 
-                                        overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
-                                        margin = 30 # margin in pixels
+                                    position = (pil_image.width - watermark.width - margin, pil_image.height - watermark.height - margin)
+                                    overlay.paste(watermark, position)
+                                    pil_image = Image.alpha_composite(pil_image.convert("RGBA"), overlay)
 
-                                        position = (image.width - watermark.width - margin, image.height - watermark.height - margin)
-                                        overlay.paste(watermark, position)
+                                    format = "webp"
+                                    pil_image_io = BytesIO()
+                                    pil_image.save(pil_image_io, format.upper())
+                                    pil_image_io.seek(0)
+                                    filename = f"image-{uuid.uuid4()}.{format}"
 
-                                        Image.alpha_composite(image.convert('RGBA'), overlay).save(product_image.image.file.name)
-                                    except Exception as err:
-                                        print("Error while adding watermark to image: %s" % err)
-                                        continue
-                                    
-                                    image.close()
-                                    overlay.close()
-                                    watermark.close()
+                                    product_image.image.save(
+                                        filename,
+                                        InMemoryUploadedFile(
+                                            pil_image_io,
+                                            None,
+                                            filename,
+                                            "image/webp",
+                                            pil_image_io.tell(),
+                                            None,
+                                        ),
+                                    )
+                                    print("%s saved" % product_image)
+                                        
                                 except Exception as err:
                                     failed_images.append(image_url)
                                     print("Error while save ProductImage: %s" % err)
@@ -236,6 +225,13 @@ def set_opacity(image: Image, opacity: float):
             r, g, b, a = image.getpixel((x, y))
             if a > 100:
                 image.putpixel((x, y), (r, g, b, opacity))
+
+# def set_opacity(watermark_path: Image, opacity: float):
+#     with Image.open(watermark_path) as file:
+#         cp = file.copy()
+#     cp.convert('RGBA')
+#     cp.putalpha(255 * opacity)
+#     return cp
 
 @shared_task
 def export_products_to_csv(email_to):
