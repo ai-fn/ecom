@@ -6,7 +6,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 
 
 @extend_schema(
-    tags=['account']
+    tags=['api']
 )
 class MyTokenObtainPairView(TokenObtainPairView):
     """
