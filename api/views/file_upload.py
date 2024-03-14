@@ -17,6 +17,8 @@ class XlsxFileUploadView(APIView):
     # permission_classes = []
 
     @extend_schema(
+        description="Импорт товаров",
+        summary="Импорт товаров",
         parameters=[
             OpenApiParameter(
                 name="type",
