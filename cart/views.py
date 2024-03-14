@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.db import transaction
 from django.db.models import Sum
 from api.serializers import SimplifiedCartItemSerializer
@@ -158,6 +158,8 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "cartitemsdetail":
             return ProductDetailSerializer
+        elif self.action == "partial_update":
+            return SimplifiedCartItemSerializer
 
         return super().get_serializer_class()
 
@@ -543,6 +545,14 @@ class CartItemViewSet(viewsets.ModelViewSet):
         ]
     )
     def partial_update(self, request, *args, **kwargs):
+        # Получаем product_id из URL-шаблона
+        product_id = kwargs.get('pk')
+        # Получаем объект Product или возвращаем 404, если он не найден
+        product = get_object_or_404(Product, id=product_id)
+        # Получаем объект CartItem, связанный с этим Product, или создаем новый
+        cart_item = get_object_or_404(CartItem, product=product, customer=request.user)
+        # Передаем управление стандартному методу partial_update, передавая cart_item вместо kwargs['pk']
+        kwargs['pk'], self.kwargs['pk'] = cart_item.pk, cart_item.pk
         return super().partial_update(request, *args, **kwargs)
     
     @extend_schema(
