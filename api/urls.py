@@ -22,6 +22,7 @@ from api.views import (
     SendConfirmSMS,
     VerifyConfirmCode,
     SimilarProducts,
+    RobotsTxtView
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -54,6 +55,7 @@ urlpatterns = [
         XlsxFileUploadView.as_view(),
         name="upload_products",
     ),
+    path("get_robots_txt", RobotsTxtView.as_view(), name="get_robots_txt"),
     re_path(r"^export", DataExportView.as_view()),
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("search/", GeneralSearchView.as_view(), name="general-search"),

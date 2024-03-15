@@ -1,5 +1,4 @@
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework import viewsets, status, generics, permissions
 from rest_framework.response import Response
 from api.serializers.setting import SettingSerializer
 from rest_framework.permissions import IsAdminUser
@@ -7,6 +6,46 @@ from rest_framework.permissions import IsAdminUser
 from shop.models import Setting, SettingChoices
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
+
+
+@extend_schema(
+    tags=["Settings"],
+    description="Получение текста robots.txt",
+    summary="Получение текста robots.txt",
+    examples=[
+        OpenApiExample(
+            name="Robots Response",
+            value={
+                "id": 1,
+                "type": "string",
+                "value_string": "Lorem Ipsum",
+                "value_boolean": None,
+                "value_number": None,
+                "predefined_key": "robots_txt",
+                "custom_key": None,
+                "value": "Lorem Ipsum",
+            },
+            response_only=True,
+        )
+    ],
+)
+class RobotsTxtView(generics.GenericAPIView):
+
+    serializer_class = SettingSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = Setting.objects.all()
+
+    def get(self, request):
+        try:
+            obj = self.queryset.get(predefined_key=SettingChoices.ROBOTS_TXT)
+        except Setting.DoesNotExist:
+            return Response(
+                {"error": "Настройка для robots.txt не найдена"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
 
 
 @extend_schema(tags=["Settings"])
@@ -59,39 +98,6 @@ class SettingViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Получение текста robots.txt",
-        summary="Получение текста robots.txt",
-        examples=[
-            OpenApiExample(
-                name="Robots Response",
-                value={
-                    "id": 1,
-                    "type": "string",
-                    "value_string": "Lorem Ipsum",
-                    "value_boolean": None,
-                    "value_number": None,
-                    "predefined_key": "robots_txt",
-                    "custom_key": None,
-                    "value": "Lorem Ipsum",
-                },
-                response_only=True,
-            )
-        ],
-    )
-    @action(detail=False, methods=["get"])
-    def get_robots_txt(self, request, *args, **kwargs):
-        try:
-            obj = self.queryset.get(predefined_key=SettingChoices.ROBOTS_TXT)
-        except Setting.DoesNotExist as err:
-            return Response(
-                {"error": "Настройка для robots.txt не найдена"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        serializer = self.get_serializer(obj)
-        return Response(serializer.data)
 
     @extend_schema(
         description="Получить информацию о конкретной настройке",
