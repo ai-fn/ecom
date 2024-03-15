@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
-from shop.models import Price, Product
+from shop.models import Category, Price, Product
 from cart.models import CartItem
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.db.models import Q, Subquery, OuterRef
@@ -123,9 +123,20 @@ class ProductViewSet(viewsets.ModelViewSet):
         filter_conditions = Q()
 
         if category:
-            filter_conditions &= Q(category__slug=category) | Q(
+            categories = [category]
+            try:
+                category_instance = Category.objects.get(slug=category)
+            except Category.DoesNotExist:
+                category_instance = None
+            
+            if category_instance:
+                category_childrens = category_instance.get_descendants(include_self=True).values_list("slug", flat=True)
+                categories.extend(category_childrens)
+
+            filter_conditions &= Q(category__slug__in=categories) | Q(
                 additional_categories__slug=category
             )
+
         if city_domain or price_gte or price_lte or brands:
 
             if city_domain:
@@ -151,6 +162,8 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         filtered_queryset = self.queryset.filter(filter_conditions)
         if self.request.user.is_authenticated:
+
+            # Вывод количества товара в корзине, если пользователь авторизован
             filtered_queryset.annotate(
                 cart_quantity=Subquery(
                     CartItem.objects.filter(

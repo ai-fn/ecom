@@ -1,6 +1,4 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render, redirect
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Sum
 from api.serializers import SimplifiedCartItemSerializer
@@ -16,7 +14,7 @@ from api.serializers import (
     ProductDetailSerializer,
     )
 from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
 @extend_schema(
@@ -288,6 +286,48 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
+    @extend_schema(
+        description="Удалить несколько товаров из корзины",
+        summary="Удалить несколько товаров из корзины",
+        examples=[
+            OpenApiExample(
+                name="Delete Some Example",
+                value={
+                    "ids": [46, 47, 48]
+                },
+                request_only=True,
+            ),
+            OpenApiExample(
+                name="Delete Some Example",
+                response_only=True,
+                value={
+                    "message": "Objects successfully deleted"
+                },
+                status_codes=[200]
+            ),
+            OpenApiExample(
+                name="Delete Some Example",
+                response_only=True,
+                value={
+                    "message": "Nothing to delete"
+                },
+                status_codes=[400]
+            )
+        ]
+    )
+    @action(methods=["post"], detail=False)
+    def delete_some(self, request, *args, **kwargs):
+        ids_list = request.data.get("ids", [])
+        if not ids_list:
+            return Response({"message": "IDs is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        queryset = self.filter_queryset(self.get_queryset()).filter(product__in=ids_list)
+        if not queryset:
+            return Response({"message": "Nothing to delete"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        queryset.delete()
+        return Response({"message": "Objects successfully deleted"}, status=status.HTTP_200_OK)
+
     @action(methods=["delete"], detail=False)
     def delete_cart(self, request, *args, **kwargs):
         queryset = CartItem.objects.filter(customer=request.user)
@@ -730,6 +770,20 @@ class CartItemViewSet(viewsets.ModelViewSet):
         ]
     )
     def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    @extend_schema(
+        description="Delete Cart Item by Product ID",
+        summary="Delete Cart Item by Product ID"
+    )
+    @action(detail=True, methods=["delete"])
+    def delete_by_prod(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+
+        product = get_object_or_404(Product, pk=pk)
+        cart_item = get_object_or_404(CartItem, product=product, customer=request.user)
+
+        self.kwargs["pk"] = cart_item.pk
         return super().destroy(request, *args, **kwargs)
 
     def get_queryset(self):

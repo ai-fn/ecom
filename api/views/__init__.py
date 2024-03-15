@@ -19,4 +19,5 @@ from .confirm_register import (
     SendConfirmSMS,
     VerifyConfirmCode
 )
+from .products_by_list import ProductsById
 from .similar_products import SimilarProducts
