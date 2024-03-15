@@ -1,5 +1,6 @@
 from rest_framework import status, permissions, generics, views
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from api.serializers import ProductCatalogSerializer
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from shop.models import Product
@@ -10,6 +11,7 @@ class ProductsById(generics.GenericAPIView):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
+    pagination_class = PageNumberPagination
 
     @extend_schema(
         description="Получение информации о товарах по массиву с id товаров",
@@ -55,5 +57,10 @@ class ProductsById(generics.GenericAPIView):
             )
 
         queryset = Product.objects.filter(id__in=ids_list)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
