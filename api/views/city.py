@@ -1,14 +1,15 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, response, status
+from rest_framework.decorators import action
 
 from account.models import City
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.city import CitySerializer
 
-from drf_spectacular.utils import extend_schema, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+from django.db.models import Case, When, Value, IntegerField
 
-@extend_schema(
-    tags=['City']
-)
+
+@extend_schema(tags=["City"])
 class CityViewSet(viewsets.ModelViewSet):
     """Возвращает города
     Args:
@@ -25,17 +26,19 @@ class CityViewSet(viewsets.ModelViewSet):
         examples=[
             OpenApiExample(
                 name="List Cities Example",
-                value=[{
-                    "id": 1,
-                    "name": "Воронеж",
-                    "domain": "example.com",
-                    "nominative_case": "Воронеж",
-                    "genitive_case": "Воронежа",
-                    "dative_case": "Воронежу",
-                    "accusative_case": "Воронежем",
-                    "instrumental_case": "Воронежем",
-                    "prepositional_case": "Воронеже",
-                }],
+                value=[
+                    {
+                        "id": 1,
+                        "name": "Воронеж",
+                        "domain": "example.com",
+                        "nominative_case": "Воронеж",
+                        "genitive_case": "Воронежа",
+                        "dative_case": "Воронежу",
+                        "accusative_case": "Воронежем",
+                        "instrumental_case": "Воронежем",
+                        "prepositional_case": "Воронеже",
+                    }
+                ],
                 description="Пример ответа при запросе списка городов в Swagger UI",
                 response_only=True,
                 media_type="application/json",
@@ -70,7 +73,7 @@ class CityViewSet(viewsets.ModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Создать новый город.",
         summary="Создание города",
@@ -118,7 +121,7 @@ class CityViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Обновить информацию о городе.",
         summary="Обновление информации о городе",
-        request=CitySerializer,  
+        request=CitySerializer,
         responses={200: CitySerializer()},
         examples=[
             OpenApiExample(
@@ -158,7 +161,7 @@ class CityViewSet(viewsets.ModelViewSet):
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Частично обновить информацию о городе.",
         summary="Частичное обновление информации о городе",
@@ -211,3 +214,69 @@ class CityViewSet(viewsets.ModelViewSet):
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+    @extend_schema(
+        description="Поиск города по названию",
+        summary="Поиск города по названию",
+        parameters=[
+            OpenApiParameter(
+                name="city_name",
+                default="Но",
+                description="Название города для поиска",
+            )
+        ],
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                response_only=True,
+                value=[
+                    {
+                        "id": 11,
+                        "name": "Новосибирск",
+                        "domain": "Новосибирск.ru",
+                        "nominative_case": "Новосибирск",
+                        "genitive_case": "Новосибирска",
+                        "dative_case": "Новосибирску",
+                        "accusative_case": "Новосибирск",
+                        "instrumental_case": "Новосибирском",
+                        "prepositional_case": "Новосибирске",
+                    },
+                    {
+                        "id": 13,
+                        "name": "Нижний Новгород",
+                        "domain": "НижнийНовгород.ru",
+                        "nominative_case": "Нижний Новгород",
+                        "genitive_case": "Нижний Новгорода",
+                        "dative_case": "Нижний Новгороду",
+                        "accusative_case": "Нижний Новгород",
+                        "instrumental_case": "Нижний Новгородом",
+                        "prepositional_case": "Нижний Новгороде",
+                    },
+                ],
+            )
+        ],
+    )
+    @action(detail=False, methods=["get"])
+    def search(self, request):
+        city_name = request.query_params.get("city_name")
+        if not city_name:
+            return response.Response(
+                {"error": "City name is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        relevance_criteria = Case(
+            When(name__iexact=city_name, then=Value(3)),
+            When(name__istartswith=city_name, then=Value(2)),
+            When(name__icontains=city_name, then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+
+        queryset = (
+            self.queryset.filter(name__icontains=city_name)
+            .annotate(relevance=relevance_criteria)
+            .order_by("-relevance")
+        )
+        print(queryset.values_list("relevance", flat=True))
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
