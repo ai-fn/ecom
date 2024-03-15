@@ -13,7 +13,7 @@ from .price import PriceViewSet
 from .product import ProductViewSet
 from .products_in_order import ProductsInOrderViewSet
 from .review import ReviewViewSet
-from .setting import SettingViewSet
+from .setting import SettingViewSet, RobotsTxtView
 from .user import UserRegistrationView
 from .confirm_register import (
     SendConfirmSMS,
