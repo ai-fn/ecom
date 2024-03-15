@@ -22,7 +22,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.sitemaps.views import sitemap
+from django.contrib.sitemaps.views import sitemap, index
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -36,12 +36,17 @@ from shop.sitemaps import ProductSitemap, CategorySitemap
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 
+
 sitemaps = {
     "articles": ArticleSitemap,
     "products": ProductSitemap,
     "categories": CategorySitemap,
 }
 
+def get_custom_sitemap(request):
+    domain = request.GET.get('domain') or None
+
+    return sitemap(request, sitemaps={k: v(domain) for k,v in sitemaps.items()})
 
 @login_required
 def custom_swagger_view(request, *args, **kwargs):
@@ -70,6 +75,7 @@ urlpatterns = (
             {"sitemaps": sitemaps},
             name="django.contrib.sitemaps.views.sitemap",
         ),
+        path("custom/sitemap.xml", view=get_custom_sitemap),
         path("api/", include("api.urls")),
         path("api/schema/", never_cache(custom_schema_view), name="schema"),
         path("api/swagger/", never_cache(custom_swagger_view), name="swagger-ui"),
