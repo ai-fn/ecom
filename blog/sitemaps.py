@@ -2,16 +2,17 @@ from django.db.models.base import Model
 from django.shortcuts import redirect
 from blog.models import Article
 from django.contrib.sitemaps import Sitemap
+from shop.sitemaps import CustomSitemap
 
 
-class ArticleSitemap(Sitemap):
+class ArticleSitemap(CustomSitemap, Sitemap):
 
     """
 
     Карта-сайта для статей
 
     """
-
+        
     changefreq = "monthly"
 
     priority = 0.9
