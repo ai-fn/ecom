@@ -5,6 +5,8 @@ variables:
   GITLAB_USER: "valisov"
 
 deploy:
+  only:
+    - main
   stage: deploy
   script:
     - |
