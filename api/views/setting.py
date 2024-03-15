@@ -1,8 +1,10 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from api.serializers.setting import SettingSerializer
 from rest_framework.permissions import IsAdminUser
 
-from shop.models import Setting
+from shop.models import Setting, SettingChoices
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
@@ -59,6 +61,39 @@ class SettingViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
+        description="Получение текста robots.txt",
+        summary="Получение текста robots.txt",
+        examples=[
+            OpenApiExample(
+                name="Robots Response",
+                value={
+                    "id": 1,
+                    "type": "string",
+                    "value_string": "Lorem Ipsum",
+                    "value_boolean": None,
+                    "value_number": None,
+                    "predefined_key": "robots_txt",
+                    "custom_key": None,
+                    "value": "Lorem Ipsum",
+                },
+                response_only=True,
+            )
+        ],
+    )
+    @action(detail=False, methods=["get"])
+    def get_robots_txt(self, request, *args, **kwargs):
+        try:
+            obj = self.queryset.get(predefined_key=SettingChoices.ROBOTS_TXT)
+        except Setting.DoesNotExist as err:
+            return Response(
+                {"error": "Настройка для robots.txt не найдена"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
+
+    @extend_schema(
         description="Получить информацию о конкретной настройке",
         summary="Информация о настройке",
         responses={200: SettingSerializer()},
@@ -84,7 +119,7 @@ class SettingViewSet(viewsets.ModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Создать новую настройку",
         summary="Создание настройки",
@@ -92,7 +127,7 @@ class SettingViewSet(viewsets.ModelViewSet):
         responses={201: SettingSerializer()},
         examples=[
             OpenApiExample(
-                name='Create Request Example',
+                name="Create Request Example",
                 request_only=True,
                 value={
                     "key": "setting_key_1",
@@ -108,7 +143,7 @@ class SettingViewSet(viewsets.ModelViewSet):
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Create Response Example',
+                name="Create Response Example",
                 response_only=True,
                 value={
                     "id": 3,
@@ -124,11 +159,11 @@ class SettingViewSet(viewsets.ModelViewSet):
                 summary="Пример ответа на создание новой настройки",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Обновить информацию о конкретной настройке",
         summary="Обновление настройки",
@@ -136,18 +171,15 @@ class SettingViewSet(viewsets.ModelViewSet):
         responses={200: SettingSerializer()},
         examples=[
             OpenApiExample(
-                name='Update Request Example',
+                name="Update Request Example",
                 request_only=True,
-                value={
-                    "type": "string",
-                    "value_string": "updated_value"
-                },
+                value={"type": "string", "value_string": "updated_value"},
                 description="Пример запроса на обновление информации о конкретной настройке в Swagger UI",
                 summary="Пример запроса на обновление информации о конкретной настройке",
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Update Response Example',
+                name="Update Response Example",
                 response_only=True,
                 value={
                     "id": 1,
@@ -163,11 +195,11 @@ class SettingViewSet(viewsets.ModelViewSet):
                 summary="Пример ответа на обновление информации о конкретной настройке",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Удалить настройку",
         summary="Удаление настройки",
@@ -175,7 +207,7 @@ class SettingViewSet(viewsets.ModelViewSet):
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Частично обновить информацию о конкретной настройке",
         summary="Частичное обновление настройки",
@@ -183,17 +215,15 @@ class SettingViewSet(viewsets.ModelViewSet):
         responses={200: SettingSerializer()},
         examples=[
             OpenApiExample(
-                name='Partial Update Request Example',
+                name="Partial Update Request Example",
                 request_only=True,
-                value={
-                    "value_string": "partial_update_value"
-                },
+                value={"value_string": "partial_update_value"},
                 description="Пример запроса на частичное обновление информации о конкретной настройке в Swagger UI",
                 summary="Пример запроса на частичное обновление информации о конкретной настройке",
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Partial Update Response Example',
+                name="Partial Update Response Example",
                 response_only=True,
                 value={
                     "id": 1,
@@ -209,7 +239,7 @@ class SettingViewSet(viewsets.ModelViewSet):
                 summary="Пример ответа на частичное обновление информации о конкретной настройке",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)

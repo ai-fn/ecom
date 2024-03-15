@@ -325,6 +325,7 @@ class SettingChoices(models.TextChoices):
     CDN_ENABLED = "cdn_enabled", "Включен ли CDN"
     CDN_ADDRESS = "cdn_address", "Адрес CDN"
     MULTIDOMAINS_ENABLED = "multidomains_enabled", "Включен ли Multidomains"
+    ROBOTS_TXT = "robots_txt", "Наполнение для robots.txt"
     # TODO добавить настройки платежных систем
     # TODO добавить доступность прямой оплаты
     # TODO добавить настройки водяного знака на изображение
@@ -342,9 +343,6 @@ class Setting(TimeBasedModel):
         verbose_name = "Настройка"
         verbose_name_plural = "Настройки"
 
-    key = models.CharField(
-        verbose_name="Ключ", choices=SettingChoices.choices, max_length=255, unique=True
-    )
     type = models.CharField(
         verbose_name="Тип",
         choices=SettingsTypeChoices.choices,

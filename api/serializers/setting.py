@@ -7,7 +7,6 @@ class SettingSerializer(serializers.ModelSerializer):
         model = Setting
         fields = [
             "id",
-            "key",
             "type",
             "value_string",
             "value_boolean",
