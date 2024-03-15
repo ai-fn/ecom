@@ -26,4 +26,4 @@ class ArticleSitemap(CustomSitemap, Sitemap):
         return obj.updated_at
 
     def location(self, obj: Model) -> str:
-        return redirect("home")
+        return self.get_abs_path(redirect("home"))
