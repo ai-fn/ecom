@@ -264,3 +264,5 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 SMS_RU_TOKEN = os.environ.get("SMS_RU_TOKEN", "default_db_name")
 
 CONFIRM_CODE_LIFE_TIME = os.environ.get("CONFIRM_CODE_LIFE_TIME", 60)
+
+BASE_DOMAIN = os.environ.get('BASE_DOMAIN', 'krov.market')
