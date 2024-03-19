@@ -25,7 +25,7 @@ sitemaps = {
     tags=["Settings"],
     description="Получение карты сайта",
     summary="Получение карты сайта",
-    parameters=[OpenApiParameter(name="Домен города", required=False, type=str)],
+    parameters=[OpenApiParameter(description="Домен города", name="domain", required=False, type=str)],
     responses={200: "OK"},
     examples=[
         OpenApiExample(
@@ -59,6 +59,7 @@ class CustomSitemap(APIView):
 
     def get(self, request):
         domain = request.query_params.get("domain")
+        print(domain)
 
         return sitemap(request, sitemaps={k: v(domain) for k, v in sitemaps.items()})
 
