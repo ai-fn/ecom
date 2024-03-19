@@ -25,7 +25,7 @@ from shop.models import (
     ProductImage,
 )
 from unidecode import unidecode
-from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.base import ContentFile
 
 
 def custom_slugify(value):
@@ -126,7 +126,7 @@ def process_dataframe(df, upload_type):
 
                         product_image_urls = row["IMAGES"].split(",")
                         if len(product_image_urls) > 0:
-                            for image_url in product_image_urls:
+                            for idx, image_url in enumerate(product_image_urls):
                                 try:
                                     data = requests.get(image_url).content
                                 except Exception as err:
@@ -134,15 +134,74 @@ def process_dataframe(df, upload_type):
                                     continue
 
                                 try:
+                                    format = "webp"
+                                    filename = f"image-{uuid.uuid4()}"
+
                                     pil_image = Image.open(BytesIO(data))
 
                                     # Конвертация PIL фото в байты
                                     product_image = ProductImage(product=product)
 
+                                    # Сохранение первого изображение в нескольких форматах
+                                    if idx == 0:
+
+                                        # Сохранение каталожной версии изображения
+                                        catalog_format = getattr(settings, "PRODUCT_CATALOG_IAMGE_FORMAT", "webp")
+                                        catalog_image_size = (
+                                            getattr(
+                                                settings, "PRODUCT_CATALOG_IMAGE_WIDTH", 500
+                                            ),
+                                            getattr(
+                                                settings,
+                                                "PRODUCT_CATALOG_IMAGE_HEIGHT",
+                                                500,
+                                            ),
+                                        )
+
+                                        catalog_image = pil_image.copy().resize(
+                                            catalog_image_size
+                                        )
+                                        with BytesIO() as buffer:
+                                            catalog_image.save(buffer, format.upper())
+                                            catalog_image_data = buffer.getvalue()
+
+                                        product.catalog_image.save(
+                                            "catalog-%s.%s" % (filename, catalog_format),
+                                            ContentFile(catalog_image_data),
+                                            save=False,
+                                        )
+
+                                        # Сохранение копии изображения для отображения в поиске
+                                        search_image_size = (
+                                            getattr(
+                                                settings, "PRODUCT_SEARCH_IMAGE_WIDTH", 42
+                                            ),
+                                            getattr(
+                                                settings,
+                                                "PRODUCT_SEARCH_IMAGE_HEIGHT",
+                                                50,
+                                            ),
+                                        )
+
+                                        search_image = pil_image.copy().resize(
+                                            search_image_size
+                                        )
+                                        search_image_format = getattr(settings, "PRODUCT_SEARCH_IAMGE_FORMAT", "webp")
+                                        with BytesIO() as buffer:
+                                            search_image.save(buffer, format.upper())
+                                            search_image_data = buffer.getvalue()
+
+                                        product.search_image.save(
+                                            "search-%s.%s" % (filename, search_image_format),
+                                            ContentFile(search_image_data),
+                                            save=False,
+                                        )
+                                        product.save(update_fields=["search_image", "catalog_image"])
+
                                     # Стандартизация размеров изображений при импорте
                                     # 16:9 format (the maximum resolution is HD - 1280:720)
                                     width, height = pil_image.size
-                                    
+
                                     width = int(min(width, 1280))
                                     height = int((width * 9) / 16)
 
@@ -150,37 +209,34 @@ def process_dataframe(df, upload_type):
 
                                     # Добавление водяного знака на изображение
                                     path_to_watermark = settings.WATERMARK_PATH
-                                    opacity = 0.6 # 20% opacity
+                                    opacity = 0.6  # 20% opacity
                                     watermark = Image.open(path_to_watermark)
                                     set_opacity(watermark, opacity)
                                     watermark = watermark.resize((100, 100))
 
-                                    overlay = Image.new("RGBA", pil_image.size, (0, 0, 0, 0))
-                                    margin = 30 # margin in pixels
+                                    overlay = Image.new(
+                                        "RGBA", pil_image.size, (0, 0, 0, 0)
+                                    )
+                                    margin = 30  # margin in pixels
 
-                                    position = (pil_image.width - watermark.width - margin, pil_image.height - watermark.height - margin)
+                                    position = (
+                                        pil_image.width - watermark.width - margin,
+                                        pil_image.height - watermark.height - margin,
+                                    )
                                     overlay.paste(watermark, position)
-                                    pil_image = Image.alpha_composite(pil_image.convert("RGBA"), overlay)
+                                    pil_image = Image.alpha_composite(
+                                        pil_image.convert("RGBA"), overlay
+                                    )
 
-                                    format = "webp"
-                                    pil_image_io = BytesIO()
-                                    pil_image.save(pil_image_io, format.upper())
-                                    pil_image_io.seek(0)
-                                    filename = f"image-{uuid.uuid4()}.{format}"
+                                    with BytesIO() as buffer:
+                                        pil_image.save(buffer, format.upper())
+                                        pil_image_data = buffer.getvalue()
 
                                     product_image.image.save(
-                                        filename,
-                                        InMemoryUploadedFile(
-                                            pil_image_io,
-                                            None,
-                                            filename,
-                                            "image/webp",
-                                            pil_image_io.tell(),
-                                            None,
-                                        ),
+                                        filename + f".{format}", ContentFile(pil_image_data)
                                     )
                                     print("%s saved" % product_image)
-                                        
+
                                 except Exception as err:
                                     failed_images.append(image_url)
                                     print("Error while save ProductImage: %s" % err)
@@ -215,10 +271,11 @@ def process_dataframe(df, upload_type):
         # Логирование ошибки
         print(f"Error processing data: {err}")
 
+
 def set_opacity(image: Image, opacity: float):
     if not 0 <= opacity <= 1:
         return
-    
+
     opacity = int(255 * opacity)
     for x in range(image.width):
         for y in range(image.height):
@@ -226,12 +283,14 @@ def set_opacity(image: Image, opacity: float):
             if a > 100:
                 image.putpixel((x, y), (r, g, b, opacity))
 
+
 # def set_opacity(watermark_path: Image, opacity: float):
 #     with Image.open(watermark_path) as file:
 #         cp = file.copy()
 #     cp.convert('RGBA')
 #     cp.putalpha(255 * opacity)
 #     return cp
+
 
 @shared_task
 def export_products_to_csv(email_to):
