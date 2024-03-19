@@ -211,7 +211,8 @@ def process_dataframe(df, upload_type):
                                     path_to_watermark = settings.WATERMARK_PATH
                                     opacity = 0.6  # 20% opacity
                                     watermark = Image.open(path_to_watermark)
-                                    set_opacity(watermark, opacity)
+                                    watermark = set_opacity(watermark, opacity)
+                                    
                                     watermark = watermark.resize((100, 100))
 
                                     overlay = Image.new(
@@ -276,20 +277,12 @@ def set_opacity(image: Image, opacity: float):
     if not 0 <= opacity <= 1:
         return
 
-    opacity = int(255 * opacity)
-    for x in range(image.width):
-        for y in range(image.height):
-            r, g, b, a = image.getpixel((x, y))
-            if a > 100:
-                image.putpixel((x, y), (r, g, b, opacity))
+    alpha = image.split()[3]
+    new_alpha = alpha.point(lambda i: i * opacity)
 
+    image.putalpha(new_alpha)
 
-# def set_opacity(watermark_path: Image, opacity: float):
-#     with Image.open(watermark_path) as file:
-#         cp = file.copy()
-#     cp.convert('RGBA')
-#     cp.putalpha(255 * opacity)
-#     return cp
+    return image
 
 
 @shared_task
