@@ -5,20 +5,21 @@ from django.urls import reverse
 
 from shop.models import Product, Category
 
-base_domain = "krov.market/"
+
 
 
 class CustomSitemap:
 
     def __init__(self, domain=None) -> None:
+        self.base_domain = "krov.market/"
         if domain is not None:
             self.domain = domain
         
     def get_domain(self, site=None):
         if getattr(self, "domain", None):
-            return f"{self.domain}.{base_domain}"
+            return f"{self.domain}.{self.base_domain}"
         
-        return base_domain
+        return self.base_domain
 
     def get_abs_path(self, link):
         return "/".join(link.split("/")[3:])

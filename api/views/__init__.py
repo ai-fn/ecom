@@ -19,5 +19,6 @@ from .confirm_register import (
     SendConfirmSMS,
     VerifyConfirmCode
 )
+from .feeds import CategoriesFeed, ProductsFeed, AllFeedsXMLAPIView
 from .products_by_list import ProductsById
 from .similar_products import SimilarProducts
