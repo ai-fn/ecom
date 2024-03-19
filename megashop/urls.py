@@ -19,6 +19,7 @@ import debug_toolbar
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
@@ -30,23 +31,13 @@ from drf_spectacular.views import (
 )
 
 from blog import views
-from blog.sitemaps import ArticleSitemap
 from search import views as search_views
-from shop.sitemaps import ProductSitemap, CategorySitemap
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 
+from shop.views import CustomSitemap, sitemaps
 
-sitemaps = {
-    "articles": ArticleSitemap,
-    "products": ProductSitemap,
-    "categories": CategorySitemap,
-}
 
-def get_custom_sitemap(request):
-    domain = request.GET.get('domain') or None
-
-    return sitemap(request, sitemaps={k: v(domain) for k,v in sitemaps.items()})
 
 @login_required
 def custom_swagger_view(request, *args, **kwargs):
@@ -69,13 +60,16 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("", views.view_home, name="home"),
         path("search/", view=search_views.search_view, name="search"),
+        path("feeds/products/feeds.xml", ProductsFeed(), name='prods-feeds'),
+        path("feeds/categories/feeds.xml", CategoriesFeed(), name='catg-feeds'),
+        path("feeds.xml/", AllFeedsXMLAPIView.as_view(), name="all-feeds"),
         path(
             "sitemap.xml",
             sitemap,
             {"sitemaps": sitemaps},
             name="django.contrib.sitemaps.views.sitemap",
         ),
-        path("custom/sitemap.xml", view=get_custom_sitemap),
+        path("custom/sitemap.xml", view=CustomSitemap.as_view(), name="custom-sitemap"),
         path("api/", include("api.urls")),
         path("api/schema/", never_cache(custom_schema_view), name="schema"),
         path("api/swagger/", never_cache(custom_swagger_view), name="swagger-ui"),
