@@ -30,6 +30,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from api.views.feeds import AllFeedsXMLAPIView, CategoriesFeed, ProductsFeed
 from blog import views
 from search import views as search_views
 from django.views.decorators.cache import never_cache
