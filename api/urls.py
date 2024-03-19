@@ -10,7 +10,6 @@ from api.views import (
     CityViewSet,
     DataExportView,
     MyTokenObtainPairView,
-    OrderViewSet,
     ProductsById,
     PriceViewSet,
     ProductViewSet,
@@ -19,9 +18,6 @@ from api.views import (
     SettingViewSet,
     UserRegistrationView,
     XlsxFileUploadView,
-    SendConfirmSMS,
-    VerifyConfirmCode,
-    SimilarProducts,
     RobotsTxtView
 )
 from rest_framework_simplejwt.views import (

@@ -152,11 +152,18 @@ class Product(TimeBasedModel):
         upload_to="catalog/",
         verbose_name="Изображение",
     )
+    catalog_image = models.ImageField(
+        upload_to="catalog/products/",
+        verbose_name="Изображение в каталоге",
+    )
+    search_image = models.ImageField(
+        upload_to="catalog/products/",
+        verbose_name="Изображение в поиске",
+    )
     slug = models.SlugField(
         unique=True,
         max_length=256,
     )
-
     similar_products = models.ManyToManyField(
         "self",
         blank=True,
