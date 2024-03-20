@@ -74,31 +74,30 @@ class SendSMSView(GenericAPIView):
 
         code = "".join(rd.choices(digits, k=4))
         message = f"Ваш код: {code}. Никому не сообщайте его!"
-        print(message)
 
-        # try:
-        #     response = requests.get('https://sms.ru/sms/send', params={
-        #         'api_id': api_key,
-        #         'to': phone_number,
-        #         'msg': message,
-        #         'json': 1  # to receive response in JSON format
-        #     })
-        #     response_data = response.json()
+        try:
+            response = requests.get('https://sms.ru/sms/send', params={
+                'api_id': api_key,
+                'to': phone_number,
+                'msg': message,
+                'json': 1  # to receive response in JSON format
+            })
+            response_data = response.json()
 
-        #     if response_data['status'] == 'OK':
-        cache.set(
-            cache_key,
-            {
-                "expiration_time": datetime.now() + timedelta(seconds=code_lifetime),
-                "code": code,
-            },
-            timeout=code_lifetime,
-        )  # Cache for 60 seconds
-        #         return Response({'success': True}, status=status.HTTP_200_OK)
-        #     else:
-        #         return Response({'error': response_data['status_text']}, status=status.HTTP_400_BAD_REQUEST)
-        # except Exception as e:
-        return Response(status=status.HTTP_200_OK)
+            if response_data['status'] == 'OK':
+                cache.set(
+                    cache_key,
+                    {
+                        "expiration_time": datetime.now() + timedelta(seconds=code_lifetime),
+                        "code": code,
+                    },
+                    timeout=code_lifetime,
+                )  # Cache for 60 seconds
+                return Response({'success': True}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': response_data['status_text']}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_200_OK)
 
 
 @extend_schema(
