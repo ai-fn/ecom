@@ -23,6 +23,8 @@ from shop.models import (
     CharacteristicValue,
     Product,
     ProductImage,
+    Price,
+    City,
 )
 from unidecode import unidecode
 from django.core.files.base import ContentFile
@@ -71,11 +73,23 @@ def handle_csv_file_task(file_path, upload_type):
 def process_dataframe(df, upload_type):
     ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU"]
     failed_images = []
+    city_names = City.objects.all().values_list("name", flat=True)
     try:
         with transaction.atomic():
             # Адаптируйте ниже код обработки DataFrame в соответствии с вашей логикой
             # Пример обработки для PRODUCT
             if upload_type == "PRODUCTS":
+
+                characteristic_columns = []
+                cities_columns = []
+
+                # Проверка, есть ли данные о характеристиках и ценах по городам
+                for column_name in df.columns:
+                    if column_name in city_names:
+                        cities_columns.append(column_name)
+                    elif column_name not in ignored_columns:
+                        characteristic_columns.append(column_name)
+
                 for _, row in df.iterrows():
                     category_path = row["CATEGORIES"].split(" | ")
                     category = None
@@ -130,7 +144,7 @@ def process_dataframe(df, upload_type):
                                 try:
                                     data = requests.get(image_url).content
                                 except Exception as err:
-                                    print("Error with image url: %s" % err)
+                                    print(f"Error with image url: {err}")
                                     continue
 
                                 try:
@@ -146,10 +160,16 @@ def process_dataframe(df, upload_type):
                                     if idx == 0:
 
                                         # Сохранение каталожной версии изображения
-                                        catalog_format = getattr(settings, "PRODUCT_CATALOG_IAMGE_FORMAT", "webp")
+                                        catalog_format = getattr(
+                                            settings,
+                                            "PRODUCT_CATALOG_IAMGE_FORMAT",
+                                            "webp",
+                                        )
                                         catalog_image_size = (
                                             getattr(
-                                                settings, "PRODUCT_CATALOG_IMAGE_WIDTH", 500
+                                                settings,
+                                                "PRODUCT_CATALOG_IMAGE_WIDTH",
+                                                500,
                                             ),
                                             getattr(
                                                 settings,
@@ -166,7 +186,7 @@ def process_dataframe(df, upload_type):
                                             catalog_image_data = buffer.getvalue()
 
                                         product.catalog_image.save(
-                                            "catalog-%s.%s" % (filename, catalog_format),
+                                            f"catalog-{filename}.{catalog_format}",
                                             ContentFile(catalog_image_data),
                                             save=False,
                                         )
@@ -174,7 +194,9 @@ def process_dataframe(df, upload_type):
                                         # Сохранение копии изображения для отображения в поиске
                                         search_image_size = (
                                             getattr(
-                                                settings, "PRODUCT_SEARCH_IMAGE_WIDTH", 42
+                                                settings,
+                                                "PRODUCT_SEARCH_IMAGE_WIDTH",
+                                                42,
                                             ),
                                             getattr(
                                                 settings,
@@ -186,17 +208,26 @@ def process_dataframe(df, upload_type):
                                         search_image = pil_image.copy().resize(
                                             search_image_size
                                         )
-                                        search_image_format = getattr(settings, "PRODUCT_SEARCH_IAMGE_FORMAT", "webp")
+                                        search_image_format = getattr(
+                                            settings,
+                                            "PRODUCT_SEARCH_IAMGE_FORMAT",
+                                            "webp",
+                                        )
                                         with BytesIO() as buffer:
                                             search_image.save(buffer, format.upper())
                                             search_image_data = buffer.getvalue()
 
                                         product.search_image.save(
-                                            "search-%s.%s" % (filename, search_image_format),
+                                            f"search-{filename}.{search_image_format}",
                                             ContentFile(search_image_data),
                                             save=False,
                                         )
-                                        product.save(update_fields=["search_image", "catalog_image"])
+                                        product.save(
+                                            update_fields=[
+                                                "search_image",
+                                                "catalog_image",
+                                            ]
+                                        )
 
                                     # Стандартизация размеров изображений при импорте
                                     # 16:9 format (the maximum resolution is HD - 1280:720)
@@ -212,7 +243,7 @@ def process_dataframe(df, upload_type):
                                     opacity = 0.6  # 20% opacity
                                     watermark = Image.open(path_to_watermark)
                                     watermark = set_opacity(watermark, opacity)
-                                    
+
                                     watermark = watermark.resize((100, 100))
 
                                     overlay = Image.new(
@@ -234,17 +265,32 @@ def process_dataframe(df, upload_type):
                                         pil_image_data = buffer.getvalue()
 
                                     product_image.image.save(
-                                        filename + f".{format}", ContentFile(pil_image_data)
+                                        filename + f".{format}",
+                                        ContentFile(pil_image_data),
                                     )
-                                    print("%s saved" % product_image)
+                                    print(f"{product_image} saved")
 
                                 except Exception as err:
                                     failed_images.append(image_url)
-                                    print("Error while save ProductImage: %s" % err)
+                                    print(f"Error while save ProductImage: {err}")
+
+                        # Обработка цен по городам
+                        if cities_columns:
+                            for column_name in city_names:
+                                city = City.objects.get(name=column_name)
+                                price, created = Price.objects.get_or_create(
+                                    product=product, city=city, defaults={"price": 0}
+                                )
+                                if not created:
+                                    price.old_price = price.price
+
+                                price.price = float(row[column_name])
+                                price.save()
 
                         # Обработка характеристик и их значений
-                        for column_name in df.columns:
-                            if column_name not in ignored_columns:
+                        if characteristic_columns:
+                            for column_name in characteristic_columns:
+
                                 characteristic_value = row[column_name]
                                 if pd.notna(
                                     characteristic_value
