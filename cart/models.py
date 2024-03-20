@@ -17,6 +17,9 @@ class Order(TimeBasedModel):
     created = models.DateTimeField(
         auto_now_add=True, verbose_name="Дата и время создания"
     )
+    address = models.CharField(
+        verbose_name="Адрес", max_length=255
+    )
 
     class Meta:
         verbose_name = "Заказ"
