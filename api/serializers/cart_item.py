@@ -8,6 +8,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), write_only=True, source="product"
     )
+    quantity = serializers.IntegerField(max_value=999999, min_value=1)
 
     class Meta:
         model = CartItem

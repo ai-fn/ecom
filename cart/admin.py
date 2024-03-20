@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Order, ProductsInOrder
+from .models import CartItem, Order, ProductsInOrder
 
 
 class ProductsInOrderInline(admin.TabularInline):
@@ -25,3 +25,13 @@ class OrderAdmin(admin.ModelAdmin):
         return ProductsInOrder.objects.filter(order=obj).count()
 
     quantity.short_description = "Количество позиций"
+
+
+@admin.register(CartItem)
+class CartAdmin(admin.ModelAdmin):
+    list_display = (
+        "customer",
+        "product",
+        "quantity",
+    )
+    

@@ -39,10 +39,10 @@ class OrderViewSetTests(test.APITestCase):
         )
 
     def test_create_order_from_cart(self):
-        url = "/cart/orders/"
+        url = "/api/cart/orders/"
 
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data={"customer": 1})
+        response = self.client.post(url, data={"address": "г. Воронеж, ул. Донбасская, 16е"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Order.objects.count(), 1)
