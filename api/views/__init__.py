@@ -16,7 +16,7 @@ from .review import ReviewViewSet
 from .setting import SettingViewSet, RobotsTxtView
 from .user import UserRegistrationView
 from .confirm_register import (
-    SendConfirmSMS,
+    SendSMSView,
     VerifyConfirmCode
 )
 from .feeds import CategoriesFeed, ProductsFeed, AllFeedsXMLAPIView
