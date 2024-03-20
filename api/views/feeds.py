@@ -20,9 +20,9 @@ def add_domain(domain, url, secure=False):
 
     if url.startswith("//"):
         # Support network-path reference (see #16753) - RSS requires a protocol
-        url = "%s:%s" % (protocol, url)
+        url = f"{protocol}:{url}"
     elif not url.startswith(("http://", "https://", "mailto:")):
-        url = iri_to_uri("%s://%s%s" % (protocol, domain, url))
+        url = iri_to_uri(f"{protocol}://{domain}{url}")
     return url
 
 class CustomFeed:
@@ -47,7 +47,7 @@ class CustomFeed:
         return response
         
     def _get_domain(self):
-        return "%s.%s" % (self.domain, self.base_domain) if self.domain else self.base_domain
+        return f"{self.domain}.{self.base_domain}" if self.domain else self.base_domain
 
     def get_feed(self, obj, request):
         """

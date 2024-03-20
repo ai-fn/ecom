@@ -638,7 +638,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
             return Response(serialized_data, status=status.HTTP_200_OK)
 
         return Response(
-            {"message": "Cart items for user with pk %s not found" % request.user.pk},
+            {"message": f"Cart items for user with pk {request.user.pk} not found"},
             status=status.HTTP_404_NOT_FOUND,
         )
 
@@ -829,5 +829,5 @@ class CartCountView(views.APIView):
             )
 
         return Response(
-            {"messsage": "Cart items for user with pk %s not found" % request.user.pk}
+            {"messsage": f"Cart items for user with pk {request.user.pk} not found"}
         )

@@ -20,14 +20,14 @@ def set_brand_order(sender, instance, **kwargs):
 @receiver(post_save, sender=Product)
 def set_product_slug(sender, created, instance, **kwargs):
     if created:
-        instance.slug = slugify(unidecode(instance.title)) + "-%s" % instance.id
+        instance.slug = slugify(unidecode(instance.title)) + f"-{instance.id}"
         instance.save()
 
 
 @receiver(post_save, sender=Category)
 def set_category_slug(sender, created, instance, **kwargs):
     if created:
-        instance.slug = slugify(unidecode(instance.name)) + "-%s" % instance.id
+        instance.slug = slugify(unidecode(instance.name)) + f"-{instance.id}"
         instance.save()
 
 
