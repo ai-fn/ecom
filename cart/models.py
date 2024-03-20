@@ -39,7 +39,7 @@ class ProductsInOrder(TimeBasedModel):
     )
 
     def __str__(self) -> str:
-        return "Корзина %s" % self.id
+        return f"Корзина {self.id}"
 
 
 class CartItem(TimeBasedModel):

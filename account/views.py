@@ -128,7 +128,7 @@ class EmailVerifyView(APIView):
         if user is not None and settings.DEFAULT_TOKEN_GENERATOR.check_token(user, token):
             user.is_active = True
             user.save()
-            return Response({"message": 'User %s email successfully verified' % user}, status=status.HTTP_200_OK)
+            return Response({"message": f'User {user} email successfully verified'}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Confirmation code expired, request a new code"})
 

@@ -43,7 +43,7 @@ class SendConfirmSMS(GenericAPIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
             code = "".join(rd.choices(digits, k=4))
-            message = "Ваш код: %s" % code
+            message = f"Ваш код: {code}"
             
             cache.set(key=code, value=phone_number, timeout=settings.CONFIRM_CODE_LIFE_TIME)
             
