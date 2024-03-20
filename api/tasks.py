@@ -276,7 +276,7 @@ def process_dataframe(df, upload_type):
 
                         # Обработка цен по городам
                         if cities_columns:
-                            for column_name in city_names:
+                            for column_name in cities_columns:
                                 city = City.objects.get(name=column_name)
                                 price, created = Price.objects.get_or_create(
                                     product=product, city=city, defaults={"price": 0}
@@ -316,6 +316,7 @@ def process_dataframe(df, upload_type):
         return failed_images or []
     except Exception as err:
         # Логирование ошибки
+        raise err.with_traceback()
         print(f"Error processing data: {err}")
 
 
