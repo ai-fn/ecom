@@ -24,6 +24,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+from api.views.confirm_register import SendSMSView
 from api.views.general_search import GeneralSearchView
 
 router = routers.DefaultRouter()
@@ -52,6 +53,7 @@ urlpatterns = [
         name="upload_products",
     ),
     path("get_robots_txt", RobotsTxtView.as_view(), name="get_robots_txt"),
+    path("send_verify_sms/", SendSMSView.as_view(), name="send_verify_sms"),
     re_path(r"^export", DataExportView.as_view()),
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("search/", GeneralSearchView.as_view(), name="general-search"),
