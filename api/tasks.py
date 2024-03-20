@@ -144,7 +144,7 @@ def process_dataframe(df, upload_type):
                                 try:
                                     data = requests.get(image_url).content
                                 except Exception as err:
-                                    print("Error with image url: %s" % err)
+                                    print(f"Error with image url: {err}")
                                     continue
 
                                 try:
@@ -186,8 +186,7 @@ def process_dataframe(df, upload_type):
                                             catalog_image_data = buffer.getvalue()
 
                                         product.catalog_image.save(
-                                            "catalog-%s.%s"
-                                            % (filename, catalog_format),
+                                            f"catalog-{filename}.{catalog_format}",
                                             ContentFile(catalog_image_data),
                                             save=False,
                                         )
@@ -219,8 +218,7 @@ def process_dataframe(df, upload_type):
                                             search_image_data = buffer.getvalue()
 
                                         product.search_image.save(
-                                            "search-%s.%s"
-                                            % (filename, search_image_format),
+                                            f"search-{filename}.{search_image_format}",
                                             ContentFile(search_image_data),
                                             save=False,
                                         )
@@ -270,11 +268,11 @@ def process_dataframe(df, upload_type):
                                         filename + f".{format}",
                                         ContentFile(pil_image_data),
                                     )
-                                    print("%s saved" % product_image)
+                                    print(f"{product_image} saved")
 
                                 except Exception as err:
                                     failed_images.append(image_url)
-                                    print("Error while save ProductImage: %s" % err)
+                                    print(f"Error while save ProductImage: {err}")
 
                         # Обработка цен по городам
                         if cities_columns:
