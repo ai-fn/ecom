@@ -46,4 +46,5 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "old_price",
             "characteristic_values",
             "images",
+            "in_stock",
         ]
