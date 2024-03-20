@@ -15,7 +15,7 @@ class TestProductModel(test.APITestCase):
     def test_set_slug_on_prod_updates(self):
         self.prod2 = Product.objects.create(title="dummy-product2", category=self.category, brand=self.brand)
         self.prod3 = Product.objects.create(title="dummy-product3", category=self.category, brand=self.brand)
-        self.assertEqual(self.prod3.slug, slugify(self.prod3.title) + "-%s" % self.prod3.id)
+        self.assertEqual(self.prod3.slug, slugify(self.prod3.title) + f"-{self.prod3.id}")
     
     def test_respose_should_return_correct_value_of_similar_prods(self):
         path = reverse('shop:similar_products', args=[self.prod.pk])
