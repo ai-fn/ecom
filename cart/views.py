@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Sum
+from loguru import logger
 from api.serializers import SimplifiedCartItemSerializer
 
 from rest_framework import status, permissions, viewsets, views
@@ -14,7 +15,7 @@ from api.serializers import (
     ProductDetailSerializer,
     )
 from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
 
 @extend_schema(
@@ -89,10 +90,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name='Create Request Example',
                 request_only=True,
-                value={
-                    "customer": "John Doe",
-                    "products": [1, 2, 3],
-                },
+                value={"address": "г.Воронеж, ул.Донбасская, 16е"},
                 description="Пример запроса на создание нового заказа в Swagger UI",
                 summary="Пример запроса на создание нового заказа",
                 media_type="application/json",
@@ -101,10 +99,17 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name='Create Response Example',
                 response_only=True,
                 value={
-                    "id": 3,
+                    "id": 1,
                     "customer": "John Doe",
-                    "products": [1, 2, 3],
-                    "created_at": "2024-03-12T15:00:00Z"
+                    "products": [{
+                        "id": 10,
+                        "order": 1,
+                        "product": 118,
+                        "quantity": 10,
+                        "created_at": "2024-03-12T12:00:00Z",
+                        },
+                    ],
+                    "created_at": "2024-03-12T12:00:00Z"
                 },
                 description="Пример ответа на создание нового заказа в Swagger UI",
                 summary="Пример ответа на создание нового заказа",
@@ -114,6 +119,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         customer = request.user
+        address = request.data.get("address")
         cart_items = CartItem.objects.filter(customer=customer)
 
         if not cart_items.exists():
@@ -122,16 +128,15 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
 
         with transaction.atomic():
-            order = Order.objects.create(customer=customer)
+            order = Order.objects.create(customer=customer, address=address)
             for item in cart_items:
                 ProductsInOrder.objects.create(
                     order=order, product=item.product, quantity=item.quantity
                 )
                 item.delete()
-
             serializer = self.get_serializer(order)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     @extend_schema(
         description="Обновить информацию о конкретном заказе",
         summary="Обновление заказа",
