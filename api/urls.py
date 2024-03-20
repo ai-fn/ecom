@@ -16,6 +16,7 @@ from api.views import (
     ProductsInOrderViewSet,
     ReviewViewSet,
     SettingViewSet,
+    VerifyConfirmCode,
     UserRegistrationView,
     XlsxFileUploadView,
     RobotsTxtView
@@ -54,6 +55,7 @@ urlpatterns = [
     ),
     path("get_robots_txt", RobotsTxtView.as_view(), name="get_robots_txt"),
     path("send_verify_sms/", SendSMSView.as_view(), name="send_verify_sms"),
+    path("verify_confirmation_code/", VerifyConfirmCode.as_view(), name="verify_confirmation_code"),
     re_path(r"^export", DataExportView.as_view()),
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("search/", GeneralSearchView.as_view(), name="general-search"),
