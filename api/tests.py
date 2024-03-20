@@ -26,7 +26,10 @@ class TestUploadView(test.APITestCase):
 
         self.basename = "output.xlsx"
         self.upload_product_params = {"type": "PRODUCTS"}
-        build_upload_url = lambda url, params: f"{url}?{'?'.join([f'{k}={"+".join(v.split())}' for k, v in params.items()])}"
+        build_upload_url = lambda url, params: f"%s?%s" % (
+            url,
+            "?".join([f'{k}={"+".join(v.split())}' for k, v in params.items()]),
+        )
         self.upload_url = build_upload_url(
             reverse("upload_products", args=[self.basename]), self.upload_product_params
         )
