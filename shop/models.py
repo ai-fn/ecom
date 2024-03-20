@@ -169,6 +169,7 @@ class Product(TimeBasedModel):
         blank=True,
         verbose_name='Похожие продукты',
     )
+    in_stock = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Товар"
