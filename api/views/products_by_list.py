@@ -25,7 +25,8 @@ class ProductsById(generics.GenericAPIView):
                 value={
                     "ids_list": [
                         5572,
-                    ]
+                    ],
+                    "city_domain": "spb"
                 },
                 request_only=True,
             ),
