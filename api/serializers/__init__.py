@@ -7,7 +7,6 @@ from .user import UserRegistrationSerializer
 from .review import ReviewSerializer
 from .city import CitySerializer
 from .city_group import CityGroupSerializer
-from .promo import PromoSerializer
 from .products_in_order import ProductsInOrderSerializer
 from .order import OrderSerializer
 from .characteristic import CharacteristicSerializer
@@ -18,6 +17,7 @@ from .brand import BrandSerializer
 from .product_catalog import ProductCatalogSerializer
 from .product_detail import ProductDetailSerializer
 from .setting import SettingSerializer
+from .promo import PromoSerializer
 from .review import ReviewSerializer
 from .category_detail import CategoryDetailSerializer
 from .order import OrderSerializer
