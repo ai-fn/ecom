@@ -20,6 +20,7 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 "Пример настроек footer списка",
                 summary="Пример списка всех настроек footer",
+                response_only=True,
                 description="Пример списка всех настроек footer",
                 value=[
                     {"max_footer_items": 5},
@@ -38,6 +39,7 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
         examples=[
             OpenApiExample(
                 "Пример получения конкретной настройки footer",
+                response_only=True,
                 summary="Пример получения конкретной настройки footer",
                 description="Пример получения конкретной настройки footer",
                 value={"max_footer_items": 5}
@@ -85,7 +87,7 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
                 "Пример частичного обновления конкретной настройки footer",
                 summary="Пример частичного обновления конкретной настройки footer",
                 description="Пример частичного обновления конкретной настройки footer",
-                value={"max_footer_items": 5}
+                value={"max_footer_items": 2}
             )
         ]
     )
@@ -124,6 +126,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 "Пример списка всех элементов footer",
                 summary="Пример списка всех элементов footer",
+                response_only=True,
                 description="Пример списка всех элементов footer",
                 value=[
                     {"order": 1, "title": "Элемент footer 1", "link": "http://example.com"},
@@ -142,6 +145,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         examples=[
             OpenApiExample(
                 "Пример получения конкретного элемента footer",
+                response_only=True,
                 summary="Пример получения конкретного элемента footer",
                 description="Пример получения конкретного элемента footer",
                 value={"order": 1, "title": "Элемент footer 1", "link": "http://example.com"}
@@ -187,9 +191,17 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         examples=[
             OpenApiExample(
                 "Пример частичного обновления конкретного элемента footer",
+                request_only=True,
                 summary="Пример частичного обновления конкретного элемента footer",
                 description="Пример частичного обновления конкретного элемента footer",
-                value={"title": "Обновленный элемент footer 1"}
+                value={"title": "Обновленный элемент footer 2"}
+            ),
+            OpenApiExample(
+                "Пример частичного обновления конкретного элемента footer",
+                response_only=True,
+                summary="Пример частичного обновления конкретного элемента footer",
+                description="Пример частичного обновления конкретного элемента footer",
+                value={"order": 1, "title": "Обновленный элемент footer 2", "link": "http://example.com"}
             )
         ]
     )
