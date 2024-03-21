@@ -9,10 +9,22 @@ class CartItemSerializer(serializers.ModelSerializer):
         queryset=Product.objects.all(), write_only=True, source="product"
     )
     quantity = serializers.IntegerField(max_value=999999, min_value=1)
+    city_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        read_only=True,
+    )
+    old_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        read_only=True,
+    )
 
     class Meta:
         model = CartItem
-        fields = ["id", "product", "product_id", "quantity"]
+        fields = ["id", "product", "product_id", "quantity", "city_price", "old_price"]
         read_only_fields = ("id",)
 
     def create(self, validated_data):
