@@ -145,7 +145,7 @@ class Product(TimeBasedModel):
         related_name="products",
         verbose_name="Бренд",
         null=True,
-        blank=True
+        blank=True,
     )
     title = models.CharField(
         max_length=255,
@@ -171,7 +171,7 @@ class Product(TimeBasedModel):
     similar_products = models.ManyToManyField(
         "self",
         blank=True,
-        verbose_name='Похожие продукты',
+        verbose_name="Похожие продукты",
     )
     in_stock = models.BooleanField(default=True)
 
@@ -413,3 +413,37 @@ class Setting(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"{self.get_key()}: {self.get_value()}"
+
+
+class FooterSettings(TimeBasedModel):
+    max_footer_items = models.PositiveIntegerField(default=5)
+
+    class Meta:
+        verbose_name = "Настройки Footer"
+        verbose_name_plural = "Настройки Footer"
+
+    def __str__(self):
+        return f"Настройки Footer-{self.id}"
+
+
+class FooterItem(TimeBasedModel):
+    footer_settings = models.ForeignKey(
+        FooterSettings, on_delete=models.CASCADE, related_name="footer_items"
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер")
+    title = models.CharField(max_length=100, verbose_name="Наименование")
+    link = models.URLField(verbose_name="Ссылка", blank=True, null=True)
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "Элемент Footer"
+        verbose_name_plural = "Элементы Footer"
+
+    def __str__(self):
+        return f"Элемент Footer_{self.title}-{self.id}"
+
+    def clean(self):
+        if self.footer_settings.footer_items.count() >= FooterSettings.max_footer_items:
+            raise ValidationError(
+                f"Exceeded the maximum number of footer items ({FooterSettings.max_footer_items})."
+            )
