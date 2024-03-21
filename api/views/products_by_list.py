@@ -26,7 +26,7 @@ class ProductsById(generics.GenericAPIView):
                     "ids_list": [
                         5572,
                     ],
-                    "city_domain": "spb"
+                    "city_domain": "spb.krov.market"
                 },
                 request_only=True,
             ),
