@@ -278,14 +278,15 @@ def process_dataframe(df, upload_type):
                         if cities_columns:
                             for column_name in cities_columns:
                                 city = City.objects.get(name=column_name)
+                                new_price = float(row[column_name])
                                 price, created = Price.objects.get_or_create(
-                                    product=product, city=city, defaults={"price": 0}
+                                    product=product, city=city, defaults={"price": new_price}
                                 )
+                                
                                 if not created:
                                     price.old_price = price.price
-
-                                price.price = float(row[column_name])
-                                price.save()
+                                    price.price = new_price
+                                    price.save()
 
                         # Обработка характеристик и их значений
                         if characteristic_columns:
