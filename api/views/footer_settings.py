@@ -1,6 +1,6 @@
-from rest_framework import viewsets, permissions
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
+from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.footer_settings import FooterItemSerializer, FooterSettingSerializer
 from shop.models import FooterItem, FooterSettings
 
@@ -9,7 +9,7 @@ from shop.models import FooterItem, FooterSettings
     tags=["Settings"]
 )
 class FooterSettingsViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [ReadOnlyOrAdminPermission]
     serializer_class = FooterSettingSerializer
     queryset = FooterSettings.objects.all()
 
@@ -117,7 +117,7 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
 class FooterItemViewSet(viewsets.ModelViewSet):
     queryset = FooterItem.objects.all()
     serializer_class = FooterItemSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
     @extend_schema(
         summary="Получение списка всех элементов footer",
