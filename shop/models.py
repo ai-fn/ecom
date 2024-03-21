@@ -116,6 +116,10 @@ class Brand(TimeBasedModel):
         null=True,
         blank=True,
     )
+    slug = models.SlugField(
+        unique=True,
+        max_length=256,
+    )
     order = models.BigIntegerField(verbose_name="Порядковый номер бренда", blank=True)
 
     def __str__(self) -> str:

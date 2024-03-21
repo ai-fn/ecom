@@ -47,15 +47,16 @@ class ProductViewSet(viewsets.ModelViewSet):
                         "old_price": 120.0,
                         "images": [
                             {
-                                "id": 1,
                                 "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                             {
-                                "id": 2,
                                 "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                         ],
                         "category_slug": "category-a",
+                        "brand_slug": "brand-a",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     },
                     {
                         "id": 2,
@@ -67,15 +68,16 @@ class ProductViewSet(viewsets.ModelViewSet):
                         "old_price": 110.0,
                         "images": [
                             {
-                                "id": 1,
                                 "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                             {
-                                "id": 2,
                                 "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                         ],
                         "category_slug": "category-b",
+                        "brand_slug": "brand-a",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     },
                 ],
             )
@@ -130,7 +132,9 @@ class ProductViewSet(viewsets.ModelViewSet):
                 category_instance = None
             
             if category_instance:
-                category_childrens = category_instance.get_descendants(include_self=True).values_list("slug", flat=True)
+                category_childrens = category_instance.get_descendants(
+                    include_self=True
+                ).values_list("slug", flat=True)
                 categories.extend(category_childrens)
 
             filter_conditions &= Q(category__slug__in=categories) | Q(
@@ -210,6 +214,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                         "name": "Deke",
                         "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                         "order": 1,
+                        "slug": "brand-a",
                     },
                     "brand_id": 1,
                     "description": "Product description",
@@ -282,24 +287,27 @@ class ProductViewSet(viewsets.ModelViewSet):
                 name="Create Request Example",
                 request_only=True,
                 value={
-                        "title": "Product A",
-                        "brand": 1,
-                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "slug": "product-a",
-                        "city_price": 100.0,
-                        "old_price": 120.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-a",
-                    },
+                    "id": 1,
+                    "title": "Product A",
+                    "brand": 1,
+                    "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "slug": "product-a",
+                    "city_price": 100.0,
+                    "old_price": 120.0,
+                    "images": [
+                        {
+                            "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        },
+                        {
+                            "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        },
+                    ],
+                    "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
+                },
                 description="Пример запроса на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример запроса на создание нового продукта в каталоге",
                 media_type="application/json",
@@ -317,15 +325,17 @@ class ProductViewSet(viewsets.ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                         {
-                            "id": 2,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
                 },
                 description="Пример ответа на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример ответа на создание нового продукта в каталоге",
@@ -335,14 +345,14 @@ class ProductViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Получить информацию о конкретном продукте в каталоге",
         summary="Информация об отзыве",
         responses={200: ProductCatalogSerializer()},
         examples=[
             OpenApiExample(
-                name='Retrieve Response Example',
+                name="Retrieve Response Example",
                 response_only=True,
                 value={
                     "id": 1,
@@ -354,15 +364,17 @@ class ProductViewSet(viewsets.ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                         {
-                            "id": 2,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
                 },
                 description="Пример ответа для получения информации о конкретном продукте в каталоге в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном продукте в каталоге отзыве",
@@ -372,7 +384,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Обновить информацию о продукте в каталоге",
         summary="Обновление информации о продукте в каталоге",
@@ -380,7 +392,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         responses={200: ProductCatalogSerializer()},
         examples=[
             OpenApiExample(
-                name='Update Request Example',
+                name="Update Request Example",
                 request_only=True,
                 value={
                     "title": "Updated Product Title",
@@ -391,22 +403,24 @@ class ProductViewSet(viewsets.ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                         {
-                            "id": 2,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
                 },
                 description="Пример запроса на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример запроса на обновление информации о продукте в каталоге",
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Update Response Example',
+                name="Update Response Example",
                 response_only=True,
                 value={
                     "id": 1,
@@ -418,15 +432,17 @@ class ProductViewSet(viewsets.ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                         {
-                            "id": 2,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
                 },
                 description="Пример ответа на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на обновление информации о продукте в каталоге",
@@ -436,7 +452,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Частично обновить информацию о продукте в каталоге",
         summary="Частичное обновление информации о продукте в каталоге",
@@ -444,7 +460,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         responses={200: ProductCatalogSerializer()},
         examples=[
             OpenApiExample(
-                name='Partial Update Request Example',
+                name="Partial Update Request Example",
                 request_only=True,
                 value={
                     "title": "Updated Product A",
@@ -455,7 +471,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Partial Update Response Example',
+                name="Partial Update Response Example",
                 response_only=True,
                 value={
                     "id": 1,
@@ -467,15 +483,17 @@ class ProductViewSet(viewsets.ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                         {
-                            "id": 2,
                             "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
                 },
                 description="Пример ответа на частичное обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о продукте в каталоге",
