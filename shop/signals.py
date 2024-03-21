@@ -1,4 +1,4 @@
-from shop.models import Category, Brand, FooterItem, Product
+from shop.models import Category, Brand, FooterItem, MainPageSliderImage, Product
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
@@ -11,7 +11,12 @@ def set_category_order(sender, instance, **kwargs):
         instance.order = get_order(sender)
 
 @receiver(pre_save, sender=FooterItem)
-def set_category_order(sender, instance, **kwargs):
+def set_footeritem_order(sender, instance, **kwargs):
+    if not instance.order:
+        instance.order = get_order(sender)
+
+@receiver(pre_save, sender=MainPageSliderImage)
+def set_main_page_sliger_image_order(sender, instance, **kwargs):
     if not instance.order:
         instance.order = get_order(sender)
 

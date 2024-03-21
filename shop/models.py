@@ -447,3 +447,17 @@ class FooterItem(TimeBasedModel):
             raise ValidationError(
                 f"Exceeded the maximum number of footer items ({FooterSettings.max_footer_items})."
             )
+
+
+class MainPageSliderImage(models.Model):
+    order = models.IntegerField(unique=True)
+    link = models.URLField(blank=True, null=True)
+    image_text = models.CharField(max_length=255, blank=True, null=True)
+    button_text = models.CharField(max_length=100, blank=True, null=True)
+    image = models.ImageField(
+        upload_to="main/sliders/",
+        verbose_name="Изображение",
+    )
+
+    def __str__(self) -> str:
+        return f"MainPageSliderImage_{self.id}"

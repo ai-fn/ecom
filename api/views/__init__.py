@@ -27,3 +27,4 @@ from .footer_settings import (
 from .feeds import CategoriesFeed, ProductsFeed, AllFeedsXMLAPIView
 from .products_by_list import ProductsById
 from .similar_products import SimilarProducts
+from .main_page_slide_image import MainPageSliderImageViewSet

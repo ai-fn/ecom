@@ -31,3 +31,4 @@ from .footer_settings import (
     FooterItemSerializer,
     FooterSettingSerializer,
 )
+from .main_page_slider_image import MainPageSliderImageSerializer
