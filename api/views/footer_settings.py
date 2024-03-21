@@ -14,13 +14,13 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
     queryset = FooterSettings.objects.all()
 
     @extend_schema(
-        summary="Получение списка всех настроек нижнего колонтитула",
-        description="Эта конечная точка получает список всех настроек нижнего колонтитула.",
+        summary="Получение списка всех настроек footer",
+        description="Эта конечная точка получает список всех настроек footer.",
         examples=[
             OpenApiExample(
-                "Пример настроек нижнего колонтитула списка",
-                summary="Пример списка всех настроек нижнего колонтитула",
-                description="Пример списка всех настроек нижнего колонтитула",
+                "Пример настроек footer списка",
+                summary="Пример списка всех настроек footer",
+                description="Пример списка всех настроек footer",
                 value=[
                     {"max_footer_items": 5},
                     {"max_footer_items": 10},
@@ -33,13 +33,13 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Получение конкретной настройки нижнего колонтитула",
-        description="Эта конечная точка получает конкретную настройку нижнего колонтитула по её идентификатору.",
+        summary="Получение конкретной настройки footer",
+        description="Эта конечная точка получает конкретную настройку footer по её идентификатору.",
         examples=[
             OpenApiExample(
-                "Пример получения конкретной настройки нижнего колонтитула",
-                summary="Пример получения конкретной настройки нижнего колонтитула",
-                description="Пример получения конкретной настройки нижнего колонтитула",
+                "Пример получения конкретной настройки footer",
+                summary="Пример получения конкретной настройки footer",
+                description="Пример получения конкретной настройки footer",
                 value={"max_footer_items": 5}
             ),
         ]
@@ -48,13 +48,13 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Создание новой настройки нижнего колонтитула",
-        description="Эта конечная точка создаёт новую настройку нижнего колонтитула.",
+        summary="Создание новой настройки footer",
+        description="Эта конечная точка создаёт новую настройку footer.",
         examples=[
             OpenApiExample(
-                "Пример создания новой настройки нижнего колонтитула",
-                summary="Пример создания новой настройки нижнего колонтитула",
-                description="Пример создания новой настройки нижнего колонтитула",
+                "Пример создания новой настройки footer",
+                summary="Пример создания новой настройки footer",
+                description="Пример создания новой настройки footer",
                 value={"max_footer_items": 5}
             )
         ]
@@ -63,13 +63,13 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Обновление конкретной настройки нижнего колонтитула",
-        description="Эта конечная точка обновляет конкретную настройку нижнего колонтитула по её идентификатору.",
+        summary="Обновление конкретной настройки footer",
+        description="Эта конечная точка обновляет конкретную настройку footer по её идентификатору.",
         examples=[
             OpenApiExample(
-                "Пример обновления конкретной настройки нижнего колонтитула",
-                summary="Пример обновления конкретной настройки нижнего колонтитула",
-                description="Пример обновления конкретной настройки нижнего колонтитула",
+                "Пример обновления конкретной настройки footer",
+                summary="Пример обновления конкретной настройки footer",
+                description="Пример обновления конкретной настройки footer",
                 value={"max_footer_items": 5}
             )
         ]
@@ -78,13 +78,13 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Частичное обновление конкретной настройки нижнего колонтитула",
-        description="Эта конечная точка выполняет частичное обновление конкретной настройки нижнего колонтитула по её идентификатору.",
+        summary="Частичное обновление конкретной настройки footer",
+        description="Эта конечная точка выполняет частичное обновление конкретной настройки footer по её идентификатору.",
         examples=[
             OpenApiExample(
-                "Пример частичного обновления конкретной настройки нижнего колонтитула",
-                summary="Пример частичного обновления конкретной настройки нижнего колонтитула",
-                description="Пример частичного обновления конкретной настройки нижнего колонтитула",
+                "Пример частичного обновления конкретной настройки footer",
+                summary="Пример частичного обновления конкретной настройки footer",
+                description="Пример частичного обновления конкретной настройки footer",
                 value={"max_footer_items": 5}
             )
         ]
@@ -93,13 +93,13 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Удаление конкретной настройки нижнего колонтитула",
-        description="Эта конечная точка удаляет конкретную настройку нижнего колонтитула по её идентификатору.",
+        summary="Удаление конкретной настройки footer",
+        description="Эта конечная точка удаляет конкретную настройку footer по её идентификатору.",
         examples=[
             OpenApiExample(
-                "Пример удаления конкретной настройки нижнего колонтитула",
-                summary="Пример удаления конкретной настройки нижнего колонтитула",
-                description="Пример удаления конкретной настройки нижнего колонтитула",
+                "Пример удаления конкретной настройки footer",
+                summary="Пример удаления конкретной настройки footer",
+                description="Пример удаления конкретной настройки footer",
                 value=None
             )
         ]
@@ -118,17 +118,17 @@ class FooterItemViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
     @extend_schema(
-        summary="Получение списка всех элементов нижнего колонтитула",
-        description="Эта конечная точка получает список всех элементов нижнего колонтитула.",
+        summary="Получение списка всех элементов footer",
+        description="Эта конечная точка получает список всех элементов footer.",
         examples=[
             OpenApiExample(
-                "Пример списка всех элементов нижнего колонтитула",
-                summary="Пример списка всех элементов нижнего колонтитула",
-                description="Пример списка всех элементов нижнего колонтитула",
+                "Пример списка всех элементов footer",
+                summary="Пример списка всех элементов footer",
+                description="Пример списка всех элементов footer",
                 value=[
-                    {"order": 1, "title": "Элемент нижнего колонтитула 1", "link": "http://example.com"},
-                    {"order": 2, "title": "Элемент нижнего колонтитула 2", "link": "http://example.com"},
-                    {"order": 3, "title": "Элемент нижнего колонтитула 3", "link": "http://example.com"}
+                    {"order": 1, "title": "Элемент footer 1", "link": "http://example.com"},
+                    {"order": 2, "title": "Элемент footer 2", "link": "http://example.com"},
+                    {"order": 3, "title": "Элемент footer 3", "link": "http://example.com"}
                 ]
             )
         ]
@@ -137,14 +137,14 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
     
     @extend_schema(
-        summary="Получение конкретного элемента нижнего колонтитула",
-        description="Эта конечная точка получает конкретный элемент нижнего колонтитула по его идентификатору.",
+        summary="Получение конкретного элемента footer",
+        description="Эта конечная точка получает конкретный элемент footer по его идентификатору.",
         examples=[
             OpenApiExample(
-                "Пример получения конкретного элемента нижнего колонтитула",
-                summary="Пример получения конкретного элемента нижнего колонтитула",
-                description="Пример получения конкретного элемента нижнего колонтитула",
-                value={"order": 1, "title": "Элемент нижнего колонтитула 1", "link": "http://example.com"}
+                "Пример получения конкретного элемента footer",
+                summary="Пример получения конкретного элемента footer",
+                description="Пример получения конкретного элемента footer",
+                value={"order": 1, "title": "Элемент footer 1", "link": "http://example.com"}
             )
         ]
     )
@@ -152,14 +152,14 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Создание нового элемента нижнего колонтитула",
-        description="Эта конечная точка создает новый элемент нижнего колонтитула.",
+        summary="Создание нового элемента footer",
+        description="Эта конечная точка создает новый элемент footer.",
         examples=[
             OpenApiExample(
-                "Пример создания нового элемента нижнего колонтитула",
-                summary="Пример создания нового элемента нижнего колонтитула",
-                description="Пример создания нового элемента нижнего колонтитула",
-                value={"order": 1, "title": "Элемент нижнего колонтитула 1", "link": "http://example.com"}
+                "Пример создания нового элемента footer",
+                summary="Пример создания нового элемента footer",
+                description="Пример создания нового элемента footer",
+                value={"order": 1, "title": "Элемент footer 1", "link": "http://example.com"}
             )
         ]
     )
@@ -167,14 +167,14 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Обновление конкретного элемента нижнего колонтитула",
-        description="Эта конечная точка обновляет конкретный элемент нижнего колонтитула по его идентификатору.",
+        summary="Обновление конкретного элемента footer",
+        description="Эта конечная точка обновляет конкретный элемент footer по его идентификатору.",
         examples=[
             OpenApiExample(
-                "Пример обновления конкретного элемента нижнего колонтитула",
-                summary="Пример обновления конкретного элемента нижнего колонтитула",
-                description="Пример обновления конкретного элемента нижнего колонтитула",
-                value={"order": 1, "title": "Обновленный элемент нижнего колонтитула 1", "link": "http://example.com"}
+                "Пример обновления конкретного элемента footer",
+                summary="Пример обновления конкретного элемента footer",
+                description="Пример обновления конкретного элемента footer",
+                value={"order": 1, "title": "Обновленный элемент footer 1", "link": "http://example.com"}
             )
         ]
     )
@@ -182,14 +182,14 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     @extend_schema(
-        summary="Частичное обновление конкретного элемента нижнего колонтитула",
-        description="Эта конечная точка выполняет частичное обновление конкретного элемента нижнего колонтитула по его идентификатору.",
+        summary="Частичное обновление конкретного элемента footer",
+        description="Эта конечная точка выполняет частичное обновление конкретного элемента footer по его идентификатору.",
         examples=[
             OpenApiExample(
-                "Пример частичного обновления конкретного элемента нижнего колонтитула",
-                summary="Пример частичного обновления конкретного элемента нижнего колонтитула",
-                description="Пример частичного обновления конкретного элемента нижнего колонтитула",
-                value={"title": "Обновленный элемент нижнего колонтитула 1"}
+                "Пример частичного обновления конкретного элемента footer",
+                summary="Пример частичного обновления конкретного элемента footer",
+                description="Пример частичного обновления конкретного элемента footer",
+                value={"title": "Обновленный элемент footer 1"}
             )
         ]
     )
@@ -197,13 +197,13 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
     
     @extend_schema(
-        summary="Удаление конкретного элемента нижнего колонтитула",
-        description="Эта конечная точка удаляет конкретный элемент нижнего колонтитула по его идентификатору.",
+        summary="Удаление конкретного элемента footer",
+        description="Эта конечная точка удаляет конкретный элемент footer по его идентификатору.",
         examples=[
             OpenApiExample(
-                name="Пример удаления конкретного элемента нижнего колонтитула",
-                summary="Пример удаления конкретного элемента нижнего колонтитула",
-                description="Пример удаления конкретного элемента нижнего колонтитула",
+                name="Пример удаления конкретного элемента footer",
+                summary="Пример удаления конкретного элемента footer",
+                description="Пример удаления конкретного элемента footer",
                 value=None
             )
         ]
