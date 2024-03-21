@@ -19,7 +19,9 @@ from api.views import (
     VerifyConfirmCode,
     UserRegistrationView,
     XlsxFileUploadView,
-    RobotsTxtView
+    RobotsTxtView,
+    FooterItemViewSet,
+    FooterSettingsViewSet,
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -41,6 +43,8 @@ router.register(r"categories", CategoryViewSet)
 router.register(r"categories-metadata", CategoryMetaDataViewSet)
 router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
+router.register(r"footer-items", FooterItemViewSet)
+router.register(r"footer-settings", FooterSettingsViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

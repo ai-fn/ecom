@@ -27,3 +27,7 @@ from .cart_item import SimplifiedCartItemSerializer
 from ._document import CategoryDocumentSerializer
 from ._document import ProductDocumentSerializer
 from ._document import ReviewDocumentSerializer
+from .footer_settings import (
+    FooterItemSerializer,
+    FooterSettingSerializer,
+)
