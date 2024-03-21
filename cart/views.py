@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Q, OuterRef, Subquery
 from loguru import logger
 from api.serializers import SimplifiedCartItemSerializer
 
@@ -14,8 +14,8 @@ from api.serializers import (
     OrderSerializer,
     ProductDetailSerializer,
     )
-from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiExample
+from shop.models import Price, Product
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
 @extend_schema(
@@ -228,6 +228,14 @@ class CartItemViewSet(viewsets.ModelViewSet):
         description="Получить список всех элементов корзины",
         summary="Список элементов корзины",
         responses={200: CartItemSerializer(many=True)},
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                description="Домен города",
+                type=str,
+                location=OpenApiParameter.QUERY,
+            )
+        ],
         examples=[
             OpenApiExample(
                 name="List Response Example",
@@ -289,6 +297,24 @@ class CartItemViewSet(viewsets.ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
+        city_domain = request.query_params.get("city_domain")
+
+        filter_conditions = Q()
+
+        if city_domain:
+            price_filter = Price.objects.filter(
+                    product=OuterRef("pk"), city__domain=city_domain
+                )
+            
+            filter_conditions &= Q(id__in=Subquery(price_filter.values("product")))
+
+            self.queryset = self.queryset.annotate(
+                    city_price=Subquery(price_filter.values("price")[:1]),
+                    old_price=Subquery(price_filter.values("old_price")[:1]),
+                )
+
+            filtered_queryset = self.queryset.filter(filter_conditions)
+            self.queryset = filtered_queryset
         return super().list(request, *args, **kwargs)
     
     @extend_schema(
