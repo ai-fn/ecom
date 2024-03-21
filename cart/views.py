@@ -8,6 +8,7 @@ from rest_framework import status, permissions, viewsets, views
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from api.serializers.product_catalog import ProductCatalogSerializer
 from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import (
     CartItemSerializer,
@@ -298,25 +299,32 @@ class CartItemViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         city_domain = request.query_params.get("city_domain")
+        
+        # Reset the queryset to the original state
+        self.queryset = self.get_queryset()
 
         filter_conditions = Q()
 
+        #TODO performance review in future REQUIRED (price fields of cart item serializer)
         if city_domain:
             price_filter = Price.objects.filter(
-                    product=OuterRef("pk"), city__domain=city_domain
-                )
+                product=OuterRef("product__id"), city__domain=city_domain
+            )
             
-            filter_conditions &= Q(id__in=Subquery(price_filter.values("product")))
+            filter_conditions &= Q(product__id__in=Subquery(price_filter.values("product")))
 
+            # Annotate the queryset with city_price and old_price
             self.queryset = self.queryset.annotate(
-                    city_price=Subquery(price_filter.values("price")[:1]),
-                    old_price=Subquery(price_filter.values("old_price")[:1]),
-                )
+                city_price=Subquery(price_filter.values("price")[:1]),
+                old_price=Subquery(price_filter.values("old_price")[:1]),
+            )
 
+            # Apply the filter conditions
             filtered_queryset = self.queryset.filter(filter_conditions)
             self.queryset = filtered_queryset
+
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Удалить несколько товаров из корзины",
         summary="Удалить несколько товаров из корзины",
@@ -819,7 +827,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Returns only the cart items that belong to the current user.
-        return CartItem.objects.filter(customer=self.request.user)
+        return self.queryset.filter(customer=self.request.user)
 
     def perform_create(self, serializer):
         # Associates the new cart item with the current user.
