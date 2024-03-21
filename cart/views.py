@@ -263,8 +263,13 @@ class CartItemViewSet(viewsets.ModelViewSet):
                                 }
                             ],
                             "category_slug": "deke",
+                            "brand_slug": "test_brand-1",
+                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
                         },
                         "quantity": 15,
+                        "city_price": "6865",
+                        "old_price": "3865",
                     },
                     {
                         "id": 2,
@@ -279,16 +284,19 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             },
                             "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                             "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                            "city_price": "6865",
-                            "old_price": "3865",
                             "images": [
                                 {
                                     "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
                                 }
                             ],
                             "category_slug": "deke",
+                            "brand_slug": "test_brand-1",
+                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
                         },
                         "quantity": 12,
+                        "city_price": "6865",
+                        "old_price": "3865",
                     },
                 ],
                 description="Пример ответа для получения списка элементов корзины в Swagger UI",
@@ -522,6 +530,9 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             },
                         ],
                         "category_slug": "seriya-premium",
+                        "brand_slug": "test_brand-1",
+                        "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
                     },
                     "quantity": 100,
                 },
@@ -721,6 +732,9 @@ class CartItemViewSet(viewsets.ModelViewSet):
                                 }
                             ],
                             "category_slug": "deke",
+                            "brand_slug": "test_brand-1",
+                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
                         },
                         "quantity": 20,
                     },
@@ -769,6 +783,9 @@ class CartItemViewSet(viewsets.ModelViewSet):
                                 }
                             ],
                             "category_slug": "deke",
+                            "brand_slug": "test_brand-1",
+                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
                         },
                         "quantity": 20,
                     },
