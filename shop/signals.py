@@ -30,6 +30,11 @@ def set_category_slug(sender, created, instance, **kwargs):
         instance.slug = slugify(unidecode(instance.name)) + f"-{instance.id}"
         instance.save()
 
+@receiver(post_save, sender=Brand)
+def set_category_slug(sender, created, instance, **kwargs):
+    if created:
+        instance.slug = slugify(unidecode(instance.name)) + f"-{instance.id}"
+        instance.save()
 
 def get_order(sender):
     last_obj = sender.objects.order_by("order").last()

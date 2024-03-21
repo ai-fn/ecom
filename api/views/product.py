@@ -100,7 +100,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 description="Фильтр цены: меньше или равно",
             ),
             OpenApiParameter(
-                name="brand",
+                name="brand_slug",
                 type=str,
                 location=OpenApiParameter.QUERY,
                 description="Фильтр по бренду",
@@ -117,7 +117,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         city_domain = request.query_params.get("city_domain")
         price_lte = request.query_params.get("price_lte")
         price_gte = request.query_params.get("price_gte")
-        brands = request.query_params.get("brand")
+        brand_slug = request.query_params.get("brand_slug")
         category = request.query_params.get("category")
 
         filter_conditions = Q()
@@ -137,7 +137,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 additional_categories__slug=category
             )
 
-        if city_domain or price_gte or price_lte or brands:
+        if city_domain or price_gte or price_lte or brand_slug:
 
             if city_domain:
                 price_filter = Price.objects.filter(
@@ -156,9 +156,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                     old_price=Subquery(price_filter.values("old_price")[:1]),
                 )
 
-            if brands:
-                brands_list = brands.split(",")
-                filter_conditions &= Q(brand__name__in=brands_list)
+            if brand_slug:
+                filter_conditions &= Q(brand__slug__icontains=brand_slug)
 
         filtered_queryset = self.queryset.filter(filter_conditions)
         if self.request.user.is_authenticated:
@@ -240,6 +239,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                             "image_url": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                         },
                     ],
+                    "in_stock": True
                 },
                 description="Пример ответа для получения подробой информации о конкретном продукте в Swagger UI",
                 summary="Пример ответа для получения подробой информации о конкретном продукте",

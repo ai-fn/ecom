@@ -11,4 +11,5 @@ class BrandSerializer(serializers.ModelSerializer):
             "name",
             "icon",
             "order",
+            "slug",
         ]

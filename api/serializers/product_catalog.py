@@ -22,6 +22,10 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     category_slug = serializers.SerializerMethodField()
+    brand_slug = serializers.SlugField(
+        source="brand.slug",
+        read_only=True
+    )
 
     def get_category_slug(self, obj):
         return obj.category.slug
@@ -39,6 +43,7 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
             "images",
             "in_stock",
             "category_slug",
+            "brand_slug",
             "search_image",
             "catalog_image",
         ]
