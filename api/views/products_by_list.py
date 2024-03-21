@@ -38,6 +38,8 @@ class ProductsById(generics.GenericAPIView):
                         "brand": 1,
                         "image": "http://dev-api-shop.altawest.ru/media/catalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...",
                         "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
+                        "city_price": "6865",
+                        "old_price": "3865",
                         "images": [
                             {
                                 "image_url": "http://dev-api-shop.altawest.ru/media/catalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...;",
