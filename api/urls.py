@@ -22,6 +22,7 @@ from api.views import (
     RobotsTxtView,
     FooterItemViewSet,
     FooterSettingsViewSet,
+    MainPageSliderImageViewSet,
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -46,6 +47,7 @@ router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 router.register(r"footer-items", FooterItemViewSet)
 router.register(r"footer-settings", FooterSettingsViewSet)
+router.register(r"main-page-slider-image", MainPageSliderImageViewSet)
 router.register(r"promos", PromoViewSet, basename="promo")
 
 
