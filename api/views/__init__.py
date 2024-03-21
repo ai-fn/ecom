@@ -19,6 +19,10 @@ from .confirm_register import (
     SendSMSView,
     VerifyConfirmCode
 )
+from .footer_settings import (
+    FooterItemViewSet,
+    FooterSettingsViewSet,
+    )
 from .feeds import CategoriesFeed, ProductsFeed, AllFeedsXMLAPIView
 from .products_by_list import ProductsById
 from .similar_products import SimilarProducts
