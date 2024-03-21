@@ -1,9 +1,16 @@
 from rest_framework import serializers
 
+from api.serializers.category import CategorySerializer
+from api.serializers import CitySerializer
+from api.serializers.product_detail import ProductDetailSerializer
 from shop.models import Promo
 
 
 class PromoSerializer(serializers.ModelSerializer):
+    product = ProductDetailSerializer()
+    category = CategorySerializer()
+    cities = CitySerializer(many=True)
+
     class Meta:
         model = Promo
         fields = [
@@ -13,5 +20,5 @@ class PromoSerializer(serializers.ModelSerializer):
             "product",
             "image",
             "cities",
-            "active_to",
+            "acitve_to",
         ]

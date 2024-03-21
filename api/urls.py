@@ -29,6 +29,7 @@ from rest_framework_simplejwt.views import (
 
 from api.views.confirm_register import SendSMSView
 from api.views.general_search import GeneralSearchView
+from api.views.promo import PromoViewSet
 
 router = routers.DefaultRouter()
 router.register(r"products", ProductViewSet)
@@ -45,6 +46,8 @@ router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 router.register(r"footer-items", FooterItemViewSet)
 router.register(r"footer-settings", FooterSettingsViewSet)
+router.register(r"promos", PromoViewSet, basename="promo")
+
 
 urlpatterns = [
     path("", include(router.urls)),
