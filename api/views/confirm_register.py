@@ -1,3 +1,4 @@
+import time
 from drf_spectacular.utils import OpenApiExample
 from datetime import datetime, timedelta
 import requests
@@ -19,7 +20,7 @@ from ..serializers.confirm_code import ConfirmCodeSerializer
 from account.models import CustomUser
 from drf_spectacular.utils import extend_schema
 
-code_lifetime = int(settings.CONFIRM_CODE_LIFE_TIME)
+code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60))
 
 
 @extend_schema(
@@ -67,11 +68,11 @@ class SendSMSView(GenericAPIView):
         cached_data = cache.get(cache_key)
 
         if cached_data:
-            remaining_time = cached_data.get("expiration_time") - datetime.now()
-            if remaining_time.total_seconds() > 0:
+            remaining_time = cached_data.get("expiration_time") - time.time()
+            if remaining_time >= 0:
                 return Response(
                     {
-                        "message": f"Please wait. Time remaining: {int(remaining_time.total_seconds())} seconds"
+                        "message": f"Please wait. Time remaining: {int(remaining_time)} seconds"
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
@@ -106,8 +107,7 @@ class SendSMSView(GenericAPIView):
                 cache.set(
                     cache_key,
                     {
-                        "expiration_time": datetime.now()
-                        + timedelta(seconds=code_lifetime),
+                        "expiration_time": time.time() + code_lifetime,
                         "code": code,
                     },
                     timeout=code_lifetime,
