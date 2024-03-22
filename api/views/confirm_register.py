@@ -48,10 +48,14 @@ class SendSMSView(GenericAPIView):
         Args:
             phone_number (str): Номер телефона в международном формате.
         """
+        bot_token = settings.TG_BOT_TOKEN
         api_key = settings.SMS_RU_TOKEN
+        send_to_telegram = settings.SEND_TO_TELEGRAM
+        chat_id = settings.CHAT_ID
+
         serializer_instance = self.serializer_class(data=request.data)
         serializer_instance.is_valid(raise_exception=True)
-        phone_number = serializer_instance.data.get("phone_number")
+        phone_number: str = serializer_instance.data.get("phone_number")
 
         if not phone_number:
             return Response(
@@ -76,26 +80,55 @@ class SendSMSView(GenericAPIView):
         message = f"Ваш код: {code}. Никому не сообщайте его!"
 
         try:
-            response = requests.get('https://sms.ru/sms/send', params={
-                'api_id': api_key,
-                'to': phone_number,
-                'msg': message,
-                'json': 1  # to receive response in JSON format
-            })
+            sms_link = "https://sms.ru/sms/send"
+            sms_params = {
+                "api_id": api_key,
+                "to": phone_number,
+                "msg": message,
+                "json": 1,  # to receive response in JSON format
+            }
+
+            tg_link = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+            tg_params = {
+                "chat_id": chat_id, # phone_number if not phone_number.startswith("+7") else phone_number.replace("+7", "8"),
+                "text": message,
+                "json": 1,  # to receive response in JSON format
+            }
+
+            if not send_to_telegram:
+                response = requests.get(sms_link, params=sms_params)
+            else:
+                response = requests.post(tg_link, params=tg_params)
+
             response_data = response.json()
 
-            if response_data['status'] == 'OK':
+            if response_data.get("status") == "OK" or response_data.get("ok"):
                 cache.set(
                     cache_key,
                     {
-                        "expiration_time": datetime.now() + timedelta(seconds=code_lifetime),
+                        "expiration_time": datetime.now()
+                        + timedelta(seconds=code_lifetime),
                         "code": code,
                     },
                     timeout=code_lifetime,
                 )  # Cache for 60 seconds
-                return Response({'success': True}, status=status.HTTP_200_OK)
+                return Response({"success": True}, status=status.HTTP_200_OK)
             else:
-                return Response({'error': response_data['status_text']}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {
+                        "error": (
+                            response_data.get(
+                                "status_text",
+                                "%s: %s"
+                                % (
+                                    response_data.get("error_code"),
+                                    response_data.get("description"),
+                                ),
+                            )
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_200_OK)
 
