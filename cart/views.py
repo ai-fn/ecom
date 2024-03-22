@@ -1,27 +1,23 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Sum, Q, OuterRef, Subquery
-from loguru import logger
+from django.db.models import Sum, F
 from api.serializers import SimplifiedCartItemSerializer
 
 from rest_framework import status, permissions, viewsets, views
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from api.serializers.product_catalog import ProductCatalogSerializer
 from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import (
     CartItemSerializer,
     OrderSerializer,
     ProductDetailSerializer,
-    )
-from shop.models import Price, Product
+)
+from shop.models import Product
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
-@extend_schema(
-    tags=['Order']
-)
+@extend_schema(tags=["Order"])
 class OrderViewSet(viewsets.ModelViewSet):
 
     queryset = Order.objects.all().order_by("-created_at")
@@ -34,50 +30,50 @@ class OrderViewSet(viewsets.ModelViewSet):
         responses={200: OrderSerializer(many=True)},
         examples=[
             OpenApiExample(
-                name='List Response Example',
+                name="List Response Example",
                 response_only=True,
                 value=[
                     {
                         "id": 1,
                         "customer": "John Doe",
                         "products": [1, 2, 3],
-                        "created_at": "2024-03-12T12:00:00Z"
+                        "created_at": "2024-03-12T12:00:00Z",
                     },
                     {
                         "id": 2,
                         "customer": "Jane Smith",
                         "products": [4, 5],
-                        "created_at": "2024-03-12T13:00:00Z"
-                    }
+                        "created_at": "2024-03-12T13:00:00Z",
+                    },
                 ],
                 description="Пример ответа для получения списка всех заказов в Swagger UI",
                 summary="Пример ответа для получения списка всех заказов",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Получить информацию о конкретном заказе",
         summary="Информация о заказе",
         responses={200: OrderSerializer()},
         examples=[
             OpenApiExample(
-                name='Retrieve Response Example',
+                name="Retrieve Response Example",
                 response_only=True,
                 value={
                     "id": 1,
                     "customer": "John Doe",
                     "products": [1, 2, 3],
-                    "created_at": "2024-03-12T12:00:00Z"
+                    "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном заказе",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -89,7 +85,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         responses={201: OrderSerializer()},
         examples=[
             OpenApiExample(
-                name='Create Request Example',
+                name="Create Request Example",
                 request_only=True,
                 value={"address": "г.Воронеж, ул.Донбасская, 16е"},
                 description="Пример запроса на создание нового заказа в Swagger UI",
@@ -97,26 +93,27 @@ class OrderViewSet(viewsets.ModelViewSet):
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Create Response Example',
+                name="Create Response Example",
                 response_only=True,
                 value={
                     "id": 1,
                     "customer": "John Doe",
-                    "products": [{
-                        "id": 10,
-                        "order": 1,
-                        "product": 118,
-                        "quantity": 10,
-                        "created_at": "2024-03-12T12:00:00Z",
+                    "products": [
+                        {
+                            "id": 10,
+                            "order": 1,
+                            "product": 118,
+                            "quantity": 10,
+                            "created_at": "2024-03-12T12:00:00Z",
                         },
                     ],
-                    "created_at": "2024-03-12T12:00:00Z"
+                    "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа на создание нового заказа в Swagger UI",
                 summary="Пример ответа на создание нового заказа",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def create(self, request, *args, **kwargs):
         customer = request.user
@@ -145,34 +142,31 @@ class OrderViewSet(viewsets.ModelViewSet):
         responses={200: OrderSerializer()},
         examples=[
             OpenApiExample(
-                name='Update Request Example',
+                name="Update Request Example",
                 request_only=True,
-                value={
-                    "customer": 2,
-                    "products": [4, 5, 6]
-                },
+                value={"customer": 2, "products": [4, 5, 6]},
                 description="Пример запроса на обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на обновление информации о конкретном заказе",
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Update Response Example',
+                name="Update Response Example",
                 response_only=True,
                 value={
                     "id": 1,
                     "customer": 2,
                     "products": [4, 5, 6],
-                    "created_at": "2024-03-12T12:00:00Z"
+                    "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа на обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа на обновление информации о конкретном заказе",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Частично обновить информацию о конкретном заказе",
         summary="Частичное обновление заказа",
@@ -180,33 +174,31 @@ class OrderViewSet(viewsets.ModelViewSet):
         responses={200: OrderSerializer()},
         examples=[
             OpenApiExample(
-                name='Partial Update Request Example',
+                name="Partial Update Request Example",
                 request_only=True,
-                value={
-                    "products": [4, 5, 6]
-                },
+                value={"products": [4, 5, 6]},
                 description="Пример запроса на частичное обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на частичное обновление информации о конкретном заказе",
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Partial Update Response Example',
+                name="Partial Update Response Example",
                 response_only=True,
                 value={
                     "id": 1,
                     "customer": 1,
                     "products": [4, 5, 6],
-                    "created_at": "2024-03-12T12:00:00Z"
+                    "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа на частичное обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о конкретном заказе",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Удалить заказ",
         summary="Удаление заказа",
@@ -216,10 +208,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-
-@extend_schema(
-    tags=['Cart']
-)
+@extend_schema(tags=["Cart"])
 class CartItemViewSet(viewsets.ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
@@ -265,7 +254,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             "category_slug": "deke",
                             "brand_slug": "test_brand-1",
                             "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
+                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         },
                         "quantity": 15,
                         "city_price": "6865",
@@ -292,7 +281,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             "category_slug": "deke",
                             "brand_slug": "test_brand-1",
                             "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
+                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         },
                         "quantity": 12,
                         "city_price": "6865",
@@ -306,30 +295,20 @@ class CartItemViewSet(viewsets.ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
+
         city_domain = request.query_params.get("city_domain")
-        
-        # Reset the queryset to the original state
-        self.queryset = self.get_queryset()
 
-        filter_conditions = Q()
-
-        #TODO performance review in future REQUIRED (price fields of cart item serializer)
+        # TODO performance review in future REQUIRED (price fields of cart item serializer)
         if city_domain:
-            price_filter = Price.objects.filter(
-                product=OuterRef("product__id"), city__domain=city_domain
-            )
-            
-            filter_conditions &= Q(product__id__in=Subquery(price_filter.values("product")))
 
-            # Annotate the queryset with city_price and old_price
-            self.queryset = self.queryset.annotate(
-                city_price=Subquery(price_filter.values("price")[:1]),
-                old_price=Subquery(price_filter.values("old_price")[:1]),
-            )
-
-            # Apply the filter conditions
-            filtered_queryset = self.queryset.filter(filter_conditions)
-            self.queryset = filtered_queryset
+            # Filter products based on the specified city_domain and select related Price objects
+            # Annotate new fields based on the related Price objects
+            self.queryset = self.queryset.filter(
+                product__prices__city__domain=city_domain
+                ).annotate(
+                    city_price=F("product__prices__price"),
+                    old_price=F("product__prices__old_price"),
+                )
 
         return super().list(request, *args, **kwargs)
 
@@ -339,46 +318,48 @@ class CartItemViewSet(viewsets.ModelViewSet):
         examples=[
             OpenApiExample(
                 name="Delete Some Example",
-                value={
-                    "ids": [46, 47, 48]
-                },
+                value={"ids": [46, 47, 48]},
                 request_only=True,
             ),
             OpenApiExample(
                 name="Delete Some Example",
                 response_only=True,
-                value={
-                    "message": "Objects successfully deleted"
-                },
-                status_codes=[200]
+                value={"message": "Objects successfully deleted"},
+                status_codes=[200],
             ),
             OpenApiExample(
                 name="Delete Some Example",
                 response_only=True,
-                value={
-                    "message": "Nothing to delete"
-                },
-                status_codes=[400]
-            )
-        ]
+                value={"message": "Nothing to delete"},
+                status_codes=[400],
+            ),
+        ],
     )
     @action(methods=["post"], detail=False)
     def delete_some(self, request, *args, **kwargs):
         ids_list = request.data.get("ids", [])
         if not ids_list:
-            return Response({"message": "IDs is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        queryset = self.filter_queryset(self.get_queryset()).filter(product__in=ids_list)
+            return Response(
+                {"message": "IDs is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        queryset = self.filter_queryset(self.get_queryset()).filter(
+            product__in=ids_list
+        )
         if not queryset:
-            return Response({"message": "Nothing to delete"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"message": "Nothing to delete"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         queryset.delete()
-        return Response({"message": "Objects successfully deleted"}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Objects successfully deleted"}, status=status.HTTP_200_OK
+        )
 
     @action(methods=["delete"], detail=False)
     def delete_cart(self, request, *args, **kwargs):
         queryset = CartItem.objects.filter(customer=request.user)
-        
+
         if queryset.exists():
             queryset.delete()
 
@@ -393,7 +374,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
             return SimplifiedCartItemSerializer
 
         return super().get_serializer_class()
-    
+
     @extend_schema(
         description="Получить список минимальной информации об элементах корзины",
         summary="Список минимальной информации об элементах корзины",
@@ -424,9 +405,11 @@ class CartItemViewSet(viewsets.ModelViewSet):
         if queryset.exists():
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        return Response({'error': 'Cart items for provided user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
+        return Response(
+            {"error": "Cart items for provided user not found"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     @extend_schema(
         description="Добавить новые элементы в корзину",
@@ -437,14 +420,8 @@ class CartItemViewSet(viewsets.ModelViewSet):
                 name="Create Request Example",
                 request_only=True,
                 value=[
-                    {
-                    "product_id": 3732,
-                    "quantity": 15
-                    },
-                    {
-                    "product_id": 3733,
-                    "quantity": 13
-                    },
+                    {"product_id": 3732, "quantity": 15},
+                    {"product_id": 3733, "quantity": 13},
                 ],
                 description="Пример запроса на добавление новых элементов в корзину в Swagger UI",
                 summary="Пример запроса на добавление новых элементов в корзину",
@@ -454,14 +431,8 @@ class CartItemViewSet(viewsets.ModelViewSet):
                 name="Create Response Example",
                 response_only=True,
                 value=[
-                    {
-                    "product_id": 3732,
-                    "quantity": 15
-                    },
-                    {
-                    "product_id": 3733,
-                    "quantity": 13
-                    },
+                    {"product_id": 3732, "quantity": 15},
+                    {"product_id": 3733, "quantity": 13},
                 ],
                 description="Пример ответа на добавление новых элементов в корзину в Swagger UI",
                 summary="Пример ответа на добавление новых элементов в корзину",
@@ -532,7 +503,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                         "category_slug": "seriya-premium",
                         "brand_slug": "test_brand-1",
                         "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
+                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
                     "quantity": 100,
                 },
@@ -700,10 +671,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name="Update Request Example",
                 request_only=True,
-                value={
-                    "product_id": 3736,
-                    "quantity": 20
-                },
+                value={"product_id": 3736, "quantity": 20},
                 description="Пример запроса на обновление информации о конкретном элементе корзины в Swagger UI",
                 summary="Пример запроса на обновление информации о конкретном элементе корзины",
                 media_type="application/json",
@@ -712,45 +680,45 @@ class CartItemViewSet(viewsets.ModelViewSet):
                 name="Update Response Example",
                 response_only=True,
                 value={
-                        "id": 2,
-                        "product": {
-                            "id": 3736,
-                            "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                            "brand": {
-                                "id": 1,
-                                "name": "Deke",
-                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                                "order": 1,
-                            },
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                            "city_price": "6865",
-                            "old_price": "3865",
-                            "images": [
-                                {
-                                    "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
-                                }
-                            ],
-                            "category_slug": "deke",
-                            "brand_slug": "test_brand-1",
-                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
+                    "id": 2,
+                    "product": {
+                        "id": 3736,
+                        "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
+                        "brand": {
+                            "id": 1,
+                            "name": "Deke",
+                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                            "order": 1,
                         },
-                        "quantity": 20,
+                        "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                        "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
+                        "city_price": "6865",
+                        "old_price": "3865",
+                        "images": [
+                            {
+                                "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                            }
+                        ],
+                        "category_slug": "deke",
+                        "brand_slug": "test_brand-1",
+                        "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
+                    "quantity": 20,
+                },
             ),
         ],
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Частично обновить информацию о конкретном элементе корзины",
         summary="Частичное обновление информации о элементе корзины",
         responses={200: ProductDetailSerializer()},
         examples=[
             OpenApiExample(
-                name='Partial Update Request Example',
+                name="Partial Update Request Example",
                 request_only=True,
                 value={
                     "quantity": 20,
@@ -760,77 +728,77 @@ class CartItemViewSet(viewsets.ModelViewSet):
                 media_type="application/json",
             ),
             OpenApiExample(
-                name='Partial Update Response Example',
+                name="Partial Update Response Example",
                 response_only=True,
                 value={
-                        "id": 2,
-                        "product": {
-                            "id": 3736,
-                            "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                            "brand": {
-                                "id": 1,
-                                "name": "Deke",
-                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                                "order": 1,
-                            },
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                            "city_price": "6865",
-                            "old_price": "3865",
-                            "images": [
-                                {
-                                    "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
-                                }
-                            ],
-                            "category_slug": "deke",
-                            "brand_slug": "test_brand-1",
-                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp"
+                    "id": 2,
+                    "product": {
+                        "id": 3736,
+                        "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
+                        "brand": {
+                            "id": 1,
+                            "name": "Deke",
+                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                            "order": 1,
                         },
-                        "quantity": 20,
+                        "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                        "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
+                        "city_price": "6865",
+                        "old_price": "3865",
+                        "images": [
+                            {
+                                "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                            }
+                        ],
+                        "category_slug": "deke",
+                        "brand_slug": "test_brand-1",
+                        "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
+                    "quantity": 20,
+                },
                 description="Пример ответа на частичное обновление информации о конкретном элементе корзины в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о конкретном элементе корзины",
                 media_type="application/json",
             ),
-        ]
+        ],
     )
     def partial_update(self, request, *args, **kwargs):
         # Получаем product_id из URL-шаблона
-        product_id = kwargs.get('pk')
+        product_id = kwargs.get("pk")
         # Получаем объект Product или возвращаем 404, если он не найден
         product = get_object_or_404(Product, id=product_id)
         # Получаем объект CartItem, связанный с этим Product, или создаем новый
         cart_item = get_object_or_404(CartItem, product=product, customer=request.user)
         # Передаем управление стандартному методу partial_update, передавая cart_item вместо kwargs['pk']
-        kwargs['pk'], self.kwargs['pk'] = cart_item.pk, cart_item.pk
+        kwargs["pk"], self.kwargs["pk"] = cart_item.pk, cart_item.pk
         return super().partial_update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Удалить конкретный элемент из корзины",
         summary="Удаление элемента из корзины",
         responses={204: "Export started. You will receive the products file by email."},
         examples=[
             OpenApiExample(
-                name='Delete Request Example',
+                name="Delete Request Example",
                 request_only=True,
                 value=None,
-                description="Удаление элемента из корзины"
+                description="Удаление элемента из корзины",
             ),
             OpenApiExample(
-                name='Delete Response Example',
+                name="Delete Response Example",
                 response_only=True,
                 value=None,
-                description="Удаление элемента из корзины"
-            )
-        ]
+                description="Удаление элемента из корзины",
+            ),
+        ],
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Delete Cart Item by Product ID",
-        summary="Delete Cart Item by Product ID"
+        summary="Delete Cart Item by Product ID",
     )
     @action(detail=True, methods=["delete"])
     def delete_by_prod(self, request, *args, **kwargs):
@@ -844,15 +812,15 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Returns only the cart items that belong to the current user.
+        print(self.queryset, "IN def GET_QUERYSET")
         return self.queryset.filter(customer=self.request.user)
 
     def perform_create(self, serializer):
         # Associates the new cart item with the current user.
         serializer.save(customer=self.request.user)
 
-@extend_schema(
-    tags=['Cart']
-)
+
+@extend_schema(tags=["Cart"])
 class CartCountView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
@@ -863,14 +831,12 @@ class CartCountView(views.APIView):
         responses={200: "Success"},
         examples=[
             OpenApiExample(
-                name='Get Count Response Example',
+                name="Get Count Response Example",
                 response_only=True,
-                value={
-                    "count": 100
-                },
-                description="Получение количества товаров в корзине для текущего пользователя"
+                value={"count": 100},
+                description="Получение количества товаров в корзине для текущего пользователя",
             )
-        ]
+        ],
     )
     def get(self, request):
         queryset = CartItem.objects.filter(customer=request.user)
