@@ -266,3 +266,10 @@ CONFIRM_CODE_LIFE_TIME = os.environ.get("CONFIRM_CODE_LIFE_TIME", 60)
 SMS_CACHE_PREFIX = os.environ.get("SMS_CACHE_PREFIX", "SMS_CACHE")
 
 BASE_DOMAIN = os.environ.get('BASE_DOMAIN', 'krov.market')
+
+# TG SETTINGS
+TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "DEFAULT")
+
+# SEND VERIFY CODE
+SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM", True)
+CHAT_ID = os.environ.get("CHAT_ID", "DEFAULT")
