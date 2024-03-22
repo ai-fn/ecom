@@ -264,6 +264,7 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 SMS_RU_TOKEN = os.environ.get("SMS_RU_TOKEN", "DEFAULT")
 CONFIRM_CODE_LIFE_TIME = os.environ.get("CONFIRM_CODE_LIFE_TIME", 60)
 SMS_CACHE_PREFIX = os.environ.get("SMS_CACHE_PREFIX", "SMS_CACHE")
+CACHE_PREFIX = os.environ.get("CACHE_PREFIX", "SMS_CACHE")
 
 BASE_DOMAIN = os.environ.get('BASE_DOMAIN', 'krov.market')
 
@@ -273,3 +274,16 @@ TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "DEFAULT")
 # SEND VERIFY CODE
 SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM", True)
 CHAT_ID = os.environ.get("CHAT_ID", "DEFAULT")
+
+# CACHE SETTINGS
+CACHE_LOCATION = os.environ.get("CACHE_LOCATION", "redis://cache:6379/0")
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": CACHE_LOCATION,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": CACHE_PREFIX
+    }
+}
