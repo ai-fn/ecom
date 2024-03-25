@@ -11,6 +11,7 @@ from api.permissions import ReadOnlyOrIsOwnerOrIsAdmin
 
 from account.models import CustomUser
 
+from rest_framework.decorators import action
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -165,18 +166,18 @@ class AccountInfoViewSet(
                 name="Пример ответа на получение информации",
                 response_only=True,
                 value={
-                    'id': 1,
                     'first_name': 'John',
                     'last_name': 'Conors',
                     'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
-                    "phone": "+79983543246",
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
                 }
             )
         ]
     )
     def retrieve(self, request, *args, **kwargs):
+        self.kwargs["pk"] = request.user.pk
+
         return super().retrieve(request, *args, **kwargs)
 
     @extend_schema(
@@ -195,12 +196,10 @@ class AccountInfoViewSet(
                 name="Пример ответа на частичное изменение",
                 response_only=True,
                 value={
-                    'id': 1,
                     'first_name': 'John',
                     'last_name': 'Conors', 
                     'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
-                    "phone": "+79983543246",
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
                 }
             )
@@ -210,41 +209,5 @@ class AccountInfoViewSet(
         """
         Частичное изменение информации о пользователе.
         """
+        self.kwargs["pk"] = request.user.pk
         return super().partial_update(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Изменение информации о пользователе",
-        summary="Изменение информации о пользователе",
-        examples=[
-            OpenApiExample(
-                name="Пример запроса на изменение",
-                request_only=True,
-                value={
-                    'first_name': 'John',
-                    'last_name': 'Conors', 
-                    'middle_name': 'James',
-                    'email': 'dummy_user@gmail.com',
-                    "phone": "+79983543246",
-                    "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
-                }
-            ),
-            OpenApiExample(
-                name="Пример ответа на изменение",
-                response_only=True,
-                value={
-                    'id': 1,
-                    'first_name': 'John',
-                    'last_name': 'Conors',
-                    'middle_name': 'James',
-                    'email': 'dummy_user@gmail.com',
-                    "phone": "+79983543246",
-                    "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
-                }
-            )
-        ]
-    )
-    def update(self, request, *args, **kwargs):
-        """
-        Изменение информации о пользователе.
-        """
-        return super().update(request, *args, **kwargs)
