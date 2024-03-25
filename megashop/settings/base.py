@@ -272,7 +272,7 @@ BASE_DOMAIN = os.environ.get('BASE_DOMAIN', 'krov.market')
 TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "DEFAULT")
 
 # SEND VERIFY CODE
-SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM", True)
+SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM") == "True"
 CHAT_ID = os.environ.get("CHAT_ID", "DEFAULT")
 
 # CACHE SETTINGS
