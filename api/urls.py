@@ -23,6 +23,7 @@ from api.views import (
     FooterItemViewSet,
     FooterSettingsViewSet,
     MainPageSliderImageViewSet,
+    MainPageCategoryBarItemViewSet,
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -49,6 +50,7 @@ router.register(r"footer-items", FooterItemViewSet)
 router.register(r"footer-settings", FooterSettingsViewSet)
 router.register(r"main-page-slider-image", MainPageSliderImageViewSet)
 router.register(r"promos", PromoViewSet, basename="promo")
+router.register(r"category-bar-item", MainPageCategoryBarItemViewSet)
 
 
 urlpatterns = [
