@@ -32,3 +32,4 @@ unidecode
 django-elasticsearch-dsl~=8.0
 django-elasticsearch-dsl-drf~=0.22.5
 django-redis~=5.4.0
+geopy~=2.4.1
