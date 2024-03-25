@@ -61,9 +61,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer, ValidatePhoneNumbe
 
 
 class UserDetailInfoSerializer(serializers.ModelSerializer, ValidatePhoneNumberMixin, ValidateAddressMixin):
-    password = serializers.CharField(
-        write_only=True, required=False, style={"input_type": "password"}
-    )
 
     class Meta:
         model = CustomUser
