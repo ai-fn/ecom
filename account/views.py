@@ -166,10 +166,9 @@ class AccountInfoViewSet(
                 response_only=True,
                 value={
                     'id': 1,
-                    'password': 'dummy_password',
-                    'username': 'dummy_user',
                     'first_name': 'John',
-                    'last_name': 'Conors', 
+                    'last_name': 'Conors',
+                    'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
                     "phone": "+79983543246",
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
@@ -197,10 +196,9 @@ class AccountInfoViewSet(
                 response_only=True,
                 value={
                     'id': 1,
-                    'password': 'dummy_password',
-                    'username': 'dummy_user',
                     'first_name': 'John',
                     'last_name': 'Conors', 
+                    'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
                     "phone": "+79983543246",
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
@@ -222,10 +220,9 @@ class AccountInfoViewSet(
                 name="Пример запроса на изменение",
                 request_only=True,
                 value={
-                    'password': 'dummy_password',
-                    'username': 'dummy_user',
                     'first_name': 'John',
                     'last_name': 'Conors', 
+                    'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
                     "phone": "+79983543246",
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
@@ -236,10 +233,9 @@ class AccountInfoViewSet(
                 response_only=True,
                 value={
                     'id': 1,
-                    'password': 'dummy_password',
-                    'username': 'dummy_user',
                     'first_name': 'John',
-                    'last_name': 'Conors', 
+                    'last_name': 'Conors',
+                    'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
                     "phone": "+79983543246",
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
