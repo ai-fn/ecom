@@ -1,6 +1,5 @@
 import time
 from drf_spectacular.utils import OpenApiExample
-from datetime import datetime, timedelta
 import requests
 import random as rd
 

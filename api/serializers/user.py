@@ -67,4 +67,4 @@ class UserDetailInfoSerializer(serializers.ModelSerializer, ValidatePhoneNumberM
 
     class Meta:
         model = CustomUser
-        fields = ("username", "first_name", "last_name", "email", "password", "phone", "address")
+        fields = ("first_name", "last_name", "email", "phone", "address", "middle_name")

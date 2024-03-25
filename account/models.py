@@ -113,6 +113,9 @@ class CustomUser(AbstractUser):
         verbose_name="Покупатель ли юзер?",
         default=False,
     )
+    middle_name = models.CharField(
+        verbose_name="Отчество", blank=True, null=True, max_length=20
+    )
 
     class Meta:
         indexes = [
