@@ -7,7 +7,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from api.serializers.user import UserDetailInfoSerializer, UserRegistrationSerializer
-from api.permissions import ReadOnlyOrIsOwnerOrIsAdmin
+from api.permissions import OwnerOrIsAdmin
 
 from account.models import CustomUser
 
@@ -155,7 +155,7 @@ class AccountInfoViewSet(
     viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin
 ):
     serializer_class = UserDetailInfoSerializer
-    permission_classes = [ReadOnlyOrIsOwnerOrIsAdmin]
+    permission_classes = [OwnerOrIsAdmin]
     queryset = CustomUser.objects.all()
 
     @extend_schema(
