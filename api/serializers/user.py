@@ -60,8 +60,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer, ValidatePhoneNumbe
         return user
 
 
-class UserDetailInfoSerializer(serializers.ModelSerializer, ValidatePhoneNumberMixin, ValidateAddressMixin):
+class UserDetailInfoSerializer(serializers.ModelSerializer, ValidateAddressMixin, ValidatePhoneNumberMixin):
 
     class Meta:
         model = CustomUser
-        fields = ("first_name", "last_name", "email", "phone", "address", "middle_name")
+        fields = ("first_name", "last_name", "email", "address", "middle_name", "phone")
