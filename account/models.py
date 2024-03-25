@@ -106,6 +106,9 @@ class CustomUser(AbstractUser):
     city = models.ForeignKey(
         City, on_delete=models.SET_NULL, null=True, related_name="customers"
     )
+    address = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Адрес"
+    )
     is_customer = models.BooleanField(
         verbose_name="Покупатель ли юзер?",
         default=False,

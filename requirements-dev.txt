@@ -29,3 +29,4 @@ phonenumbers~=8.13.30
 pymorphy2~=0.9.1
 django-prometheus~=2.3.1
 django-redis~=5.4.0
+geopy~=2.4.1
