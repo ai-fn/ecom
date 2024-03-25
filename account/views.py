@@ -160,7 +160,7 @@ class AccountInfoViewSet(
 
     @extend_schema(
         description="Получение подробной информации о пользователе",
-        summary="Получение списка информации о пользователях",
+        summary="Получение информации о пользователе",
         examples=[
             OpenApiExample(
                 name="Пример ответа на получение информации",
@@ -170,6 +170,7 @@ class AccountInfoViewSet(
                     'last_name': 'Conors',
                     'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
+                    'phone': '+79933519856',
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
                 }
             )
@@ -200,6 +201,7 @@ class AccountInfoViewSet(
                     'last_name': 'Conors', 
                     'middle_name': 'James',
                     'email': 'dummy_user@gmail.com',
+                    'phone': '+79933519856',
                     "address": "16Г, Донбасская улица, Ямская слобода, Ленинский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394030, Россия"
                 }
             )
