@@ -160,7 +160,21 @@ class AccountInfoViewSet(
     @extend_schema(
         description="Получение подробной информации о пользователе",
         summary="Получение списка информации о пользователях",
-        responses={200: UserDetailInfoSerializer()},
+        examples=[
+            OpenApiExample(
+                name="Пример ответа на получение информации",
+                response_only=True,
+                value={
+                    'id': 1,
+                    'password': 'dummy_password',
+                    'username': 'dummy_user',
+                    'first_name': 'John',
+                    'last_name': 'Conors', 
+                    'email': 'dummy_user@gmail.com',
+                    "phone": "+79983543246"
+                }
+            )
+        ]
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -170,7 +184,7 @@ class AccountInfoViewSet(
         summary="Частичное изменение информации о пользователе",
         examples=[
             OpenApiExample(
-                name="Resuqst Example",
+                name="Пример запроса на частичное изменение",
                 request_only=True,
                 value={
                     'first_name': 'John',
@@ -178,7 +192,7 @@ class AccountInfoViewSet(
                 }
             ),
             OpenApiExample(
-                name="Resuqst Example",
+                name="Пример ответа на частичное изменение",
                 response_only=True,
                 value={
                     'id': 1,
@@ -187,7 +201,7 @@ class AccountInfoViewSet(
                     'first_name': 'John',
                     'last_name': 'Conors', 
                     'email': 'dummy_user@gmail.com',
-                    "phone": {"phone_number": "+79983543246"}
+                    "phone": "+79983543246"
                 }
             )
         ]
@@ -201,8 +215,33 @@ class AccountInfoViewSet(
     @extend_schema(
         description="Изменение информации о пользователе",
         summary="Изменение информации о пользователе",
-        request=UserDetailInfoSerializer,
-        responses={200: UserDetailInfoSerializer()}
+        examples=[
+            OpenApiExample(
+                name="Пример запроса на изменение",
+                request_only=True,
+                value={
+                    'password': 'dummy_password',
+                    'username': 'dummy_user',
+                    'first_name': 'John',
+                    'last_name': 'Conors', 
+                    'email': 'dummy_user@gmail.com',
+                    "phone": "+79983543246"
+                }
+            ),
+            OpenApiExample(
+                name="Пример ответа на изменение",
+                response_only=True,
+                value={
+                    'id': 1,
+                    'password': 'dummy_password',
+                    'username': 'dummy_user',
+                    'first_name': 'John',
+                    'last_name': 'Conors', 
+                    'email': 'dummy_user@gmail.com',
+                    "phone": "+79983543246"
+                }
+            )
+        ]
     )
     def update(self, request, *args, **kwargs):
         """

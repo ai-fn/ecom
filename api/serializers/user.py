@@ -1,11 +1,10 @@
 from rest_framework import serializers
 
 from account.models import CustomUser
+from api.mixins import ValidatePhoneNumberMixin
 
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
-
-from .phone import PhoneSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,11 +40,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
+class UserRegistrationSerializer(serializers.ModelSerializer, ValidatePhoneNumberMixin):
     password = serializers.CharField(
         write_only=True, required=True, style={"input_type": "password"}
     )
-    phone = PhoneSerializer()
+    phone = serializers.CharField(max_length=16)
 
     class Meta:
         model = CustomUser
@@ -61,11 +60,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserDetailInfoSerializer(serializers.ModelSerializer):
+class UserDetailInfoSerializer(serializers.ModelSerializer, ValidatePhoneNumberMixin):
     password = serializers.CharField(
         write_only=True, required=False, style={"input_type": "password"}
     )
-    phone = PhoneSerializer()
+    phone = serializers.CharField(max_length=16)
 
     class Meta:
         model = CustomUser
