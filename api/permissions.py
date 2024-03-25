@@ -13,3 +13,17 @@ class ReadOnlyOrAdminPermission(permissions.BasePermission):
 
         # Проверка типа запроса: разрешить только запросы на чтение
         return request.method in permissions.SAFE_METHODS
+
+
+class ReadOnlyOrIsOwnerOrIsAdmin(permissions.BasePermission):
+    """
+    Пользователь может изменять или удалять объект только если он является его владельцем.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Разрешаем GET, HEAD, OPTIONS запросы, т.е. только чтение
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Проверяем, является ли текущий пользователь владельцем объекта
+        return obj.pk == request.user.pk or request.user.is_staff
