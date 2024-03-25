@@ -449,7 +449,7 @@ class FooterItem(TimeBasedModel):
             )
 
 
-class MainPageSliderImage(models.Model):
+class MainPageSliderImage(TimeBasedModel):
     order = models.IntegerField(unique=True)
     link = models.URLField(blank=True, null=True)
     image_text = models.CharField(max_length=255, blank=True, null=True)
@@ -459,5 +459,25 @@ class MainPageSliderImage(models.Model):
         verbose_name="Изображение",
     )
 
+    class Meta:
+        ordering = ("order",)
+        verbose_name = "Изображение главной страницы"
+        verbose_name_plural = "Изображения главной страницы"
+
     def __str__(self) -> str:
         return f"MainPageSliderImage_{self.id}"
+
+
+class MainPageCategoryBarItem(TimeBasedModel):
+
+    order = models.IntegerField(unique=True)
+    link = models.URLField(blank=True, null=True)
+    text = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        ordering = ("order",)
+        verbose_name = "Категория для панели на главной странице"
+        verbose_name_plural = "Категории для панели на главной странице"
+
+    def __str__(self) -> str:
+        return f"MainPageCategoryBarItem_{self.id}"

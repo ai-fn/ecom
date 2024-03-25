@@ -19,6 +19,10 @@ from shop.models import (
     Promo,
     Review,
     Setting,
+    FooterItem,
+    FooterSettings,
+    MainPageSliderImage,
+    MainPageCategoryBarItem,
 )
 from mptt.admin import DraggableMPTTAdmin
 
@@ -167,3 +171,47 @@ class PromoAdmin(admin.ModelAdmin):
         "category",
         "cities",
     )
+
+@admin.register(FooterItem)
+class FooterItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "title",
+        "link",
+        "order",
+        "footer_settings",
+    )
+    list_filter = (
+        "footer_settings",
+    )
+    search_fields = ("title",)
+
+@admin.register(FooterSettings)
+class FooterSettingsAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "max_footer_items",
+    )
+
+@admin.register(MainPageSliderImage)
+class MainPageSliderImageAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "image_text",
+        "button_text",
+        "link",
+        "order",
+        "image",
+    )
+    search_fields = ("image_text", "link", "button_text")
+
+@admin.register(MainPageCategoryBarItem)
+class MainPageCategoryBarItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "link",
+        "order",
+        "text",
+    )
+
+    search_fields = ("text", "link")
