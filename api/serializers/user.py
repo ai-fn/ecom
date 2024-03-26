@@ -61,6 +61,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer, ValidatePhoneNumbe
 
 
 class UserDetailInfoSerializer(serializers.ModelSerializer, ValidateAddressMixin, ValidatePhoneNumberMixin):
+    phone = serializers.CharField(max_length=16, read_only=True)
 
     class Meta:
         model = CustomUser
