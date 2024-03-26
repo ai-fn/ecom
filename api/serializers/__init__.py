@@ -1,5 +1,7 @@
-from ._jwt import MyTokenObtainPairSerializer
-from ._jwt import TokenObtainPairSerializer
+from ._jwt import (
+    MyTokenObtainPairSerializer,
+    MyTokenRefreshSerializer,
+) 
 from .category_meta_data import CategoryMetaDataSerializer
 from .user import UserCreateSerializer
 from .user import UserSerializer
