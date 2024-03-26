@@ -26,6 +26,7 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
         source="brand.slug",
         read_only=True
     )
+    cart_quantity = serializers.IntegerField(min_value=1, read_only=True)
 
     def get_category_slug(self, obj) -> str:
         return obj.category.slug
@@ -46,4 +47,5 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
             "brand_slug",
             "search_image",
             "catalog_image",
+            "cart_quantity",
         ]
