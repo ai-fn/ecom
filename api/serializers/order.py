@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from rest_framework import serializers
 
 from cart.models import Order, ProductsInOrder
@@ -17,6 +18,6 @@ class OrderSerializer(serializers.ModelSerializer, ValidateAddressMixin):
             "created_at",
         ]
         
-    def get_products(self, obj):
+    def get_products(self, obj) -> OrderedDict:
         products_in_order = ProductsInOrder.objects.filter(order=obj)
         return ProductsInOrderSerializer(products_in_order, many=True).data

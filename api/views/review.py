@@ -170,7 +170,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить отзыв",
         summary="Удаление отзыва",
-        responses={204: "No Content"},
+        responses={204: None},
     )
     def destroy(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)

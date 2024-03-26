@@ -7,6 +7,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParamete
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
+from api.serializers.setting import SettingSerializer
 from blog.sitemaps import ArticleSitemap
 from shop.forms import ReviewForm
 from shop.models import Product, Category
@@ -26,7 +27,6 @@ sitemaps = {
     description="Получение карты сайта",
     summary="Получение карты сайта",
     parameters=[OpenApiParameter(description="Домен города", name="domain", required=False, type=str)],
-    responses={200: "OK"},
     examples=[
         OpenApiExample(
             name="Sitemap Response Example",
@@ -56,10 +56,10 @@ sitemaps = {
 )
 class CustomSitemap(APIView):
     permission_classes = [AllowAny]
+    serializer_class = SettingSerializer
 
     def get(self, request):
         domain = request.query_params.get("domain")
-        print(domain)
 
         return sitemap(request, sitemaps={k: v(domain) for k, v in sitemaps.items()})
 

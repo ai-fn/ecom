@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from rest_framework import serializers
 
 from api.serializers import CategoryMetaDataSerializer
@@ -32,17 +33,17 @@ class CategorySerializer(serializers.ModelSerializer):
             "is_visible",
         ]
 
-    def get_children(self, obj):
+    def get_children(self, obj) -> None | OrderedDict:
         if obj.is_leaf_node():
             return None
         return CategorySerializer(obj.get_children(), many=True).data
 
-    def get_image_url(self, obj):
+    def get_image_url(self, obj) -> None | str:
         if obj.image:  # Проверяем, есть ли у категории изображение
             return obj.image.url  # Возвращаем URL изображения
         return None  # Если изображения нет, возвращаем None
 
-    def get_parents(self, obj):
+    def get_parents(self, obj) -> list:
         """
         Возвращает список родительских категорий в виде кортежей (name, slug, id),
         начиная от корневой категории до текущего родителя.

@@ -183,7 +183,7 @@ class PriceViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить цену на продукт",
         summary="Удаление цены на продукт",
-        responses={204: "No Content"},
+        responses={204: None},
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

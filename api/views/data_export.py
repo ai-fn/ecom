@@ -16,7 +16,7 @@ class DataExportView(APIView):
     @extend_schema(
         description="Экспорт товаров",
         summary="Экспорт товаров",
-        responses={200: "No content."},
+        responses={200: None},
         examples=[
             OpenApiExample(
                 name="Delete Request Example",

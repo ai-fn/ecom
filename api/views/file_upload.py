@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAdminUser
+from api.serializers.setting import SettingSerializer
 from api.tasks import handle_csv_file_task, handle_xlsx_file_task
 from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
@@ -11,14 +12,16 @@ from rest_framework import status
 
 
 class XlsxFileUploadView(APIView):
+
     parser_classes = [FileUploadParser]
     queryset = Product.objects.all()
     permission_classes = [IsAdminUser]
-    # permission_classes = []
+    serializer_class = None
 
     @extend_schema(
         description="Импорт товаров",
         summary="Импорт товаров",
+        responses={200: None},
         parameters=[
             OpenApiParameter(
                 name="type",
