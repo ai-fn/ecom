@@ -16,7 +16,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
     @extend_schema(
-        description="This endpoint retrieves a list of all main page slider images.",
+        description="Этот эндпоинт получает список всех изображений слайдера на главной странице.",
+        summary="Получить список всех изображений слайдера на главной странице",
         responses={200: MainPageSliderImageSerializer(many=True)},
         examples=[
             OpenApiExample(
@@ -55,12 +56,13 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
-        description="This endpoint retrieves a specific main page slider image by its ID.",
+        description="Этот эндпоинт извлекает конкретное изображение слайдера главной страницы по его идентификатору.",
+        summary="Получение конкретного изображения слайдера главной страницы",
         responses={200: MainPageSliderImageSerializer()},
         examples=[
             OpenApiExample(
                 name="Retrieve MainPageSliderImage Example",
-                summary="Example of retrieving a specific main page slider image",
+                summary="Пример извлечения конкретного изображения слайдера главной страницы",
                 value={
                     "id": 1,
                     "order": 1,
@@ -77,13 +79,13 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     @extend_schema(
-        description="This endpoint creates a new main page slider image.",
-        request=MainPageSliderImageSerializer,
+        description="Этот эндпоинт создаёт новое изображение слайдера главной страницы.",
+        summary="Создание нового изображения слайдера главной страницы",
         responses={201: MainPageSliderImageSerializer()},
         examples=[
             OpenApiExample(
                 name="Create MainPageSliderImage Example",
-                summary="Example of creating a new main page slider image",
+                summary="Пример создания нового изображения слайдера главной страницы",
                 value={
                     "order": 4,
                     "link": "http://example.com",
@@ -95,7 +97,7 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
             ),
             OpenApiExample(
                 name="Create MainPageSliderImage Response Example",
-                summary="Example of response after creating a new main page slider image",
+                summary="Пример ответа после создания нового изображения слайдера главной страницы",
                 value={
                     "id": 4,
                     "order": 4,
@@ -111,13 +113,14 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     @extend_schema(
-        description="This endpoint updates a specific main page slider image by its ID.",
+        description="Этот эндпоинт обновляет конкретное изображение слайдера главной страницы по его идентификатору.",
+        summary="Обновление конкретного изображения слайдера главной страницы",
         request=MainPageSliderImageSerializer,
         responses={200: MainPageSliderImageSerializer()},
         examples=[
             OpenApiExample(
                 name="Update MainPageSliderImage Example",
-                summary="Example of updating a specific main page slider image",
+                summary="Пример обновления конкретного изображения слайдера главной страницы",
                 value={
                     "id": 1,
                     "order": 1,
@@ -130,7 +133,7 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
             ),
             OpenApiExample(
                 name="Update MainPageSliderImage Response Example",
-                summary="Example of response after updating a specific main page slider image",
+                summary="Пример ответа после обновления конкретного изображения слайдера главной страницы",
                 value={
                     "id": 1,
                     "order": 1,
@@ -146,19 +149,20 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     @extend_schema(
-        description="This endpoint partially updates a specific main page slider image by its ID.",
+        description="Этот эндпоинт частично обновляет конкретное изображение слайдера главной страницы по его идентификатору.",
+        summary="Частичное обновление конкретного изображения слайдера главной страницы",
         request=MainPageSliderImageSerializer,
         responses={200: MainPageSliderImageSerializer()},
         examples=[
             OpenApiExample(
                 name="Partial Update MainPageSliderImage Example",
-                summary="Example of partially updating a specific main page slider image",
+                summary="Пример частичного обновления конкретного изображения слайдера главной страницы",
                 value={"image_text": "Updated Image 1"},
                 request_only=True,
             ),
             OpenApiExample(
                 name="Partial Update MainPageSliderImage Response Example",
-                summary="Example of response after partially updating a specific main page slider image",
+                summary="Пример ответа после частичного обновления конкретного изображения слайдера главной страницы",
                 value={
                     "id": "1",
                     "name": 1,
@@ -175,12 +179,13 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
 
     @extend_schema(
-        description="This endpoint deletes a specific main page slider image by its ID.",
+        description="Этот эндпоинт удаляет конкретное изображение слайдера главной страницы по его идентификатору.",
+        summary="Удаление конкретного изображения слайдера главной страницы",
         responses={204: None},
         examples=[
             OpenApiExample(
                 name="Delete MainPageSliderImage Example",
-                summary="Example of deleting a specific main page slider image",
+                summary="Пример удаления конкретного изображения слайдера главной страницы",
                 value=None,
             )
         ],
