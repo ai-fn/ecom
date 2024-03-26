@@ -209,7 +209,7 @@ class SettingViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить настройку",
         summary="Удаление настройки",
-        responses={204: "No Content"},
+        responses={204: None},
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

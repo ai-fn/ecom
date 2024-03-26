@@ -27,7 +27,7 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    def get_category_slug(self, obj):
+    def get_category_slug(self, obj) -> str:
         return obj.category.slug
 
     class Meta:

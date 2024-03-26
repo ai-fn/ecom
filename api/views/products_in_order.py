@@ -125,7 +125,7 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить продукт из заказа.",
         summary="Удаление продукта из заказа",
-        responses={204: "No Content"},
+        responses={204: None},
         examples=[
             OpenApiExample(
                 name="Delete Product from Order Example",

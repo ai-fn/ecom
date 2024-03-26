@@ -26,12 +26,6 @@ code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60))
     tags=["Account"],
     description=f"Отпарвка СМС сообщения. Кэширование запроса на {code_lifetime} секунд.",
     summary="Отпарвка СМС сообщения",
-    responses=[
-        {"409": "CONFLICT"},
-        {"200": "OK"},
-        {"500": "INTERNAL SERVER ERROR"},
-        {"400": "BAD REQUEST"},
-    ],
     examples=[
         OpenApiExample(name="Request Example", value={"phone_number": "+79889889898"})
     ],
@@ -136,12 +130,6 @@ class SendSMSView(GenericAPIView):
     tags=["Account"],
     description="Проверка кода подтверждения.",
     summary="Проверка кода подтверждения",
-    responses=[
-        {"409": "CONFLICT"},
-        {"200": "OK"},
-        {"500": "INTERNAL SERVER ERROR"},
-        {"400": "BAD REQUEST"},
-    ],
     examples=[
         OpenApiExample(
             name="Request Example",

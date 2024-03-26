@@ -202,7 +202,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить заказ",
         summary="Удаление заказа",
-        responses={204: "No Content"},
+        responses={204: None},
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
@@ -504,6 +504,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                         "brand_slug": "test_brand-1",
                         "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "is_stock": True
                     },
                     "quantity": 100,
                 },
@@ -579,6 +580,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                                 "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
                             },
                         ],
+                        "in_stock": True
                     },
                     {
                         "id": 3733,
@@ -635,6 +637,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                                 "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                             },
                         ],
+                        "in_stock": True
                     },
                 ],
                 description="Пример ответа подробной информации о товарах в корзине в Swagger UI",
@@ -777,7 +780,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить конкретный элемент из корзины",
         summary="Удаление элемента из корзины",
-        responses={204: "Export started. You will receive the products file by email."},
         examples=[
             OpenApiExample(
                 name="Delete Request Example",
@@ -824,11 +826,11 @@ class CartItemViewSet(viewsets.ModelViewSet):
 class CartCountView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CartItemSerializer
 
     @extend_schema(
         description="Получение количества товаров в корзине для текущего пользователя",
         summary="Получение количества товаров в корзине для текущего пользователя",
-        responses={200: "Success"},
         examples=[
             OpenApiExample(
                 name="Get Count Response Example",

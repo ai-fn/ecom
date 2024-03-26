@@ -1,8 +1,8 @@
-
 from api.serializers.user import UserRegistrationSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
@@ -20,9 +20,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
                 "username": "root_user",
                 "email": "user@example.com",
                 "password": "q3465rwdseewq3411_&3q",
-                "phone": {
-                    "phone_number": "+79983543246"
-                }
+                "phone": "+79983543246",
             }
         ),
         OpenApiExample(
@@ -32,22 +30,20 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
                 "username": "root_user",
                 "email": "user@example.com",
                 "password": "q3465rwdseewq3411_&3q",
-                "phone": {
-                    "phone_number": "+79983543246"
-                }
+                "phone": "+79983543246",
             }
         )
     ]
 )
 class UserRegistrationView(APIView):
-    permission_classes = []  # Разрешить доступ неавторизованным пользователям
+    permission_classes = [AllowAny]  # Разрешить доступ неавторизованным пользователям
+    serializer_class = UserRegistrationSerializer
 
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            return Response(
-                {"message": "User registered successfully"},
+            return Response(serializer.data,
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

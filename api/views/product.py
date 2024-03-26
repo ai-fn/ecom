@@ -489,7 +489,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить товар из каталога",
         summary="Удалить товар из каталога",
-        responses={204: "No Content"},
+        responses={204: None},
     )
     def destroy(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
