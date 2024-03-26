@@ -277,6 +277,5 @@ class CityViewSet(viewsets.ModelViewSet):
             .annotate(relevance=relevance_criteria)
             .order_by("-relevance")
         )
-        print(queryset.values_list("relevance", flat=True))
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
