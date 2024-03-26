@@ -3,9 +3,8 @@ from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
 from shop.models import Category, Price, Product
-from cart.models import CartItem
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-from django.db.models import Q, Subquery, OuterRef
+from django.db.models import Q, F
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -34,7 +33,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         responses={200: ProductCatalogSerializer()},
         examples=[
             OpenApiExample(
-                name="Response Example",
+                name="Unauthorized Response Example",
                 response_only=True,
                 value=[
                     {
@@ -56,6 +55,9 @@ class ProductViewSet(viewsets.ModelViewSet):
                             },
                         ],
                         "category_slug": "category-a",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                     },
                     {
                         "id": 2,
@@ -76,6 +78,63 @@ class ProductViewSet(viewsets.ModelViewSet):
                             },
                         ],
                         "category_slug": "category-b",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    },
+                ],
+            ),
+            OpenApiExample(
+                name="Authorized Response Example",
+                response_only=True,
+                value=[
+                    {
+                        "id": 1,
+                        "title": "Product A",
+                        "brand": 1,
+                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "slug": "product-a",
+                        "city_price": 100.0,
+                        "old_price": 120.0,
+                        "images": [
+                            {
+                                "id": 1,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                            {
+                                "id": 2,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                        ],
+                        "category_slug": "category-a",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "cart_quantity": 10
+                    },
+                    {
+                        "id": 2,
+                        "title": "Product B",
+                        "brand": 2,
+                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "slug": "product-b",
+                        "city_price": 150.0,
+                        "old_price": 110.0,
+                        "images": [
+                            {
+                                "id": 1,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                            {
+                                "id": 2,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                        ],
+                        "category_slug": "category-b",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "cart_quantity": 10
                     },
                 ],
             )
@@ -140,20 +199,17 @@ class ProductViewSet(viewsets.ModelViewSet):
         if city_domain or price_gte or price_lte or brand_slug:
 
             if city_domain:
-                price_filter = Price.objects.filter(
-                    product=OuterRef("pk"), city__domain=city_domain
-                )
+
+                price_filter = Q(prices__city__domain=city_domain)
 
                 if price_lte is not None:
-                    price_filter = price_filter.filter(price__lte=price_lte)
+                    price_filter &= Q(prices__price__lte=price_lte)
                 if price_gte is not None:
-                    price_filter = price_filter.filter(price__gte=price_gte)
+                    price_filter &= Q(prices__price__gte=price_gte)
 
-                filter_conditions &= Q(id__in=Subquery(price_filter.values("product")))
-
-                self.queryset = self.queryset.annotate(
-                    city_price=Subquery(price_filter.values("price")[:1]),
-                    old_price=Subquery(price_filter.values("old_price")[:1]),
+                self.queryset = self.queryset.filter(price_filter).annotate(
+                    city_price=F("prices__price"),
+                    old_price=F("prices__old_price"),
                 )
 
             if brand_slug:
@@ -162,13 +218,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         filtered_queryset = self.queryset.filter(filter_conditions)
         if self.request.user.is_authenticated:
 
-            # Вывод количества товара в корзине, если пользователь авторизован
-            filtered_queryset.annotate(
-                cart_quantity=Subquery(
-                    CartItem.objects.filter(
-                        customer=self.request.user, product=OuterRef("pk")
-                    ).values("quantity")[:1]
-                )
+            filtered_queryset = filtered_queryset.annotate(
+                cart_quantity=F("cart_items__quantity")
             )
 
         if not filtered_queryset.exists():
