@@ -2,8 +2,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-from api.serializers import MyTokenObtainPairSerializer
+from api.serializers import MyTokenObtainPairSerializer, MyTokenRefreshSerializer
 
 # Create your views here.
 from drf_spectacular.utils import extend_schema, OpenApiExample
@@ -50,7 +49,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 )
 class MyTokenRefreshView(TokenRefreshView):
 
-    serializer_class = TokenRefreshSerializer
+    serializer_class = MyTokenRefreshSerializer
 
     @extend_schema(
         description="Обновление пары JWT токенов",
