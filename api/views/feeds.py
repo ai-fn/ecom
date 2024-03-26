@@ -1,7 +1,9 @@
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.contrib.syndication.views import Feed
 from django.core import serializers
 from django.http import HttpResponse
 from django.http import Http404, HttpResponse
+from api.serializers.setting import SettingSerializer
 from shop.models import Category, Product
 from rest_framework.views import APIView
 from django.template import TemplateDoesNotExist, loader
@@ -194,10 +196,68 @@ class ProductsFeed(CustomFeed, Feed):
         return reverse("shop:product_detail", args=[item.category.slug, item.slug])
 
 
+@extend_schema(
+    tags=["Settings"]
+)
 class AllFeedsXMLAPIView(APIView):
 
     queryset = Product.objects.all()
+    serializer_class = SettingSerializer
 
+    @extend_schema(
+        description="Получение xml фидов",
+        summary="Получение xml фидов",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                value="""<?xml version="1.0" encoding="utf-8"?>
+  <django-objects version="1.0">
+    <object model="shop.category" pk="550">
+      <field name="created_at" type="DateTimeField">2024-03-22T15:10:00.096491+00:00</field>
+      <field name="updated_at" type="DateTimeField">2024-03-22T15:10:07.627569+00:00</field>
+      <field name="name" type="CharField">Деке</field>
+      <field name="slug" type="SlugField">deke-550</field>
+      <field name="parent" rel="ManyToOneRel" to="shop.category">
+        <None>
+        </None>
+      </field>
+      <field name="icon" type="FileField">
+      </field>
+      <field name="image" type="FileField">
+      </field>
+      <field name="is_visible" type="BooleanField">True</field>
+      <field name="order" type="BigIntegerField">1</field>
+      <field name="lft" type="PositiveIntegerField">1</field>
+      <field name="rght" type="PositiveIntegerField">2</field>
+      <field name="tree_id" type="PositiveIntegerField">1</field>
+      <field name="level" type="PositiveIntegerField">0</field>
+    </object>
+     <object model="shop.product" pk="320">
+      <field name="created_at" type="DateTimeField">2024-03-22T15:10:02.026923+00:00</field>
+      <field name="updated_at" type="DateTimeField">2024-03-22T15:10:02.029140+00:00</field>
+      <field name="category" rel="ManyToOneRel" to="shop.category">559</field>
+      <field name="brand" rel="ManyToOneRel" to="shop.brand">
+        <None>
+        </None>
+      </field>
+      <field name="title" type="CharField">Желоб водосточный полукруглый 3 м Stal Premium, графит</field>
+      <field name="description" type="TextField">row['DESCRIPTION']</field>
+      <field name="image" type="FileField">
+      </field>
+      <field name="catalog_image" type="FileField">catalog/products/catalog-image-ef9119e0-d1f5-40f4-aeb6-37d0ea766ff0.webp</field>
+      <field name="search_image" type="FileField">catalog/products/search-image-ef9119e0-d1f5-40f4-aeb6-37d0ea766ff0.webp</field>
+      <field name="slug" type="SlugField">zhelob-vodostochnyi-polukruglyi-3-m-stal-premium-grafit-320</field>
+      <field name="in_stock" type="BooleanField">True</field>
+      <field name="additional_categories" rel="ManyToManyRel" to="shop.category">
+      </field>
+      <field name="similar_products" rel="ManyToManyRel" to="shop.product">
+      </field>
+    </object>
+</django-objects>""",
+                response_only=True,
+            )
+        ]
+    )
     def get(self, request, *args, **kwargs):
         products_feeds = CategoriesFeed().items()
         categories_feeds = ProductsFeed().items()

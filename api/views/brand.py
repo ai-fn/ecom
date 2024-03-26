@@ -116,7 +116,7 @@ class BrandView(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить конкретный бренд",
         summary="Удаление бренда",
-        responses={204: "No Content"},
+        responses={204: None},
         examples=[
             OpenApiExample(name='request', value=None),
             OpenApiExample(name='response', value=None)

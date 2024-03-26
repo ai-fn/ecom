@@ -35,7 +35,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
                 "username": "root_user",
                 "email": "user@example.com",
                 "password": "q3465rwdseewq3411_&3q",
-                "phone": {"phone_number": "+79983543246"},
+                "phone": "+79983543246",
             },
         ),
         OpenApiExample(
@@ -45,7 +45,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
                 "username": "root_user",
                 "email": "user@example.com",
                 "password": "q3465rwdseewq3411_&3q",
-                "phone": {"phone_number": "+79983543246"},
+                "phone": "+79983543246",
             },
         ),
     ],
@@ -123,7 +123,19 @@ class Register(GenericAPIView):
 )
 class EmailVerifyView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = UserRegistrationSerializer
 
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                value={
+                    "message": "User 'dummy_user' email successfully verified"
+                },
+                response_only=True
+            )
+        ]
+    )
     def get(self, request, uid64, token):
         user = self.get_user(request.user, uid64)
         if user is not None and settings.DEFAULT_TOKEN_GENERATOR.check_token(
@@ -145,7 +157,7 @@ class EmailVerifyView(APIView):
         try:
             uid = urlsafe_base64_decode(uid64).decode()
             user = CustomUser.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist) as e:
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
             user = None
         return user
 

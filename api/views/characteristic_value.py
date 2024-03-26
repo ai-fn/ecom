@@ -176,7 +176,7 @@ class CharacteristicValueViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить значение характеристики",
         summary="Удаление значения характеристики",
-        responses={204: "No Content"},
+        responses={204: None},
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

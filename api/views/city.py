@@ -201,7 +201,7 @@ class CityViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить город.",
         summary="Удаление города",
-        responses={204: "No Content"},
+        responses={204: None},
         examples=[
             OpenApiExample(
                 name="Delete City Example",

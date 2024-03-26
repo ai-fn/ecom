@@ -218,7 +218,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить конкретный заказ",
         summary="Удаление заказа",
-        responses={204: "No Content"},
+        responses={204: None},
         tags=['Orders'],
         examples=[
             OpenApiExample(

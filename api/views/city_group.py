@@ -322,7 +322,7 @@ class CityGroupViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Удалить группу городов.",
         summary="Удаление группы городов",
-        responses={204: "No Content"},
+        responses={204: None},
         examples=[
             OpenApiExample(
                 name="Delete City Group Example",
