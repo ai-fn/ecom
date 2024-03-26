@@ -18,6 +18,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
 
     @extend_schema(
         description="Получить список всех элементов главного меню категорий",
+        summary="Получить список всех элементов главного меню категорий",
         responses={200: MainPageCategoryBarItemSerializer(many=True)},
         examples=[
             OpenApiExample(
@@ -47,6 +48,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
 
     @extend_schema(
         description="Получить информацию о конкретном элементе главного меню категорий по его идентификатору",
+        summary="Получить информацию о конкретном элементе главного меню категорий",
         responses={200: MainPageCategoryBarItemSerializer()},
         examples=[
             OpenApiExample(
@@ -70,6 +72,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
 
     @extend_schema(
         description="Создать новый элемент главного меню категорий",
+        summary="Создать новый элемент главного меню категорий",
         request=MainPageCategoryBarItemSerializer,
         responses={201: MainPageCategoryBarItemSerializer()},
         examples=[
@@ -104,6 +107,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
 
     @extend_schema(
         description="Частично обновить информацию о конкретном элементе главного меню категорий",
+        summary="Частично обновить информацию о конкретном элементе главного меню категорий",
         request=MainPageCategoryBarItemSerializer,
         responses={200: MainPageCategoryBarItemSerializer()},
         examples=[
@@ -133,6 +137,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
 
     @extend_schema(
         description="Обновить информацию о конкретном элементе главного меню категорий",
+        summary="Обновить информацию о конкретном элементе главного меню категорий",
         request=MainPageCategoryBarItemSerializer,
         responses={200: MainPageCategoryBarItemSerializer()},
         examples=[
@@ -167,6 +172,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
 
     @extend_schema(
         description="Удалить конкретный элемент главного меню категорий",
+        summary="Удалить конкретный элемент главного меню категорий",
         responses={204: None},
     )
     def destroy(self, request, *args, **kwargs):

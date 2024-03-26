@@ -356,6 +356,10 @@ class CartItemViewSet(viewsets.ModelViewSet):
             {"message": "Objects successfully deleted"}, status=status.HTTP_200_OK
         )
 
+    @extend_schema(
+        description="Удаление всех элементов из корзины",
+        summary="Удаление всех элементов из корзины",
+    )
     @action(methods=["delete"], detail=False)
     def delete_cart(self, request, *args, **kwargs):
         queryset = CartItem.objects.filter(customer=request.user)
@@ -814,7 +818,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Returns only the cart items that belong to the current user.
-        print(self.queryset, "IN def GET_QUERYSET")
         return self.queryset.filter(customer=self.request.user)
 
     def perform_create(self, serializer):
