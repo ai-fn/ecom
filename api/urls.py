@@ -10,6 +10,7 @@ from api.views import (
     CityViewSet,
     DataExportView,
     MyTokenObtainPairView,
+    MyTokenRefreshView,
     ProductsById,
     PriceViewSet,
     ProductViewSet,
@@ -24,9 +25,6 @@ from api.views import (
     FooterSettingsViewSet,
     MainPageSliderImageViewSet,
     MainPageCategoryBarItemViewSet,
-)
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
 )
 
 from api.views.confirm_register import SendSMSView
@@ -58,7 +56,7 @@ urlpatterns = [
     path("shop/", include("shop.urls")),
     path("cart/", include("cart.urls")),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
     re_path(
         r"^upload/(?P<filename>[^/]+)$",
         XlsxFileUploadView.as_view(),
