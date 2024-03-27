@@ -151,15 +151,15 @@ class VerifyConfirmCode(GenericAPIView):
         serializer = self.serializer_class(data={"code": code})
         serializer.is_valid(raise_exception=True)
 
-        # cached_key = f"{settings.SMS_CACHE_PREFIX}_{phone_number}"
-        # cached_data = cache.get(cached_key, {})
-        # cached_code = cached_data.get("code")
+        cached_key = f"{settings.SMS_CACHE_PREFIX}_{phone_number}"
+        cached_data = cache.get(cached_key, {})
+        cached_code = cached_data.get("code")
 
-        # if not cached_data or code != cached_code:
-        #     return Response(
-        #         {"message": "Invalid confirmation code"},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
+        if not cached_data or code != cached_code:
+            return Response(
+                {"message": "Invalid confirmation code"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user, created = CustomUser.objects.get_or_create(
             phone=phone_number, defaults={"username": phone_number, "is_active": True}
