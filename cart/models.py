@@ -17,8 +17,20 @@ class Order(TimeBasedModel):
     created = models.DateTimeField(
         auto_now_add=True, verbose_name="Дата и время создания"
     )
-    address = models.CharField(
-        verbose_name="Адрес", max_length=255
+    region = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Область"
+    )
+    district = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Район"
+    )
+    city_name = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Город"
+    )
+    street = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Улица"
+    )
+    house = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Номер дома"
     )
 
     class Meta:

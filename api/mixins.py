@@ -1,4 +1,5 @@
 import time
+from loguru import logger
 from typing import Any, Dict
 from django.conf import settings
 import phonenumbers
@@ -24,13 +25,25 @@ class ValidatePhoneNumberMixin:
 
 class ValidateAddressMixin:
 
-    def validate_address(self, value):
+    def validate(self, data):
+
+        data = super().validate(data)
+        data["district"] = ""   
+        data["region"] = ""
+
+        address = ", ".join([data["region"], data["district"], data["city_name"], data["house"], data["street"]][::-1])
+
         geolocator = Nominatim(user_agent="my_geocoder")
-        location = geolocator.geocode(value)
+        location = geolocator.geocode(address)
+        lower_loc = location.address.lower()
+
         if not location:
-            raise serializers.ValidationError("Invalid address. Please provide a valid address with city, region, street, and house number.")
-        
-        return value
+            raise serializers.ValidationError("Неверный адрес. Пожалуйста, укажите действительный адрес с указанием города, области, улицы и номера дома.")
+        elif not all([*map(lambda x: x in lower_loc, address.lower().split(", "))]):
+            raise serializers.ValidationError(f"Указанный адрес не найден, возможно вы имели ввиду: {location.address}")
+
+        logger.info(f"Найден адрес: {location.address}")
+        return data
 
 
 class TokenExpiredTimeMixin:

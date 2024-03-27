@@ -6,7 +6,7 @@ from api.serializers import ProductsInOrderSerializer
 from api.mixins import ValidateAddressMixin
 
 
-class OrderSerializer(serializers.ModelSerializer, ValidateAddressMixin):
+class OrderSerializer(ValidateAddressMixin, serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
     class Meta:
         model = Order
@@ -14,8 +14,12 @@ class OrderSerializer(serializers.ModelSerializer, ValidateAddressMixin):
             "id",
             "customer",
             "products",
-            "address",
             "created_at",
+            "region",
+            "district",
+            "city_name",
+            "street",
+            "house",
         ]
         
     def get_products(self, obj) -> OrderedDict:

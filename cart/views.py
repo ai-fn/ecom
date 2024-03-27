@@ -36,13 +36,27 @@ class OrderViewSet(viewsets.ModelViewSet):
                     {
                         "id": 1,
                         "customer": "John Doe",
-                        "products": [1, 2, 3],
+                        "products": [
+                            {
+                                "id": 10,
+                                "order": 1,
+                                "product": 118,
+                                "quantity": 10,
+                            },
+                        ],
                         "created_at": "2024-03-12T12:00:00Z",
                     },
                     {
                         "id": 2,
                         "customer": "Jane Smith",
-                        "products": [4, 5],
+                        "products": [
+                            {
+                                "id": 10,
+                                "order": 1,
+                                "product": 118,
+                                "quantity": 10,
+                            },
+                        ],
                         "created_at": "2024-03-12T13:00:00Z",
                     },
                 ],
@@ -66,7 +80,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                 value={
                     "id": 1,
                     "customer": "John Doe",
-                    "products": [1, 2, 3],
+                    "products": [
+                        {
+                            "id": 10,
+                            "order": 1,
+                            "product": 118,
+                            "quantity": 10,
+                        },
+                    ],
                     "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
@@ -87,7 +108,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name="Create Request Example",
                 request_only=True,
-                value={"address": "г.Воронеж, ул.Донбасская, 16е"},
+                value={
+                    "region": "Воронежская область",
+                    "district": "Лискинский район",
+                    "city_name": "Воронеж",
+                    "street": "ул. Садовая",
+                    "house": "101Б",
+                },
                 description="Пример запроса на создание нового заказа в Swagger UI",
                 summary="Пример запроса на создание нового заказа",
                 media_type="application/json",
@@ -104,9 +131,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                             "order": 1,
                             "product": 118,
                             "quantity": 10,
-                            "created_at": "2024-03-12T12:00:00Z",
                         },
                     ],
+                    "region": "Воронежская область",
+                    "district": "Лискинский район",
+                    "city_name": "Воронеж",
+                    "street": "ул. Садовая",
+                    "house": "101Б",
                     "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа на создание нового заказа в Swagger UI",
@@ -117,22 +148,22 @@ class OrderViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         customer = request.user
-        address = request.data.get("address")
+        request.data["customer"] = customer.pk
         cart_items = CartItem.objects.filter(customer=customer)
 
         if not cart_items.exists():
             return Response(
                 {"error": "Корзина пуста."}, status=status.HTTP_404_NOT_FOUND
             )
-
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         with transaction.atomic():
-            order = Order.objects.create(customer=customer, address=address)
+            order = serializer.save()
             for item in cart_items:
                 ProductsInOrder.objects.create(
                     order=order, product=item.product, quantity=item.quantity
                 )
                 item.delete()
-            serializer = self.get_serializer(order)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @extend_schema(
@@ -144,7 +175,21 @@ class OrderViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name="Update Request Example",
                 request_only=True,
-                value={"customer": 2, "products": [4, 5, 6]},
+                value={
+                    "customer": 2,
+                    "products": [
+                        {
+                            "id": 10,
+                            "order": 1,
+                            "product": 118,
+                            "quantity": 10,
+                        },
+                    ],
+                    "district": "Лискинский район",
+                    "city_name": "Воронеж",
+                    "street": "ул. Садовая",
+                    "house": "101Б",
+                },
                 description="Пример запроса на обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на обновление информации о конкретном заказе",
                 media_type="application/json",
@@ -155,7 +200,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                 value={
                     "id": 1,
                     "customer": 2,
-                    "products": [4, 5, 6],
+                    "products": [
+                        {
+                            "id": 10,
+                            "order": 1,
+                            "product": 118,
+                            "quantity": 10,
+                        },
+                    ],
+                    "region": "Воронежская область",
+                    "district": "Лискинский район",
+                    "city_name": "Воронеж",
+                    "street": "ул. Садовая",
+                    "house": "101Б",
                     "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа на обновление информации о конкретном заказе в Swagger UI",
@@ -176,7 +233,16 @@ class OrderViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name="Partial Update Request Example",
                 request_only=True,
-                value={"products": [4, 5, 6]},
+                value={
+                    "products": [
+                        {
+                            "id": 10,
+                            "order": 1,
+                            "product": 118,
+                            "quantity": 10,
+                        },
+                    ],
+                },
                 description="Пример запроса на частичное обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на частичное обновление информации о конкретном заказе",
                 media_type="application/json",
@@ -187,7 +253,18 @@ class OrderViewSet(viewsets.ModelViewSet):
                 value={
                     "id": 1,
                     "customer": 1,
-                    "products": [4, 5, 6],
+                    "products": [
+                        {
+                            "id": 10,
+                            "order": 1,
+                            "product": 118,
+                            "quantity": 10,
+                        },
+                    ],
+                    "region": "Воронежская область",
+                    "district": "Лискинский район",
+                    "street": "ул. Садовая",
+                    "house": "101Б",
                     "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа на частичное обновление информации о конкретном заказе в Swagger UI",
@@ -305,10 +382,10 @@ class CartItemViewSet(viewsets.ModelViewSet):
             # Annotate new fields based on the related Price objects
             self.queryset = self.queryset.filter(
                 product__prices__city__domain=city_domain
-                ).annotate(
-                    city_price=F("product__prices__price"),
-                    old_price=F("product__prices__old_price"),
-                )
+            ).annotate(
+                city_price=F("product__prices__price"),
+                old_price=F("product__prices__old_price"),
+            )
 
         return super().list(request, *args, **kwargs)
 
@@ -508,7 +585,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                         "brand_slug": "test_brand-1",
                         "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "is_stock": True
+                        "is_stock": True,
                     },
                     "quantity": 100,
                 },
@@ -584,7 +661,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                                 "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
                             },
                         ],
-                        "in_stock": True
+                        "in_stock": True,
                     },
                     {
                         "id": 3733,
@@ -641,7 +718,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                                 "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                             },
                         ],
-                        "in_stock": True
+                        "in_stock": True,
                     },
                 ],
                 description="Пример ответа подробной информации о товарах в корзине в Swagger UI",

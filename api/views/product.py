@@ -389,7 +389,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     
     @extend_schema(
         description="Получить информацию о конкретном продукте в каталоге",
-        summary="Информация об отзыве",
+        summary="Получить информацию о конкретном продукте в каталоге",
         responses={200: ProductCatalogSerializer()},
         examples=[
             OpenApiExample(
