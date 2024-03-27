@@ -27,7 +27,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
                 value={
                     "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxMjc0MDMzMCwiaWF0IjoxNzExNDQ0MzMwLCJqdGkiOiIxYTZhYzMxMTI4YTQ0YWQ3OWM5YjEzMzE3ODgxYjY1ZCIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoicm9vdCJ9.3mJ4ajrhIU91GbVQleqe8B9uHczl8EMyCThDDgYAVq8",
                     "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzExNDQ0NjMwLCJpYXQiOjE3MTE0NDQzMzAsImp0aSI6IjUxOTJhZDNiMjE5MDQ2YzliZTZkMDg4MjA3M2E2MzJjIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJyb290In0.-XIElOJ12iyphnmBmERG3mI0W8t2Oc4Vavb8mc1OYVM",
-                    "exp": 1711444630.2152293
+                    "access_expired_at": 1711444630.2152293,
+                    "refresh_expired_at": 1721444630.2152293,
                 }
             ),
             OpenApiExample(
@@ -61,7 +62,8 @@ class MyTokenRefreshView(TokenRefreshView):
                 value={
                     "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxMjc0MDMzMCwiaWF0IjoxNzExNDQ0MzMwLCJqdGkiOiIxYTZhYzMxMTI4YTQ0YWQ3OWM5YjEzMzE3ODgxYjY1ZCIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoicm9vdCJ9.3mJ4ajrhIU91GbVQleqe8B9uHczl8EMyCThDDgYAVq8",
                     "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzExNDQ0NjMwLCJpYXQiOjE3MTE0NDQzMzAsImp0aSI6IjUxOTJhZDNiMjE5MDQ2YzliZTZkMDg4MjA3M2E2MzJjIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJyb290In0.-XIElOJ12iyphnmBmERG3mI0W8t2Oc4Vavb8mc1OYVM",
-                    "exp": 1711444630.2152293
+                    "access_expired_at": 1711444630.2152293,
+                    "refresh_expired_at": 1721444630.2152293,
                 }
             ),
             OpenApiExample(
