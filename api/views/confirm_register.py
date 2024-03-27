@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
-from ..serializers._jwt import TokenObtainPairSerializer
+from ..serializers._jwt import MyTokenObtainPairSerializer
 from ..serializers.phone import PhoneSerializer
 from ..serializers.confirm_code import ConfirmCodeSerializer
 from account.models import CustomUser
@@ -84,7 +84,7 @@ class SendSMSView(GenericAPIView):
 
             tg_link = f"https://api.telegram.org/bot{bot_token}/sendMessage"
             tg_params = {
-                "chat_id": chat_id, # phone_number if not phone_number.startswith("+7") else phone_number.replace("+7", "8"),
+                "chat_id": chat_id,  # phone_number if not phone_number.startswith("+7") else phone_number.replace("+7", "8"),
                 "text": message,
                 "json": 1,  # to receive response in JSON format
             }
@@ -151,33 +151,31 @@ class VerifyConfirmCode(GenericAPIView):
         serializer = self.serializer_class(data={"code": code})
         serializer.is_valid(raise_exception=True)
 
-        cached_key = f"{settings.SMS_CACHE_PREFIX}_{phone_number}"
-        cached_data = cache.get(cached_key, {})
-        cached_code = cached_data.get("code")
+        # cached_key = f"{settings.SMS_CACHE_PREFIX}_{phone_number}"
+        # cached_data = cache.get(cached_key, {})
+        # cached_code = cached_data.get("code")
 
-        if not cached_data or code != cached_code:
-            return Response(
-                {"message": "Invalid confirmation code"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # if not cached_data or code != cached_code:
+        #     return Response(
+        #         {"message": "Invalid confirmation code"},
+        #         status=status.HTTP_400_BAD_REQUEST,
+        #     )
 
         user, created = CustomUser.objects.get_or_create(
-            phone=phone_number, defaults={"username": phone_number}
+            phone=phone_number, defaults={"username": phone_number, "is_active": True}
         )
 
-        if not user.is_active:
-            user.is_active = True
-            if created:
-                user.set_password(phone_number)
-
+        if created:
+            user.set_password(phone_number)
             user.save()
-
-        serialized_tokens = TokenObtainPairSerializer.get_token(user)
+        
+        serialized_tokens = MyTokenObtainPairSerializer().validate(
+            {"username": user.username, "password": user.phone}
+        )
         return Response(
             {
                 "message": "User successfully activated",
-                "access": str(serialized_tokens.access_token),
-                "refresh": str(serialized_tokens),
+                **serialized_tokens
             },
             status=status.HTTP_200_OK,
         )
