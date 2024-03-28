@@ -38,7 +38,10 @@ class Category(MPTTModel, TimeBasedModel):
         verbose_name="Видна ли категория (ВЕЗДЕ)",
         default=True,
     )
-
+    is_popular = models.BooleanField(
+        verbose_name="Популярна ли категория",
+        default=False,
+    )
     order = models.BigIntegerField(
         verbose_name="Порядковый номер категории", blank=True
     )
@@ -174,6 +177,7 @@ class Product(TimeBasedModel):
         verbose_name="Похожие продукты",
     )
     in_stock = models.BooleanField(default=True)
+    is_popular = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Товар"
