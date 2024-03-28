@@ -13,7 +13,7 @@ from api.serializers import (
     OrderSerializer,
     ProductDetailSerializer,
 )
-from shop.models import Product
+from shop.models import Price, Product
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
@@ -104,6 +104,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         summary="Создание заказа",
         request=OrderSerializer,
         responses={201: OrderSerializer()},
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                description="Домен города",
+                type=str,
+                required=True,
+                location=OpenApiParameter.QUERY
+            )
+        ],
         examples=[
             OpenApiExample(
                 name="Create Request Example",
@@ -147,9 +156,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         ],
     )
     def create(self, request, *args, **kwargs):
-        customer = request.user
-        request.data["customer"] = customer.pk
-        cart_items = CartItem.objects.filter(customer=customer)
+        total = 0
+        city_domain = request.query_params.get("city_domain")
+        request.data["customer"] = request.user.pk
+        cart_items = CartItem.objects.filter(customer=request.user.pk)
+
 
         if not cart_items.exists():
             return Response(
@@ -160,10 +171,17 @@ class OrderViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             order = serializer.save()
             for item in cart_items:
-                ProductsInOrder.objects.create(
-                    order=order, product=item.product, quantity=item.quantity
+                price = Price.objects.get(city__domain=city_domain, product=item.product)
+                prod = ProductsInOrder.objects.create(
+                    order=order, product=item.product, quantity=item.quantity, price=price.price
                 )
                 item.delete()
+                total += prod.price
+                del prod
+                del price
+
+            order.total = total
+            order.save(update_fields=["total"])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @extend_schema(

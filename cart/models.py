@@ -14,9 +14,6 @@ class Order(TimeBasedModel):
     products = models.ManyToManyField(
         Product, verbose_name="Товары", blank=True, through="ProductsInOrder"
     )
-    created = models.DateTimeField(
-        auto_now_add=True, verbose_name="Дата и время создания"
-    )
     region = models.CharField(
         max_length=255, blank=True, null=True, verbose_name="Область"
     )
@@ -32,6 +29,7 @@ class Order(TimeBasedModel):
     house = models.CharField(
         max_length=255, blank=True, null=True, verbose_name="Номер дома"
     )
+    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма заказа")
 
     class Meta:
         verbose_name = "Заказ"
@@ -52,6 +50,7 @@ class ProductsInOrder(TimeBasedModel):
     quantity = models.PositiveSmallIntegerField(
         verbose_name="Количество товара в заказе"
     )
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена товара на момент заказа")
 
     def __str__(self) -> str:
         return f"Корзина {self.id}"
