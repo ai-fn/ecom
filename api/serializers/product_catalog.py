@@ -48,4 +48,5 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
             "search_image",
             "catalog_image",
             "cart_quantity",
+            "is_popular",
         ]
