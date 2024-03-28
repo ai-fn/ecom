@@ -17,7 +17,7 @@ from .product_image import ProductImageSerializer
 from .brand import BrandSerializer
 from .product_catalog import ProductCatalogSerializer
 from .product_detail import ProductDetailSerializer
-from .order import OrderSerializer
+from .order import OrderSerializer, OrderStatusSerializer
 from .setting import SettingSerializer
 from .promo import PromoSerializer
 from .review import ReviewSerializer

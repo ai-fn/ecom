@@ -3,15 +3,25 @@ from rest_framework import serializers
 
 from django.db.models import F
 
-from cart.models import Order
+from cart.models import Order, OrderStatus
 from api.serializers import ProductCatalogSerializer
 from api.mixins import ValidateAddressMixin
 from shop.models import Product
 
 
+class OrderStatusSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = OrderStatus
+        fields = [
+            "name"
+        ]
+
+
 class OrderSerializer(ValidateAddressMixin, serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    status = OrderStatusSerializer()
     class Meta:
         model = Order
         fields = [
@@ -25,8 +35,9 @@ class OrderSerializer(ValidateAddressMixin, serializers.ModelSerializer):
             "street",
             "house",
             "total",
+            "status",
         ]
-        
+
     def get_products(self, obj) -> OrderedDict:
         products_in_order = Product.objects.filter(count_in_order__order=obj).annotate(cart_quantity=F("count_in_order__quantity"), city_price=F("count_in_order__price"))
         return ProductCatalogSerializer(products_in_order, many=True).data

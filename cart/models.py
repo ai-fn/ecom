@@ -4,6 +4,21 @@ from account.models import CustomUser, TimeBasedModel
 from shop.models import Product
 
 
+class OrderStatus(TimeBasedModel):
+    name = models.CharField(max_length=128, verbose_name="Название статуса")
+
+    def __str__(self) -> str:
+        return f"Статус заказа: {self.name}"
+
+    @staticmethod
+    def get_created_status(*args, **kwargs):
+        return OrderStatus.objects.get_or_create(name="Создан")[0]
+    
+    @staticmethod
+    def get_created_pk(*args, **kwargs) -> int:
+        return OrderStatus.get_created_status().pk
+
+
 class Order(TimeBasedModel):
     customer = models.ForeignKey(
         CustomUser,
@@ -29,14 +44,23 @@ class Order(TimeBasedModel):
     house = models.CharField(
         max_length=255, blank=True, null=True, verbose_name="Номер дома"
     )
-    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма заказа")
+    total = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Сумма заказа"
+    )
+    status = models.ForeignKey(
+        OrderStatus,
+        verbose_name="Статус заказа",
+        related_name="status",
+        on_delete=models.PROTECT,
+        default=OrderStatus.get_created_pk,
+    )
 
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
 
     def __str__(self):
-        return f"{self.customer} - {self.created}"
+        return f"{self.customer} - {self.created_at}"
 
 
 class ProductsInOrder(TimeBasedModel):
@@ -50,7 +74,9 @@ class ProductsInOrder(TimeBasedModel):
     quantity = models.PositiveSmallIntegerField(
         verbose_name="Количество товара в заказе"
     )
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена товара на момент заказа")
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Цена товара на момент заказа"
+    )
 
     def __str__(self) -> str:
         return f"Корзина {self.id}"
@@ -67,7 +93,7 @@ class CartItem(TimeBasedModel):
         Product,
         on_delete=models.CASCADE,
         verbose_name="Товар",
-        related_name="cart_items"
+        related_name="cart_items",
     )
     quantity = models.PositiveIntegerField(verbose_name="Количество")
 

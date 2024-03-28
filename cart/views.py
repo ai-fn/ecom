@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Sum, F
+from api.permissions import IsOwner
 from api.serializers import SimplifiedCartItemSerializer
 
 from rest_framework import status, permissions, viewsets, views
@@ -24,6 +25,21 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_permissions(self):
+        if self.action in ("update", "partial_update", "destroy"):
+            return [permissions.IsAdminUser]
+        elif self.action == "retrieve":
+            self.permission_classes.append(IsOwner)
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        if self.action == 'list':
+            return super().get_queryset().filter(customer=self.request.user)
+        
+        return super().get_queryset()
+
+
     @extend_schema(
         description="Получить список всех заказов",
         summary="Список заказов",
@@ -44,6 +60,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                                 "quantity": 10,
                             },
                         ],
+                        "region": "Воронежская область",
+                        "district": "Лискинский район",
+                        "city_name": "Воронеж",
+                        "street": "ул. Садовая",
+                        "house": "101Б",
+                        "status": {
+                            "name": "dummy-status"
+                        },
                         "created_at": "2024-03-12T12:00:00Z",
                     },
                     {
@@ -57,6 +81,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                                 "quantity": 10,
                             },
                         ],
+                        "region": "Воронежская область",
+                        "district": "Лискинский район",
+                        "city_name": "Воронеж",
+                        "street": "ул. Садовая",
+                        "house": "101Б",
+                        "status": {
+                            "name": "dummy-status"
+                        },
                         "created_at": "2024-03-12T13:00:00Z",
                     },
                 ],
@@ -88,6 +120,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                             "quantity": 10,
                         },
                     ],
+                    "region": "Воронежская область",
+                    "district": "Лискинский район",
+                    "city_name": "Воронеж",
+                    "street": "ул. Садовая",
+                    "house": "101Б",
+                    "status": {
+                            "name": "dummy-status"
+                    },
                     "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
