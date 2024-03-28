@@ -42,7 +42,12 @@ class OrderViewSetTests(test.APITestCase):
         url = "/api/cart/orders/"
 
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data={"address": "г. Воронеж, ул. Донбасская, 16е"})
+        response = self.client.post(url, data={
+            'region': 'Воронежская область',
+            'district': 'Лискинский район',
+            'street': 'ул. Садовая',
+            'house': '101Б',
+            })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Order.objects.count(), 1)

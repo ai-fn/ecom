@@ -25,7 +25,6 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                         "order": 1,
                         "product": 1,
                         "quantity": 2,
-                        "created_at": "2024-03-12T12:00:00Z",
                     },
                     # Добавьте другие продукты, если есть
                 ],
@@ -49,7 +48,6 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "product": 1,
                     "quantity": 2,
-                    "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа при запросе информации о продукте в заказе в Swagger UI",
                 response_only=True,
@@ -77,6 +75,18 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 description="Пример запроса для добавления нового продукта в заказ в Swagger UI",
                 media_type="application/json",
             ),
+            OpenApiExample(
+                name="Create Product in Order Example",
+                response_only=True,
+                value={
+                    "id": 1,
+                    "order": 1,
+                    "product": 1,
+                    "quantity": 2,
+                },
+                description="Пример запроса для добавления нового продукта в заказ в Swagger UI",
+                media_type="application/json",
+            ),
         ],
     )
     def create(self, request, *args, **kwargs):
@@ -89,12 +99,26 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
         responses={200: ProductsInOrderSerializer},
         examples=[
             OpenApiExample(
-                name="Update Product in Order Example",
+                name="Пример запроса на обновление элемента заказа",
                 request_only=True,
                 value={
-                    "quantity": 3,
+                    "order": 1,
+                    "product": 1,
+                    "quantity": 2,
                 },
                 description="Пример запроса для обновления информации о продукте в заказе в Swagger UI",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name="Пример ответа на обновление элемента заказа",
+                response_only=True,
+                value={
+                    "id": 1,
+                    "order": 1,
+                    "product": 1,
+                    "quantity": 2,
+                },
+                description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
             ),
         ],
@@ -117,6 +141,18 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 description="Пример запроса для частичного обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
             ),
+            OpenApiExample(
+                name="Пример частичного обновления элемента заказа",
+                response_only=True,
+                value={
+                    "id": 1,
+                    "order": 1,
+                    "product": 1,
+                    "quantity": 2,
+                },
+                description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
+                media_type="application/json",
+            ),
         ],
     )
     def partial_update(self, request, *args, **kwargs):
@@ -128,7 +164,7 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
         responses={204: None},
         examples=[
             OpenApiExample(
-                name="Delete Product from Order Example",
+                name="Пример удаления элемента заказа",
                 response_only=True,
                 value=None,
                 description="Пример ответа для удаления продукта из заказа в Swagger UI",
