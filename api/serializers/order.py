@@ -17,7 +17,7 @@ class OrderStatusSerializer(serializers.ModelSerializer):
             "name"
         ]
 
-
+# TODO create ProductOrderSerializer
 class OrderSerializer(ValidateAddressMixin, serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
