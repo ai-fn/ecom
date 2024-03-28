@@ -11,5 +11,4 @@ class ProductsInOrderSerializer(serializers.ModelSerializer):
             "order",
             "product",
             "quantity",
-            "created_at",
         ]

@@ -106,8 +106,20 @@ class CustomUser(AbstractUser):
     city = models.ForeignKey(
         City, on_delete=models.SET_NULL, null=True, related_name="customers"
     )
-    address = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Адрес"
+    region = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Область"
+    )
+    district = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Район"
+    )
+    city_name = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Город"
+    )
+    street = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Улица"
+    )
+    house = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Номер дома"
     )
     is_customer = models.BooleanField(
         verbose_name="Покупатель ли юзер?",
