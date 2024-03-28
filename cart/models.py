@@ -55,7 +55,7 @@ class CartItem(TimeBasedModel):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        verbose_name="Торвар",
+        verbose_name="Товар",
         related_name="cart_items"
     )
     quantity = models.PositiveIntegerField(verbose_name="Количество")
