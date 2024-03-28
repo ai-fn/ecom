@@ -47,4 +47,5 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "characteristic_values",
             "images",
             "in_stock",
+            "is_popular",
         ]
