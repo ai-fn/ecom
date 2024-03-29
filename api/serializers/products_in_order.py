@@ -11,4 +11,5 @@ class ProductsInOrderSerializer(serializers.ModelSerializer):
             "order",
             "product",
             "quantity",
+            "price",
         ]

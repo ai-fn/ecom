@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
-from account.models import City, TimeBasedModel
+from account.models import City, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
 from django.core.exceptions import ValidationError
 
@@ -256,12 +256,9 @@ class Review(TimeBasedModel):
     product = models.ForeignKey(
         Product, related_name="reviews", on_delete=models.PROTECT, verbose_name="Товар"
     )
-
-    name = models.CharField(
-        max_length=64,
-        verbose_name="Имя",
+    user = models.ForeignKey(
+        CustomUser, verbose_name="Комментатор", related_name="comments", on_delete=models.PROTECT
     )
-
     rating = models.PositiveSmallIntegerField(verbose_name="Рейтинг")
     review = models.TextField(max_length=255, verbose_name="Отзыв")
 
@@ -274,7 +271,7 @@ class Review(TimeBasedModel):
         ]
 
     def __str__(self):
-        return self.name
+        return f"Комментарий {self.user.last_name} {self.user.first_name}"
 
 
 class Characteristic(TimeBasedModel):

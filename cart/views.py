@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Sum, F
+from api.permissions import IsOwner
 from api.serializers import SimplifiedCartItemSerializer
 
 from rest_framework import status, permissions, viewsets, views
@@ -13,7 +14,7 @@ from api.serializers import (
     OrderSerializer,
     ProductDetailSerializer,
 )
-from shop.models import Product
+from shop.models import Price, Product
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
@@ -23,6 +24,21 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().order_by("-created_at")
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ("update", "partial_update", "destroy"):
+            return [permissions.IsAdminUser]
+        elif self.action == "retrieve":
+            self.permission_classes.append(IsOwner)
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        if self.action == 'list':
+            return super().get_queryset().filter(customer=self.request.user)
+        
+        return super().get_queryset()
+
 
     @extend_schema(
         description="Получить список всех заказов",
@@ -44,6 +60,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                                 "quantity": 10,
                             },
                         ],
+                        "region": "Воронежская область",
+                        "district": "Лискинский район",
+                        "city_name": "Воронеж",
+                        "street": "ул. Садовая",
+                        "house": "101Б",
+                        "status": {
+                            "name": "dummy-status"
+                        },
                         "created_at": "2024-03-12T12:00:00Z",
                     },
                     {
@@ -57,6 +81,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                                 "quantity": 10,
                             },
                         ],
+                        "region": "Воронежская область",
+                        "district": "Лискинский район",
+                        "city_name": "Воронеж",
+                        "street": "ул. Садовая",
+                        "house": "101Б",
+                        "status": {
+                            "name": "dummy-status"
+                        },
                         "created_at": "2024-03-12T13:00:00Z",
                     },
                 ],
@@ -88,6 +120,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                             "quantity": 10,
                         },
                     ],
+                    "region": "Воронежская область",
+                    "district": "Лискинский район",
+                    "city_name": "Воронеж",
+                    "street": "ул. Садовая",
+                    "house": "101Б",
+                    "status": {
+                            "name": "dummy-status"
+                    },
                     "created_at": "2024-03-12T12:00:00Z",
                 },
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
@@ -104,6 +144,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         summary="Создание заказа",
         request=OrderSerializer,
         responses={201: OrderSerializer()},
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                description="Домен города",
+                type=str,
+                required=True,
+                location=OpenApiParameter.QUERY
+            )
+        ],
         examples=[
             OpenApiExample(
                 name="Create Request Example",
@@ -147,9 +196,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         ],
     )
     def create(self, request, *args, **kwargs):
-        customer = request.user
-        request.data["customer"] = customer.pk
-        cart_items = CartItem.objects.filter(customer=customer)
+        total = 0
+        city_domain = request.query_params.get("city_domain")
+        request.data["customer"] = request.user.pk
+        cart_items = CartItem.objects.filter(customer=request.user.pk)
+
 
         if not cart_items.exists():
             return Response(
@@ -160,10 +211,17 @@ class OrderViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             order = serializer.save()
             for item in cart_items:
-                ProductsInOrder.objects.create(
-                    order=order, product=item.product, quantity=item.quantity
+                price = Price.objects.get(city__domain=city_domain, product=item.product)
+                prod = ProductsInOrder.objects.create(
+                    order=order, product=item.product, quantity=item.quantity, price=price.price
                 )
                 item.delete()
+                total += prod.price
+                del prod
+                del price
+
+            order.total = total
+            order.save(update_fields=["total"])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @extend_schema(
