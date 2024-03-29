@@ -19,7 +19,6 @@ import debug_toolbar
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
-from django.http import HttpResponse
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
@@ -31,7 +30,6 @@ from drf_spectacular.views import (
 )
 
 from api.views.feeds import AllFeedsXMLAPIView, CategoriesFeed, ProductsFeed
-from blog import views
 from search import views as search_views
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
@@ -59,7 +57,6 @@ urlpatterns = (
     [
         path("account/", include("account.urls")),
         path("admin/", admin.site.urls),
-        path("", views.view_home, name="home"),
         path("search/", view=search_views.search_view, name="search"),
         path("feeds/products/feeds.xml", ProductsFeed(), name='prods-feeds'),
         path("feeds/categories/feeds.xml", CategoriesFeed(), name='catg-feeds'),
