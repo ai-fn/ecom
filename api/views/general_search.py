@@ -3,23 +3,22 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.connections import connections
-from drf_spectacular.utils import OpenApiExample
 
 from shop.documents import CategoryDocument, ProductDocument, ReviewDocument
+from shop.models import Category, Product, City, Price
 from api.serializers import (
     CategoryDocumentSerializer,
     ProductDocumentSerializer,
     ReviewDocumentSerializer,
+    PriceSerializer,
 )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
-from shop.models import Category, Product
-
 
 @extend_schema(
     tags=["Search"],
-    summary="Поиск товаров в катологе",
+    summary="Поиск товаров в каталоге",
     description="Поиск товаров в катологе",
     parameters=[
         OpenApiParameter(
@@ -27,52 +26,13 @@ from shop.models import Category, Product
             description="Search query to filter results by name, description, reviews, etc.",
             required=False,
             type=OpenApiTypes.STR,
-            examples=[
-                OpenApiExample(
-                    "Example search",
-                    summary="Simple example",
-                    description='Example of a search query, for instance, "tv"',
-                    value="tv",
-                ),
-            ],
-        )
-    ],
-    examples=[
-        OpenApiExample(
-                    "Example search",
-                    summary="Simple example",
-                    description='Example of a search query, for instance, "tv"',
-                    value={
-                        "categories": [
-                            {
-                                "name": "Dummy Category",
-                                "slug": "dummy-category",
-                                "is_visible": True,
-                            }
-                        ],
-                        "products": [
-                            {
-                                "id": 1,
-                                "title": "Dummy Product",
-                                "description": "Dummy Product Description",
-                                "images": [
-                                    {
-                                        "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    }
-                                ],
-                                "category_slug": "dummy-category",
-                                "slug": "dummy-product",
-                            }
-                        ],
-                        "reviews": [
-                            {
-                                "name": "Dummy User Name",
-                                "rating": 5,
-                                "review": "Dummy review",
-                            }
-                        ],
-                    },
-                ),
+        ),
+        OpenApiParameter(
+            name="domain",
+            description="Domain to filter prices by city or region",
+            required=False,
+            type=OpenApiTypes.STR,
+        ),
     ],
     responses={
         200: OpenApiTypes.OBJECT,
@@ -93,24 +53,24 @@ class GeneralSearchView(APIView):
         )
 
         query = request.query_params.get("q", "")
-        if query:
-            multi_match_query = Q(
-                "multi_match",
-                query=query,
-                fields=[
-                    "name^3",
-                    "title^2",
-                    "description",
-                    "review",
-                    "category__name",
-                    "brand__name",
-                ],
-                type="best_fields",
-            )
+        domain = request.query_params.get("domain", "")
 
-            wildcard_query = Q(
+        if query:
+            search = search.query(
                 "bool",
                 should=[
+                    Q(
+                        "multi_match",
+                        query=query,
+                        fields=[
+                            "name^3",
+                            "title^2",
+                            "description",
+                            "review",
+                            "category__name",
+                            "brand__name",
+                        ],
+                    ),
                     Q("wildcard", name={"value": f"*{query}*"}),
                     Q("wildcard", title={"value": f"*{query}*"}),
                     Q("wildcard", description={"value": f"*{query}*"}),
@@ -121,40 +81,36 @@ class GeneralSearchView(APIView):
                 minimum_should_match=1,
             )
 
-            search = search.query(
-                "bool",
-                should=[multi_match_query, wildcard_query],
-                minimum_should_match=1,
-            )
-
         response = search.execute()
 
-        # Initialize dictionaries for each category of results
+        if domain:
+            city = City.objects.filter(domain=domain).first()
+        else:
+            city = None
+
         categorized_results = {
             "categories": [],
             "products": [],
             "reviews": [],
         }
 
-        # Perform batch queries and serialization
-        category_ids = [
-            hit.id
-            for hit in response
-            if hit.meta.index == CategoryDocument._index._name
-        ]
-        product_ids = [
-            hit.id for hit in response if hit.meta.index == ProductDocument._index._name
-        ]
-        categories = {c.id: c for c in Category.objects.filter(id__in=category_ids)}
-        products = {p.id: p for p in Product.objects.filter(id__in=product_ids)}
-
         for hit in response:
-            if hit.meta.index == CategoryDocument._index._name:
-                serializer = CategoryDocumentSerializer(categories.get(hit.id))
+            if hit.meta.index == ProductDocument._index._name:
+                product = Product.objects.get(id=hit.id)
+
+                if city:
+                    price = Price.objects.filter(product=product, city=city).first()
+                    if price:
+                        product_data = ProductDocumentSerializer(product).data
+                        product_data["price"] = PriceSerializer(price).data
+                        categorized_results["products"].append(product_data)
+                else:
+                    product_data = ProductDocumentSerializer(product).data
+                    categorized_results["products"].append(product_data)
+            elif hit.meta.index == CategoryDocument._index._name:
+                category = Category.objects.get(id=hit.id)
+                serializer = CategoryDocumentSerializer(category)
                 categorized_results["categories"].append(serializer.data)
-            elif hit.meta.index == ProductDocument._index._name:
-                serializer = ProductDocumentSerializer(products.get(hit.id))
-                categorized_results["products"].append(serializer.data)
             elif hit.meta.index == ReviewDocument._index._name:
                 serializer = ReviewDocumentSerializer(hit)
                 categorized_results["reviews"].append(serializer.data)

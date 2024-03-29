@@ -1,3 +1,4 @@
+from api.serializers.price import PriceSerializer
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from api.serializers.product_image import ProductImageSerializer
 
@@ -25,6 +26,7 @@ class ProductDocumentSerializer(serializers.ModelSerializer):
         source="category.slug",
         read_only=True,
     )
+    price = PriceSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
@@ -35,6 +37,7 @@ class ProductDocumentSerializer(serializers.ModelSerializer):
             "images",
             "category_slug",
             "slug",
+            "price",
         ]
 
 
