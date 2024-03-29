@@ -188,6 +188,7 @@ class AccountInfoViewSet(
                     "city_name": "Воронеж",
                     'street': 'ул. Садовая',
                     'house': '101Б',
+                    'is_active': True,
                 }
             )
         ]
@@ -223,6 +224,7 @@ class AccountInfoViewSet(
                     "city_name": "Воронеж",
                     'street': 'ул. Садовая',
                     'house': '101Б',
+                    'is_active': True,
                 }
             )
         ]

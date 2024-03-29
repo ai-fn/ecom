@@ -11,12 +11,14 @@ class UserReviewSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
     middle_name = serializers.CharField(read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
     class Meta:
         model=CustomUser
         fields = [
             "first_name",
             "last_name",
             "middle_name",
+            "is_active",            
         ]
 
 
@@ -79,6 +81,7 @@ class UserDetailInfoSerializer(
     serializers.ModelSerializer, ValidateAddressMixin, ValidatePhoneNumberMixin
 ):
     phone = serializers.CharField(max_length=16, read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = CustomUser
@@ -93,4 +96,5 @@ class UserDetailInfoSerializer(
             "city_name",
             "street",
             "house",
+            "is_active",
         )
