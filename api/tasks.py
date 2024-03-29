@@ -14,6 +14,7 @@ from io import BytesIO
 
 from tempfile import NamedTemporaryFile
 from pytils import translit
+from django.utils import timezone
 from django.utils.text import slugify as django_slugify
 from api.serializers.product_detail import ProductDetailSerializer
 
@@ -25,6 +26,7 @@ from shop.models import (
     ProductImage,
     Price,
     City,
+    Promo,
 )
 from unidecode import unidecode
 from django.core.files.base import ContentFile
@@ -33,7 +35,18 @@ from django.core.files.base import ContentFile
 def custom_slugify(value):
     return django_slugify(unidecode(value))
 
+@shared_task
+def update_promo_status():
+    # Get the date one day ago
+    one_day_ago = timezone.now().date() + timezone.timedelta(days=1)
+    
+    # Filter promos that are expired one day ago
+    expired_promos = Promo.objects.filter(active_to__lte=one_day_ago)
+    
+    # Deactivate expired promos
+    expired_promos.update(is_active=False)
 
+    
 @shared_task
 def handle_xlsx_file_task(file_path, upload_type):
     try:

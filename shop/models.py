@@ -247,7 +247,8 @@ class Promo(TimeBasedModel):
         related_name="promos",
         null=False,
     )
-    acitve_to = models.DateField(verbose_name="До какого времени акция активна?")
+    is_active = models.BooleanField(verbose_name="Активна ли акция", default=False)
+    active_to = models.DateField(verbose_name="До какого времени акция активна?")
 
     def __str__(self):
         return f"{self.name}"
