@@ -1,9 +1,10 @@
 from django.db import models
 from django.urls import reverse
+from django.core.validators import MaxValueValidator
+from django.core.exceptions import ValidationError
 
 from account.models import City, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
-from django.core.exceptions import ValidationError
 
 
 class Category(MPTTModel, TimeBasedModel):
@@ -259,7 +260,7 @@ class Review(TimeBasedModel):
     user = models.ForeignKey(
         CustomUser, verbose_name="Комментатор", related_name="comments", on_delete=models.PROTECT
     )
-    rating = models.PositiveSmallIntegerField(verbose_name="Рейтинг")
+    rating = models.PositiveSmallIntegerField(verbose_name="Рейтинг", validators=[MaxValueValidator(5)])
     review = models.TextField(max_length=255, verbose_name="Отзыв")
 
     class Meta:
