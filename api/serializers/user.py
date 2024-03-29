@@ -7,6 +7,19 @@ from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 
 
+class UserReviewSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    middle_name = serializers.CharField(read_only=True)
+    class Meta:
+        model=CustomUser
+        fields = [
+            "first_name",
+            "last_name",
+            "middle_name",
+        ]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

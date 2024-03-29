@@ -7,17 +7,17 @@ from .models import Review
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ("name", "rating", "review")
+        fields = ("user", "rating", "review")
         widgets = {
-            "name": forms.TextInput(
+            "user": forms.TextInput(
                 attrs={
                     "type": "text",
                     "class": "form-control",
-                    "id": "name",
-                    "aria-describedby": "nameHelp",
-                    "placeholder": "Представтесь",
-                    "name": "name",
-                    "data-cip-id": "name",
+                    "id": "user",
+                    "aria-describedby": "userHelp",
+                    "placeholder": "Пользователь",
+                    "name": "user",
+                    "data-cip-id": "user",
                 }
             ),
             "rating": RadioSelect(
