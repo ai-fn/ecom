@@ -6,6 +6,7 @@ from .category_meta_data import CategoryMetaDataSerializer
 from .user import UserCreateSerializer
 from .user import UserSerializer
 from .user import UserRegistrationSerializer
+from .user import UserReviewSerializer
 from .review import ReviewSerializer
 from .city import CitySerializer
 from .city_group import CityGroupSerializer

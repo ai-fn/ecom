@@ -67,6 +67,13 @@ class ReviewDocument(Document):
             "slug": fields.TextField(),
         }
     )
+    user = fields.ObjectField(
+        properties={
+            "first_name": fields.TextField(),
+            "last_name": fields.TextField(),
+            "middle_name": fields.TextField(),
+        }
+    )
 
     class Index:
         name = "reviews"
@@ -75,7 +82,6 @@ class ReviewDocument(Document):
     class Django:
         model = Review
         fields = [
-            "name",
             "rating",
             "review",
         ]
