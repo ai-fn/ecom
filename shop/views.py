@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
 from django.db.models import Q
 from django.conf import settings
 
@@ -8,15 +8,12 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 from api.serializers.setting import SettingSerializer
-from blog.sitemaps import ArticleSitemap
-from shop.forms import ReviewForm
 from shop.models import Product, Category
 from shop.sitemaps import ProductSitemap, CategorySitemap
 from django.contrib.sitemaps.views import sitemap
 
 
 sitemaps = {
-    "articles": ArticleSitemap,
     "products": ProductSitemap,
     "categories": CategorySitemap,
 }
@@ -83,30 +80,3 @@ class ProductListView(ListView):
         context = super().get_context_data(**kwargs)
         context["category"] = self.category
         return context
-
-
-class ProductDetail(DetailView):
-    model = Product
-    slug_field = "slug"
-    slug_url_kwarg = "product_slug"
-    context_object_name = "product"
-
-    def get_context_data(self, **kwargs):
-        context = super(ProductDetail, self).get_context_data()
-        context["form"] = ReviewForm
-        return context
-
-    def post(self, request, *args, **kwargs):
-        form = ReviewForm(request.POST, request.FILES)
-        self.object = super(ProductDetail, self).get_object()
-        context = super(ProductDetail, self).get_context_data()
-        context["form"] = ReviewForm
-        if form.is_valid():
-            new_review = form.save(commit=False)
-            new_review.product = self.object
-            new_review.save()
-
-        else:
-            context["form"] = form
-
-        return self.render_to_response(context=context)

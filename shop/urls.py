@@ -1,5 +1,5 @@
 from django.urls import path
-from shop.views import ProductListView, ProductDetail
+from shop.views import ProductListView
 from api.views import SimilarProducts
 
 app_name = "shop"
@@ -9,11 +9,6 @@ urlpatterns = [
         "<int:product_id>/similar-products/",
         SimilarProducts.as_view(),
         name="similar_products",
-    ),
-    path(
-        "<str:category_slug>/<slug:product_slug>/",
-        ProductDetail.as_view(),
-        name="product_detail",
     ),
     path(
         "<str:category_slug>/",

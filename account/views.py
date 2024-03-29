@@ -92,7 +92,7 @@ class Register(GenericAPIView):
         return context
 
     def _send_confirm_email(
-        self, request, user, email_template_name="email/base_template.html"
+        self, request, user, email_template_name="email/index.html"
     ):
         context = self._generate_unique_token(request, user)
         body = loader.render_to_string(email_template_name, context)
