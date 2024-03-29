@@ -147,7 +147,8 @@ class PromoViewSet(viewsets.ModelViewSet):
                                 "prepositional_case": "Москве",
                             }
                         ],
-                        "acitve_to": "2024-12-13",
+                        "active_to": "2024-12-13",
+                        "is_active": True,
                     }
                 ]
             )
@@ -259,7 +260,8 @@ class PromoViewSet(viewsets.ModelViewSet):
                             "prepositional_case": "Москве",
                         }
                     ],
-                    "acitve_to": "2024-12-13",
+                    "active_to": "2024-12-13",
+                    "is_active": True,
                 }
             )
         ]
@@ -367,7 +369,8 @@ class PromoViewSet(viewsets.ModelViewSet):
                             "prepositional_case": "Москве",
                         }
                     ],
-                    "acitve_to": "2024-12-13",
+                    "active_to": "2024-12-13",
+                    "is_active": True,
                 }
             )
         ]
@@ -475,7 +478,8 @@ class PromoViewSet(viewsets.ModelViewSet):
                             "prepositional_case": "Москве",
                         }
                     ],
-                    "acitve_to": "2024-12-13",
+                    "active_to": "2024-12-13",
+                    "is_active": True,
                 }
             )
         ]
@@ -492,7 +496,7 @@ class PromoViewSet(viewsets.ModelViewSet):
                 request_only=True,
                 value={
                     "name": "UPdated Promo Name",
-                    "acitve_to": "2024-10-11",
+                    "active_to": "2024-10-11",
                 }
             ),
             OpenApiExample(
@@ -593,7 +597,8 @@ class PromoViewSet(viewsets.ModelViewSet):
                             "prepositional_case": "Москве",
                         }
                     ],
-                    "acitve_to": "2024-10-11",
+                    "active_to": "2024-10-11",
+                    "is_active": True,
                 }
             )
         ]

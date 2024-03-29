@@ -48,6 +48,11 @@ class CharacteristicValueInline(admin.TabularInline):
     extra = 1
 
 
+class PromoInline(admin.TabularInline):
+    model = Promo
+    extra = 1
+
+
 class CustomMPTTModelAdmin(DraggableMPTTAdmin):
     inlines = [CategoryMetaDataInline, CharacteristicInline]
     prepopulated_fields = {"slug": ("name",)}
@@ -85,7 +90,7 @@ class ProductAdmin(admin.ModelAdmin):
         "category",
         "brand",
     )
-    inlines = [CharacteristicValueInline]
+    inlines = [PromoInline, CharacteristicValueInline]
 
 
 @admin.register(ProductImage)
@@ -174,11 +179,16 @@ class PromoAdmin(admin.ModelAdmin):
         "category",
         "product",
         "image",
+        "is_active",
+        "active_to",
     )
     list_filter = (
         "category",
         "cities",
+        "is_active",
+        "active_to",
     )
+
 
 @admin.register(FooterItem)
 class FooterItemAdmin(admin.ModelAdmin):
