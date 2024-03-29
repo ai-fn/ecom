@@ -10,7 +10,6 @@ from .city import CityViewSet
 from .promo import PromoViewSet
 from .data_export import DataExportView
 from .file_upload import XlsxFileUploadView
-from .order import OrderViewSet
 from .price import PriceViewSet
 from .product import ProductViewSet
 from .products_in_order import ProductsInOrderViewSet
