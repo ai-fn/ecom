@@ -10,6 +10,7 @@ class PromoSerializer(serializers.ModelSerializer):
     product = ProductDetailSerializer()
     category = CategorySerializer()
     cities = CitySerializer(many=True)
+    is_active = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Promo
@@ -20,5 +21,6 @@ class PromoSerializer(serializers.ModelSerializer):
             "product",
             "image",
             "cities",
-            "acitve_to",
+            "active_to",
+            "is_active",
         ]

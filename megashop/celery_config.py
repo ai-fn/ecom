@@ -1,6 +1,7 @@
 import os
 
-from celery import Celery, shared_task
+from celery import Celery
+from celery.schedules import crontab
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'megashop.settings.local')
 
@@ -11,11 +12,3 @@ app.conf.enable_utc = False
 app.conf.timezone = "Europe/Moscow"
 
 app.autodiscover_tasks()
-
-
-@shared_task
-def add(x, y):
-    return x + y
-
-
-
