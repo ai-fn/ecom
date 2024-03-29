@@ -1,3 +1,4 @@
+from typing import Any
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -134,3 +135,12 @@ class CustomUser(AbstractUser):
             models.Index(fields=["phone"], name="customuser_phone_idx"),
             models.Index(fields=["city"], name="customuser_city_idx"),
         ]
+    
+    def delete(self, using: Any = ..., keep_parents: bool = ...):
+
+        if not self.is_active:
+            pass
+        else:
+            self.is_active = True
+            self.first_name = f"Удаленный пользователь ({self.first_name} {self.last_name})"
+            self.save(update_fields=['is_active', 'first_name'])
