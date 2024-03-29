@@ -1,7 +1,7 @@
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-from rest_framework import permissions
 
-class ReadOnlyOrAdminPermission(permissions.BasePermission):
+class ReadOnlyOrAdminPermission(BasePermission):
     """
     Разрешение, которое позволяет только чтение для всех пользователей, но полный доступ для администраторов.
     """
@@ -12,12 +12,21 @@ class ReadOnlyOrAdminPermission(permissions.BasePermission):
             return True
 
         # Проверка типа запроса: разрешить только запросы на чтение
-        return request.method in permissions.SAFE_METHODS
+        return request.method in SAFE_METHODS
 
 
-class OwnerOrIsAdmin(permissions.BasePermission):
+class IsOwner(BasePermission):
     """
-    Пользователь может изменять или удалять объект только если он является его владельцем.
+    Разрешение, которое позволяет только изменять или удалять объект только если он является его владельцем.
+    """
+    
+    def has_object_permission(self, request, view, obj):
+        return getattr(obj, "customer") and request.user == obj.customer
+
+
+class OwnerOrIsAdmin(BasePermission):
+    """
+    Пользователь может изменять или удалять объект только если он является его владельцем или админом.
     """
 
     def has_object_permission(self, request, view, obj):

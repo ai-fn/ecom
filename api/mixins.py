@@ -28,20 +28,15 @@ class ValidateAddressMixin:
     def validate(self, data):
 
         data = super().validate(data)
-        data["district"] = ""   
-        data["region"] = ""
 
         address = ", ".join([data["region"], data["district"], data["city_name"], data["house"], data["street"]][::-1])
 
         geolocator = Nominatim(user_agent="my_geocoder")
         location = geolocator.geocode(address)
-        lower_loc = location.address.lower()
 
         if not location:
             raise serializers.ValidationError("Неверный адрес. Пожалуйста, укажите действительный адрес с указанием города, области, улицы и номера дома.")
-        elif not all([*map(lambda x: x in lower_loc, address.lower().split(", "))]):
-            raise serializers.ValidationError(f"Указанный адрес не найден, возможно вы имели ввиду: {location.address}")
-
+        
         logger.info(f"Найден адрес: {location.address}")
         return data
 

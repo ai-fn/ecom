@@ -12,11 +12,11 @@ class ProductsInOrderInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    ordering = ("created",)
+    ordering = ("created_at",)
     list_display = (
         "customer",
         "quantity",
-        "created",
+        "created_at",
     )
 
     inlines = (ProductsInOrderInline,)

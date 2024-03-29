@@ -317,7 +317,6 @@ def process_dataframe(df, upload_type):
         return failed_images or []
     except Exception as err:
         # Логирование ошибки
-        raise err.with_traceback()
         print(f"Error processing data: {err}")
 
 
