@@ -23,7 +23,7 @@ class Order(TimeBasedModel):
     customer = models.ForeignKey(
         CustomUser,
         related_name="customer",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         verbose_name="Покупатель",
     )
     products = models.ManyToManyField(
