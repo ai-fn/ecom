@@ -50,47 +50,65 @@ class OrderViewSet(viewsets.ModelViewSet):
                 response_only=True,
                 value=[
                     {
-                        "id": 1,
-                        "customer": "John Doe",
+                        "id": 5,
+                        "customer": 1,
                         "products": [
                             {
-                                "id": 10,
-                                "order": 1,
-                                "product": 118,
-                                "quantity": 10,
+                                "id": 5,
+                                "title": "Желоб водосточный 3 м Premium, пломбир",
+                                "brand": 1,
+                                "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                                "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                                "city_price": "43.76",
+                                "images": [
+                                    {
+                                    "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                    },
+                                    {
+                                    "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                    }
+                                ],
+                                "in_stock": True,
+                                "category_slug": "seriia-premium-15",
+                                "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                                "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                                "cart_quantity": 15,
+                                "is_popular": False
                             },
-                        ],
-                        "region": "Воронежская область",
-                        "district": "Лискинский район",
-                        "city_name": "Воронеж",
-                        "street": "ул. Садовая",
-                        "house": "101Б",
-                        "status": {
-                            "name": "dummy-status"
-                        },
-                        "created_at": "2024-03-12T12:00:00Z",
-                    },
-                    {
-                        "id": 2,
-                        "customer": "Jane Smith",
-                        "products": [
                             {
-                                "id": 10,
-                                "order": 1,
-                                "product": 118,
-                                "quantity": 10,
-                            },
+                                "id": 6,
+                                "title": "Желоб водосточный 3 м Premium, шоколад",
+                                "brand": 1,
+                                "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                                "city_price": "93.90",
+                                "images": [
+                                    {
+                                    "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                    },
+                                    {
+                                    "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                    }
+                                ],
+                                "in_stock": True,
+                                "category_slug": "seriia-premium-15",
+                                "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                                "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                                "cart_quantity": 13,
+                                "is_popular": False
+                            }
                         ],
+                        "created_at": "2024-03-28T15:08:57.462177+03:00",
                         "region": "Воронежская область",
-                        "district": "Лискинский район",
+                        "district": "",
                         "city_name": "Воронеж",
-                        "street": "ул. Садовая",
-                        "house": "101Б",
+                        "street": "улица 20-летия Октября",
+                        "house": "84",
+                        "total": "137.66",
                         "status": {
-                            "name": "dummy-status"
-                        },
-                        "created_at": "2024-03-12T13:00:00Z",
-                    },
+                            "name": "Создан"
+                        }
+                    }
                 ],
                 description="Пример ответа для получения списка всех заказов в Swagger UI",
                 summary="Пример ответа для получения списка всех заказов",
@@ -110,25 +128,64 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name="Retrieve Response Example",
                 response_only=True,
                 value={
-                    "id": 1,
-                    "customer": "John Doe",
+                    "id": 5,
+                    "customer": 1,
                     "products": [
                         {
-                            "id": 10,
-                            "order": 1,
-                            "product": 118,
-                            "quantity": 10,
+                        "id": 5,
+                        "title": "Желоб водосточный 3 м Premium, пломбир",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                        "city_price": "43.76",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "cart_quantity": 15,
+                        "is_popular": False
                         },
+                        {
+                        "id": 6,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                        "city_price": "93.90",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "cart_quantity": 13,
+                        "is_popular": False
+                        }
                     ],
+                    "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
-                    "district": "Лискинский район",
+                    "district": "",
                     "city_name": "Воронеж",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
+                    "street": "улица 20-летия Октября",
+                    "house": "84",
+                    "total": "137.66",
                     "status": {
-                            "name": "dummy-status"
-                    },
-                    "created_at": "2024-03-12T12:00:00Z",
+                        "name": "Создан"
+                    }
                 },
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном заказе",
@@ -172,25 +229,67 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name="Create Response Example",
                 response_only=True,
                 value={
-                    "id": 1,
-                    "customer": "John Doe",
+                    "id": 5,
+                    "customer": 1,
                     "products": [
                         {
-                            "id": 10,
-                            "order": 1,
-                            "product": 118,
-                            "quantity": 10,
+                        "id": 5,
+                        "title": "Желоб водосточный 3 м Premium, пломбир",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                        "city_price": "43.76",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "cart_quantity": 15,
+                        "is_popular": False
                         },
+                        {
+                        "id": 6,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                        "city_price": "93.90",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "cart_quantity": 13,
+                        "is_popular": False
+                        }
                     ],
+                    "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
-                    "district": "Лискинский район",
+                    "district": "",
                     "city_name": "Воронеж",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
-                    "created_at": "2024-03-12T12:00:00Z",
+                    "street": "улица 20-летия Октября",
+                    "house": "84",
+                    "total": "137.66",
+                    "status": {
+                        "name": "Создан"
+                    }
                 },
-                description="Пример ответа на создание нового заказа в Swagger UI",
-                summary="Пример ответа на создание нового заказа",
+                description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
+                summary="Пример ответа для получения информации о конкретном заказе",
                 media_type="application/json",
             ),
         ],
@@ -234,19 +333,63 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name="Update Request Example",
                 request_only=True,
                 value={
-                    "customer": 2,
+                    "customer":2,
                     "products": [
                         {
-                            "id": 10,
-                            "order": 1,
-                            "product": 118,
-                            "quantity": 10,
+                        "id": 5,
+                        "title": "Желоб водосточный 3 м Premium, пломбир",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                        "city_price": "43.76",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "cart_quantity": 15,
+                        "is_popular": False
                         },
+                        {
+                        "id": 6,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                        "city_price": "93.90",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "cart_quantity": 13,
+                        "is_popular": False
+                        }
                     ],
-                    "district": "Лискинский район",
+                    "created_at": "2024-03-28T15:08:57.462177+03:00",
+                    "region": "Воронежская область",
+                    "district": "",
                     "city_name": "Воронеж",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
+                    "street": "улица 20-летия Октября",
+                    "house": "84",
+                    "total": "137.66",
+                    "status": {
+                        "name": "Создан"
+                    }
                 },
                 description="Пример запроса на обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на обновление информации о конкретном заказе",
@@ -256,22 +399,64 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name="Update Response Example",
                 response_only=True,
                 value={
-                    "id": 1,
+                    "id": 5,
                     "customer": 2,
                     "products": [
                         {
-                            "id": 10,
-                            "order": 1,
-                            "product": 118,
-                            "quantity": 10,
+                        "id": 5,
+                        "title": "Желоб водосточный 3 м Premium, пломбир",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                        "city_price": "43.76",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "cart_quantity": 15,
+                        "is_popular": False
                         },
+                        {
+                        "id": 6,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                        "city_price": "93.90",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "cart_quantity": 13,
+                        "is_popular": False
+                        }
                     ],
+                    "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
-                    "district": "Лискинский район",
+                    "district": "",
                     "city_name": "Воронеж",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
-                    "created_at": "2024-03-12T12:00:00Z",
+                    "street": "улица 20-летия Октября",
+                    "house": "84",
+                    "total": "137.66",
+                    "status": {
+                        "name": "Создан"
+                    }
                 },
                 description="Пример ответа на обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа на обновление информации о конкретном заказе",
@@ -292,14 +477,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name="Partial Update Request Example",
                 request_only=True,
                 value={
-                    "products": [
-                        {
-                            "id": 10,
-                            "order": 1,
-                            "product": 118,
-                            "quantity": 10,
-                        },
-                    ],
+                    "customer": "2"
                 },
                 description="Пример запроса на частичное обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на частичное обновление информации о конкретном заказе",
@@ -309,21 +487,64 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name="Partial Update Response Example",
                 response_only=True,
                 value={
-                    "id": 1,
-                    "customer": 1,
+                    "id": 5,
+                    "customer": 2,
                     "products": [
                         {
-                            "id": 10,
-                            "order": 1,
-                            "product": 118,
-                            "quantity": 10,
+                        "id": 5,
+                        "title": "Желоб водосточный 3 м Premium, пломбир",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                        "city_price": "43.76",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                        "cart_quantity": 15,
+                        "is_popular": False
                         },
+                        {
+                        "id": 6,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                        "city_price": "93.90",
+                        "images": [
+                            {
+                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                            },
+                            {
+                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                            }
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-15",
+                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                        "cart_quantity": 13,
+                        "is_popular": False
+                        }
                     ],
+                    "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
-                    "district": "Лискинский район",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
-                    "created_at": "2024-03-12T12:00:00Z",
+                    "district": "",
+                    "city_name": "Воронеж",
+                    "street": "улица 20-летия Октября",
+                    "house": "84",
+                    "total": "137.66",
+                    "status": {
+                        "name": "Создан"
+                    }
                 },
                 description="Пример ответа на частичное обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о конкретном заказе",
