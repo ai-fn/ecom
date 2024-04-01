@@ -14,7 +14,7 @@ from api.serializers import (
     OrderSerializer,
     ProductDetailSerializer,
 )
-from shop.models import Price, Product
+from shop.models import Price, Product, ProductFrequenlyBoughtTogether
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
@@ -34,11 +34,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
-        if self.action == 'list':
+        if self.action == "list":
             return super().get_queryset().filter(customer=self.request.user)
-        
-        return super().get_queryset()
 
+        return super().get_queryset()
 
     @extend_schema(
         description="Получить список всех заказов",
@@ -62,18 +61,18 @@ class OrderViewSet(viewsets.ModelViewSet):
                                 "city_price": "43.76",
                                 "images": [
                                     {
-                                    "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                        "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
                                     },
                                     {
-                                    "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
-                                    }
+                                        "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                    },
                                 ],
                                 "in_stock": True,
                                 "category_slug": "seriia-premium-15",
                                 "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
                                 "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
                                 "cart_quantity": 15,
-                                "is_popular": False
+                                "is_popular": False,
                             },
                             {
                                 "id": 6,
@@ -84,19 +83,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                                 "city_price": "93.90",
                                 "images": [
                                     {
-                                    "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                        "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
                                     },
                                     {
-                                    "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
-                                    }
+                                        "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                    },
                                 ],
                                 "in_stock": True,
                                 "category_slug": "seriia-premium-15",
                                 "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
                                 "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
                                 "cart_quantity": 13,
-                                "is_popular": False
-                            }
+                                "is_popular": False,
+                            },
                         ],
                         "created_at": "2024-03-28T15:08:57.462177+03:00",
                         "region": "Воронежская область",
@@ -105,9 +104,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         "street": "улица 20-летия Октября",
                         "house": "84",
                         "total": "137.66",
-                        "status": {
-                            "name": "Создан"
-                        }
+                        "status": {"name": "Создан"},
                     }
                 ],
                 description="Пример ответа для получения списка всех заказов в Swagger UI",
@@ -132,49 +129,49 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "customer": 1,
                     "products": [
                         {
-                        "id": 5,
-                        "title": "Желоб водосточный 3 м Premium, пломбир",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
-                        "city_price": "43.76",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "cart_quantity": 15,
-                        "is_popular": False
+                            "id": 5,
+                            "title": "Желоб водосточный 3 м Premium, пломбир",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                            "city_price": "43.76",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "cart_quantity": 15,
+                            "is_popular": False,
                         },
                         {
-                        "id": 6,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
-                        "city_price": "93.90",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "cart_quantity": 13,
-                        "is_popular": False
-                        }
+                            "id": 6,
+                            "title": "Желоб водосточный 3 м Premium, шоколад",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                            "city_price": "93.90",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "cart_quantity": 13,
+                            "is_popular": False,
+                        },
                     ],
                     "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
@@ -183,9 +180,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "street": "улица 20-летия Октября",
                     "house": "84",
                     "total": "137.66",
-                    "status": {
-                        "name": "Создан"
-                    }
+                    "status": {"name": "Создан"},
                 },
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном заказе",
@@ -207,7 +202,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 description="Домен города",
                 type=str,
                 required=True,
-                location=OpenApiParameter.QUERY
+                location=OpenApiParameter.QUERY,
             )
         ],
         examples=[
@@ -241,18 +236,18 @@ class OrderViewSet(viewsets.ModelViewSet):
                             "city_price": "43.76",
                             "images": [
                                 {
-                                "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                    "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
                                 },
                                 {
-                                "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
-                                }
+                                    "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                },
                             ],
                             "in_stock": True,
                             "category_slug": "seriia-premium-15",
                             "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
                             "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
                             "cart_quantity": 15,
-                            "is_popular": False
+                            "is_popular": False,
                         },
                         {
                             "id": 6,
@@ -263,19 +258,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                             "city_price": "93.90",
                             "images": [
                                 {
-                                "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                    "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
                                 },
                                 {
-                                "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
-                                }
+                                    "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                },
                             ],
                             "in_stock": True,
                             "category_slug": "seriia-premium-15",
                             "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
                             "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
                             "cart_quantity": 13,
-                            "is_popular": False
-                        }
+                            "is_popular": False,
+                        },
                     ],
                     "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
@@ -284,9 +279,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "street": "улица 20-летия Октября",
                     "house": "84",
                     "total": "137.66",
-                    "status": {
-                        "name": "Создан"
-                    }
+                    "status": {"name": "Создан"},
                 },
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном заказе",
@@ -300,7 +293,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         request.data["customer"] = request.user.pk
         cart_items = CartItem.objects.filter(customer=request.user.pk)
 
-
         if not cart_items.exists():
             return Response(
                 {"error": "Корзина пуста."}, status=status.HTTP_404_NOT_FOUND
@@ -310,10 +302,29 @@ class OrderViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             order = serializer.save()
             for item in cart_items:
-                price = Price.objects.get(city__domain=city_domain, product=item.product)
-                prod = ProductsInOrder.objects.create(
-                    order=order, product=item.product, quantity=item.quantity, price=price.price
+
+                # Обновляем информацию о том, как часто покупают товар вместе с другими
+                for other_item in cart_items.exclude(product__pk=item.product.pk):
+
+                    friquenly_bought_together, _ = (
+                        ProductFrequenlyBoughtTogether.objects.get_or_create(
+                            product_from=item.product,
+                            product_to=other_item.product,
+                        )
+                    )
+                    friquenly_bought_together.purchase_count = F("purchase_count") + 1
+                    friquenly_bought_together.save(update_fields=["purchase_count"])
+
+                price = Price.objects.get(
+                    city__domain=city_domain, product=item.product
                 )
+                prod = ProductsInOrder.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=price.price,
+                )
+
                 item.delete()
                 total += prod.price
                 del prod
@@ -333,52 +344,52 @@ class OrderViewSet(viewsets.ModelViewSet):
                 name="Update Request Example",
                 request_only=True,
                 value={
-                    "customer":2,
+                    "customer": 2,
                     "products": [
                         {
-                        "id": 5,
-                        "title": "Желоб водосточный 3 м Premium, пломбир",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
-                        "city_price": "43.76",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "cart_quantity": 15,
-                        "is_popular": False
+                            "id": 5,
+                            "title": "Желоб водосточный 3 м Premium, пломбир",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                            "city_price": "43.76",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "cart_quantity": 15,
+                            "is_popular": False,
                         },
                         {
-                        "id": 6,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
-                        "city_price": "93.90",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "cart_quantity": 13,
-                        "is_popular": False
-                        }
+                            "id": 6,
+                            "title": "Желоб водосточный 3 м Premium, шоколад",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                            "city_price": "93.90",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "cart_quantity": 13,
+                            "is_popular": False,
+                        },
                     ],
                     "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
@@ -387,9 +398,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "street": "улица 20-летия Октября",
                     "house": "84",
                     "total": "137.66",
-                    "status": {
-                        "name": "Создан"
-                    }
+                    "status": {"name": "Создан"},
                 },
                 description="Пример запроса на обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на обновление информации о конкретном заказе",
@@ -403,49 +412,49 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "customer": 2,
                     "products": [
                         {
-                        "id": 5,
-                        "title": "Желоб водосточный 3 м Premium, пломбир",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
-                        "city_price": "43.76",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "cart_quantity": 15,
-                        "is_popular": False
+                            "id": 5,
+                            "title": "Желоб водосточный 3 м Premium, пломбир",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                            "city_price": "43.76",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "cart_quantity": 15,
+                            "is_popular": False,
                         },
                         {
-                        "id": 6,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
-                        "city_price": "93.90",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "cart_quantity": 13,
-                        "is_popular": False
-                        }
+                            "id": 6,
+                            "title": "Желоб водосточный 3 м Premium, шоколад",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                            "city_price": "93.90",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "cart_quantity": 13,
+                            "is_popular": False,
+                        },
                     ],
                     "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
@@ -454,9 +463,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "street": "улица 20-летия Октября",
                     "house": "84",
                     "total": "137.66",
-                    "status": {
-                        "name": "Создан"
-                    }
+                    "status": {"name": "Создан"},
                 },
                 description="Пример ответа на обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа на обновление информации о конкретном заказе",
@@ -476,9 +483,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name="Partial Update Request Example",
                 request_only=True,
-                value={
-                    "customer": "2"
-                },
+                value={"customer": "2"},
                 description="Пример запроса на частичное обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример запроса на частичное обновление информации о конкретном заказе",
                 media_type="application/json",
@@ -491,49 +496,49 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "customer": 2,
                     "products": [
                         {
-                        "id": 5,
-                        "title": "Желоб водосточный 3 м Premium, пломбир",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
-                        "city_price": "43.76",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "cart_quantity": 15,
-                        "is_popular": False
+                            "id": 5,
+                            "title": "Желоб водосточный 3 м Premium, пломбир",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                            "city_price": "43.76",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "cart_quantity": 15,
+                            "is_popular": False,
                         },
                         {
-                        "id": 6,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
-                        "city_price": "93.90",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "cart_quantity": 13,
-                        "is_popular": False
-                        }
+                            "id": 6,
+                            "title": "Желоб водосточный 3 м Premium, шоколад",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                            "city_price": "93.90",
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "cart_quantity": 13,
+                            "is_popular": False,
+                        },
                     ],
                     "created_at": "2024-03-28T15:08:57.462177+03:00",
                     "region": "Воронежская область",
@@ -542,9 +547,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "street": "улица 20-летия Октября",
                     "house": "84",
                     "total": "137.66",
-                    "status": {
-                        "name": "Создан"
-                    }
+                    "status": {"name": "Создан"},
                 },
                 description="Пример ответа на частичное обновление информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о конкретном заказе",
@@ -895,14 +898,11 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             "order": 1,
                             "parent": 2,
                             "children": 2,
-                            "parents": [
-                                "Деке",
-                                "deke-1"
-                            ],
+                            "parents": ["Деке", "deke-1"],
                             "category_meta": [
                                 {
                                     "title": "dummy-title",
-                                    "description": "dummy-description"
+                                    "description": "dummy-description",
                                 }
                             ],
                             "category_meta_id": 1,
@@ -953,14 +953,11 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             "order": 1,
                             "parent": 2,
                             "children": 2,
-                            "parents": [
-                                "Деке",
-                                "deke-1"
-                            ],
+                            "parents": ["Деке", "deke-1"],
                             "category_meta": [
                                 {
                                     "title": "dummy-title",
-                                    "description": "dummy-description"
+                                    "description": "dummy-description",
                                 }
                             ],
                             "category_meta_id": 1,
