@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.category import CategorySerializer
 from api.serializers.category_detail import CategoryDetailSerializer
@@ -22,6 +23,52 @@ class CategoryViewSet(viewsets.ModelViewSet):
         if self.action in ["retrieve"]:
             return CategoryDetailSerializer
         return super().get_serializer_class()
+    
+    def get_permissions(self):
+        if self.action == "popular_categories":
+            return [AllowAny()]
+        
+        return super().get_permissions()
+    
+    @extend_schema(
+        description="Получение списка популярных категорий (доступно для всех пользователей)",
+        summary="Получение списка популярных категорий",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                response_only=True,
+                value=[
+                    {
+                        "id": 1,
+                        "name": "Category A",
+                        "slug": "category-a",
+                        "order": 1,
+                        "parent": 1,
+                        "children": 2,
+                        "parents": [
+                            "Деке",
+                            "deke-1"
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description"
+                            }
+                        ],
+                        "category_meta_id": None,
+                        "icon": "catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                        "image_url": "catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                        "is_visible": True,
+                        "is_popular": True
+                    },
+                ],
+            ),
+        ]
+    )
+    @action(detail=False, methods=["get"])
+    def popular_categories(self, request, *args, **kwargs):
+        self.queryset = self.queryset.filter(is_popular=True)
+        return super().list(request, *args, **kwargs)
     
     @extend_schema(
         description="Получить список всех категорий",
