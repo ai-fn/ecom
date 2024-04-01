@@ -177,8 +177,14 @@ class Product(TimeBasedModel):
         blank=True,
         verbose_name="Похожие продукты",
     )
-    in_stock = models.BooleanField(default=True)
-    is_popular = models.BooleanField(default=False)
+    in_stock = models.BooleanField(
+        default=True,
+        verbose_name="В наличии ли товар"
+    )
+    is_popular = models.BooleanField(
+        default=False, 
+        verbose_name="Популярен ли товар"
+    )
 
     class Meta:
         verbose_name = "Товар"
@@ -259,9 +265,14 @@ class Review(TimeBasedModel):
         Product, related_name="reviews", on_delete=models.PROTECT, verbose_name="Товар"
     )
     user = models.ForeignKey(
-        CustomUser, verbose_name="Комментатор", related_name="comments", on_delete=models.PROTECT
+        CustomUser,
+        verbose_name="Комментатор",
+        related_name="comments",
+        on_delete=models.PROTECT,
     )
-    rating = models.PositiveSmallIntegerField(verbose_name="Рейтинг", validators=[MaxValueValidator(5)])
+    rating = models.PositiveSmallIntegerField(
+        verbose_name="Рейтинг", validators=[MaxValueValidator(5)]
+    )
     review = models.TextField(max_length=255, verbose_name="Отзыв")
 
     class Meta:

@@ -60,6 +60,7 @@ class FooterSettingsViewSet(viewsets.ModelViewSet):
                 summary="Пример создания новой настройки footer",
                 description="Пример создания новой настройки footer",
                 value={"max_footer_items": 5},
+                response_only=True,
             )
         ],
     )
@@ -131,19 +132,25 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                 description="Пример списка всех элементов footer",
                 value=[
                     {
+                        "id": 1,
                         "order": 1,
                         "title": "Элемент footer 1",
                         "link": "http://example.com",
+                        "footer_settings": 1,
                     },
                     {
+                        "id": 2,
                         "order": 2,
                         "title": "Элемент footer 2",
                         "link": "http://example.com",
+                        "footer_settings": 1,
                     },
                     {
+                        "id": 3,
                         "order": 3,
                         "title": "Элемент footer 3",
                         "link": "http://example.com",
+                        "footer_settings": 1,
                     },
                 ],
             )
@@ -162,9 +169,11 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                 summary="Пример получения конкретного элемента footer",
                 description="Пример получения конкретного элемента footer",
                 value={
+                    "id": 1,
                     "order": 1,
                     "title": "Элемент footer 1",
                     "link": "http://example.com",
+                    "footer_settings": 1,
                 },
             )
         ],
@@ -184,7 +193,22 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Элемент footer 1",
                     "link": "http://example.com",
+                    "footer_settings": 1,
                 },
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Пример ответа на создание нового элемента footer",
+                summary="Пример ответа на создание нового элемента footer",
+                description="Пример ответа на создание нового элемента footer",
+                value={
+                    "id": 1,
+                    "order": 1,
+                    "title": "Элемент footer 1",
+                    "link": "http://example.com",
+                    "footer_settings": 1,
+                },
+                response_only=True,
             )
         ],
     )
@@ -203,7 +227,22 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Обновленный элемент footer 1",
                     "link": "http://example.com",
+                    "footer_settings": 1,
                 },
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Пример ответа на обновление конкретного элемента footer",
+                summary="Пример ответа на обновление конкретного элемента footer",
+                description="Пример ответа на обновление конкретного элемента footer",
+                value={
+                    "id": 1,
+                    "order": 1,
+                    "title": "Обновленный элемент footer 1",
+                    "link": "http://example.com",
+                    "footer_settings": 1,
+                },
+                response_only=True,
             )
         ],
     )
@@ -227,9 +266,11 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                 summary="Пример частичного обновления конкретного элемента footer",
                 description="Пример частичного обновления конкретного элемента footer",
                 value={
+                    "id": 1,
                     "order": 1,
                     "title": "Обновленный элемент footer 2",
                     "link": "http://example.com",
+                    "footer_settings": 1,
                 },
             ),
         ],
@@ -246,6 +287,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                 summary="Пример удаления конкретного элемента footer",
                 description="Пример удаления конкретного элемента footer",
                 value=None,
+                request_only=True
             )
         ],
     )

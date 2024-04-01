@@ -75,7 +75,8 @@ class CategoryMetaDataViewSet(viewsets.ModelViewSet):
                 request_only=True,
                 value={
                     "title": "New Metadata",
-                    "description": "New Description"
+                    "description": "New Description",
+                    "category_id": 13,
                 },
                 description="Пример запроса на создание новой метаданных категории в Swagger UI",
                 summary="Пример запроса на создание новой метаданных категории",
@@ -108,7 +109,8 @@ class CategoryMetaDataViewSet(viewsets.ModelViewSet):
                 request_only=True,
                 value={
                     "title": "Updated Metadata",
-                    "description": "Updated Description"
+                    "description": "Updated Description",
+                    "category_id": 14,
                 },
                 description="Пример запроса на обновление информации о метаданных категории в Swagger UI",
                 summary="Пример запроса на обновление информации о метаданных категории",
