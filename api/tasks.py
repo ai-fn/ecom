@@ -84,7 +84,7 @@ def handle_csv_file_task(file_path, upload_type):
 
 
 def process_dataframe(df, upload_type):
-    ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU"]
+    ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "ORDER"]
     failed_images = []
     city_names = City.objects.all().values_list("name", flat=True)
     try:
@@ -139,17 +139,39 @@ def process_dataframe(df, upload_type):
                             )
 
                     product_title = row["TITLE"]
+                    product_priority = row.get("PRIORITY")
+
+
+                    product_description = row.get("DESCRIPTION", "Dummy Description")
                     product_slug = translit.slugify(product_title)
+
+                    if product_priority and isinstance(product_priority, (int, float)) and product_priority > 0:
+                        product_priority = product_priority
+                    else:
+                        logger.info('Product PRIORITY not provided or invalid, use default')
+                        product_priority = Product._meta.get_field("priority").default
+
                     # TODO добавить DESCRIPTION потом
                     if product_slug:  # Проверяем, что slug продукта не пустой
                         product, created = Product.objects.get_or_create(
                             title=product_title,
                             defaults={
-                                "description": "row['DESCRIPTION']",
+                                "priority": product_priority,
+                                "description": product_description,
                                 "category": category,
                                 "slug": product_slug,
                             },
                         )
+
+                        if not created:
+                            product.description = product_description
+                            product.priority = product_priority
+                            product.save(
+                                update_fields=[
+                                    "description",
+                                    "priority" 
+                                ]
+                            )
 
                         product_image_urls = row["IMAGES"].split(",")
                         if len(product_image_urls) > 0:

@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
 
@@ -184,6 +185,14 @@ class Product(TimeBasedModel):
     is_popular = models.BooleanField(
         default=False, 
         verbose_name="Популярен ли товар"
+    )
+    priority = models.IntegerField(
+        default=500,
+        verbose_name="Приоритет показа",
+        validators=[
+            MaxValueValidator(10**6),
+            MinValueValidator(1),
+        ]
     )
 
     class Meta:
