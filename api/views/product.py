@@ -4,7 +4,7 @@ from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
 from shop.models import Category, Price, Product
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-from django.db.models import Q, F
+from django.db.models import Q, F, Sum
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -26,6 +26,19 @@ class ProductViewSet(viewsets.ModelViewSet):
         return (
             ProductDetailSerializer  # Или какой-либо другой сериализатор по умолчанию
         )
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Annotate cart_quantity for products in the user's cart
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(cart_quantity=Sum('cart_items__quantity', filter=F('cart_items__customer_id') == self.request.user.id))
+
+        # Order the queryset by priority
+        queryset = queryset.order_by('priority')
+
+        return queryset
+
 
     @extend_schema(
         description="Получить список всех продуктов в каталоге",
@@ -221,16 +234,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         if self.request.user.is_authenticated:
 
             # TODO possible optimization
-            filtered_queryset = (
-                filtered_queryset.annotate(cart_quantity=F("cart_items__quantity"))
-                .order_by("id")
-                .distinct("id")
-            )
+            filtered_queryset = filtered_queryset.annotate(cart_quantity=F("cart_items__quantity"))
 
         if not filtered_queryset.exists():
             return Response([])
 
-        self.queryset = filtered_queryset
+        # self.queryset = filtered_queryset
+        self.queryset = filtered_queryset.order_by("priority")
 
         return super().list(request, *args, **kwargs)
 
