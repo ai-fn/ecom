@@ -233,48 +233,48 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "customer": 1,
                     "products": [
                         {
-                        "id": 5,
-                        "title": "Желоб водосточный 3 м Premium, пломбир",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
-                        "city_price": "43.76",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
-                        "cart_quantity": 15,
-                        "is_popular": False
+                            "id": 5,
+                            "title": "Желоб водосточный 3 м Premium, пломбир",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-plombir-5",
+                            "city_price": "43.76",
+                            "images": [
+                                {
+                                "image_url": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp"
+                                },
+                                {
+                                "image_url": "/media/catalog/products/image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp"
+                                }
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-ceaf7999-ede6-4174-a4de-06f8cd6f20df.webp",
+                            "cart_quantity": 15,
+                            "is_popular": False
                         },
                         {
-                        "id": 6,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
-                        "city_price": "93.90",
-                        "images": [
-                            {
-                            "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
-                            },
-                            {
-                            "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
-                            }
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-15",
-                        "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
-                        "cart_quantity": 13,
-                        "is_popular": False
+                            "id": 6,
+                            "title": "Желоб водосточный 3 м Premium, шоколад",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b6508558-21fe-4cf8-b57f-c4988455a618.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-6",
+                            "city_price": "93.90",
+                            "images": [
+                                {
+                                "image_url": "/media/catalog/products/image-797f36c1-0c49-4509-8408-ce20221b7ea6.webp"
+                                },
+                                {
+                                "image_url": "/media/catalog/products/image-568a7724-7e6e-478b-a754-9635155290c6.webp"
+                                }
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-15",
+                            "search_image": "/media/catalog/products/search-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-568a7724-7e6e-478b-a754-9635155290c6.webp",
+                            "cart_quantity": 13,
+                            "is_popular": False
                         }
                     ],
                     "created_at": "2024-03-28T15:08:57.462177+03:00",
@@ -889,25 +889,27 @@ class CartItemViewSet(viewsets.ModelViewSet):
                     {
                         "id": 3732,
                         "category": {
-                            "id": 132,
-                            "name": "Серия Premium",
-                            "slug": "seriya-premium",
-                            "order": 15,
-                            "parent": 128,
-                            "children": ["Деке", "deke"],
+                            "id": 1,
+                            "name": "Category A",
+                            "slug": "category-a",
+                            "order": 1,
+                            "parent": 2,
+                            "children": 2,
                             "parents": [
-                                ["Деке", "deke"],
-                                ["Водосточные системы", "vodostochnyie-sistemyi"],
+                                "Деке",
+                                "deke-1"
                             ],
                             "category_meta": [
                                 {
-                                    "title": "dummy title",
-                                    "description": "dummy description ",
-                                },
+                                    "title": "dummy-title",
+                                    "description": "dummy-description"
+                                }
                             ],
-                            "icon": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
-                            "image_url": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                            "category_meta_id": 1,
+                            "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
+                            "is_popular": False,
                         },
                         "title": "Желоб водосточный 3 м Premium, пломбир",
                         "brand": {
@@ -945,26 +947,27 @@ class CartItemViewSet(viewsets.ModelViewSet):
                     {
                         "id": 3733,
                         "category": {
-                            "id": 132,
-                            "name": "Серия Premium",
-                            "slug": "seriya-premium",
-                            "order": 15,
-                            "parent": 128,
-                            "children": [
-                                ["Водосточные системы", "vodostochnyie-sistemyi"]
-                            ],
+                            "id": 1,
+                            "name": "Category A",
+                            "slug": "category-a",
+                            "order": 1,
+                            "parent": 2,
+                            "children": 2,
                             "parents": [
-                                ["Деке", "deke"],
+                                "Деке",
+                                "deke-1"
                             ],
                             "category_meta": [
                                 {
-                                    "title": "dummy title",
-                                    "description": "dummy description ",
-                                },
+                                    "title": "dummy-title",
+                                    "description": "dummy-description"
+                                }
                             ],
-                            "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                            "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "category_meta_id": 1,
+                            "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
+                            "is_popular": False,
                         },
                         "title": "Желоб водосточный 3 м Premium, шоколад",
                         "brand": {

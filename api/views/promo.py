@@ -82,31 +82,33 @@ class PromoViewSet(ModelViewSet):
                             "category_meta_id": 1,
                             "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "is_visible": True
+                            "is_visible": True,
+                            "is_popular": False,
                         },
                         "product": {
                             "id": 3733,
                             "category": {
-                                "id": 132,
-                                "name": "Серия Premium",
-                                "slug": "seriya-premium",
-                                "order": 15,
-                                "parent": 128,
-                                "children": [
-                                    ["Водосточные системы", "vodostochnyie-sistemyi"]
-                                ],
+                                "id": 1,
+                                "name": "Category A",
+                                "slug": "category-a",
+                                "order": 1,
+                                "parent": 2,
+                                "children": 2,
                                 "parents": [
-                                    ["Деке", "deke"],
+                                    "Деке",
+                                    "deke-1"
                                 ],
                                 "category_meta": [
                                     {
-                                        "title": "dummy title",
-                                        "description": "dummy description ",
-                                    },
+                                        "title": "dummy-title",
+                                        "description": "dummy-description"
+                                    }
                                 ],
-                                "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                                "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                                "category_meta_id": 1,
+                                "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "is_visible": True,
+                                "is_popular": False,
                             },
                             "title": "Желоб водосточный 3 м Premium, шоколад",
                             "brand": {
@@ -198,7 +200,8 @@ class PromoViewSet(ModelViewSet):
                             "category_meta_id": 1,
                             "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "is_visible": True
+                            "is_visible": True,
+                            "is_popular": False,
                         },
                         "product": {
                             "id": 3733,
@@ -311,31 +314,33 @@ class PromoViewSet(ModelViewSet):
                         "category_meta_id": 1,
                         "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                         "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                        "is_visible": True
+                        "is_visible": True,
+                        "is_popular": False,
                     },
                     "product": {
                         "id": 3733,
                         "category": {
-                            "id": 132,
-                            "name": "Серия Premium",
-                            "slug": "seriya-premium",
-                            "order": 15,
-                            "parent": 128,
-                            "children": [
-                                ["Водосточные системы", "vodostochnyie-sistemyi"]
-                            ],
-                            "parents": [
-                                ["Деке", "deke"],
-                            ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy title",
-                                    "description": "dummy description ",
-                                },
-                            ],
-                            "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                            "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                            "is_visible": True,
+                                "id": 1,
+                                "name": "Category A",
+                                "slug": "category-a",
+                                "order": 1,
+                                "parent": 2,
+                                "children": 2,
+                                "parents": [
+                                    "Деке",
+                                    "deke-1"
+                                ],
+                                "category_meta": [
+                                    {
+                                        "title": "dummy-title",
+                                        "description": "dummy-description"
+                                    }
+                                ],
+                                "category_meta_id": 1,
+                                "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "is_visible": True,
+                                "is_popular": False,
                         },
                         "title": "Желоб водосточный 3 м Premium, шоколад",
                         "brand": {
@@ -400,6 +405,20 @@ class PromoViewSet(ModelViewSet):
                 name="Creation Example",
                 value={
                     "name": "Promo Name",
+                    "category_id": 13,
+                    "product_id": 6,
+                    "image": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp",
+                    "cities_id": [
+                        1, 2, 3
+                    ],
+                    "active_to": "2024-12-13",
+                }
+            ),
+            OpenApiExample(
+                name="Creation Response Example",
+                value={
+                    "id": 1,
+                    "name": "Promo Name",
                     "category": {
                         "id": 1,
                         "name": "Category A",
@@ -445,6 +464,7 @@ class PromoViewSet(ModelViewSet):
                             "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "is_visible": True,
+                            "is_popular": False,
                         },
                         "title": "Желоб водосточный 3 м Premium, шоколад",
                         "brand": {
@@ -509,8 +529,23 @@ class PromoViewSet(ModelViewSet):
                 name="Creation Example",
                 value={
                     "name": "Promo Name",
+                    "category_id": 2,
+                    "product_id": 13,
+                    "image": "",
+                    "cities_id": [
+                        1
+                    ],
+                    "active_to": "2024-12-13",
+                    "is_active": True,
+                }
+            ),
+            OpenApiExample(
+                name="Updation Response Example",
+                value={
+                    "id": 1,
+                    "name": "Promo Name",
                     "category": {
-                        "id": 1,
+                        "id": 2,
                         "name": "Category A",
                         "slug": "category-a",
                         "order": 1,
@@ -532,7 +567,7 @@ class PromoViewSet(ModelViewSet):
                         "is_visible": True
                     },
                     "product": {
-                        "id": 3733,
+                        "id": 13,
                         "category": {
                             "id": 132,
                             "name": "Серия Premium",
@@ -554,6 +589,7 @@ class PromoViewSet(ModelViewSet):
                             "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "is_visible": True,
+                            "is_popular": False,
                         },
                         "title": "Желоб водосточный 3 м Premium, шоколад",
                         "brand": {

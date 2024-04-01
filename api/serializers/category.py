@@ -9,12 +9,14 @@ class CategorySerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
     category_meta = CategoryMetaDataSerializer(many=True, read_only=True)
     category_meta_id = serializers.PrimaryKeyRelatedField(
-        queryset=CategoryMetaData.objects.all(), write_only=True, source="category_meta"
+        queryset=CategoryMetaData.objects.all(), write_only=True, many=True, source="category_meta"
     )
     image_url = (
         serializers.SerializerMethodField()
     )  # Добавляем поле для URL изображения
     parents = serializers.SerializerMethodField()  # Добавляем новое поле для родителей
+    is_popular = serializers.BooleanField(read_only=True)
+    is_visible = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Category
@@ -31,6 +33,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "icon",
             "image_url",
             "is_visible",
+            "is_popular",
         ]
 
     def get_children(self, obj) -> None | OrderedDict:
