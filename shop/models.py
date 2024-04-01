@@ -65,7 +65,7 @@ class Category(MPTTModel, TimeBasedModel):
 
     def get_absolute_url(self):
         return reverse(
-            "shop:product_list_by_category", kwargs={"category_slug": self.slug}
+            "api:shop:product_list_by_category", kwargs={"category_slug": self.slug}
         )
 
     def clean(self):
@@ -193,10 +193,7 @@ class Product(TimeBasedModel):
         return self.title
 
     def get_absolute_url(self):
-        return reverse(
-            "shop:product_detail",
-            kwargs={"product_slug": self.slug, "category_slug": self.category.slug},
-        )
+        return reverse("api:products-list", args=[self.pk])
 
 
 class ProductImage(models.Model):
