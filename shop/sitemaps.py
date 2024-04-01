@@ -6,8 +6,6 @@ from django.urls import reverse
 from shop.models import Product, Category
 
 
-
-
 class CustomSitemap:
 
     def __init__(self, domain=None) -> None:
@@ -44,7 +42,7 @@ class ProductSitemap(CustomSitemap, Sitemap):
         return obj.updated_at
 
     def location(self, obj: Model) -> str:
-        return self.get_abs_path(reverse("shop:product_detail", args=[obj.category.slug, obj.slug]))
+        return self.get_abs_path(reverse("api:products-productdetail", args=[obj.pk]))
 
 
 # TODO занести в сайтмап урлы
@@ -68,4 +66,4 @@ class CategorySitemap(CustomSitemap, Sitemap):
         return obj.updated_at
     
     def location(self, obj):
-        return self.get_abs_path(reverse("shop:product_list_by_category", args=[obj.slug]))
+        return self.get_abs_path(reverse("api:shop:product_list_by_category", args=[obj.slug]))

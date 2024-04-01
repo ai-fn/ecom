@@ -26,13 +26,12 @@ from api.views import (
     MainPageSliderImageViewSet,
     MainPageCategoryBarItemViewSet,
 )
-
 from api.views.confirm_register import SendSMSView
 from api.views.general_search import GeneralSearchView
 from api.views.promo import PromoViewSet
 
 router = routers.DefaultRouter()
-router.register(r"products", ProductViewSet)
+router.register(r"products", ProductViewSet, basename="products")
 router.register(r"reviews", ReviewViewSet)
 router.register(r"characteristics", CharacteristicViewSet)
 router.register(r"characteristics-values", CharacteristicValueViewSet)
@@ -50,10 +49,11 @@ router.register(r"main-page-slider-image", MainPageSliderImageViewSet)
 router.register(r"promos", PromoViewSet, basename="promo")
 router.register(r"category-bar-item", MainPageCategoryBarItemViewSet)
 
+app_name= "api"
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("shop/", include("shop.urls")),
+    path("shop/", include(("shop.urls", "shop"), namespace="shop")),
     path("cart/", include("cart.urls")),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
