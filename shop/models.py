@@ -178,21 +178,21 @@ class Product(TimeBasedModel):
         blank=True,
         verbose_name="Похожие продукты",
     )
-    in_stock = models.BooleanField(
-        default=True,
-        verbose_name="В наличии ли товар"
-    )
-    is_popular = models.BooleanField(
-        default=False, 
-        verbose_name="Популярен ли товар"
-    )
+    in_stock = models.BooleanField(default=True, verbose_name="В наличии ли товар")
+    is_popular = models.BooleanField(default=False, verbose_name="Популярен ли товар")
     priority = models.IntegerField(
         default=500,
         verbose_name="Приоритет показа",
         validators=[
             MaxValueValidator(10**6),
             MinValueValidator(1),
-        ]
+        ],
+    )
+    frequenly_bought_together = models.ManyToManyField(
+        "self",
+        through="ProductFrequenlyBoughtTogether",
+        blank=True,
+        verbose_name="Часто покупают вместе с",
     )
 
     class Meta:
@@ -209,6 +209,23 @@ class Product(TimeBasedModel):
 
     def get_absolute_url(self):
         return reverse("api:products-list", args=[self.pk])
+
+
+class ProductFrequenlyBoughtTogether(TimeBasedModel):
+    product_from = models.ForeignKey(
+        Product, on_delete=models.PROTECT, verbose_name="Какой товар", related_name="product_from"
+    )
+    product_to = models.ForeignKey(
+        Product, on_delete=models.PROTECT, verbose_name="Вместе с каким товаром", related_name="product_to"
+    )
+    purchase_count = models.PositiveBigIntegerField(
+        default=0, verbose_name="Количество покупок"
+    )
+
+    class Meta:
+        verbose_name = "Часто покупают вместе"
+        verbose_name_plural = "Часто покупают вместе"
+        unique_together = (("product_from", "product_to"),)
 
 
 class ProductImage(models.Model):
