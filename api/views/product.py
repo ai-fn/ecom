@@ -5,6 +5,7 @@ from api.serializers.product_detail import ProductDetailSerializer
 from shop.models import Category, Price, Product
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.db.models import Q, F, Sum
+from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -19,26 +20,199 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
-        if self.action == "list":
+        if self.action == "list" or "frequenly_bought":
             return ProductCatalogSerializer
-        elif self.action == "productdetail":
-            return ProductDetailSerializer
-        return (
-            ProductDetailSerializer  # Или какой-либо другой сериализатор по умолчанию
-        )
-    
+
+        return ProductDetailSerializer
+
     def get_queryset(self):
         queryset = super().get_queryset()
 
+        city_domain = self.request.query_params.get("city_domain")
+        price_lte = self.request.query_params.get("price_lte")
+        price_gte = self.request.query_params.get("price_gte")
+        brand_slug = self.request.query_params.get("brand_slug")
+        category = self.request.query_params.get("category")
+
+        filter_conditions = Q()
+
+        if category:
+            categories = [category]
+            try:
+                category_instance = Category.objects.get(slug=category)
+            except Category.DoesNotExist:
+                category_instance = None
+
+            if category_instance:
+                category_childrens = category_instance.get_descendants(
+                    include_self=True
+                ).values_list("slug", flat=True)
+                categories.extend(category_childrens)
+
+            filter_conditions &= Q(category__slug__in=categories) | Q(
+                additional_categories__slug=category
+            )
+
+        if city_domain or price_gte or price_lte or brand_slug:
+
+            if city_domain:
+
+                price_filter = Q(prices__city__domain=city_domain)
+
+                if price_lte is not None:
+                    price_filter &= Q(prices__price__lte=price_lte)
+                if price_gte is not None:
+                    price_filter &= Q(prices__price__gte=price_gte)
+
+                queryset = queryset.filter(price_filter).annotate(
+                    city_price=F("prices__price"),
+                    old_price=F("prices__old_price"),
+                )
+
+            if brand_slug:
+                filter_conditions &= Q(brand__slug__icontains=brand_slug)
+
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
-            queryset = queryset.annotate(cart_quantity=Sum('cart_items__quantity', filter=F('cart_items__customer_id') == self.request.user.id))
+            queryset = queryset.filter(filter_conditions).annotate(
+                cart_quantity=Sum(
+                    "cart_items__quantity",
+                    filter=F("cart_items__customer_id") == self.request.user.id,
+                )
+            )
 
         # Order the queryset by priority
-        queryset = queryset.order_by('priority')
+        queryset = queryset.order_by("priority")
 
         return queryset
 
+    @extend_schema(
+        description="Список товаров, которые часто покупают вместе с переданным",
+        summary="Список товаров, которые часто покупают вместе с переданным",
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Домен города для фильтрации цен",
+            ),
+        ],
+        examples=[
+            OpenApiExample(
+                name="Unauthorized Response Example",
+                response_only=True,
+                value=[
+                    {
+                        "id": 1,
+                        "title": "Product A",
+                        "brand": 1,
+                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "slug": "product-a",
+                        "city_price": 100.0,
+                        "old_price": 120.0,
+                        "images": [
+                            {
+                                "id": 1,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                            {
+                                "id": 2,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                        ],
+                        "category_slug": "category-a",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    },
+                    {
+                        "id": 2,
+                        "title": "Product B",
+                        "brand": 2,
+                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "slug": "product-b",
+                        "city_price": 150.0,
+                        "old_price": 110.0,
+                        "images": [
+                            {
+                                "id": 1,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                            {
+                                "id": 2,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                        ],
+                        "category_slug": "category-b",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    },
+                ],
+            ),
+            OpenApiExample(
+                name="Authorized Response Example",
+                response_only=True,
+                value=[
+                    {
+                        "id": 1,
+                        "title": "Product A",
+                        "brand": 1,
+                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "slug": "product-a",
+                        "city_price": 100.0,
+                        "old_price": 120.0,
+                        "images": [
+                            {
+                                "id": 1,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                            {
+                                "id": 2,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                        ],
+                        "category_slug": "category-a",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "cart_quantity": 10,
+                    },
+                    {
+                        "id": 2,
+                        "title": "Product B",
+                        "brand": 2,
+                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "slug": "product-b",
+                        "city_price": 150.0,
+                        "old_price": 110.0,
+                        "images": [
+                            {
+                                "id": 1,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                            {
+                                "id": 2,
+                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            },
+                        ],
+                        "category_slug": "category-b",
+                        "in_stock": True,
+                        "search_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "catalog_image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "cart_quantity": 10,
+                    },
+                ],
+            ),
+        ],
+    )
+    @action(detail=True, methods=["get"])
+    def frequenly_bought(self, request, *args, **kwargs):
+
+        instance = self.get_object()
+
+        self.queryset = instance.frequenly_bought_together.order_by("product_to__total_purchase_count")
+        return super().list(request, *args, **kwargs)
 
     @extend_schema(
         description="Получить список всех продуктов в каталоге",
@@ -186,61 +360,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
-        city_domain = request.query_params.get("city_domain")
-        price_lte = request.query_params.get("price_lte")
-        price_gte = request.query_params.get("price_gte")
-        brand_slug = request.query_params.get("brand_slug")
-        category = request.query_params.get("category")
+        queryset = self.get_queryset()
 
-        filter_conditions = Q()
-
-        if category:
-            categories = [category]
-            try:
-                category_instance = Category.objects.get(slug=category)
-            except Category.DoesNotExist:
-                category_instance = None
-
-            if category_instance:
-                category_childrens = category_instance.get_descendants(
-                    include_self=True
-                ).values_list("slug", flat=True)
-                categories.extend(category_childrens)
-
-            filter_conditions &= Q(category__slug__in=categories) | Q(
-                additional_categories__slug=category
-            )
-
-        if city_domain or price_gte or price_lte or brand_slug:
-
-            if city_domain:
-
-                price_filter = Q(prices__city__domain=city_domain)
-
-                if price_lte is not None:
-                    price_filter &= Q(prices__price__lte=price_lte)
-                if price_gte is not None:
-                    price_filter &= Q(prices__price__gte=price_gte)
-
-                self.queryset = self.queryset.filter(price_filter).annotate(
-                    city_price=F("prices__price"),
-                    old_price=F("prices__old_price"),
-                )
-
-            if brand_slug:
-                filter_conditions &= Q(brand__slug__icontains=brand_slug)
-
-        filtered_queryset = self.queryset.filter(filter_conditions)
-        if self.request.user.is_authenticated:
-
-            # TODO possible optimization
-            filtered_queryset = filtered_queryset.annotate(cart_quantity=F("cart_items__quantity"))
-
-        if not filtered_queryset.exists():
+        if not queryset.exists():
             return Response([])
-
-        # self.queryset = filtered_queryset
-        self.queryset = filtered_queryset.order_by("priority")
 
         return super().list(request, *args, **kwargs)
 
