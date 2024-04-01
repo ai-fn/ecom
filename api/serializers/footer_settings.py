@@ -13,12 +13,11 @@ class FooterSettingSerializer(serializers.ModelSerializer):
 
 
 class FooterItemSerializer(serializers.ModelSerializer):
-
-    footer_settings = FooterSettingSerializer()
     
     class Meta:
         model = FooterItem
         fields = [
+            "id",
             "order",
             "title",
             "link",

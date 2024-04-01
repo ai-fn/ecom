@@ -172,7 +172,7 @@ class CategoriesFeed(CustomFeed, Feed):
         return item.name
     
     def item_link(self, item):
-        return reverse("shop:product_list_by_category", args=[item.slug])
+        return reverse("api:shop:product_list_by_category", args=[item.slug])
 
 
 class ProductsFeed(CustomFeed, Feed):
@@ -193,7 +193,7 @@ class ProductsFeed(CustomFeed, Feed):
         return item.name
 
     def item_link(self, item):
-        return reverse("shop:product_detail", args=[item.category.slug, item.slug])
+        return reverse("api:products-productdetail", args=[item.pk])
 
 
 @extend_schema(

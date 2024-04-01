@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.category import CategorySerializer
 from api.serializers.category_detail import CategoryDetailSerializer
@@ -23,6 +24,52 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return CategoryDetailSerializer
         return super().get_serializer_class()
     
+    def get_permissions(self):
+        if self.action == "popular_categories":
+            return [AllowAny()]
+        
+        return super().get_permissions()
+    
+    @extend_schema(
+        description="Получение списка популярных категорий (доступно для всех пользователей)",
+        summary="Получение списка популярных категорий",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                response_only=True,
+                value=[
+                    {
+                        "id": 1,
+                        "name": "Category A",
+                        "slug": "category-a",
+                        "order": 1,
+                        "parent": 1,
+                        "children": 2,
+                        "parents": [
+                            "Деке",
+                            "deke-1"
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description"
+                            }
+                        ],
+                        "category_meta_id": None,
+                        "icon": "catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                        "image_url": "catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                        "is_visible": True,
+                        "is_popular": True
+                    },
+                ],
+            ),
+        ]
+    )
+    @action(detail=False, methods=["get"])
+    def popular_categories(self, request, *args, **kwargs):
+        self.queryset = self.queryset.filter(is_popular=True)
+        return super().list(request, *args, **kwargs)
+    
     @extend_schema(
         description="Получить список всех категорий",
         summary="Список категорий",
@@ -37,17 +84,22 @@ class CategoryViewSet(viewsets.ModelViewSet):
                         "name": "Category A",
                         "slug": "category-a",
                         "order": 1,
-                        "parent": None,
-                        "children": None,
+                        "parent": 2,
+                        "children": 2,
                         "parents": [
                             "Деке",
                             "deke-1"
                         ],
-                        "category_meta": [],
-                        "category_meta_id": None,
-                        "icon": None,
-                        "image_url": None,
-                        "is_visible": True
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description"
+                            }
+                        ],
+                        "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "is_visible": True,
+                        "is_popular": False,
                     },
                 ],
                 description="Пример ответа для получения списка всех категорий в Swagger UI",
@@ -72,17 +124,22 @@ class CategoryViewSet(viewsets.ModelViewSet):
                     "name": "Category A",
                     "slug": "category-a",
                     "order": 1,
-                    "parent": None,
-                    "children": None,
+                    "parent": 2,
+                    "children": 3,
                     "parents": [
                         "Деке",
                         "deke-1"
                     ],
-                    "category_meta": [],
-                    "category_meta_id": None,
+                    "category_meta": [
+                        {
+                            "title": "dummy-title",
+                            "description": "dummy-description",
+                        }
+                    ],
                     "icon": None,
                     "image_url": None,
-                    "is_visible": True
+                    "is_visible": True,
+                    "is_popular": False,
                 },
                 description="Пример ответа для получения информации о конкретной категории в Swagger UI",
                 summary="Пример ответа для получения информации о конкретной категории",
@@ -106,17 +163,17 @@ class CategoryViewSet(viewsets.ModelViewSet):
                     "name": "Category A",
                     "slug": "category-a",
                     "order": 1,
-                    "parent": None,
-                    "children": None,
+                    "parent": 2,
+                    "children": 2,
                     "parents": [
                         "Деке",
                         "deke-1"
                     ],
-                    "category_meta": [],
-                    "category_meta_id": None,
-                    "icon": None,
-                    "image_url": None,
-                    "is_visible": True
+                    "category_meta_id": [1],
+                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "is_visible": True,
+                    "is_popular": False,
                 },
                 description="Пример запроса на создание новой категории в Swagger UI",
                 summary="Пример запроса на создание новой категории",
@@ -130,17 +187,22 @@ class CategoryViewSet(viewsets.ModelViewSet):
                     "name": "Category A",
                     "slug": "category-a",
                     "order": 1,
-                    "parent": None,
-                    "children": None,
+                    "parent": 2,
+                    "children": 2,
                     "parents": [
                         "Деке",
                         "deke-1"
                     ],
-                    "category_meta": [],
-                    "category_meta_id": None,
-                    "icon": None,
-                    "image_url": None,
-                    "is_visible": True
+                    "category_meta": [
+                        {
+                            "title": "dummy-title",
+                            "description": "dummy-description"
+                        }
+                    ],
+                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "is_visible": True,
+                    "is_popular": False,
                 },
                 description="Пример ответа на создание новой категории в Swagger UI",
                 summary="Пример ответа на создание новой категории",
@@ -161,20 +223,25 @@ class CategoryViewSet(viewsets.ModelViewSet):
                 name='Update Request Example',
                 request_only=True,
                 value={
-                    "name": "New Name For Category A",
-                    "slug": "new-name-for-category-a",
+                    "name": "Category A",
+                    "slug": "category-a",
                     "order": 1,
-                    "parent": None,
-                    "children": None,
+                    "parent": 2,
+                    "children": 2,
                     "parents": [
-                                "Деке",
-                                "deke-1"
-                            ],
-                    "category_meta": [],
-                    "category_meta_id": None,
-                    "icon": None,
-                    "image_url": None,
-                    "is_visible": True
+                        "Деке",
+                        "deke-1"
+                    ],
+                    "category_meta": [
+                        {
+                            "title": "dummy-title",
+                            "description": "dummy-description"
+                        }
+                    ],
+                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "is_visible": True,
+                    "is_popular": False,
                 },
                 description="Пример запроса на обновление информации о категории в Swagger UI",
                 summary="Пример запроса на обновление информации о категории",
@@ -185,20 +252,25 @@ class CategoryViewSet(viewsets.ModelViewSet):
                 response_only=True,
                 value={
                     "id": 1,
-                    "name": "New Name For Category A",
-                    "slug": "new-name-for-category-a",
+                    "name": "Category A",
+                    "slug": "category-a",
                     "order": 1,
-                    "parent": None,
-                    "children": None,
+                    "parent": 2,
+                    "children": 2,
                     "parents": [
                         "Деке",
                         "deke-1"
                     ],
-                    "category_meta": [],
-                    "category_meta_id": None,
-                    "icon": None,
-                    "image_url": None,
-                    "is_visible": True
+                    "category_meta": [
+                        {
+                            "title": "dummy-title",
+                            "description": "dummy-description"
+                        }
+                    ],
+                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "is_visible": True,
+                    "is_popular": False,
                 },
                 description="Пример ответа на обновление информации о категории в Swagger UI",
                 summary="Пример ответа на обновление информации о категории",
@@ -231,19 +303,24 @@ class CategoryViewSet(viewsets.ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Updated Category Name",
-                    "slug": "updated-category-name",
+                    "slug": "category-a",
                     "order": 1,
-                    "parent": None,
-                    "children": None,
+                    "parent": 2,
+                    "children": 2,
                     "parents": [
                         "Деке",
                         "deke-1"
                     ],
-                    "category_meta": [],
-                    "category_meta_id": None,
-                    "icon": None,
-                    "image_url": None,
-                    "is_visible": True
+                    "category_meta": [
+                        {
+                            "title": "dummy-title",
+                            "description": "dummy-description"
+                        }
+                    ],
+                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "is_visible": True,
+                    "is_popular": False,
                 },
                 description="Пример ответа на частичное обновление информации о категории в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о категории",

@@ -18,7 +18,7 @@ class TestProductModel(test.APITestCase):
         self.assertEqual(self.prod3.slug, slugify(self.prod3.title) + f"-{self.prod3.id}")
     
     def test_respose_should_return_correct_value_of_similar_prods(self):
-        path = reverse('shop:similar_products', args=[self.prod.pk])
+        path = reverse('api:shop:similar_products', args=[self.prod.pk])
 
         queryset = Product.objects.exclude(pk=self.prod.pk)
         self.prod.similar_products.add(*queryset.values_list('pk', flat=True))

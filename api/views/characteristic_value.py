@@ -82,7 +82,8 @@ class CharacteristicValueViewSet(viewsets.ModelViewSet):
                 name='Create Request Example',
                 request_only=True,
                 value={
-                    "characteristic_name": "Characteristic A",
+                    "characteristic_id": 1,
+                    "product_id": 6,
                     "value": "New Value A"
                 },
                 description="Пример запроса на создание нового значения характеристики в Swagger UI",
@@ -93,8 +94,8 @@ class CharacteristicValueViewSet(viewsets.ModelViewSet):
                 name='Create Response Example',
                 response_only=True,
                 value={
-                    "id": 3,
-                    "characteristic_name": "Characteristic A",
+                    "id": 222,
+                    "characteristic_name": "Выбранный цвет",
                     "value": "New Value A"
                 },
                 description="Пример ответа на создание нового значения характеристики в Swagger UI",
@@ -116,7 +117,8 @@ class CharacteristicValueViewSet(viewsets.ModelViewSet):
                 name='Update Request Example',
                 request_only=True,
                 value={
-                    "characteristic_name": "Characteristic B",
+                    "characteristic_id": 1,
+                    "product_id": 13,
                     "value": "Updated Value B"
                 },
                 description="Пример запроса на обновление информации о значении характеристики в Swagger UI",
