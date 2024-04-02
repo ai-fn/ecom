@@ -28,7 +28,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                         "id": 1,
                         "order": 1,
                         "link": "http://example.com",
-                        "image_text": "Image 1",
+                        "title": "dummy title",
+                        "description": "dummy description",
                         "button_text": "Button 1",
                         "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                     },
@@ -36,7 +37,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                         "id": 2,
                         "order": 2,
                         "link": "http://example.com",
-                        "image_text": "Image 2",
+                        "title": "dummy title",
+                        "description": "dummy description",
                         "button_text": "Button 2",
                         "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                     },
@@ -44,7 +46,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                         "id": 3,
                         "order": 3,
                         "link": "http://example.com",
-                        "image_text": "Image 3",
+                        "title": "dummy title",
+                        "description": "dummy description",
                         "button_text": "Button 3",
                         "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                     },
@@ -67,7 +70,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                     "id": 1,
                     "order": 1,
                     "link": "http://example.com",
-                    "image_text": "Image 1",
+                    "title": "dummy title",
+                    "description": "dummy description",
                     "button_text": "Button 1",
                     "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
@@ -89,7 +93,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                 value={
                     "order": 4,
                     "link": "http://example.com",
-                    "image_text": "Image 4",
+                    "title": "dummy title",
+                    "description": "dummy description",
                     "button_text": "Button 4",
                     "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
@@ -102,7 +107,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                     "id": 4,
                     "order": 4,
                     "link": "http://example.com",
-                    "image_text": "Image 4",
+                    "title": "dummy title",
+                    "description": "dummy description",
                     "button_text": "Button 4",
                     "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
@@ -125,7 +131,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                     "id": 1,
                     "order": 1,
                     "link": "http://example.com",
-                    "image_text": "Updated Image 1",
+                    "title": "dummy title",
+                    "description": "dummy description",
                     "button_text": "Updated Button 1",
                     "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
@@ -138,7 +145,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                     "id": 1,
                     "order": 1,
                     "link": "http://example.com",
-                    "image_text": "Updated Image 1",
+                    "title": "dummy title",
+                    "description": "dummy description",
                     "button_text": "Updated Button 1",
                     "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
@@ -157,7 +165,7 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name="Partial Update MainPageSliderImage Example",
                 summary="Пример частичного обновления конкретного изображения слайдера главной страницы",
-                value={"image_text": "Updated Image 1"},
+                value={"title": "Updated Title 1"},
                 request_only=True,
             ),
             OpenApiExample(
@@ -168,7 +176,8 @@ class MainPageSliderImageViewSet(viewsets.ModelViewSet):
                     "name": 1,
                     "order": 1,
                     "link": "http://example.com",
-                    "image_text": "Updated Image 1",
+                    "title": "Updated Title 1",
+                    "description": "dummy description",
                     "button_text": "Button 1",
                     "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
