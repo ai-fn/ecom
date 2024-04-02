@@ -138,13 +138,14 @@
 
 15. Модель MainPageSliderImage
 
-| Имя параметра | Описание             | Тип данных   | Максимальное значение |
-| ------------- | -------------------- | ------------ | --------------------- |
-| order         | Порядковый номер     | IntegerField | уникальный            |
-| link          | Ссылка               | URLField     |
-| image_text    | Текст на изображении | CharField    | 255                   |
-| button_text   | Текст кнопки         | CharField    | 100                   |
-| image         | Изображение          | ImageField   |
+| Имя параметра | Описание                 | Тип данных   | Максимальное значение |
+| ------------- | ------------------------ | ------------ | --------------------- |
+| order         | Порядковый номер         | IntegerField | уникальный            |
+| link          | Ссылка                   | URLField     |
+| title         | Заголовок на изображении | CharField    | 255                   |
+| descriptions  | Заголовок на изображении | CharField    | 255                   |
+| button_text   | Текст кнопки             | CharField    | 100                   |
+| image         | Изображение              | ImageField   |
 
 16. Модель MainPageCategoryBarItem
 
@@ -202,41 +203,41 @@
 
 1. Модель City
 
-| Имя параметра     | Описание                                | Тип данных                  | Максимальное значение |
-|-------------------|-----------------------------------------|-----------------------------|------------------------|
-| name              | Город                                   | CharField                   | 255                    |
-| domain            | Домен                                   | CharField                   | 255                    |
-| address           | Адрес                                   | CharField                   | 256                    |
-| number            | Номер телефона                          | BigIntegerField             |                        |
-| how_to_get_office | Как добраться до офиса                  | CharField                   | 512                    |
-| schedule          | График работы                           | TextField                   |                        |
-| nominative_case   | Именительный падеж                      | CharField                   | 128                    |
-| genitive_case     | Родительный падеж                       | CharField                   | 128                    |
-| dative_case       | Дательный падеж                         | CharField                   | 128                    |
-| accusative_case   | Винительный падеж                       | CharField                   | 128                    |
-| instrumental_case | Творительный падеж                      | CharField                   | 128                    |
-| prepositional_case| Предложный падеж                        | CharField                   | 128                    |
+| Имя параметра      | Описание               | Тип данных      | Максимальное значение |
+| ------------------ | ---------------------- | --------------- | --------------------- |
+| name               | Город                  | CharField       | 255                   |
+| domain             | Домен                  | CharField       | 255                   |
+| address            | Адрес                  | CharField       | 256                   |
+| number             | Номер телефона         | BigIntegerField |                       |
+| how_to_get_office  | Как добраться до офиса | CharField       | 512                   |
+| schedule           | График работы          | TextField       |                       |
+| nominative_case    | Именительный падеж     | CharField       | 128                   |
+| genitive_case      | Родительный падеж      | CharField       | 128                   |
+| dative_case        | Дательный падеж        | CharField       | 128                   |
+| accusative_case    | Винительный падеж      | CharField       | 128                   |
+| instrumental_case  | Творительный падеж     | CharField       | 128                   |
+| prepositional_case | Предложный падеж       | CharField       | 128                   |
 
 2. Модель CityGroup
 
-| Имя параметра     | Описание                                | Тип данных                  | Максимальное значение |
-|-------------------|-----------------------------------------|-----------------------------|------------------------|
-| name              | Город                                   | CharField                   | 255                    |
-| main_city         | Главный город                           | ForeignKey (City)           |                        |
-| cities            | Города                                  | ManyToManyField (City)      |                        |
+| Имя параметра | Описание      | Тип данных             | Максимальное значение |
+| ------------- | ------------- | ---------------------- | --------------------- |
+| name          | Город         | CharField              | 255                   |
+| main_city     | Главный город | ForeignKey (City)      |                       |
+| cities        | Города        | ManyToManyField (City) |                       |
 
 
 3. Модель CustomUser
 
-| Имя параметра     | Описание                                | Тип данных                  | Максимальное значение |
-|-------------------|-----------------------------------------|-----------------------------|------------------------|
-| phone             | Номер телефона                          | CharField                   | 16                     |
-| city              | Город                                   | ForeignKey (City)           |                        |
-| region            | Область                                 | CharField                   | 255                    |
-| district          | Район                                   | CharField                   | 255                    |
-| city_name         | Город                                   | CharField                   | 255                    |
-| street            | Улица                                   | CharField                   | 255                    |
-| house             | Номер дома                              | CharField                   | 255                    |
-| is_customer       | Покупатель ли юзер?                     | BooleanField                |                        |
-| middle_name       | Отчество                                | CharField                   | 20                     |
+| Имя параметра | Описание            | Тип данных        | Максимальное значение |
+| ------------- | ------------------- | ----------------- | --------------------- |
+| phone         | Номер телефона      | CharField         | 16                    |
+| city          | Город               | ForeignKey (City) |                       |
+| region        | Область             | CharField         | 255                   |
+| district      | Район               | CharField         | 255                   |
+| city_name     | Город               | CharField         | 255                   |
+| street        | Улица               | CharField         | 255                   |
+| house         | Номер дома          | CharField         | 255                   |
+| is_customer   | Покупатель ли юзер? | BooleanField      |                       |
+| middle_name   | Отчество            | CharField         | 20                    |
 
