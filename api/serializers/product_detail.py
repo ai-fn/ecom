@@ -28,6 +28,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         write_only=True,
         source="brand",
     )
+    priority = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Product
@@ -48,4 +49,5 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "images",
             "in_stock",
             "is_popular",
+            "priority",
         ]
