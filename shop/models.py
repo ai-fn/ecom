@@ -475,7 +475,7 @@ class FooterItem(TimeBasedModel):
     )
     order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер")
     title = models.CharField(max_length=100, verbose_name="Наименование")
-    link = models.URLField(verbose_name="Ссылка", blank=True, null=True)
+    link = models.CharField(verbose_name="Ссылка", blank=True, null=True)
 
     class Meta:
         ordering = ["order"]
@@ -486,7 +486,7 @@ class FooterItem(TimeBasedModel):
         return f"Элемент Footer_{self.title}-{self.id}"
 
     def clean(self):
-        if self.footer_settings.footer_items.count() >= FooterSettings.max_footer_items:
+        if self.footer_settings.footer_items.count() >= self.footer_settings.max_footer_items:
             raise ValidationError(
                 f"Exceeded the maximum number of footer items ({FooterSettings.max_footer_items})."
             )
