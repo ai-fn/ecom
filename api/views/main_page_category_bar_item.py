@@ -1,10 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAdminUser
+
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
+from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import MainPageCategoryBarItemSerializer
 from shop.models import MainPageCategoryBarItem
 
@@ -14,7 +13,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
 
     queryset = MainPageCategoryBarItem.objects.all()
     serializer_class = MainPageCategoryBarItemSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [ReadOnlyOrAdminPermission]
 
     @extend_schema(
         description="Получить список всех элементов главного меню категорий",
