@@ -1,10 +1,6 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
-from shop.signals import (
-    set_brand_order,
-    set_category_order,
-    set_product_slug
-    )
+from shop.signals import set_brand_order, set_category_order, set_product_slug
 from django.core.signals import setting_changed
 
 from shop.models import (
@@ -23,6 +19,7 @@ from shop.models import (
     FooterSettings,
     MainPageSliderImage,
     MainPageCategoryBarItem,
+    ProductFrequenlyBoughtTogether,
 )
 from mptt.admin import DraggableMPTTAdmin
 
@@ -93,6 +90,19 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [PromoInline, CharacteristicValueInline]
 
 
+@admin.register(ProductFrequenlyBoughtTogether)
+class ProductFrequenlyBoughtTogetherAdmin(admin.ModelAdmin):
+    list_display = (
+        "product_from",
+        "product_to",
+        "purchase_count"
+    )
+    list_filter = (
+        "product_from",
+        "product_to"
+    )
+
+
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = [
@@ -109,9 +119,7 @@ class ReviewAdmin(admin.ModelAdmin):
         "rating",
     )
 
-    list_filter = (
-        "product",
-    )
+    list_filter = ("product",)
 
     def reviewer_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
@@ -199,10 +207,9 @@ class FooterItemAdmin(admin.ModelAdmin):
         "order",
         "footer_settings",
     )
-    list_filter = (
-        "footer_settings",
-    )
+    list_filter = ("footer_settings",)
     search_fields = ("title",)
+
 
 @admin.register(FooterSettings)
 class FooterSettingsAdmin(admin.ModelAdmin):
@@ -210,6 +217,7 @@ class FooterSettingsAdmin(admin.ModelAdmin):
         "id",
         "max_footer_items",
     )
+
 
 @admin.register(MainPageSliderImage)
 class MainPageSliderImageAdmin(admin.ModelAdmin):
@@ -222,6 +230,7 @@ class MainPageSliderImageAdmin(admin.ModelAdmin):
         "image",
     )
     search_fields = ("image_text", "link", "button_text")
+
 
 @admin.register(MainPageCategoryBarItem)
 class MainPageCategoryBarItemAdmin(admin.ModelAdmin):

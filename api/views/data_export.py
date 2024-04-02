@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.permissions import IsAdminUser
+from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 
 from api.tasks import export_products_to_csv
 
@@ -10,8 +11,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 
 @extend_schema(tags=["Settings"])
 class DataExportView(APIView):
-    # permission_classes = [permissions.IsAdminUser]
-    permission_classes = []
+    permission_classes = [IsAdminUser]
 
     @extend_schema(
         description="Экспорт товаров",
@@ -39,22 +39,13 @@ class DataExportView(APIView):
         if data_type not in ["PRODUCTS", "BRANDS"]:
             return Response(
                 {"error": "Unsupported type parameter."},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=HTTP_400_BAD_REQUEST,
             )
 
         if data_type == "PRODUCTS":
-            # Убедитесь, что пользователь аутентифицирован
-            if not request.user.is_authenticated:
-                return Response(
-                    {"error": "Authentication is required to export products."},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-
-            # Получаем адрес электронной почты пользователя
-            user_email = request.user.email
 
             # Инициируем задачу экспорта в фоне с передачей адреса электронной почты
-            task = export_products_to_csv.delay(user_email)
+            export_products_to_csv.delay(request.user.email)
             return JsonResponse(
                 {
                     "message": "Export started. You will receive the products file by email."
@@ -62,5 +53,5 @@ class DataExportView(APIView):
             )
 
         return Response(
-            {"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Invalid request"}, status=HTTP_400_BAD_REQUEST
         )
