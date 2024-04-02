@@ -213,10 +213,16 @@ class Product(TimeBasedModel):
 
 class ProductFrequenlyBoughtTogether(TimeBasedModel):
     product_from = models.ForeignKey(
-        Product, on_delete=models.PROTECT, verbose_name="Какой товар", related_name="product_from"
+        Product,
+        on_delete=models.PROTECT,
+        verbose_name="Какой товар",
+        related_name="product_from",
     )
     product_to = models.ForeignKey(
-        Product, on_delete=models.PROTECT, verbose_name="Вместе с каким товаром", related_name="product_to"
+        Product,
+        on_delete=models.PROTECT,
+        verbose_name="Вместе с каким товаром",
+        related_name="product_to",
     )
     purchase_count = models.PositiveBigIntegerField(
         default=0, verbose_name="Количество покупок"
@@ -487,10 +493,17 @@ class FooterItem(TimeBasedModel):
 
 
 class MainPageSliderImage(TimeBasedModel):
-    order = models.IntegerField(unique=True)
-    link = models.URLField(blank=True, null=True)
-    image_text = models.CharField(max_length=255, blank=True, null=True)
-    button_text = models.CharField(max_length=100, blank=True, null=True)
+    order = models.IntegerField(unique=True, verbose_name="Порядковый номер")
+    link = models.URLField(blank=True, null=True, verbose_name="Ссылка")
+    title = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Заголовок"
+    )
+    description = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Описание"
+    )
+    button_text = models.CharField(
+        max_length=100, blank=True, null=True, verbose_name="Текст на кнопке"
+    )
     image = models.ImageField(
         upload_to="main/sliders/",
         verbose_name="Изображение",

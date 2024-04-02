@@ -223,13 +223,14 @@ class FooterSettingsAdmin(admin.ModelAdmin):
 class MainPageSliderImageAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "image_text",
+        "title",
+        "description",
         "button_text",
         "link",
         "order",
         "image",
     )
-    search_fields = ("image_text", "link", "button_text")
+    search_fields = ("title", "description", "link", "button_text")
 
 
 @admin.register(MainPageCategoryBarItem)
