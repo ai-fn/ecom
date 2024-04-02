@@ -6,4 +6,4 @@ class MainPageSliderImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MainPageSliderImage
-        fields = ['id', 'order', 'link', 'image_text', 'button_text', "image"]
+        fields = ['id', 'order', 'link', 'title', "description",  'button_text', "image"]
