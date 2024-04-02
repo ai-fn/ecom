@@ -72,5 +72,13 @@ class SimilarProducts(generics.GenericAPIView):
         except Product.DoesNotExist as err:
             return response.Response({'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
         
-        serialized_products = self.serializer_class(product.similar_products, many=True).data
-        return response.Response({'similar_products': serialized_products}, status=status.HTTP_200_OK)
+        queryset = product.similar_products.all()
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
