@@ -22,6 +22,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list" or "frequenly_bought":
             return ProductCatalogSerializer
+        elif self.action == "productdetail":
+            return ProductDetailSerializer
 
         return ProductDetailSerializer
 
