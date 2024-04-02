@@ -82,9 +82,9 @@ def handle_csv_file_task(file_path, upload_type):
         print(f"Error processing CSV file: {e}")
         return False
 
-
+# TODO add "SKU" processing
 def process_dataframe(df, upload_type):
-    ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "ORDER"]
+    ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "PRIORITY"]
     failed_images = []
     city_names = City.objects.all().values_list("name", flat=True)
     try:
@@ -339,11 +339,15 @@ def process_dataframe(df, upload_type):
                                         )
                                     )
                                     # Создание значения характеристики для продукта
-                                    CharacteristicValue.objects.create(
+                                    val, created = CharacteristicValue.objects.get_or_create(
                                         product=product,
                                         characteristic=characteristic,
-                                        value=str(characteristic_value),
+                                        defaults={"value": str(characteristic_value)}
                                     )
+                                    if not created:
+                                        val.value = characteristic_value
+                                        val.save(update_fields=["value"])
+
                     else:
                         logger.error(
                             f"Unable to create slug for product title '{product_title}'. Skipping product creation."
@@ -367,23 +371,54 @@ def set_opacity(image: Image, opacity: float):
     return image
 
 
+# TODO add "SKU" processing
 @shared_task
-def export_products_to_csv(email_to):
+def export_products_to_csv(email_to=None):
     # Экспорт данных в CSV
     products = Product.objects.all()
+    prices = Price.objects.all()
+    city_names = City.objects.values_list("name", flat=True)
+    characteristic_names = Characteristic.objects.values_list("name", flat=True)
+    characteristic_values = CharacteristicValue.objects.values_list("value", "characteristic", "product").order_by("characteristic__name").distinct("characteristic__name")
+
     serializer = ProductDetailSerializer(products, many=True)
     file_path = os.path.join(settings.MEDIA_ROOT, "products.csv")
+
+
     with open(file_path, "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["ID", "Title", "Brand", "Category", "Description"])
+        writer.writerow(["TITLE", "CATEGORIES", "SKU", "DESCRIPTION", *characteristic_names, *city_names, "PRIORITY"])
         for product in serializer.data:
+
+            # Select product prices by city name
+            price_cells = []
+            for name in city_names:
+                try:
+                    val = prices.get(product=product["id"], city__name=name).price
+                except (Price.DoesNotExist, AttributeError):
+                    val = ""
+                price_cells.append(val)
+            
+            categories_names = " | ".join([item[0] for item in product["category"].get("parents")] + [product["category"]["name"], product["title"].split(", ")[-1].capitalize()])
+            
+            # Select product characteristics by characterictic name
+            characteristic_values_cells = []
+            for item in characteristic_names:
+                try:
+                    value = characteristic_values.get(product=product["id"], characteristic__name=item)[0]
+                except CharacteristicValue.DoesNotExist:
+                    value = ""
+                characteristic_values_cells.append(value)
+            
             writer.writerow(
                 [
-                    product["id"],
                     product["title"],
-                    product.get("brand", ""),
-                    product.get("category", ""),
+                    categories_names,
+                    "SKU", # SKU
                     product["description"],
+                    *characteristic_values_cells,
+                    *price_cells,
+                    product["priority"],
                 ]
             )
 
