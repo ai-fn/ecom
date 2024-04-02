@@ -20,7 +20,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
-        if self.action == "list" or "frequenly_bought":
+        print(self.action)
+        if self.action == "list" or self.action == "frequenly_bought":
             return ProductCatalogSerializer
         elif self.action == "productdetail":
             return ProductDetailSerializer
@@ -461,6 +462,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 product.old_price = price_data.get("old_price")
 
         serializer = self.get_serializer(product)
+        print(self.get_serializer_class(), serializer)
         return Response(serializer.data)
 
     @extend_schema(
