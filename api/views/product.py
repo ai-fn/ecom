@@ -20,7 +20,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
-        if self.action == "list" or "frequenly_bought":
+        if self.action == "list" or self.action == "frequenly_bought":
             return ProductCatalogSerializer
         elif self.action == "productdetail":
             return ProductDetailSerializer
