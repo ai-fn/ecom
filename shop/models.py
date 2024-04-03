@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
 
 from account.models import City, CustomUser, TimeBasedModel
@@ -458,22 +458,9 @@ class Setting(TimeBasedModel):
         return f"{self.get_key()}: {self.get_value()}"
 
 
-class FooterSettings(TimeBasedModel):
-    max_footer_items = models.PositiveIntegerField(default=5)
-
-    class Meta:
-        verbose_name = "Настройки Footer"
-        verbose_name_plural = "Настройки Footer"
-
-    def __str__(self):
-        return f"Настройки Footer-{self.id}"
-
-
 class FooterItem(TimeBasedModel):
-    footer_settings = models.ForeignKey(
-        FooterSettings, on_delete=models.CASCADE, related_name="footer_items"
-    )
-    order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер")
+    coumn = models.PositiveSmallIntegerField(_("Номер колнки"))
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер", unique=True)
     title = models.CharField(max_length=100, verbose_name="Наименование")
     link = models.CharField(verbose_name="Ссылка", blank=True, null=True)
 
@@ -484,12 +471,6 @@ class FooterItem(TimeBasedModel):
 
     def __str__(self):
         return f"Элемент Footer_{self.title}-{self.id}"
-
-    def clean(self):
-        if self.footer_settings.footer_items.count() >= self.footer_settings.max_footer_items:
-            raise ValidationError(
-                f"Exceeded the maximum number of footer items ({FooterSettings.max_footer_items})."
-            )
 
 
 class MainPageSliderImage(TimeBasedModel):

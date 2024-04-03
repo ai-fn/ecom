@@ -16,7 +16,6 @@ from shop.models import (
     Review,
     Setting,
     FooterItem,
-    FooterSettings,
     MainPageSliderImage,
     MainPageCategoryBarItem,
     ProductFrequenlyBoughtTogether,
@@ -202,21 +201,12 @@ class PromoAdmin(admin.ModelAdmin):
 class FooterItemAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "column",
         "title",
         "link",
         "order",
-        "footer_settings",
     )
-    list_filter = ("footer_settings",)
     search_fields = ("title",)
-
-
-@admin.register(FooterSettings)
-class FooterSettingsAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "max_footer_items",
-    )
 
 
 @admin.register(MainPageSliderImage)
