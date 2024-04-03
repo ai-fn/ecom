@@ -29,9 +29,6 @@ from .cart_item import SimplifiedCartItemSerializer
 from ._document import CategoryDocumentSerializer
 from ._document import ProductDocumentSerializer
 from ._document import ReviewDocumentSerializer
-from .footer_settings import (
-    FooterItemSerializer,
-    FooterSettingSerializer,
-)
+from .footer_settings import FooterItemSerializer
 from .main_page_slider_image import MainPageSliderImageSerializer
 from .main_page_category_bar_item import MainPageCategoryBarItemSerializer

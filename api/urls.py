@@ -22,7 +22,6 @@ from api.views import (
     XlsxFileUploadView,
     RobotsTxtView,
     FooterItemViewSet,
-    FooterSettingsViewSet,
     MainPageSliderImageViewSet,
     MainPageCategoryBarItemViewSet,
 )
@@ -44,7 +43,6 @@ router.register(r"categories-metadata", CategoryMetaDataViewSet)
 router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 router.register(r"footer-items", FooterItemViewSet)
-router.register(r"footer-settings", FooterSettingsViewSet)
 router.register(r"main-page-slider-image", MainPageSliderImageViewSet)
 router.register(r"promos", PromoViewSet, basename="promo")
 router.register(r"category-bar-item", MainPageCategoryBarItemViewSet)
