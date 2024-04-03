@@ -1,3 +1,4 @@
+from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from api.permissions import ReadOnlyOrAdminPermission
@@ -52,7 +53,13 @@ class FooterItemViewSet(viewsets.ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        queryset = self.get_queryset().order_by("column", "order")
+        grouped_footer_items = [
+            self.serializer_class(queryset.filter(column=column), many=True).data
+            for column in set(queryset.values_list("column", flat=True))
+        ]
+
+        return Response(grouped_footer_items)
 
     @extend_schema(
         summary="Получение конкретного элемента footer",
@@ -104,7 +111,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "column": 1,
                 },
                 response_only=True,
-            )
+            ),
         ],
     )
     def create(self, request, *args, **kwargs):
@@ -138,7 +145,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "column": 1,
                 },
                 response_only=True,
-            )
+            ),
         ],
     )
     def update(self, request, *args, **kwargs):
@@ -182,7 +189,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                 summary="Пример удаления конкретного элемента footer",
                 description="Пример удаления конкретного элемента footer",
                 value=None,
-                request_only=True
+                request_only=True,
             )
         ],
     )
