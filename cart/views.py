@@ -1,8 +1,7 @@
-from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Sum, F
+from django.db.models import F
+from django.shortcuts import get_object_or_404
 from api.permissions import IsOwner
-from api.serializers import SimplifiedCartItemSerializer
 
 from rest_framework import status, permissions, viewsets, views
 from rest_framework.response import Response
@@ -12,6 +11,7 @@ from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import (
     CartItemSerializer,
     OrderSerializer,
+    SimplifiedCartItemSerializer,
     ProductDetailSerializer,
 )
 from shop.models import Price, Product, ProductFrequenlyBoughtTogether
@@ -573,6 +573,12 @@ class CartItemViewSet(viewsets.ModelViewSet):
     serializer_class = CartItemSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_serializer(self, *args, **kwargs):
+        kwargs.setdefault("context", {})
+        kwargs["context"]["city_domain"] = getattr(self, "city_domain", "")
+        kwargs['context']['request'] = self.request
+        return super().get_serializer(*args, **kwargs)
+
     @extend_schema(
         description="Получить список всех элементов корзины",
         summary="Список элементов корзины",
@@ -616,8 +622,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         },
                         "quantity": 15,
-                        "city_price": "6865",
-                        "old_price": "3865",
                     },
                     {
                         "id": 2,
@@ -643,8 +647,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
                             "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         },
                         "quantity": 12,
-                        "city_price": "6865",
-                        "old_price": "3865",
                     },
                 ],
                 description="Пример ответа для получения списка элементов корзины в Swagger UI",
@@ -655,19 +657,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
 
-        city_domain = request.query_params.get("city_domain")
-
-        # TODO performance review in future REQUIRED (price fields of cart item serializer)
-        if city_domain:
-
-            # Filter products based on the specified city_domain and select related Price objects
-            # Annotate new fields based on the related Price objects
-            self.queryset = self.queryset.filter(
-                product__prices__city__domain=city_domain
-            ).annotate(
-                city_price=F("product__prices__price"),
-                old_price=F("product__prices__old_price"),
-            )
+        self.city_domain = request.query_params.get("city_domain")
 
         return super().list(request, *args, **kwargs)
 
