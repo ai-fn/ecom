@@ -263,15 +263,11 @@ class Promo(TimeBasedModel):
         verbose_name="Название акции",
         max_length=64,
     )
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-        null=True,
+    categories = models.ManyToManyField(
+        Category, verbose_name="Категории в акции", related_name="promos"
     )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        null=True,
+    products = models.ManyToManyField(
+        Product, verbose_name="Товары в акции", related_name="promos"
     )
     image = models.ImageField(
         upload_to="promo/",
