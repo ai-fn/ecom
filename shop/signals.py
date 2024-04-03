@@ -1,8 +1,15 @@
-from shop.models import Category, Brand, FooterItem, MainPageSliderImage, Product
+from shop.models import Category, Brand, FooterItem, MainPageSliderImage, Product, City
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
 from unidecode import unidecode
+
+
+@receiver(post_save, sender=City)
+def set_category_order(sender, created, instance, **kwargs):
+    if created and not instance.domain:
+        instance.domain = slugify(unidecode(instance.name))
+        instance.save()
 
 
 @receiver(pre_save, sender=Category)
