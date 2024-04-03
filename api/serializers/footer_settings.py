@@ -1,15 +1,5 @@
 from rest_framework import serializers
-
-from shop.models import FooterSettings, FooterItem
-
-
-class FooterSettingSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = FooterSettings
-        fields = [
-            "max_footer_items"
-        ]
+from shop.models import FooterItem
 
 
 class FooterItemSerializer(serializers.ModelSerializer):
@@ -18,8 +8,8 @@ class FooterItemSerializer(serializers.ModelSerializer):
         model = FooterItem
         fields = [
             "id",
+            "column",
             "order",
             "title",
             "link",
-            "footer_settings",
         ]

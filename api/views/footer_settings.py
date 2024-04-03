@@ -3,114 +3,9 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.footer_settings import (
     FooterItemSerializer,
-    FooterSettingSerializer,
 )
-from shop.models import FooterItem, FooterSettings
+from shop.models import FooterItem
 from rest_framework import viewsets
-
-
-@extend_schema(tags=["Settings"])
-class FooterSettingsViewSet(viewsets.ModelViewSet):
-    permission_classes = [ReadOnlyOrAdminPermission]
-    serializer_class = FooterSettingSerializer
-    queryset = FooterSettings.objects.all()
-
-    @extend_schema(
-        summary="Получение списка всех настроек footer",
-        description="Эта конечная точка получает список всех настроек footer.",
-        examples=[
-            OpenApiExample(
-                "Пример настроек footer списка",
-                summary="Пример списка всех настроек footer",
-                response_only=True,
-                description="Пример списка всех настроек footer",
-                value=[
-                    {"max_footer_items": 5},
-                    {"max_footer_items": 10},
-                    {"max_footer_items": 15},
-                ],
-            )
-        ],
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="Получение конкретной настройки footer",
-        description="Эта конечная точка получает конкретную настройку footer по её идентификатору.",
-        examples=[
-            OpenApiExample(
-                "Пример получения конкретной настройки footer",
-                response_only=True,
-                summary="Пример получения конкретной настройки footer",
-                description="Пример получения конкретной настройки footer",
-                value={"max_footer_items": 5},
-            ),
-        ],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="Создание новой настройки footer",
-        description="Эта конечная точка создаёт новую настройку footer.",
-        examples=[
-            OpenApiExample(
-                "Пример создания новой настройки footer",
-                summary="Пример создания новой настройки footer",
-                description="Пример создания новой настройки footer",
-                value={"max_footer_items": 5},
-                response_only=True,
-            )
-        ],
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="Обновление конкретной настройки footer",
-        description="Эта конечная точка обновляет конкретную настройку footer по её идентификатору.",
-        examples=[
-            OpenApiExample(
-                "Пример обновления конкретной настройки footer",
-                summary="Пример обновления конкретной настройки footer",
-                description="Пример обновления конкретной настройки footer",
-                value={"max_footer_items": 5},
-            )
-        ],
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="Частичное обновление конкретной настройки footer",
-        description="Эта конечная точка выполняет частичное обновление конкретной настройки footer по её идентификатору.",
-        examples=[
-            OpenApiExample(
-                "Пример частичного обновления конкретной настройки footer",
-                summary="Пример частичного обновления конкретной настройки footer",
-                description="Пример частичного обновления конкретной настройки footer",
-                value={"max_footer_items": 2},
-            )
-        ],
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="Удаление конкретной настройки footer",
-        description="Эта конечная точка удаляет конкретную настройку footer по её идентификатору.",
-        examples=[
-            OpenApiExample(
-                "Пример удаления конкретной настройки footer",
-                summary="Пример удаления конкретной настройки footer",
-                description="Пример удаления конкретной настройки footer",
-                value=None,
-            )
-        ],
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
 
 
 @extend_schema(
@@ -136,21 +31,21 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                         "order": 1,
                         "title": "Элемент footer 1",
                         "link": "http://example.com",
-                        "footer_settings": 1,
+                        "column": 1,
                     },
                     {
                         "id": 2,
                         "order": 2,
                         "title": "Элемент footer 2",
                         "link": "http://example.com",
-                        "footer_settings": 1,
+                        "column": 1,
                     },
                     {
                         "id": 3,
                         "order": 3,
                         "title": "Элемент footer 3",
                         "link": "http://example.com",
-                        "footer_settings": 1,
+                        "column": 1,
                     },
                 ],
             )
@@ -173,7 +68,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Элемент footer 1",
                     "link": "http://example.com",
-                    "footer_settings": 1,
+                    "column": 1,
                 },
             )
         ],
@@ -193,7 +88,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Элемент footer 1",
                     "link": "http://example.com",
-                    "footer_settings": 1,
+                    "column": 1,
                 },
                 request_only=True,
             ),
@@ -206,7 +101,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Элемент footer 1",
                     "link": "http://example.com",
-                    "footer_settings": 1,
+                    "column": 1,
                 },
                 response_only=True,
             )
@@ -227,7 +122,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Обновленный элемент footer 1",
                     "link": "http://example.com",
-                    "footer_settings": 1,
+                    "column": 1,
                 },
                 request_only=True,
             ),
@@ -240,7 +135,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Обновленный элемент footer 1",
                     "link": "http://example.com",
-                    "footer_settings": 1,
+                    "column": 1,
                 },
                 response_only=True,
             )
@@ -270,7 +165,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "order": 1,
                     "title": "Обновленный элемент footer 2",
                     "link": "http://example.com",
-                    "footer_settings": 1,
+                    "column": 1,
                 },
             ),
         ],
