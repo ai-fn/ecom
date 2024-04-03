@@ -459,7 +459,7 @@ class Setting(TimeBasedModel):
 
 
 class FooterItem(TimeBasedModel):
-    coumn = models.PositiveSmallIntegerField(_("Номер колнки"))
+    column = models.PositiveSmallIntegerField(_("Номер колнки"))
     order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер", unique=True)
     title = models.CharField(max_length=100, verbose_name="Наименование")
     link = models.CharField(verbose_name="Ссылка", blank=True, null=True)

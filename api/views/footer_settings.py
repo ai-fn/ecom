@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from api.permissions import ReadOnlyOrAdminPermission
-from api.serializers.column import (
+from api.serializers.footer_settings import (
     FooterItemSerializer,
 )
 from shop.models import FooterItem
