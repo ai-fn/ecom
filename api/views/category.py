@@ -56,8 +56,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                             }
                         ],
                         "category_meta_id": None,
-                        "icon": "catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                        "image_url": "catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                        "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                        "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                         "is_visible": True,
                         "is_popular": True
                     },
@@ -96,8 +96,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                                 "description": "dummy-description"
                             }
                         ],
-                        "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                        "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                         "is_visible": True,
                         "is_popular": False,
                     },
@@ -170,8 +170,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                         "deke-1"
                     ],
                     "category_meta_id": [1],
-                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
                     "is_popular": False,
                 },
@@ -199,8 +199,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                             "description": "dummy-description"
                         }
                     ],
-                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
                     "is_popular": False,
                 },
@@ -238,8 +238,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                             "description": "dummy-description"
                         }
                     ],
-                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
                     "is_popular": False,
                 },
@@ -267,8 +267,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                             "description": "dummy-description"
                         }
                     ],
-                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
                     "is_popular": False,
                 },
@@ -317,8 +317,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                             "description": "dummy-description"
                         }
                     ],
-                    "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                    "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                    "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
                     "is_popular": False,
                 },

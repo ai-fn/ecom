@@ -80,8 +80,8 @@ class PromoViewSet(ModelViewSet):
                                 }
                             ],
                             "category_meta_id": 1,
-                            "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
                             "is_popular": False,
                         },
@@ -105,8 +105,8 @@ class PromoViewSet(ModelViewSet):
                                     }
                                 ],
                                 "category_meta_id": 1,
-                                "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "is_visible": True,
                                 "is_popular": False,
                             },
@@ -118,7 +118,7 @@ class PromoViewSet(ModelViewSet):
                                 "order": 1,
                             },
                             "description": "Желоб водосточный 3 м Premium, пломбир",
-                            "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
                             "created_at": "2024-03-11T13:45:20.574851+03:00",
                             "characteristic_values": [
@@ -135,10 +135,10 @@ class PromoViewSet(ModelViewSet):
                             ],
                             "images": [
                                 {
-                                    "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                    "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
                                 },
                                 {
-                                    "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                    "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                                 },
                             ],
                             "in_stock": True
@@ -198,8 +198,8 @@ class PromoViewSet(ModelViewSet):
                                 }
                             ],
                             "category_meta_id": 1,
-                            "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
                             "is_popular": False,
                         },
@@ -223,8 +223,8 @@ class PromoViewSet(ModelViewSet):
                                         "description": "dummy description ",
                                     },
                                 ],
-                                "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                                "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                                "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                                "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                                 "is_visible": True,
                             },
                             "title": "Желоб водосточный 3 м Premium, шоколад",
@@ -235,7 +235,7 @@ class PromoViewSet(ModelViewSet):
                                 "order": 1,
                             },
                             "description": "Желоб водосточный 3 м Premium, пломбир",
-                            "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
                             "created_at": "2024-03-11T13:45:20.574851+03:00",
                             "characteristic_values": [
@@ -252,10 +252,10 @@ class PromoViewSet(ModelViewSet):
                             ],
                             "images": [
                                 {
-                                    "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                    "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
                                 },
                                 {
-                                    "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                    "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                                 },
                             ],
                             "in_stock": True
@@ -312,8 +312,8 @@ class PromoViewSet(ModelViewSet):
                             }
                         ],
                         "category_meta_id": 1,
-                        "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                        "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                         "is_visible": True,
                         "is_popular": False,
                     },
@@ -337,8 +337,8 @@ class PromoViewSet(ModelViewSet):
                                     }
                                 ],
                                 "category_meta_id": 1,
-                                "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "is_visible": True,
                                 "is_popular": False,
                         },
@@ -350,7 +350,7 @@ class PromoViewSet(ModelViewSet):
                             "order": 1,
                         },
                         "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
                         "created_at": "2024-03-11T13:45:20.574851+03:00",
                         "characteristic_values": [
@@ -367,10 +367,10 @@ class PromoViewSet(ModelViewSet):
                         ],
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                             },
                         ],
                         "in_stock": True
@@ -407,7 +407,7 @@ class PromoViewSet(ModelViewSet):
                     "name": "Promo Name",
                     "category_id": 13,
                     "product_id": 6,
-                    "image": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp",
+                    "image": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp",
                     "cities_id": [
                         1, 2, 3
                     ],
@@ -437,8 +437,8 @@ class PromoViewSet(ModelViewSet):
                             }
                         ],
                         "category_meta_id": 1,
-                        "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                        "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                         "is_visible": True
                     },
                     "product": {
@@ -461,8 +461,8 @@ class PromoViewSet(ModelViewSet):
                                     "description": "dummy description ",
                                 },
                             ],
-                            "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                            "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "is_visible": True,
                             "is_popular": False,
                         },
@@ -474,7 +474,7 @@ class PromoViewSet(ModelViewSet):
                             "order": 1,
                         },
                         "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
                         "created_at": "2024-03-11T13:45:20.574851+03:00",
                         "characteristic_values": [
@@ -491,10 +491,10 @@ class PromoViewSet(ModelViewSet):
                         ],
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                             },
                         ],
                         "in_stock": True
@@ -562,8 +562,8 @@ class PromoViewSet(ModelViewSet):
                             }
                         ],
                         "category_meta_id": 1,
-                        "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                        "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                         "is_visible": True
                     },
                     "product": {
@@ -586,8 +586,8 @@ class PromoViewSet(ModelViewSet):
                                     "description": "dummy description ",
                                 },
                             ],
-                            "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                            "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "is_visible": True,
                             "is_popular": False,
                         },
@@ -599,7 +599,7 @@ class PromoViewSet(ModelViewSet):
                             "order": 1,
                         },
                         "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
                         "created_at": "2024-03-11T13:45:20.574851+03:00",
                         "characteristic_values": [
@@ -616,10 +616,10 @@ class PromoViewSet(ModelViewSet):
                         ],
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                             },
                         ],
                         "in_stock": True
@@ -682,8 +682,8 @@ class PromoViewSet(ModelViewSet):
                             }
                         ],
                         "category_meta_id": 1,
-                        "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                        "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                         "is_visible": True
                     },
                     "product": {
@@ -706,8 +706,8 @@ class PromoViewSet(ModelViewSet):
                                     "description": "dummy description ",
                                 },
                             ],
-                            "icon": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                            "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                             "is_visible": True,
                         },
                         "title": "Желоб водосточный 3 м Premium, шоколад",
@@ -718,7 +718,7 @@ class PromoViewSet(ModelViewSet):
                             "order": 1,
                         },
                         "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
                         "created_at": "2024-03-11T13:45:20.574851+03:00",
                         "characteristic_values": [
@@ -735,10 +735,10 @@ class PromoViewSet(ModelViewSet):
                         ],
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                             },
                         ],
                         "in_stock": True

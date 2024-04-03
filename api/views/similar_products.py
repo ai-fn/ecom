@@ -26,18 +26,18 @@ class SimilarProducts(generics.GenericAPIView):
                         "id": 1,
                         "title": "Product A",
                         "brand": 1,
-                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "slug": "product-a",
                         "city_price": 100.0,
                         "old_price": 120.0,
                         "images": [
                             {
                                 "id": 1,
-                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                             {
                                 "id": 2,
-                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                         ],
                         "category_slug": "category-a",
@@ -46,18 +46,18 @@ class SimilarProducts(generics.GenericAPIView):
                         "id": 2,
                         "title": "Product B",
                         "brand": 2,
-                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "slug": "product-b",
                         "city_price": 150.0,
                         "old_price": 110.0,
                         "images": [
                             {
                                 "id": 1,
-                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                             {
                                 "id": 2,
-                                "image_url": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             },
                         ],
                         "category_slug": "category-b",
