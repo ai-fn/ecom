@@ -70,8 +70,8 @@
 | Имя параметра | Описание                  | Тип данных      | Максимальное значение |
 | ------------- | ------------------------- | --------------- | --------------------- |
 | name          | Название акции            | CharField       | 64                    |
-| category      | Категория                 | ForeignKey      |
-| product       | Продукт                   | ForeignKey      |
+| categories    | Категории                 | ManyToManyField |
+| products      | Продукты                  | ManyToManyField |
 | image         | Изображение               | ImageField      |
 | cities        | Города, где действует     | ManyToManyField |
 | is_active     | Активна ли акция          | BooleanField    |
