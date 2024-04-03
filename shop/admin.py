@@ -201,7 +201,7 @@ class PromoAdmin(admin.ModelAdmin):
 class FooterItemAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "column",
+        # "column",
         "title",
         "link",
         "order",
