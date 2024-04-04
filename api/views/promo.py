@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.decorators import action
 
+from api.mixins import CityPricesMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import PromoSerializer
 from shop.models import Promo
@@ -16,7 +17,7 @@ from drf_spectacular.types import OpenApiTypes
     responses={200: PromoSerializer(many=True)},
     description="Retrieves promotions filtered by the domain of the city.",
 )
-class PromoViewSet(ModelViewSet):
+class PromoViewSet(CityPricesMixin, ModelViewSet):
 
     queryset = Promo.objects.all()
     serializer_class = PromoSerializer
@@ -27,15 +28,15 @@ class PromoViewSet(ModelViewSet):
             return [AllowAny()]
 
         return super().get_permissions()
-
+    
     def get_queryset(self):
         # Получаем домен из параметров запроса
-        domain = self.request.query_params.get("domain")
-        if not domain:
+        self.domain = self.request.query_params.get("domain")
+        if not self.domain:
             return Response([])
 
         # Возвращаем промоакции, связанные с найденными городами
-        return self.queryset.filter(cities__domain=domain).distinct()
+        return self.queryset.filter(cities__domain=self.domain).distinct()
 
     @extend_schema(
         description="Получение информации обо всех активных акциях",
