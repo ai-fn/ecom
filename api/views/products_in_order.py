@@ -1,14 +1,13 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from api.serializers.products_in_order import ProductsInOrderSerializer
 from rest_framework.permissions import IsAuthenticated
 from cart.models import ProductsInOrder
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
-@extend_schema(
-    tags=['Cart']
-)
-class ProductsInOrderViewSet(viewsets.ModelViewSet):
+
+@extend_schema(tags=["Cart"])
+class ProductsInOrderViewSet(ModelViewSet):
     queryset = ProductsInOrder.objects.all().order_by("-created_at")
     serializer_class = ProductsInOrderSerializer
     permission_classes = [IsAuthenticated]
@@ -21,10 +20,35 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 name="List Products in Order Example",
                 value=[
                     {
-                        "id": 1,
+                        "id": 2,
                         "order": 1,
-                        "product": 1,
-                        "quantity": 2,
+                        "product": {
+                            "id": 11,
+                            "title": "Желоб водосточный 3 м Premium, шоколад",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                            "city_price": 74.87,
+                            "old_price": 74.87,
+                            "images": [
+                                {
+                                    "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                },
+                                {
+                                    "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                },
+                            ],
+                            "in_stock": True,
+                            "category_slug": "seriia-premium-3",
+                            "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                            "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                            "is_popular": False,
+                        },
+                        "quantity": 15,
+                        "price": "2.23",
                     },
                     # Добавьте другие продукты, если есть
                 ],
@@ -44,10 +68,35 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
             OpenApiExample(
                 name="Retrieve Product in Order Example",
                 value={
-                    "id": 1,
+                    "id": 2,
                     "order": 1,
-                    "product": 1,
-                    "quantity": 2,
+                    "product": {
+                        "id": 11,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                        "city_price": 74.87,
+                        "old_price": 74.87,
+                        "images": [
+                            {
+                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                            },
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-3",
+                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "is_popular": False,
+                    },
+                    "quantity": 15,
+                    "price": "2.23",
                 },
                 description="Пример ответа при запросе информации о продукте в заказе в Swagger UI",
                 response_only=True,
@@ -57,7 +106,7 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Добавить новый продукт в заказ.",
         summary="Добавление продукта в заказ",
@@ -68,9 +117,11 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 name="Create Product in Order Example",
                 request_only=True,
                 value={
+                    "id": 2,
                     "order": 1,
-                    "product": 1,
-                    "quantity": 2,
+                    "product_id": 1,
+                    "quantity": 15,
+                    "price": "2.23",
                 },
                 description="Пример запроса для добавления нового продукта в заказ в Swagger UI",
                 media_type="application/json",
@@ -81,10 +132,35 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 value={
                     "id": 1,
                     "order": 1,
-                    "product": 1,
-                    "quantity": 2,
+                    "product": {
+                        "id": 11,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                        "city_price": 74.87,
+                        "old_price": 74.87,
+                        "images": [
+                            {
+                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                            },
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-3",
+                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "is_popular": False,
+                    },
+                    "quantity": 15,
+                    "price": "2.23",
                 },
-                description="Пример запроса для добавления нового продукта в заказ в Swagger UI",
+                description="Пример ответа на добавление нового продукта в заказ в Swagger UI",
                 media_type="application/json",
             ),
         ],
@@ -103,8 +179,8 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 request_only=True,
                 value={
                     "order": 1,
-                    "product": 1,
-                    "quantity": 2,
+                    "product_id": 11,
+                    "quantity": 15,
                 },
                 description="Пример запроса для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
@@ -113,10 +189,35 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 name="Пример ответа на обновление элемента заказа",
                 response_only=True,
                 value={
-                    "id": 1,
+                    "id": 2,
                     "order": 1,
-                    "product": 1,
-                    "quantity": 2,
+                    "product": {
+                        "id": 11,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                        "city_price": 74.87,
+                        "old_price": 74.87,
+                        "images": [
+                            {
+                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                            },
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-3",
+                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "is_popular": False,
+                    },
+                    "quantity": 15,
+                    "price": "2.23",
                 },
                 description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
@@ -125,7 +226,7 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Частично обновить информацию о продукте в заказе.",
         summary="Частичное обновление информации о продукте в заказе",
@@ -145,10 +246,35 @@ class ProductsInOrderViewSet(viewsets.ModelViewSet):
                 name="Пример частичного обновления элемента заказа",
                 response_only=True,
                 value={
-                    "id": 1,
+                    "id": 2,
                     "order": 1,
-                    "product": 1,
-                    "quantity": 2,
+                    "product": {
+                        "id": 11,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                        "city_price": 74.87,
+                        "old_price": 74.87,
+                        "images": [
+                            {
+                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                            },
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-3",
+                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "is_popular": False,
+                    },
+                    "quantity": 3,
+                    "price": "2.23",
                 },
                 description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",

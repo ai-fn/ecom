@@ -1,12 +1,9 @@
 from typing import OrderedDict
 from rest_framework import serializers
 
-from django.db.models import F
-
-from cart.models import Order, OrderStatus
-from api.serializers import ProductCatalogSerializer
+from cart.models import Order, OrderStatus, ProductsInOrder
+from api.serializers import ProductsInOrderSerializer
 from api.mixins import ValidateAddressMixin
-from shop.models import Product
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
@@ -39,8 +36,8 @@ class OrderSerializer(ValidateAddressMixin, serializers.ModelSerializer):
         ]
 
     def get_products(self, obj) -> OrderedDict:
-        products_in_order = Product.objects.filter(count_in_order__order=obj).annotate(cart_quantity=F("count_in_order__quantity"), city_price=F("count_in_order__price"))
-        return ProductCatalogSerializer(products_in_order, many=True).data
+        products_in_order = ProductsInOrder.objects.filter(order=obj)
+        return ProductsInOrderSerializer(products_in_order, many=True).data
 
     def create(self, validated_data):
         validated_data["total"] = 0
