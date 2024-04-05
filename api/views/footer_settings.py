@@ -6,13 +6,13 @@ from api.serializers.footer_settings import (
     FooterItemSerializer,
 )
 from shop.models import FooterItem
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 
 
 @extend_schema(
     tags=["Settings"],
 )
-class FooterItemViewSet(viewsets.ModelViewSet):
+class FooterItemViewSet(ModelViewSet):
     queryset = FooterItem.objects.all()
     serializer_class = FooterItemSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
