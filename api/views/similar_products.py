@@ -1,13 +1,14 @@
 from rest_framework import generics, permissions, response, status
+from api.mixins import CityPricesMixin
 from api.serializers import ProductCatalogSerializer
 from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
 @extend_schema(
     tags=['Shop']
 )
-class SimilarProducts(generics.GenericAPIView):
+class SimilarProducts(CityPricesMixin, generics.GenericAPIView):
     
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
@@ -17,6 +18,14 @@ class SimilarProducts(generics.GenericAPIView):
         description="Получить список всех похожих продуктов",
         summary="Получить список всех похожих продуктов",
         responses={200: ProductCatalogSerializer(many=True)},
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Домен города для фильтрации цен",
+            ),
+        ],
         examples=[
             OpenApiExample(
                 name="Response Example",
@@ -72,6 +81,7 @@ class SimilarProducts(generics.GenericAPIView):
         except Product.DoesNotExist as err:
             return response.Response({'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
         
+        self.domain = request.query_params.get("city_domain")
         queryset = product.similar_products.all()
         
         page = self.paginate_queryset(queryset)

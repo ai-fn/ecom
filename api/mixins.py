@@ -49,3 +49,12 @@ class TokenExpiredTimeMixin:
         data['access_expired_at'] = time.time() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()
         data['refresh_expired_at'] = time.time() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()
         return data
+
+
+class CityPricesMixin:
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs.setdefault("context", {})
+        kwargs['context']["city_domain"] = getattr(self, "domain", "")
+        kwargs['context']["request"] = getattr(self, "request", "")
+        return super().get_serializer(*args, **kwargs)
