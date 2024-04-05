@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from api.filters import PriceFilter
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.price import PriceSerializer
@@ -12,7 +12,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 @extend_schema(
     tags=['Shop']
 )
-class PriceViewSet(viewsets.ModelViewSet):
+class PriceViewSet(ModelViewSet):
     queryset = Price.objects.all().order_by("-created_at")
     serializer_class = PriceSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

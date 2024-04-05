@@ -1,14 +1,14 @@
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.brand import BrandSerializer
 from shop.models import Brand
-from rest_framework import viewsets
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from rest_framework.viewsets import ModelViewSet
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
 
 @extend_schema(
     tags=['Shop']
 )
-class BrandView(viewsets.ModelViewSet):
+class BrandView(ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

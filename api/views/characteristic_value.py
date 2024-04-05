@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.characteristic_value import CharacteristicValueSerializer
 
@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 @extend_schema(
     tags=['Shop']
 )
-class CharacteristicValueViewSet(viewsets.ModelViewSet):
+class CharacteristicValueViewSet(ModelViewSet):
     """Возвращает значение характеристик продукта
 
     Args:
