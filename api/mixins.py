@@ -40,7 +40,7 @@ class ValidateAddressMixin:
             location = geolocator.geocode(address)
 
             if not location:
-                raise serializers.ValidationError(f"Получено: {address}\nНеверный адрес. Пожалуйста, укажите действительный адрес с указанием города, области, улицы и номера дома.")
+                raise serializers.ValidationError(f"Получено: {address}. Неверный адрес. Пожалуйста, укажите действительный адрес с указанием города, области, улицы и номера дома.")
             
             logger.info(f"Найден адрес: {location.address}")
         return data
