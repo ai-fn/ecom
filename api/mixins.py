@@ -35,7 +35,7 @@ class ValidateAddressMixin:
         if any([field in address_fields for field in data]):
 
             # Получаем поля адреса из тела запроса, если есть, иначе получаем из объекта пользователя
-            address_values = [data.get(field, getattr(self.context["request"].user, field, "")) for field in address_fields]
+            address_values = [data.get(field, getattr(self.context["request"].user, field, "")) or "" for field in address_fields]
             address = ", ".join(address_values[::-1])
 
             geolocator = Nominatim(user_agent="my_geocoder")
