@@ -55,25 +55,6 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 additional_categories__slug=category
             )
 
-        if self.domain or price_gte or price_lte or brand_slug:
-
-            if self.domain:
-
-                price_filter = Q(prices__city__domain=self.domain)
-
-                if price_lte is not None:
-                    price_filter &= Q(prices__price__lte=price_lte)
-                if price_gte is not None:
-                    price_filter &= Q(prices__price__gte=price_gte)
-
-                queryset = queryset.filter(price_filter).annotate(
-                    city_price=F("prices__price"),
-                    old_price=F("prices__old_price"),
-                )
-
-            if brand_slug:
-                filter_conditions &= Q(brand__slug__icontains=brand_slug)
-
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
             queryset = queryset.filter(filter_conditions).annotate(
