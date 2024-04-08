@@ -8,6 +8,8 @@ from geopy.geocoders import Nominatim
 
 from rest_framework import serializers
 
+from shop.models import Price
+
 
 class ValidatePhoneNumberMixin:
 
@@ -58,3 +60,22 @@ class CityPricesMixin:
         kwargs['context']["city_domain"] = getattr(self, "domain", "")
         kwargs['context']["request"] = getattr(self, "request", "")
         return super().get_serializer(*args, **kwargs)
+
+
+class SerializerGetPricesMixin:
+
+    def get_city_price(self, obj):
+        city_domain = self.context.get('city_domain')
+        if city_domain:
+            price = Price.objects.filter(city__domain=city_domain, product=obj).first()
+            if price:
+                return price.price
+        return None
+
+    def get_old_price(self, obj):
+        city_domain = self.context.get('city_domain')
+        if city_domain:
+            price = Price.objects.filter(city__domain=city_domain, product=obj).first()
+            if price:
+                return price.old_price
+        return None
