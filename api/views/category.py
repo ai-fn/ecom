@@ -20,8 +20,9 @@ class CategoryViewSet(ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
-        if self.action in ["retrieve"]:
+        if self.action in ["retrieve", "popular_categories"]:
             return CategoryDetailSerializer
+        
         return super().get_serializer_class()
     
     def get_permissions(self):

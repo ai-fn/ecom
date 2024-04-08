@@ -1,15 +1,17 @@
-from django.db.models import Q, F
+from django.db.models import F
 
-from rest_framework import status, permissions, generics, views
+from rest_framework.generics import GenericAPIView
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from api.serializers import ProductCatalogSerializer
-from drf_spectacular.utils import extend_schema, OpenApiExample
-from shop.models import Price, Product
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+from shop.models import Product
+from api.mixins import CityPricesMixin
 
 
 @extend_schema(tags=["Shop"])
-class ProductsById(generics.GenericAPIView):
+class ProductsById(CityPricesMixin, GenericAPIView):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
@@ -19,6 +21,14 @@ class ProductsById(generics.GenericAPIView):
     @extend_schema(
         description="Получение информации о товарах по массиву с id товаров",
         summary="Получение информации о товарах по массиву с id товаров",
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Домен города для получения цены товара",
+            )
+        ],
         examples=[
             OpenApiExample(
                 name="Request Products Example",
@@ -26,7 +36,6 @@ class ProductsById(generics.GenericAPIView):
                     "ids_list": [
                         5572,
                     ],
-                    "city_domain": "spb.krov.market",
                 },
                 request_only=True,
             ),
@@ -79,8 +88,8 @@ class ProductsById(generics.GenericAPIView):
         ],
     )
     def post(self, request):
+        self.domain = request.query_params.get("city_domain")
         ids_list = request.data.get("ids_list")
-        city_domain = request.data.get("city_domain")
 
         if not ids_list:
             return Response(
@@ -88,15 +97,6 @@ class ProductsById(generics.GenericAPIView):
             )
 
         self.queryset = self.queryset.filter(pk__in=ids_list)
-
-        if city_domain:
-
-            self.queryset = self.queryset.filter(
-                prices__city__domain=city_domain
-            ).annotate(
-                city_price=F("prices__price"),
-                old_price=F("prices__old_price"),
-            )
 
         page = self.paginate_queryset(self.queryset)
         if page is not None:
