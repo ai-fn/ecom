@@ -449,7 +449,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
     @action(detail=True, methods=["get"])
     def productdetail(self, request, pk=None):
         product = self.get_object()
-        self.self.domain = request.query_params.get("city_domain")
+        self.domain = request.query_params.get("city_domain")
         if self.domain:
             price_data = (
                 Price.objects.filter(product=product, city__domain=self.domain)
