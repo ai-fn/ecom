@@ -88,11 +88,9 @@ def update_cities():
 
     try:
         with open(city_csv_path, newline='', encoding='utf-8') as csvfile:
-            counter = 0
             reader = csv.DictReader(csvfile)
             city_names = []
             for row in reader:
-                counter += 1
                 
                 if row["city"] != "":
                     city_names.append(row["city"])
@@ -100,7 +98,6 @@ def update_cities():
                     city_names.append(row["region"])
                 elif row["area_type"] == "г":
                     city_names.append(row["area"])
-            print(counter, len(city_names))
 
         print("City names extracted successfully:")
         # print(city_names) 
