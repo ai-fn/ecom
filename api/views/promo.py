@@ -1,7 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
-from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.decorators import action
 
 from api.mixins import CityPricesMixin
@@ -38,6 +37,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
         # Возвращаем промоакции, связанные с найденными городами
         return self.queryset.filter(cities__domain=self.domain).distinct()
 
+    @action(methods=["get"], detail=False)
     def active_promos(self, request, *args, **kwargs):
         self.queryset = self.get_queryset().filter(is_active=True)
         return super().list(request, *args, **kwargs)

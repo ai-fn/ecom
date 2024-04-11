@@ -31,7 +31,7 @@ class TestUploadView(test.APITestCase):
             "?".join([f'{k}={"+".join(v.split())}' for k, v in params.items()]),
         )
         self.upload_url = build_upload_url(
-            reverse("upload_products", args=[self.basename]), self.upload_product_params
+            reverse("api:upload_products", args=[self.basename]), self.upload_product_params
         )
         self.temp_files_path = "/code/media/tmp/"
 
