@@ -7,11 +7,6 @@ services:
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=megashop
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=1askas-0gak2m1-,d21p
-
   cache:
     image: redis:7.0.4
     restart: always
@@ -45,7 +40,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env.dist
+      - .env
       
   celery:
     build: .
@@ -57,7 +52,7 @@ services:
       - db
       - cache
     env_file:
-      - .env.dist
+      - .env
 
   celerybeat:
     build: .
@@ -70,7 +65,7 @@ services:
       - db
       - cache
     env_file:
-      - .env.dist
+      - .env
   
   elasticsearch:
     image: elasticsearch:7.17.0

@@ -23,5 +23,5 @@ class TestProductModel(test.APITestCase):
         queryset = Product.objects.exclude(pk=self.prod.pk)
         self.prod.similar_products.add(*queryset.values_list('pk', flat=True))
         response = self.client.get(path).json()
-        similar_prods = response.get('similar_products')
-        self.assertEqual(len(similar_prods), len(queryset))
+        similar_prods = response.get('results', set())
+        self.assertEqual(len(similar_prods), len(self.prod.similar_products.all()))

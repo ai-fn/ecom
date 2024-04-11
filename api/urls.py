@@ -52,7 +52,7 @@ app_name= "api"
 urlpatterns = [
     path("", include(router.urls)),
     path("shop/", include(("shop.urls", "shop"), namespace="shop")),
-    path("cart/", include("cart.urls")),
+    path("cart/", include("cart.urls", namespace="cart")),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
     re_path(

@@ -17,10 +17,18 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
         source="brand.slug",
         read_only=True
     )
+    catalog_image = serializers.SerializerMethodField()
+    search_image = serializers.SerializerMethodField()
     cart_quantity = serializers.IntegerField(min_value=1, read_only=True)
 
     def get_category_slug(self, obj) -> str:
-        return obj.category.slug
+        return obj.category.slug if obj.category else None
+
+    def get_catalog_image(self, obj) -> str:
+        return obj.catalog_image.url if obj.catalog_image else None
+
+    def get_search_image(self, obj) -> str:
+        return obj.search_image.url if obj.search_image else None
 
     class Meta:
         model = Product

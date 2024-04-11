@@ -69,7 +69,8 @@ def handle_xlsx_file_task(file_path, upload_type):
     except Exception as e:
         print(f"Error processing Excel file: {e}")
         return False
-    
+
+
 @shared_task
 def update_cities():
     # Clone the git repository
