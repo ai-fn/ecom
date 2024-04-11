@@ -1,3 +1,4 @@
+from decimal import Decimal
 import time
 from loguru import logger
 from typing import Any, Dict
@@ -69,7 +70,7 @@ class CityPricesMixin:
 
 class SerializerGetPricesMixin:
 
-    def get_city_price(self, obj):
+    def get_city_price(self, obj) -> Decimal | None:
         city_domain = self.context.get('city_domain')
         if city_domain:
             price = Price.objects.filter(city__domain=city_domain, product=obj).first()
@@ -77,7 +78,7 @@ class SerializerGetPricesMixin:
                 return price.price
         return None
 
-    def get_old_price(self, obj):
+    def get_old_price(self, obj) -> Decimal | None:
         city_domain = self.context.get('city_domain')
         if city_domain:
             price = Price.objects.filter(city__domain=city_domain, product=obj).first()
