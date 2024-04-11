@@ -38,124 +38,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
         # Возвращаем промоакции, связанные с найденными городами
         return self.queryset.filter(cities__domain=self.domain).distinct()
 
-    @extend_schema(
-        description="Получение информации обо всех активных акциях",
-        summary="Получение информации обо всех активных акциях",
-        parameters=[
-            OpenApiParameter(
-                name="domain",
-                description="Домен города",
-                required=True,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
-        examples=[
-            OpenApiExample(
-                name="Response Example",
-                response_only=True,
-                value=[
-                    {
-                        "id": 1,
-                        "name": "Test",
-                        "categories": [
-                            {
-                                "id": 1,
-                                "name": "Деке",
-                                "slug": "deke-1",
-                                "parent": 1,
-                                "category_meta": [
-                                    {
-                                        "title": "dummy-title",
-                                        "description": "dummy-description"
-                                    }
-                                ],
-                                "category_meta_id": 1,
-                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "is_visible": True,
-                                "is_popular": False
-                            }
-                        ],
-                        "products": [
-                            {
-                                "id": 10,
-                                "title": "Желоб водосточный 3 м Premium, пломбир",
-                                "brand": 1,
-                                "image": 1,
-                                "slug": "zhelob-vodostochnyi-3-m-premium-plombir-10",
-                                "images": [
-                                    {
-                                        "image_url": "/media/catalog/products/image-cc4937b2-3773-4d1f-970b-8325d2f563ad.webp"
-                                    },
-                                    {
-                                        "image_url": "/media/catalog/products/image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp"
-                                    },
-                                ],
-                                "category_meta_id": 1,
-                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "is_visible": True,
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp",
-                                "is_popular": False,
-                            },
-                            {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": 1,
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "images": [
-                                    {
-                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
-                                    },
-                                    {
-                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp",
-                                "is_popular": False,
-                            },
-                        ],
-                        "image": "",
-                        "cities": [
-                            {
-                                "id": 45,
-                                "name": "Москва",
-                                "domain": "moskva",
-                                "nominative_case": "Москва",
-                                "genitive_case": "Москвы",
-                                "dative_case": "Москве",
-                                "accusative_case": "Москву",
-                                "instrumental_case": "Москвой",
-                                "prepositional_case": "Москве",
-                            },
-                            {
-                                "id": 46,
-                                "name": "Воронеж",
-                                "domain": "voronezh",
-                                "nominative_case": "Воронеж",
-                                "genitive_case": "Воронежа",
-                                "dative_case": "Воронежу",
-                                "accusative_case": "Воронеж",
-                                "instrumental_case": "Воронежем",
-                                "prepositional_case": "Воронеже",
-                            },
-                        ],
-                        "active_to": "2024-04-05",
-                        "is_active": True,
-                    }
-                ],
-            )
-        ],
-    )
-    @action(detail=False, methods=["get"])
     def active_promos(self, request, *args, **kwargs):
         self.queryset = self.get_queryset().filter(is_active=True)
         return super().list(request, *args, **kwargs)
@@ -275,12 +157,9 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
             )
         ],
     )
-    @action(detail=False, methods=["get"])
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-
     
-    @action(detail=True, methods=["get"])
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
