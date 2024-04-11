@@ -285,14 +285,16 @@ class OrderViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         total = 0
         city_domain = request.query_params.get("city_domain")
-        request.data["customer"] = request.user.pk
+        data = dict(request.data)
+        data["customer"] = request.user.pk
+
         cart_items = CartItem.objects.filter(customer=request.user.pk)
 
         if not cart_items.exists():
             return Response(
                 {"error": "Корзина пуста."}, status=status.HTTP_404_NOT_FOUND
             )
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         with transaction.atomic():
             order = serializer.save()

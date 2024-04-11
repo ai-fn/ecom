@@ -11,4 +11,4 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = ["image_url"]
 
     def get_image_url(self, obj) -> str:
-        return obj.image.name
+        return obj.image.url if obj.image else None

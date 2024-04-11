@@ -158,15 +158,15 @@ class Product(TimeBasedModel):
     )
     description = models.TextField(verbose_name="Описание")
     image = models.ImageField(
-        upload_to="media/catalog/",
+        upload_to="catalog/",
         verbose_name="Изображение",
     )
     catalog_image = models.ImageField(
-        upload_to="media/catalog/products/",
+        upload_to="catalog/products/",
         verbose_name="Изображение в каталоге",
     )
     search_image = models.ImageField(
-        upload_to="media/catalog/products/",
+        upload_to="catalog/products/",
         verbose_name="Изображение в поиске",
     )
     slug = models.SlugField(
@@ -242,7 +242,7 @@ class ProductImage(models.Model):
         verbose_name="Товар",
     )
     image = models.ImageField(
-        upload_to="media/catalog/products/",
+        upload_to="catalog/products/",
         verbose_name="Изображение",
     )
 
