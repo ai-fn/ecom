@@ -30,7 +30,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                         "title": "dummy title",
                         "description": "dummy description",
                         "button_text": "Button 1",
-                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                     },
                     {
                         "id": 2,
@@ -39,7 +39,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                         "title": "dummy title",
                         "description": "dummy description",
                         "button_text": "Button 2",
-                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                     },
                     {
                         "id": 3,
@@ -48,7 +48,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                         "title": "dummy title",
                         "description": "dummy description",
                         "button_text": "Button 3",
-                        "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                     },
                 ],
             )
@@ -72,7 +72,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                     "title": "dummy title",
                     "description": "dummy description",
                     "button_text": "Button 1",
-                    "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
                 response_only=True,
             )
@@ -95,7 +95,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                     "title": "dummy title",
                     "description": "dummy description",
                     "button_text": "Button 4",
-                    "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
                 request_only=True,
             ),
@@ -109,7 +109,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                     "title": "dummy title",
                     "description": "dummy description",
                     "button_text": "Button 4",
-                    "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
             ),
         ],
@@ -133,7 +133,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                     "title": "dummy title",
                     "description": "dummy description",
                     "button_text": "Updated Button 1",
-                    "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
                 request_only=True,
             ),
@@ -147,7 +147,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                     "title": "dummy title",
                     "description": "dummy description",
                     "button_text": "Updated Button 1",
-                    "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
             ),
         ],
@@ -178,7 +178,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
                     "title": "Updated Title 1",
                     "description": "dummy description",
                     "button_text": "Button 1",
-                    "image": "catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
                 },
             ),
         ],

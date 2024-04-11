@@ -14,6 +14,7 @@ class CategorySerializer(serializers.ModelSerializer):
     image_url = (
         serializers.SerializerMethodField()
     )  # Добавляем поле для URL изображения
+    icon = serializers.SerializerMethodField()
     parents = serializers.SerializerMethodField()  # Добавляем новое поле для родителей
     is_popular = serializers.BooleanField(read_only=True)
     is_visible = serializers.BooleanField(read_only=True)
@@ -35,6 +36,10 @@ class CategorySerializer(serializers.ModelSerializer):
             "is_visible",
             "is_popular",
         ]
+    
+    def get_icon(self, obj) -> str | None:
+        return obj.icon.url if obj.icon else None
+
 
     def get_children(self, obj) -> None | OrderedDict:
         if obj.is_leaf_node():

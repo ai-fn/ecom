@@ -569,19 +569,19 @@ class CartItemViewSet(ModelViewSet):
                                 "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                                 "order": 1,
                             },
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                            "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                             "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
                             "city_price": "4865",
                             "old_price": "3465",
                             "images": [
                                 {
-                                    "image_url": "catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"
+                                    "image_url": "/media/catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"
                                 }
                             ],
                             "category_slug": "deke",
                             "brand_slug": "test_brand-1",
-                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         },
                         "quantity": 15,
                     },
@@ -596,17 +596,17 @@ class CartItemViewSet(ModelViewSet):
                                 "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                                 "order": 1,
                             },
-                            "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                            "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                             "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
                             "images": [
                                 {
-                                    "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                    "image_url": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
                                 }
                             ],
                             "category_slug": "deke",
                             "brand_slug": "test_brand-1",
-                            "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         },
                         "quantity": 12,
                     },
@@ -805,20 +805,20 @@ class CartItemViewSet(ModelViewSet):
                             "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                             "order": 1,
                         },
-                        "image": "http://127.0.0.1:8000/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                        "image": "http://127.0.0.1:8000catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
                             },
                         ],
                         "category_slug": "seriya-premium",
                         "brand_slug": "test_brand-1",
-                        "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         "is_stock": True,
                     },
                     "quantity": 100,
@@ -858,8 +858,8 @@ class CartItemViewSet(ModelViewSet):
                                 }
                             ],
                             "category_meta_id": 1,
-                            "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
                             "is_popular": False,
                         },
@@ -871,7 +871,7 @@ class CartItemViewSet(ModelViewSet):
                             "order": 1,
                         },
                         "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                        "image": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
                         "created_at": "2024-03-11T13:45:13.024897+03:00",
                         "characteristic_values": [
@@ -888,10 +888,10 @@ class CartItemViewSet(ModelViewSet):
                         ],
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000//media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
+                                "image_url": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
+                                "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
                             },
                         ],
                         "in_stock": True,
@@ -913,8 +913,8 @@ class CartItemViewSet(ModelViewSet):
                                 }
                             ],
                             "category_meta_id": 1,
-                            "icon": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "image_url": "catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
                             "is_popular": False,
                         },
@@ -926,7 +926,7 @@ class CartItemViewSet(ModelViewSet):
                             "order": 1,
                         },
                         "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "http://127.0.0.1:8000//media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
                         "created_at": "2024-03-11T13:45:20.574851+03:00",
                         "characteristic_values": [
@@ -943,10 +943,10 @@ class CartItemViewSet(ModelViewSet):
                         ],
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000/media/catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
                             },
                         ],
                         "in_stock": True,
@@ -1005,19 +1005,19 @@ class CartItemViewSet(ModelViewSet):
                             "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                             "order": 1,
                         },
-                        "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                        "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                         "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
                         "city_price": "6865",
                         "old_price": "3865",
                         "images": [
                             {
-                                "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                "image_url": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
                             }
                         ],
                         "category_slug": "deke",
                         "brand_slug": "test_brand-1",
-                        "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
                     "quantity": 20,
                 },
@@ -1056,19 +1056,19 @@ class CartItemViewSet(ModelViewSet):
                             "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                             "order": 1,
                         },
-                        "image": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                        "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
                         "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
                         "city_price": "6865",
                         "old_price": "3865",
                         "images": [
                             {
-                                "image_url": "catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                "image_url": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
                             }
                         ],
                         "category_slug": "deke",
                         "brand_slug": "test_brand-1",
-                        "search_image": "http://127.0.0.1:8000/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "http://127.0.0.1:8000/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
                     "quantity": 20,
                 },
