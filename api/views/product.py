@@ -270,7 +270,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         "in_stock": True,
                         "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    },/media/
+                    },
                 ],
             ),
             OpenApiExample(
