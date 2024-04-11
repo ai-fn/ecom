@@ -276,7 +276,6 @@ class Promo(TimeBasedModel):
     cities = models.ManyToManyField(
         City,
         related_name="promos",
-        null=False,
     )
     is_active = models.BooleanField(verbose_name="Активна ли акция", default=False)
     active_to = models.DateField(verbose_name="До какого времени акция активна?")

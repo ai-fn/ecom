@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404
+from loguru import logger
 from api.permissions import IsOwner
 
 from rest_framework.views import APIView
@@ -311,16 +312,19 @@ class OrderViewSet(ModelViewSet):
                     )
                     friquenly_bought_together.purchase_count = F("purchase_count") + 1
                     friquenly_bought_together.save(update_fields=["purchase_count"])
-
-                price = Price.objects.get(
-                    city__domain=city_domain, product=item.product
-                )
-                prod = ProductsInOrder.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    price=price.price,
-                )
+                try:
+                    price = Price.objects.get(
+                        city__domain=city_domain, product=item.product
+                    )
+                    prod = ProductsInOrder.objects.create(
+                        order=order,
+                        product=item.product,
+                        quantity=item.quantity,
+                        price=price.price,
+                    )
+                except Exception as err:
+                    logger.error(err)
+                    return Response(str(err), status=status.HTTP_400_BAD_REQUEST)
 
                 item.delete()
                 total += prod.price
