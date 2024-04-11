@@ -244,8 +244,8 @@ class AllFeedsXMLAPIView(APIView):
       <field name="description" type="TextField">row['DESCRIPTION']</field>
       <field name="image" type="FileField">
       </field>
-      <field name="catalog_image" type="FileField">catalog/products/catalog-image-ef9119e0-d1f5-40f4-aeb6-37d0ea766ff0.webp</field>
-      <field name="search_image" type="FileField">catalog/products/search-image-ef9119e0-d1f5-40f4-aeb6-37d0ea766ff0.webp</field>
+      <field name="catalog_image" type="FileField">/media/catalog/products/catalog-image-ef9119e0-d1f5-40f4-aeb6-37d0ea766ff0.webp</field>
+      <field name="search_image" type="FileField">/media/catalog/products/search-image-ef9119e0-d1f5-40f4-aeb6-37d0ea766ff0.webp</field>
       <field name="slug" type="SlugField">zhelob-vodostochnyi-polukruglyi-3-m-stal-premium-grafit-320</field>
       <field name="in_stock" type="BooleanField">True</field>
       <field name="additional_categories" rel="ManyToManyRel" to="shop.category">

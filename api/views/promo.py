@@ -70,6 +70,25 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                     "description": "dummy-description"
                                 }
                             ],
+                            "category_meta_id": 1,
+                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "is_visible": True,
+                            "is_popular": False,
+                        },
+                        "product": {
+                            "id": 3733,
+                            "category": {
+                                "id": 1,
+                                "name": "Category A",
+                                "slug": "category-a",
+                                "order": 1,
+                                "parent": 2,
+                                "children": 2,
+                                "parents": [
+                                    "Деке",
+                                    "deke-1"
+                                ],
                             },
                             {
                                 "id": 2,
@@ -111,6 +130,10 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                         "image_url": "/media/catalog/products/image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp"
                                     },
                                 ],
+                                "category_meta_id": 1,
+                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "is_visible": True,
                                 "in_stock": True,
                                 "category_slug": "seriia-premium-3",
                                 "search_image": "/media/catalog/products/search-image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp",
@@ -137,6 +160,33 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                 "catalog_image": "/media/catalog/products/catalog-image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp",
                                 "is_popular": False,
                             },
+                            "description": "Желоб водосточный 3 м Premium, пломбир",
+                            "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
+                            "created_at": "2024-03-11T13:45:20.574851+03:00",
+                            "characteristic_values": [
+                                {
+                                    "id": 89977,
+                                    "characteristic_name": "Выбранный цвет",
+                                    "value": "Шоколад (RAL 8019)",
+                                },
+                                {
+                                    "id": 89978,
+                                    "characteristic_name": "Вес брутто",
+                                    "value": "18.3 кг",
+                                },
+                            ],
+                            "images": [
+                                {
+                                    "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                },
+                                {
+                                    "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                },
+                            ],
+                            "in_stock": True
+                        },
+                        "image": "",
                             {
                                 "id": 12,
                                 "title": "Желоб водосточный 3 м Standard, белый",
@@ -248,6 +298,26 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                     "description": "dummy-description"
                                 }
                             ],
+                            "category_meta_id": 1,
+                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                            "is_visible": True,
+                            "is_popular": False,
+                        },
+                        "product": {
+                            "id": 3733,
+                            "category": {
+                                "id": 132,
+                                "name": "Серия Premium",
+                                "slug": "seriya-premium",
+                                "order": 15,
+                                "parent": 128,
+                                "children": [
+                                    ["Водосточные системы", "vodostochnyie-sistemyi"]
+                                ],
+                                "parents": [
+                                    ["Деке", "deke"],
+                                ],
                             },
                             {
                                 "id": 2,
@@ -289,6 +359,9 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                         "image_url": "/media/catalog/products/image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp"
                                     },
                                 ],
+                                "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                                "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                                "is_visible": True,
                                 "in_stock": True,
                                 "category_slug": "seriia-premium-3",
                                 "search_image": "/media/catalog/products/search-image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp",
@@ -315,6 +388,33 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                 "catalog_image": "/media/catalog/products/catalog-image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp",
                                 "is_popular": False,
                             },
+                            "description": "Желоб водосточный 3 м Premium, пломбир",
+                            "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
+                            "created_at": "2024-03-11T13:45:20.574851+03:00",
+                            "characteristic_values": [
+                                {
+                                    "id": 89977,
+                                    "characteristic_name": "Выбранный цвет",
+                                    "value": "Шоколад (RAL 8019)",
+                                },
+                                {
+                                    "id": 89978,
+                                    "characteristic_name": "Вес брутто",
+                                    "value": "18.3 кг",
+                                },
+                            ],
+                            "images": [
+                                {
+                                    "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                                },
+                                {
+                                    "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                                },
+                            ],
+                            "in_stock": True
+                        },
+                        "image": "",
                             {
                                 "id": 12,
                                 "title": "Желоб водосточный 3 м Standard, белый",
@@ -410,6 +510,57 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                 response_only=True,
                 value={
                     "id": 1,
+                    "name": "Promo Name",
+                    "category": {
+                        "id": 1,
+                        "name": "Category A",
+                        "slug": "category-a",
+                        "order": 1,
+                        "parent": 2,
+                        "children": 2,
+                        "parents": [
+                            "Деке",
+                            "deke-1"
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description"
+                            }
+                        ],
+                        "category_meta_id": 1,
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "is_visible": True,
+                        "is_popular": False,
+                    },
+                    "product": {
+                        "id": 3733,
+                        "category": {
+                                "id": 1,
+                                "name": "Category A",
+                                "slug": "category-a",
+                                "order": 1,
+                                "parent": 2,
+                                "children": 2,
+                                "parents": [
+                                    "Деке",
+                                    "deke-1"
+                                ],
+                                "category_meta": [
+                                    {
+                                        "title": "dummy-title",
+                                        "description": "dummy-description"
+                                    }
+                                ],
+                                "category_meta_id": 1,
+                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "is_visible": True,
+                                "is_popular": False,
+                        },
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": {
                     "name": "Test",
                     "categories": [
                         {
@@ -424,6 +575,33 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                 }
                             ],
                         },
+                        "description": "Желоб водосточный 3 м Premium, пломбир",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
+                        "created_at": "2024-03-11T13:45:20.574851+03:00",
+                        "characteristic_values": [
+                            {
+                                "id": 89977,
+                                "characteristic_name": "Выбранный цвет",
+                                "value": "Шоколад (RAL 8019)",
+                            },
+                            {
+                                "id": 89978,
+                                "characteristic_name": "Вес брутто",
+                                "value": "18.3 кг",
+                            },
+                        ],
+                        "images": [
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                            },
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                            },
+                        ],
+                        "in_stock": True
+                    },
+                    "image": "",
                         {
                             "id": 2,
                             "name": "Водосточные системы",
@@ -582,6 +760,11 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                 name="Creation Example",
                 value={
                     "name": "Promo Name",
+                    "category_id": 13,
+                    "product_id": 6,
+                    "image": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp",
+                    "cities_id": [
+                        1, 2, 3
                     "categories_id": [
                         1,
                         2,
@@ -597,6 +780,43 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                 name="Creation Response Example",
                 value={
                     "id": 1,
+                    "name": "Promo Name",
+                    "category": {
+                        "id": 1,
+                        "name": "Category A",
+                        "slug": "category-a",
+                        "order": 1,
+                        "parent": 2,
+                        "children": 2,
+                        "parents": [
+                            "Деке",
+                            "deke-1"
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description"
+                            }
+                        ],
+                        "category_meta_id": 1,
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "is_visible": True
+                    },
+                    "product": {
+                        "id": 3733,
+                        "category": {
+                            "id": 132,
+                            "name": "Серия Premium",
+                            "slug": "seriya-premium",
+                            "order": 15,
+                            "parent": 128,
+                            "children": [
+                                ["Водосточные системы", "vodostochnyie-sistemyi"]
+                            ],
+                            "parents": [
+                                ["Деке", "deke"],
+                            ],
                     "name": "Test",
                     "categories": [
                         {
@@ -651,6 +871,9 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                     "image_url": "/media/catalog/products/image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp"
                                 },
                             ],
+                            "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "is_visible": True,
                             "in_stock": True,
                             "category_slug": "seriia-premium-3",
                             "search_image": "/media/catalog/products/search-image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp",
@@ -677,6 +900,33 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "catalog_image": "/media/catalog/products/catalog-image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp",
                             "is_popular": False,
                         },
+                        "description": "Желоб водосточный 3 м Premium, пломбир",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
+                        "created_at": "2024-03-11T13:45:20.574851+03:00",
+                        "characteristic_values": [
+                            {
+                                "id": 89977,
+                                "characteristic_name": "Выбранный цвет",
+                                "value": "Шоколад (RAL 8019)",
+                            },
+                            {
+                                "id": 89978,
+                                "characteristic_name": "Вес брутто",
+                                "value": "18.3 кг",
+                            },
+                        ],
+                        "images": [
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                            },
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                            },
+                        ],
+                        "in_stock": True
+                    },
+                    "image": "",
                         {
                             "id": 12,
                             "title": "Желоб водосточный 3 м Standard, белый",
@@ -781,6 +1031,43 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                 name="Updation Response Example",
                 value={
                     "id": 1,
+                    "name": "Promo Name",
+                    "category": {
+                        "id": 2,
+                        "name": "Category A",
+                        "slug": "category-a",
+                        "order": 1,
+                        "parent": 2,
+                        "children": 2,
+                        "parents": [
+                            "Деке",
+                            "deke-1"
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description"
+                            }
+                        ],
+                        "category_meta_id": 1,
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "is_visible": True
+                    },
+                    "product": {
+                        "id": 13,
+                        "category": {
+                            "id": 132,
+                            "name": "Серия Premium",
+                            "slug": "seriya-premium",
+                            "order": 15,
+                            "parent": 128,
+                            "children": [
+                                ["Водосточные системы", "vodostochnyie-sistemyi"]
+                            ],
+                            "parents": [
+                                ["Деке", "deke"],
+                            ],
                     "name": "Test",
                     "categories": [
                         {
@@ -835,6 +1122,9 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                     "image_url": "/media/catalog/products/image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp"
                                 },
                             ],
+                            "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "is_visible": True,
                             "in_stock": True,
                             "category_slug": "seriia-premium-3",
                             "search_image": "/media/catalog/products/search-image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp",
@@ -861,6 +1151,33 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "catalog_image": "/media/catalog/products/catalog-image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp",
                             "is_popular": False,
                         },
+                        "description": "Желоб водосточный 3 м Premium, пломбир",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
+                        "created_at": "2024-03-11T13:45:20.574851+03:00",
+                        "characteristic_values": [
+                            {
+                                "id": 89977,
+                                "characteristic_name": "Выбранный цвет",
+                                "value": "Шоколад (RAL 8019)",
+                            },
+                            {
+                                "id": 89978,
+                                "characteristic_name": "Вес брутто",
+                                "value": "18.3 кг",
+                            },
+                        ],
+                        "images": [
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                            },
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                            },
+                        ],
+                        "in_stock": True
+                    },
+                    "image": "",
                         {
                             "id": 12,
                             "title": "Желоб водосточный 3 м Standard, белый",
@@ -962,6 +1279,43 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                 response_only=True,
                 value={
                     "id": 1,
+                    "name": "Updated Promo Name",
+                    "category": {
+                        "id": 1,
+                        "name": "Category A",
+                        "slug": "category-a",
+                        "order": 1,
+                        "parent": 2,
+                        "children": 2,
+                        "parents": [
+                            "Деке",
+                            "deke-1"
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description"
+                            }
+                        ],
+                        "category_meta_id": 1,
+                        "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                        "is_visible": True
+                    },
+                    "product": {
+                        "id": 3733,
+                        "category": {
+                            "id": 132,
+                            "name": "Серия Premium",
+                            "slug": "seriya-premium",
+                            "order": 15,
+                            "parent": 128,
+                            "children": [
+                                ["Водосточные системы", "vodostochnyie-sistemyi"]
+                            ],
+                            "parents": [
+                                ["Деке", "deke"],
+                            ],
                     "name": "Test",
                     "categories": [
                         {
@@ -1016,6 +1370,9 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                     "image_url": "/media/catalog/products/image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp"
                                 },
                             ],
+                            "icon": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                            "is_visible": True,
                             "in_stock": True,
                             "category_slug": "seriia-premium-3",
                             "search_image": "/media/catalog/products/search-image-44d60b64-7c30-45b6-a78c-594f65d02aed.webp",
@@ -1042,6 +1399,33 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "catalog_image": "/media/catalog/products/catalog-image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp",
                             "is_popular": False,
                         },
+                        "description": "Желоб водосточный 3 м Premium, пломбир",
+                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
+                        "created_at": "2024-03-11T13:45:20.574851+03:00",
+                        "characteristic_values": [
+                            {
+                                "id": 89977,
+                                "characteristic_name": "Выбранный цвет",
+                                "value": "Шоколад (RAL 8019)",
+                            },
+                            {
+                                "id": 89978,
+                                "characteristic_name": "Вес брутто",
+                                "value": "18.3 кг",
+                            },
+                        ],
+                        "images": [
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
+                            },
+                            {
+                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
+                            },
+                        ],
+                        "in_stock": True
+                    },
+                    "image": "",
                         {
                             "id": 12,
                             "title": "Желоб водосточный 3 м Standard, белый",
