@@ -150,7 +150,9 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 		fmt.Println()
 		webpBuffer.Reset()
 	}
-	tx.Create(&models.ProductImage{Image: catalogPath + fileName + ".wepb", ProductID: prod.ID})
+	if err := tx.Create(&models.ProductImage{Image: catalogPath + fileName + ".wepb", ProductID: prod.ID}); err != nil {
+		panic(err)
+	}
 }
 
 func WatermarkImg(origImg image.Image, wtmrkPath string) error {

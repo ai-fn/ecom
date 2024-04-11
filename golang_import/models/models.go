@@ -1,12 +1,24 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
+	"time"
+
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+type CustomModel struct {
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type BaseModel struct {
+	DeletedAt *time.Time `sql:"index"`
+}
+
 type Category struct {
-	gorm.Model
+	CustomModel
+	BaseModel
 	Name      string      `gorm:"column:name"`
 	Slug      string      `gorm:"column:slug"`
 	ParentID  *uint       `gorm:"column:parent_id"`
@@ -24,9 +36,10 @@ type Category struct {
 }
 
 type Product struct {
-	gorm.Model
+	CustomModel
+	BaseModel
 	CategoryID           uint        `gorm:"column:category_id"`
-	BrandID              uint        `gorm:"column:brand_id"`
+	BrandID              *uint       `gorm:"column:brand_id"`
 	Title                string      `gorm:"column:title"`
 	Description          string      `gorm:"column:description;type:text"`
 	Image                string      `gorm:"column:image;type:varchar(255)"`
@@ -39,12 +52,10 @@ type Product struct {
 	Category             Category    `gorm:"foreignKey:CategoryID"`
 	AdditionalCategories []*Category `gorm:"many2many:product_additional_categories"`
 	Brand                *Brand      `gorm:"foreignKey:BrandID"`
-	SimilarProducts      []*Product  `gorm:"many2many:product_similar_products"`
-	FrequentlyBought     []*Product  `gorm:"many2many:product_frequently_bought_together;"`
 }
 
 type Brand struct {
-	gorm.Model
+	CustomModel
 	Name  string `gorm:"column:name"`
 	Icon  string `gorm:"column:icon;type:varchar(255)"`
 	Slug  string `gorm:"column:slug;unique"`
@@ -52,7 +63,8 @@ type Brand struct {
 }
 
 type Price struct {
-	gorm.Model
+	CustomModel
+	BaseModel
 	ProductID uint     `gorm:"column:product_id"`
 	CityID    uint     `gorm:"column:city_id"`
 	Price     float64  `gorm:"column:price;type:decimal(10,2)"`
@@ -60,13 +72,15 @@ type Price struct {
 }
 
 type Characteristic struct {
-	gorm.Model
+	CustomModel
+	BaseModel
 	Name       string `gorm:"column:name;unique"`
 	CategoryID uint   `gorm:"column:category_id"`
 }
 
 type CharacteristicValue struct {
-	gorm.Model
+	CustomModel
+	BaseModel
 	ProductID        uint   `gorm:"column:product_id"`
 	CharacteristicID uint   `gorm:"column:characteristic_id"`
 	Value            string `gorm:"column:value;type:varchar(255)"`
@@ -79,7 +93,8 @@ type ProductImage struct {
 }
 
 type City struct {
-	gorm.Model
+	CustomModel
+	BaseModel
 	Name              string `gorm:"column:name"`
 	Domain            string `gorm:"column:domain"`
 	Address           string `gorm:"column:address"`
