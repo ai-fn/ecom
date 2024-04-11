@@ -1,5 +1,4 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from api.permissions import ReadOnlyOrAdminPermission
@@ -10,7 +9,7 @@ from api.serializers import MainPageSliderImageSerializer
 @extend_schema(
     tags=["Settings"]
 )
-class MainPageSliderImageViewSet(viewsets.ModelViewSet):
+class MainPageSliderImageViewSet(ModelViewSet):
     queryset = MainPageSliderImage.objects.all()
     serializer_class = MainPageSliderImageSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

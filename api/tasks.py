@@ -1,5 +1,6 @@
 import csv
 import os
+import subprocess
 import uuid
 from celery import shared_task
 from django.conf import settings
@@ -35,18 +36,19 @@ from django.core.files.base import ContentFile
 def custom_slugify(value):
     return django_slugify(unidecode(value))
 
+
 @shared_task
 def update_promo_status():
     # Get the date one day ago
     one_day_ago = timezone.now().date() + timezone.timedelta(days=1)
-    
+
     # Filter promos that are expired one day ago
     expired_promos = Promo.objects.filter(active_to__lte=one_day_ago)
-    
+
     # Deactivate expired promos
     expired_promos.update(is_active=False)
 
-    
+
 @shared_task
 def handle_xlsx_file_task(file_path, upload_type):
     try:
@@ -67,6 +69,57 @@ def handle_xlsx_file_task(file_path, upload_type):
     except Exception as e:
         print(f"Error processing Excel file: {e}")
         return False
+    
+@shared_task
+def update_cities():
+    # Clone the git repository
+    repo_url = "https://github.com/hflabs/city.git"
+    repo_dir = "city_repo"
+
+    try:
+        subprocess.run(['git', 'clone', repo_url, repo_dir], check=True)
+        print("Repository cloned successfully.")
+    except subprocess.CalledProcessError as e:
+        print("Error:", e)
+        return
+
+    # Open city.csv and extract city names
+    city_csv_path = os.path.join(repo_dir, "city.csv")
+
+    try:
+        with open(city_csv_path, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            city_names = []
+            for row in reader:
+                
+                if row["city"] != "":
+                    city_names.append(row["city"])
+                elif row["region_type"] == "г":
+                    city_names.append(row["region"])
+                elif row["area_type"] == "г":
+                    city_names.append(row["area"])
+
+        print("City names extracted successfully:")
+        # print(city_names) 
+    except FileNotFoundError:
+        print("city.csv not found.")
+    except Exception as e:
+        print("Error occurred while extracting city names:", e)
+    finally:
+        # Clean up: delete the cloned repository directory
+        try:
+            subprocess.run(['rm', '-rf', repo_dir], check=True)
+        except subprocess.CalledProcessError as e:
+            print("Error cleaning up:", e)
+
+    current_cities = City.objects.values_list("name", flat=True)
+    diff = set(city_names).difference(set(current_cities))
+
+    if len(diff) > 0:
+        with transaction.atomic():
+            for c in diff:
+                City.objects.create(name=c)
+        print("Cities successfully created")
 
 
 @shared_task
@@ -82,9 +135,17 @@ def handle_csv_file_task(file_path, upload_type):
         print(f"Error processing CSV file: {e}")
         return False
 
+
 # TODO add "SKU" processing
 def process_dataframe(df, upload_type):
-    ignored_columns = ["TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "PRIORITY"]
+    ignored_columns = [
+        "TITLE",
+        "DESCRIPTION",
+        "IMAGES",
+        "CATEGORIES",
+        "SKU",
+        "PRIORITY",
+    ]
     failed_images = []
     city_names = City.objects.all().values_list("name", flat=True)
     try:
@@ -141,14 +202,19 @@ def process_dataframe(df, upload_type):
                     product_title = row["TITLE"]
                     product_priority = row.get("PRIORITY")
 
-
                     product_description = row.get("DESCRIPTION", "Dummy Description")
                     product_slug = translit.slugify(product_title)
 
-                    if product_priority and isinstance(product_priority, (int, float)) and product_priority > 0:
+                    if (
+                        product_priority
+                        and isinstance(product_priority, (int, float))
+                        and product_priority > 0
+                    ):
                         product_priority = product_priority
                     else:
-                        logger.info('Product PRIORITY not provided or invalid, use default')
+                        logger.info(
+                            "Product PRIORITY not provided or invalid, use default"
+                        )
                         product_priority = Product._meta.get_field("priority").default
 
                     # TODO добавить DESCRIPTION потом
@@ -166,12 +232,7 @@ def process_dataframe(df, upload_type):
                         if not created:
                             product.description = product_description
                             product.priority = product_priority
-                            product.save(
-                                update_fields=[
-                                    "description",
-                                    "priority" 
-                                ]
-                            )
+                            product.save(update_fields=["description", "priority"])
 
                         product_image_urls = row["IMAGES"].split(",")
                         if len(product_image_urls) > 0:
@@ -315,9 +376,11 @@ def process_dataframe(df, upload_type):
                                 city = City.objects.get(name=column_name)
                                 new_price = float(row[column_name])
                                 price, created = Price.objects.get_or_create(
-                                    product=product, city=city, defaults={"price": new_price}
+                                    product=product,
+                                    city=city,
+                                    defaults={"price": new_price},
                                 )
-                                
+
                                 if not created:
                                     price.old_price = price.price
                                     price.price = new_price
@@ -339,10 +402,14 @@ def process_dataframe(df, upload_type):
                                         )
                                     )
                                     # Создание значения характеристики для продукта
-                                    val, created = CharacteristicValue.objects.get_or_create(
-                                        product=product,
-                                        characteristic=characteristic,
-                                        defaults={"value": str(characteristic_value)}
+                                    val, created = (
+                                        CharacteristicValue.objects.get_or_create(
+                                            product=product,
+                                            characteristic=characteristic,
+                                            defaults={
+                                                "value": str(characteristic_value)
+                                            },
+                                        )
                                     )
                                     if not created:
                                         val.value = characteristic_value
@@ -379,15 +446,28 @@ def export_products_to_csv(email_to=None):
     prices = Price.objects.all()
     city_names = City.objects.values_list("name", flat=True)
     characteristic_names = Characteristic.objects.values_list("name", flat=True)
-    characteristic_values = CharacteristicValue.objects.values_list("value", "characteristic", "product").order_by("characteristic__name").distinct("characteristic__name")
+    characteristic_values = (
+        CharacteristicValue.objects.values_list("value", "characteristic", "product")
+        .order_by("characteristic__name")
+        .distinct("characteristic__name")
+    )
 
     serializer = ProductDetailSerializer(products, many=True)
     file_path = os.path.join(settings.MEDIA_ROOT, "products.csv")
 
-
     with open(file_path, "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["TITLE", "CATEGORIES", "SKU", "DESCRIPTION", *characteristic_names, *city_names, "PRIORITY"])
+        writer.writerow(
+            [
+                "TITLE",
+                "CATEGORIES",
+                "SKU",
+                "DESCRIPTION",
+                *characteristic_names,
+                *city_names,
+                "PRIORITY",
+            ]
+        )
         for product in serializer.data:
 
             # Select product prices by city name
@@ -398,23 +478,31 @@ def export_products_to_csv(email_to=None):
                 except (Price.DoesNotExist, AttributeError):
                     val = ""
                 price_cells.append(val)
-            
-            categories_names = " | ".join([item[0] for item in product["category"].get("parents")] + [product["category"]["name"], product["title"].split(", ")[-1].capitalize()])
-            
+
+            categories_names = " | ".join(
+                [item[0] for item in product["category"].get("parents")]
+                + [
+                    product["category"]["name"],
+                    product["title"].split(", ")[-1].capitalize(),
+                ]
+            )
+
             # Select product characteristics by characterictic name
             characteristic_values_cells = []
             for item in characteristic_names:
                 try:
-                    value = characteristic_values.get(product=product["id"], characteristic__name=item)[0]
+                    value = characteristic_values.get(
+                        product=product["id"], characteristic__name=item
+                    )[0]
                 except CharacteristicValue.DoesNotExist:
                     value = ""
                 characteristic_values_cells.append(value)
-            
+
             writer.writerow(
                 [
                     product["title"],
                     categories_names,
-                    "SKU", # SKU
+                    "SKU",  # SKU
                     product["description"],
                     *characteristic_values_cells,
                     *price_cells,

@@ -263,15 +263,11 @@ class Promo(TimeBasedModel):
         verbose_name="Название акции",
         max_length=64,
     )
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-        null=True,
+    categories = models.ManyToManyField(
+        Category, verbose_name="Категории в акции", related_name="promos"
     )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        null=True,
+    products = models.ManyToManyField(
+        Product, verbose_name="Товары в акции", related_name="promos"
     )
     image = models.ImageField(
         upload_to="promo/",
@@ -459,8 +455,8 @@ class Setting(TimeBasedModel):
 
 
 class FooterItem(TimeBasedModel):
-    column = models.PositiveSmallIntegerField(_("Номер колнки"))
-    order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер", unique=True)
+    column = models.PositiveSmallIntegerField(_("Номер колонки"))
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер")
     title = models.CharField(max_length=100, verbose_name="Наименование")
     link = models.CharField(verbose_name="Ссылка", blank=True, null=True)
 
@@ -468,6 +464,7 @@ class FooterItem(TimeBasedModel):
         ordering = ["order"]
         verbose_name = "Элемент Footer"
         verbose_name_plural = "Элементы Footer"
+        unique_together = ('column', 'order')
 
     def __str__(self):
         return f"Элемент Footer_{self.title}-{self.id}"

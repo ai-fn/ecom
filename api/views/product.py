@@ -1,17 +1,17 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet 
+from api.mixins import CityPricesMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
 from shop.models import Category, Price, Product
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.db.models import Q, F, Sum
-from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 
 @extend_schema(tags=["Shop"])
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(CityPricesMixin, ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
@@ -30,13 +30,32 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        city_domain = self.request.query_params.get("city_domain")
+        self.domain = self.request.query_params.get("city_domain")
         price_lte = self.request.query_params.get("price_lte")
         price_gte = self.request.query_params.get("price_gte")
         brand_slug = self.request.query_params.get("brand_slug")
         category = self.request.query_params.get("category")
 
         filter_conditions = Q()
+
+        if self.domain or price_gte or price_lte or brand_slug:
+
+            if self.domain:
+
+                price_filter = Q(prices__city__domain=self.domain)
+
+                if price_lte is not None:
+                    price_filter &= Q(prices__price__lte=price_lte)
+                if price_gte is not None:
+                    price_filter &= Q(prices__price__gte=price_gte)
+
+                queryset = queryset.filter(price_filter).annotate(
+                    city_price=F("prices__price"),
+                    old_price=F("prices__old_price"),
+                )
+
+        if brand_slug:
+            filter_conditions &= Q(brand__slug__icontains=brand_slug)
 
         if category:
             categories = [category]
@@ -54,25 +73,6 @@ class ProductViewSet(viewsets.ModelViewSet):
             filter_conditions &= Q(category__slug__in=categories) | Q(
                 additional_categories__slug=category
             )
-
-        if city_domain or price_gte or price_lte or brand_slug:
-
-            if city_domain:
-
-                price_filter = Q(prices__city__domain=city_domain)
-
-                if price_lte is not None:
-                    price_filter &= Q(prices__price__lte=price_lte)
-                if price_gte is not None:
-                    price_filter &= Q(prices__price__gte=price_gte)
-
-                queryset = queryset.filter(price_filter).annotate(
-                    city_price=F("prices__price"),
-                    old_price=F("prices__old_price"),
-                )
-
-            if brand_slug:
-                filter_conditions &= Q(brand__slug__icontains=brand_slug)
 
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
@@ -449,10 +449,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def productdetail(self, request, pk=None):
         product = self.get_object()
-        city_domain = request.query_params.get("city_domain")
-        if city_domain:
+        self.domain = request.query_params.get("city_domain")
+        if self.domain:
             price_data = (
-                Price.objects.filter(product=product, city__domain=city_domain)
+                Price.objects.filter(product=product, city__domain=self.domain)
                 .values("price", "old_price")
                 .first()
             )

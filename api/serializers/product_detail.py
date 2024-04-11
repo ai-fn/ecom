@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from api.mixins import SerializerGetPricesMixin
 from api.serializers import (
     CategorySerializer,
     CharacteristicValueSerializer,
@@ -9,14 +10,10 @@ from api.serializers import BrandSerializer
 from shop.models import Brand, Category, Product
 
 
-class ProductDetailSerializer(serializers.ModelSerializer):
+class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
-    city_price = serializers.DecimalField(
-        max_digits=10, decimal_places=2, required=False, read_only=True
-    )
-    old_price = serializers.DecimalField(
-        max_digits=10, decimal_places=2, required=False, read_only=True
-    )
+    city_price = serializers.SerializerMethodField()
+    old_price = serializers.SerializerMethodField()
     characteristic_values = CharacteristicValueSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(

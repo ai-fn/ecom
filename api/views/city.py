@@ -1,5 +1,6 @@
-from rest_framework import viewsets, response, status
+from rest_framework import response, status
 from rest_framework.decorators import action
+from rest_framework.viewsets import ModelViewSet
 
 from account.models import City
 from api.permissions import ReadOnlyOrAdminPermission
@@ -10,7 +11,7 @@ from django.db.models import Case, When, Value, IntegerField
 
 
 @extend_schema(tags=["City"])
-class CityViewSet(viewsets.ModelViewSet):
+class CityViewSet(ModelViewSet):
     """Возвращает города
     Args:
         viewsets (_type_): _description_

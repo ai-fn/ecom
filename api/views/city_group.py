@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 
 from account.models import CityGroup
 from api.permissions import ReadOnlyOrAdminPermission
@@ -10,7 +10,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 @extend_schema(
     tags=['City']
 )
-class CityGroupViewSet(viewsets.ModelViewSet):
+class CityGroupViewSet(ModelViewSet):
     """Возвращает группы городов
 
     Args:

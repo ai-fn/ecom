@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.category_meta_data import CategoryMetaDataSerializer
 
@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 @extend_schema(
     tags=['Shop']
 )
-class CategoryMetaDataViewSet(viewsets.ModelViewSet):
+class CategoryMetaDataViewSet(ModelViewSet):
     queryset = CategoryMetaData.objects.all().order_by("-created_at")
     serializer_class = CategoryMetaDataSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

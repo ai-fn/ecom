@@ -45,7 +45,7 @@ class CharacteristicValueInline(admin.TabularInline):
 
 
 class PromoInline(admin.TabularInline):
-    model = Promo
+    model = Promo.products.through
     extra = 1
 
 
@@ -183,14 +183,12 @@ class PromoAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "category",
-        "product",
         "image",
         "is_active",
         "active_to",
     )
     list_filter = (
-        "category",
+        "categories",
         "cities",
         "is_active",
         "active_to",
@@ -201,7 +199,7 @@ class PromoAdmin(admin.ModelAdmin):
 class FooterItemAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        # "column",
+        "column",
         "title",
         "link",
         "order",

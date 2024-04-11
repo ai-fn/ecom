@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.review import ReviewSerializer
 from shop.models import Review
@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 @extend_schema(
     tags=['Reviews']
 )
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(ModelViewSet):
     """Возвращает отзывы
 
     Args:

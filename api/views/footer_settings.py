@@ -1,3 +1,4 @@
+from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from api.permissions import ReadOnlyOrAdminPermission
@@ -5,20 +6,22 @@ from api.serializers.footer_settings import (
     FooterItemSerializer,
 )
 from shop.models import FooterItem
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 
 
 @extend_schema(
     tags=["Settings"],
 )
-class FooterItemViewSet(viewsets.ModelViewSet):
+class FooterItemViewSet(ModelViewSet):
     queryset = FooterItem.objects.all()
     serializer_class = FooterItemSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
+    pagination_class = None
 
     @extend_schema(
         summary="Получение списка всех элементов footer",
         description="Эта конечная точка получает список всех элементов footer.",
+        responses={200: FooterItemSerializer()},
         examples=[
             OpenApiExample(
                 "Пример списка всех элементов footer",
@@ -26,33 +29,57 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                 response_only=True,
                 description="Пример списка всех элементов footer",
                 value=[
-                    {
-                        "id": 1,
-                        "order": 1,
-                        "title": "Элемент footer 1",
-                        "link": "http://example.com",
-                        "column": 1,
-                    },
-                    {
-                        "id": 2,
-                        "order": 2,
-                        "title": "Элемент footer 2",
-                        "link": "http://example.com",
-                        "column": 1,
-                    },
-                    {
-                        "id": 3,
-                        "order": 3,
-                        "title": "Элемент footer 3",
-                        "link": "http://example.com",
-                        "column": 1,
-                    },
+                    [
+                        {
+                            "id": 1,
+                            "order": 1,
+                            "title": "Элемент footer 1",
+                            "link": "http://example.com",
+                            "column": 1,
+                        },
+                        {
+                            "id": 2,
+                            "order": 2,
+                            "title": "Элемент footer 2",
+                            "link": "http://example.com",
+                            "column": 1,
+                        },
+                        {
+                            "id": 3,
+                            "order": 3,
+                            "title": "Элемент footer 3",
+                            "link": "http://example.com",
+                            "column": 1,
+                        },
+                    ],
+                    [
+                        {
+                            "id": 1,
+                            "order": 1,
+                            "title": "Элемент footer 1",
+                            "link": "http://example.com",
+                            "column": 2,
+                        },
+                        {
+                            "id": 2,
+                            "order": 2,
+                            "title": "Элемент footer 2",
+                            "link": "http://example.com",
+                            "column": 2,
+                        },
+                    ]
                 ],
             )
         ],
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        queryset = self.get_queryset().order_by("column", "order")
+        grouped_footer_items = [
+            self.serializer_class(queryset.filter(column=column), many=True).data
+            for column in set(queryset.values_list("column", flat=True))
+        ]
+
+        return Response(grouped_footer_items)
 
     @extend_schema(
         summary="Получение конкретного элемента footer",
@@ -104,7 +131,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "column": 1,
                 },
                 response_only=True,
-            )
+            ),
         ],
     )
     def create(self, request, *args, **kwargs):
@@ -138,7 +165,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                     "column": 1,
                 },
                 response_only=True,
-            )
+            ),
         ],
     )
     def update(self, request, *args, **kwargs):
@@ -182,7 +209,7 @@ class FooterItemViewSet(viewsets.ModelViewSet):
                 summary="Пример удаления конкретного элемента footer",
                 description="Пример удаления конкретного элемента footer",
                 value=None,
-                request_only=True
+                request_only=True,
             )
         ],
     )

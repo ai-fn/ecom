@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.category import CategorySerializer
@@ -14,14 +14,15 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 @extend_schema(
     tags=['Shop']
 )
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
-        if self.action in ["retrieve"]:
+        if self.action in ["retrieve", "popular_categories"]:
             return CategoryDetailSerializer
+        
         return super().get_serializer_class()
     
     def get_permissions(self):
