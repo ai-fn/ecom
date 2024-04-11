@@ -110,6 +110,10 @@ func processCSVData(db *gorm.DB, filePath string, uploadType string) ([]string, 
 
 func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) error {
 
+	colNms := make(map[string]int, 0)
+	cityCols := make([]string, 0)
+	chrCols := Columns{cols: []string{}}
+
 	defer func() {
 		fmt.Println(db.Error)
 	}()
@@ -132,18 +136,17 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 
 	// Iterate over each sheet in the XLSX file
 	for _, sheet := range xlFile.Sheets {
-		colNms := make(map[string]int, 0)
-		chrCols := Columns{cols: []string{}}
-		cityCols := make([]string, 0)
 		chrIdx := 0
 		cityIdx := 0
 
 		// Process column names
 		var cellVal string
+		fmt.Println(ignoredColumns.cols)
 		for cIdx, cell := range sheet.Rows[0].Cells {
 			cellVal = cell.String()
 			colNms[cellVal] = cIdx
 
+			fmt.Printf("Ingnored columns contains %s: %s\n\n", cellVal, ignoredColumns.Contains(cellVal))
 			if !ignoredColumns.Contains(cellVal) {
 
 				// Select city and characteristic columns
@@ -231,7 +234,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 			fmt.Println()
 
 			// Commit transaction if no errors occurred
-			fmt.Println(prod)
+			// fmt.Println(prod)
 
 			// if err = db.Commit().Error; err != nil {
 			// 	fmt.Println(err)
@@ -239,6 +242,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 			// }
 		}
 	}
+	// print(cityCols, chrCols.cols)
 	return nil
 }
 
@@ -364,31 +368,34 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVall string, colName s
 }
 
 func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, cell *xlsx.Cell, charsCols []string) {
-	var char models.Characteristic
-	var charVal models.CharacteristicValue
-	for _, charCol := range charsCols {
 
-		if tx.Where(&models.Characteristic{Name: charCol, CategoryID: ctgId}).RecordNotFound() {
+	for _, charCol := range charsCols {
+		var char *models.Characteristic
+		var charVal *models.CharacteristicValue
+
+		if tx.Where(&models.Characteristic{Name: charCol, CategoryID: ctgId}).First(&char).RecordNotFound() {
 			// If the record doesn't exist, create it
-			char = models.Characteristic{Name: charCol, CategoryID: ctgId}
-			if err := tx.Create(&char).Error; err != nil {
+			newChar := models.Characteristic{Name: charCol, CategoryID: ctgId}
+			if err := tx.Create(&newChar).Error; err != nil {
 				// Print error and return
 				fmt.Println("Error creating product:", err)
 			}
 
+			*char = newChar
 			fmt.Printf("Char with name %s for prod %d created\n", char.Name, prod.ID)
 		} else {
 			fmt.Printf("Found char with name %s\n", char.Name)
 		}
 
-		if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}).RecordNotFound() {
+		if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}).First(&charVal).RecordNotFound() {
 			// If the record doesn't exist, create it
-			charVal = models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}
-			if err := tx.Create(&charVal).Error; err != nil {
+			newCharVal := models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}
+			if err := tx.Create(&newCharVal).Error; err != nil {
 				// Print error and return
 				fmt.Println("Error creating product:", err)
 			}
 
+			*charVal = newCharVal
 			fmt.Printf("Char val with value %s for prod %d created\n", charVal.Value, prod.ID)
 		} else {
 			// If the record exists, update it
@@ -423,12 +430,23 @@ func processImages(prod *models.Product, tx *gorm.DB, cell string) {
 	}
 }
 
-func (cols *Columns) Contains(v string) bool {
-	idx := sort.Search(len(cols.cols), func(i int) bool {
-		return cols.cols[i] >= v
-	})
+func (cols *Columns) Contains(el string) bool {
+	low := 0
+	slice := cols.cols
+	high := len(slice) - 1
 
-	return idx < len(cols.cols) && cols.cols[idx] == v
+	for low <= high {
+		mid := (low + high) / 2
+		if slice[mid] == el {
+			return true
+		} else if slice[mid] < el {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+
+	return false
 }
 
 // Calculate left and right boundaries for the new node
