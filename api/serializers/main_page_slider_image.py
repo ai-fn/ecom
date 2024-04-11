@@ -11,4 +11,4 @@ class MainPageSliderImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'order', 'link', 'title', "description",  'button_text', "image"]
     
     def get_image(self, obj) -> str | None:
-        return obj.image.url if obj.url else None
+        return obj.image.url if obj.image else None
