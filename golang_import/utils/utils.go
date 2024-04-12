@@ -54,7 +54,7 @@ func getSize(imgType string) ([]uint, error) {
 	return nil, fmt.Errorf("provided wrong image type: %s", imgType)
 }
 
-func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []string) {
+func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []string) error {
 	var catalogPath = os.Getenv("CATALOG_PATH")
 	if catalogPath == "" {
 		catalogPath = "catalog/products/"
@@ -63,7 +63,7 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Fatalf("error while read response body: %s", err.Error())
-		panic(err)
+		return err
 	}
 
 	format := filepath.Ext(r.Request.URL.Path)
@@ -79,7 +79,7 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 
 		if err = os.MkdirAll(baseMediaPath+catalogPath, os.ModePerm); err != nil {
 			log.Fatalf("error while make media dirs: %s", err.Error())
-			panic(err)
+			return err
 		}
 	}
 
@@ -105,7 +105,7 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 	if err != nil {
 		log.Fatalf("error while image decode: %s", err)
 		fmt.Println(err.Error())
-		panic(err)
+		return err
 	}
 
 	for _, imgType := range imgTypes {
@@ -144,15 +144,15 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 			fmt.Println(err.Error())
 			continue
 		}
-		fmt.Println(prod.ID)
 
-		fmt.Printf("Image saved to %s", baseMediaPath+catalogPath+flName+".webp")
-		fmt.Println()
+		fmt.Printf("Image saved to %s", baseMediaPath+catalogPath+flName+".webp\n")
 		webpBuffer.Reset()
+		if err := tx.Create(&models.ProductImage{Image: catalogPath + flName + ".webp", ProductID: prod.ID}).Error; err != nil {
+			return err
+		}
 	}
-	if err := tx.Create(&models.ProductImage{Image: catalogPath + fileName + ".wepb", ProductID: prod.ID}); err != nil {
-		panic(err)
-	}
+
+	return nil
 }
 
 func WatermarkImg(origImg image.Image, wtmrkPath string) error {
@@ -201,7 +201,6 @@ func WatermarkImg(origImg image.Image, wtmrkPath string) error {
 	}
 
 	position := image.Pt(origBounds.Dx()-wtrmkBounds.Dx()-margin, origBounds.Dy()-wtrmkBounds.Dy()-margin)
-	fmt.Println(origBounds.Dx(), origBounds.Dy(), wtrmkBounds.Dx(), wtrmkBounds.Dy())
 
 	// Draw watermark onto the original image
 	draw.DrawMask(origImg.(draw.Image), wtrmkBounds.Add(position), wtrmkImg, image.Point{}, mask, image.Point{}, draw.Over)
@@ -241,6 +240,5 @@ func CalculateLevel(parent *models.Category) int {
 	}
 
 	// Recursively calculate the level of the parent node
-	fmt.Println(parent, parent.Parent)
 	return CalculateLevel(parent.Parent) + 1
 }

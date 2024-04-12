@@ -7,6 +7,9 @@ services:
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    env_file:
+      - .env
+
   cache:
     image: redis:7.0.4
     restart: always
@@ -14,21 +17,18 @@ services:
       - ./data/cache:/data
   
   golang:
-    image: golang:1.22.2-alpine
+    build:
+        context: .
+        dockerfile: go.Dockerfile
     volumes:
-      - ./golang_import:/code/golang_import
-      - ./media:/code/media
-      - ./watermarks:/code/watermarks
+      - .:/code
     depends_on:
       - db
-    build:
-      context: .
-      dockerfile: Dockerfile-go
     environment:
       - POSTGRES_HOST=db
     env_file:
-      - .env.dist
-
+      - .env
+  
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000

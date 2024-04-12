@@ -59,13 +59,11 @@ func main() {
 
 	fmt.Println("Successfully connect to database!")
 
-	res, err := processCSVData(tx, "output.xlsx", "PRODUCTS")
+	_, err = processCSVData(tx, "output.xlsx", "PRODUCTS")
 	if err != nil {
 		fmt.Printf("Error while processing csv data: %s", err.Error())
 		return
 	}
-
-	fmt.Println(res)
 }
 
 func processCSVData(db *gorm.DB, filePath string, uploadType string) ([]string, error) {
@@ -104,7 +102,7 @@ func processCSVData(db *gorm.DB, filePath string, uploadType string) ([]string, 
 	default:
 		return nil, fmt.Errorf("unknown upload type: %s, End time: %.9f", uploadType, time.Since(startTime).Seconds())
 	}
-	fmt.Printf("CSV data prodcessed in %.9fs.", time.Since(startTime).Seconds())
+	fmt.Printf("CSV data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
 	return failedImages, nil
 }
 
@@ -121,17 +119,22 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 	xlFile, err := xlsx.OpenFile(fmt.Sprintf("../media/tmp/%s", filePath))
 	if err != nil {
 		log.Fatalf("Error opening XLSX file: %s\n", err)
-		db.Rollback()
 		return err
 	}
 	ctNms := &Columns{
 		cols: []string{},
 	}
 
+	// Select cities from db
 	var cities []models.City
 	result := db.Find(&cities)
 	if result.Error != nil {
 		return fmt.Errorf("failed to get cities: " + result.Error.Error())
+	}
+
+	// Insert city names into slice
+	for _, c := range cities {
+		ctNms.cols = append(ctNms.cols, c.Name)
 	}
 
 	// Iterate over each sheet in the XLSX file
@@ -141,12 +144,10 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 
 		// Process column names
 		var cellVal string
-		fmt.Println(ignoredColumns.cols)
 		for cIdx, cell := range sheet.Rows[0].Cells {
 			cellVal = cell.String()
 			colNms[cellVal] = cIdx
 
-			fmt.Printf("Ingnored columns contains %s: %s\n\n", cellVal, ignoredColumns.Contains(cellVal))
 			if !ignoredColumns.Contains(cellVal) {
 
 				// Select city and characteristic columns
@@ -171,78 +172,47 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 		var colName string
 
 		for _, row := range sheet.Rows[1:] {
-			var idx int
-			var prod models.Product
-			var ctg models.Category
-			var prntCtg models.Category
-
-			// tx = db.Begin()
-			// if tx.Error != nil {
-			// 	log.Fatalf("Failed to begin transaction: %v", tx.Error)
-			// }
-
-			// defer tx.Rollback()
-			// defer func() {
-			// 	if r := recover(); r != nil {
-			// 		// Rollback the transaction in case of panic
-			// 		tx.Rollback()
-			// 		log.Fatalf("Transaction rolled back due to panic: %v", r)
-			// 	} else if err := tx.Error; err != nil {
-			// 		// Rollback the transaction if an error occurred
-			// 		tx.Rollback()
-			// 		log.Fatalf("Transaction rolled back due to error: %v", err)
-			// 	} else {
-			// 		// Commit the transaction if no errors occurred
-			// 		tx.Commit()
-			// 		fmt.Println("Transaction committed successfully.")
-			// 	}
-			// }()
+			idx := 0
+			prod := models.Product{}
+			ctg := models.Category{}
+			prntCtg := models.Category{}
 
 			idx = colNms["CATEGORIES"]
 
-			// Process categories
-			processCategories(db, row.Cells[idx].String(), &ctg, &prntCtg)
-			idx = colNms["TITLE"]
+			// Initializer Transaction
+			db.Transaction(func(tx *gorm.DB) error {
 
-			processProduct(db, row.Cells[idx].String(), &prod, &ctg)
-
-			idx = colNms["PRIORITY"]
-			processPriority(row.Cells[idx].String(), &prod)
-
-			// idx = colNms["IMAGES"]
-			// processImages(&prod, db, row.Cells[idx].String())
-
-			// Process row's cells
-			for idx, cell := range row.Cells {
-				colName = sheet.Rows[0].Cells[idx].String()
-				cellVal = cell.String()
-
-				// Continue if cell is empty
-				if cellVal == "" {
-					continue
+				var err error
+				// Process categories
+				if err = processCategories(db, row.Cells[idx].String(), &ctg, &prntCtg); err != nil {
+					return nil
 				}
+				idx = colNms["TITLE"]
 
-				if chrCols.Contains(colName) {
-					processCharacteristics(ctg.ID, &prod, db, cell, chrCols.cols)
-				} else if ctNms.Contains(colName) {
-					processPrices(&prod, db, cellVal, colName, cities)
-				} else {
-					fmt.Printf("unexpected column name: %s Continue...\n", colName)
-					continue
+				processProduct(db, row.Cells[idx].String(), &prod, &ctg)
+
+				idx = colNms["PRIORITY"]
+				processPriority(row.Cells[idx].String(), &prod)
+
+				idx = colNms["IMAGES"]
+				processImages(&prod, db, row.Cells[idx].String())
+
+				// Process row's cells
+				for _, colName := range chrCols.cols {
+					if err = processCharacteristics(ctg.ID, &prod, db, row.Cells[colNms[colName]], colName); err != nil {
+						return err
+					}
 				}
-			}
-			fmt.Println()
-
-			// Commit transaction if no errors occurred
-			// fmt.Println(prod)
-
-			// if err = db.Commit().Error; err != nil {
-			// 	fmt.Println(err)
-			// 	return err
-			// }
+				for _, colName = range cityCols {
+					if err = processPrices(&prod, db, row.Cells[colNms[colName]].String(), colName, cities); err != nil {
+						return err
+					}
+				}
+				return nil
+			})
+			fmt.Printf("Product %s created\n", prod.Title)
 		}
 	}
-	// print(cityCols, chrCols.cols)
 	return nil
 }
 
@@ -260,155 +230,150 @@ func processPriority(cellVal string, prod *models.Product) {
 	prod.Priority = int(priority)
 }
 
-func processProduct(tx *gorm.DB, cellVal string, prod *models.Product, ctg *models.Category) {
+func processProduct(tx *gorm.DB, cellVal string, prod *models.Product, ctg *models.Category) error {
 	if tx.Where(&models.Product{Title: cellVal}).First(&prod).RecordNotFound() {
 		newProd := models.Product{Title: cellVal, Slug: slug.Make(cellVal), CategoryID: ctg.ID, BrandID: nil}
 		if err := tx.Create(&newProd).Error; err != nil {
 			// Print error and return
-			fmt.Println("Error creating product:", err)
+			return err
 		}
-
 		*prod = newProd
-	} else {
-		fmt.Printf("Product with title %s found\n", prod.Title)
 	}
+	return nil
 }
 
-func processCategories(tx *gorm.DB, cellVal string, ctg, parentCategory *models.Category) {
+func processCategories(tx *gorm.DB, cellVal string, ctg, parentCategory *models.Category) error {
 	catNames := strings.Split(cellVal, " | ")
 
+	var parentID *uint // Initialize parentID pointer
 	for _, catName := range catNames {
 
-		*parentCategory = *ctg
 		var category models.Category
 		// Check if the category already exists
 		if tx.Where(&models.Category{Name: catName}).First(&category).RecordNotFound() {
 			// If the category doesn't exist, create it
-			newCategory := models.Category{Name: catName, Slug: slug.Make(catName), ParentID: &parentCategory.ID}
+			newCategory := models.Category{Name: catName, Slug: slug.Make(catName), ParentID: parentID}
+
+			// Create the category
+			if err := tx.Create(&newCategory).Error; err != nil {
+
+				fmt.Println("Error creating category:", err)
+				return err
+			}
 
 			// Calculate left and right boundaries
 			newCategory.Left, newCategory.Right = calculateBoundaries(tx, parentCategory)
 
-			// Calculate the level of the category
-			// category.Level = utils.CalculateLevel(category.Parent)
-
-			// Set the tree ID (assuming it's always 1)
+			// Calculate the level of the category and set treeID
+			newCategory.Level = utils.CalculateLevel(newCategory.Parent)
 			newCategory.TreeID = 1
 
-			// Create the category
-
-			fmt.Printf("Category %s created\n%s", ctg.Name, tx.Error)
-			if err := tx.Create(&newCategory).Error; err != nil {
-				// Print error and return
-				fmt.Println("Error creating product:", err)
-				// tx.Rollback()
-				// panic(err)
+			if err := tx.Save(&newCategory).Error; err != nil {
+				fmt.Println(err)
+				return err
 			}
 
+			// Update last checked category
 			*ctg = newCategory
 
 		} else {
+			// Update last checked category
 			*ctg = category
-			if parentCategory.ID != 0 && ctg.Parent != parentCategory {
-				ctg.Parent = parentCategory
-			}
-
-			fmt.Printf("Category found: %s\n", ctg.Name)
-
-			// if err := tx.Save(&ctg).Error; err != nil {
-			// 	fmt.Println("Error saving product:", err)
-			// 	tx.Rollback()
-			// 	panic(err)
-			// }
 		}
+		// Update parent category id
+		parentID = &ctg.ID
+		// if parentCategory != nil {
+		// 	parentCategory.Children = append(parentCategory.Children, ctg)
+		// 	ctg.Parent = parentCategory
+		// 	if err := tx.Save(&ctg).Error; err != nil {
+		// 		log.Fatal(err)
+		// 		return err
+		// 	}
+		// }
 	}
-	// Return the last processed category
+	return nil
 }
 
-func processPrices(prod *models.Product, tx *gorm.DB, cellVall string, colName string, cities []models.City) {
+func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName string, cities []models.City) error {
 	var city models.City
 	var price models.Price
 	var err error
 
-	idx := sort.Search(len(cities), func(i int) bool {
-		return cities[i].Name >= colName
-	})
-
-	if !(idx < len(cities) && cities[idx].Name == colName) {
-		fmt.Printf("city with name %s not found", colName)
-		return
+	priceVal, err := strconv.ParseFloat(cellVal, 64)
+	if err != nil {
+		log.Fatalf("error while setting new price: %s", err.Error())
+		return err
 	}
 
-	city = cities[idx]
+	if find, err := findByField(cities, "Name", colName); err != nil {
+		fmt.Println("City not found: ", colName)
+		return err
+	} else {
+		city = find.(models.City)
+	}
 
 	if tx.Where(&models.Price{CityID: city.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
-		price = models.Price{CityID: city.ID, ProductID: prod.ID}
-		if err := tx.Create(&price).Error; err != nil {
+		newPrice := models.Price{CityID: city.ID, ProductID: prod.ID, Price: priceVal}
+		if err := tx.Create(&newPrice).Error; err != nil {
 			// Print error and return
-			fmt.Println("Error creating product:", err)
+			fmt.Println("Error creating price:", err)
+			return err
 		}
 
-		fmt.Printf("Price for prod %d created\n", prod.ID)
 	} else {
 		// Price already exist
 		// Set new price and old price
-		*price.OldPrice = price.Price
-		price.Price, err = strconv.ParseFloat(cellVall, 64)
-		if err != nil {
-			log.Fatalf("error while set new price: %s", err.Error())
-			return
-		}
+		price.OldPrice = &price.Price
+		price.Price = priceVal
 
 		if err = tx.Save(&price).Error; err != nil {
 			fmt.Println(err)
-		}
-
-		fmt.Printf("Price for prod %d updated\n", prod.ID)
-	}
-}
-
-func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, cell *xlsx.Cell, charsCols []string) {
-
-	for _, charCol := range charsCols {
-		var char *models.Characteristic
-		var charVal *models.CharacteristicValue
-
-		if tx.Where(&models.Characteristic{Name: charCol, CategoryID: ctgId}).First(&char).RecordNotFound() {
-			// If the record doesn't exist, create it
-			newChar := models.Characteristic{Name: charCol, CategoryID: ctgId}
-			if err := tx.Create(&newChar).Error; err != nil {
-				// Print error and return
-				fmt.Println("Error creating product:", err)
-			}
-
-			*char = newChar
-			fmt.Printf("Char with name %s for prod %d created\n", char.Name, prod.ID)
-		} else {
-			fmt.Printf("Found char with name %s\n", char.Name)
-		}
-
-		if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}).First(&charVal).RecordNotFound() {
-			// If the record doesn't exist, create it
-			newCharVal := models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}
-			if err := tx.Create(&newCharVal).Error; err != nil {
-				// Print error and return
-				fmt.Println("Error creating product:", err)
-			}
-
-			*charVal = newCharVal
-			fmt.Printf("Char val with value %s for prod %d created\n", charVal.Value, prod.ID)
-		} else {
-			// If the record exists, update it
-			charVal.Value = cell.String()
-			fmt.Printf("Char val with value %s for prod %d founded\n", charVal.Value, prod.ID)
-			if err := tx.Save(&charVal).Error; err != nil {
-				fmt.Println(err)
-			}
+			return err
 		}
 	}
+	return nil
 }
 
-func processImages(prod *models.Product, tx *gorm.DB, cell string) {
+func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, cell *xlsx.Cell, charCol string) error {
+
+	char := &models.Characteristic{}
+	charVal := &models.CharacteristicValue{}
+	val := cell.String()
+
+	if tx.Where(&models.Characteristic{Name: charCol}).First(&char).RecordNotFound() {
+		// If the record doesn't exist, create it
+		newChar := models.Characteristic{Name: charCol, CategoryID: ctgId}
+		if err := tx.Create(&newChar).Error; err != nil {
+			// Print error and return
+			fmt.Println("Error creating characteristic:", err, "\n", newChar, "\n", char, "\n", prod, "CATEGORY ID: -------  ", ctgId)
+			return err
+		}
+
+		*char = newChar
+	}
+
+	if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}).First(&charVal).RecordNotFound() {
+		// If the record doesn't exist, create it
+		newCharVal := models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID, Value: val}
+		if err := tx.Create(&newCharVal).Error; err != nil {
+			// Print error and return
+			fmt.Println("Error creating characteristic value:", err)
+			return err
+		}
+
+		*charVal = newCharVal
+	} else {
+		// If the record exists, update it
+		charVal.Value = cell.String()
+		if err := tx.Save(charVal).Error; err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func processImages(prod *models.Product, tx *gorm.DB, cell string) error {
 	imgs := strings.Split(cell, ",")
 
 	if len(imgs) > 0 {
@@ -422,15 +387,22 @@ func processImages(prod *models.Product, tx *gorm.DB, cell string) {
 			defer response.Body.Close()
 
 			if idx == 0 {
-				utils.SaveImages(prod, tx, response, []string{"WATERMARK", "CATALOG", "SEARCH"})
+				if err := utils.SaveImages(prod, tx, response, []string{"WATERMARK", "CATALOG", "SEARCH"}); err != nil {
+					return err
+				}
 			} else {
-				utils.SaveImages(prod, tx, response, []string{"WATERMARK"})
+				if err := utils.SaveImages(prod, tx, response, []string{"WATERMARK"}); err != nil {
+					return err
+				}
 			}
 		}
 	}
+	return nil
 }
 
 func (cols *Columns) Contains(el string) bool {
+	sort.Strings(cols.cols)
+
 	low := 0
 	slice := cols.cols
 	high := len(slice) - 1
@@ -449,13 +421,38 @@ func (cols *Columns) Contains(el string) bool {
 	return false
 }
 
+// findByField finds an element in the slice of any structs by the provided field value.
+func findByField(slice interface{}, field string, value interface{}) (interface{}, error) {
+	sliceValue := reflect.ValueOf(slice)
+	if sliceValue.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("findByField: kind %s not a slice", sliceValue.Kind())
+	}
+
+	for i := 0; i < sliceValue.Len(); i++ {
+		item := sliceValue.Index(i)
+		if item.Kind() != reflect.Struct {
+			return nil, fmt.Errorf("findByField: not a slice of structs")
+		}
+
+		fieldValue := item.FieldByName(field)
+		if !fieldValue.IsValid() {
+			continue
+		}
+
+		if reflect.DeepEqual(fieldValue.Interface(), value) {
+			return item.Interface(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("value %s not found in provided slice", value)
+}
+
 // Calculate left and right boundaries for the new node
 func calculateBoundaries(db *gorm.DB, parent *models.Category) (int, int) {
 	if parent == nil {
 		// If the node has no parent, set lft to 1 and rght to 2
 		return 1, 2
 	}
-	fmt.Println("calculate boundaries")
 
 	// Find the maximum right boundary of the parent's children
 	maxRght := db.Model(&models.Category{}).
@@ -473,6 +470,5 @@ func calculateBoundaries(db *gorm.DB, parent *models.Category) (int, int) {
 	lft := maxRghtValue + 1
 	// Set rght to lft + 1
 	rght := lft + 1
-
 	return lft, rght
 }
