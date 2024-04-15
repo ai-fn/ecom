@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -232,13 +233,55 @@ func parseInt(s string) (int, error) {
 	return result, nil
 }
 
-// Calculate level for the new node
-func CalculateLevel(parent *models.Category) int {
-	if parent == nil {
-		// If the node has no parent, its level is 0
-		return 0
+// findByField finds an element in the slice of any structs by the provided field value.
+func FindByField(slice interface{}, field string, value interface{}) (interface{}, error) {
+	sliceValue := reflect.ValueOf(slice)
+	if sliceValue.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("findByField: kind %s not a slice", sliceValue.Kind())
 	}
 
-	// Recursively calculate the level of the parent node
-	return CalculateLevel(parent.Parent) + 1
+	for i := 0; i < sliceValue.Len(); i++ {
+		item := sliceValue.Index(i)
+		if item.Kind() != reflect.Struct {
+			return nil, fmt.Errorf("findByField: not a slice of structs")
+		}
+
+		fieldValue := item.FieldByName(field)
+		if !fieldValue.IsValid() {
+			continue
+		}
+
+		if reflect.DeepEqual(fieldValue.Interface(), value) {
+			return item.Interface(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("value %s not found in provided slice", value)
+}
+
+// Calculate left and right boundaries for the new node
+func CalculateBoundaries(db *gorm.DB, prntID *uint) (int, int) {
+	if prntID == nil || (*prntID) == 0 {
+		// If the node has no parent, set lft to 1 and rght to 2
+		return 1, 2
+	}
+
+	// Find the maximum right boundary of the parent's children
+	maxRght := db.Model(&models.Category{}).
+		Where("parent_id = ?", prntID).
+		Select("MAX(rght)").
+		Row()
+
+	var maxRghtValue int
+	if err := maxRght.Scan(&maxRghtValue); err != nil {
+		// Handle error
+		log.Fatalf(err.Error())
+		return 0, 0
+	}
+
+	// Set lft to the maximum right boundary of the parent's children
+	lft := maxRghtValue + 1
+	// Set rght to lft + 1
+	rght := lft + 1
+	return lft, rght
 }

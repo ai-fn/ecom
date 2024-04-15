@@ -28,6 +28,8 @@ services:
       - POSTGRES_HOST=db
     env_file:
       - .env
+    ports:
+      - "8080:8080"
   
   web:
     build: .

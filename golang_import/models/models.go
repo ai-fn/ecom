@@ -1,10 +1,37 @@
 package models
 
 import (
+	"slices"
 	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
+
+type Columns struct {
+	Cols []string
+}
+
+type Login struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type CustomUser struct {
+	CustomModel
+	Username   string `gorm:"column:username;unique"`
+	Email      string `gorm:"column:email;unique"`
+	Password   string `gorm:"column:password"`
+	Phone      string `gorm:"column:phone;unique"`
+	CityID     uint   `gorm:"column:city_id"`
+	City       City   `gorm:"foreignkey:CityID"`
+	Region     string `gorm:"column:region"`
+	District   string `gorm:"column:district"`
+	CityName   string `gorm:"column:city_name"`
+	Street     string `gorm:"column:street"`
+	House      string `gorm:"column:house"`
+	IsCustomer bool   `gorm:"column:is_customer"`
+	MiddleName string `gorm:"column:middle_name"`
+}
 
 type CustomModel struct {
 	ID        uint `gorm:"primary_key"`
@@ -139,4 +166,29 @@ func (CharacteristicValue) TableName() string {
 
 func (City) TableName() string {
 	return "account_city"
+}
+
+func (CustomUser) TableName() string {
+	return "account_customuser"
+}
+
+func (cols *Columns) Contains(el string) bool {
+	slices.Sort(cols.Cols)
+
+	low := 0
+	slice := cols.Cols
+	high := len(slice) - 1
+
+	for low <= high {
+		mid := (low + high) / 2
+		if slice[mid] == el {
+			return true
+		} else if slice[mid] < el {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+
+	return false
 }

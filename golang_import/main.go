@@ -1,17 +1,23 @@
 package main
 
 import (
+	"auth"
+	"bytes"
 	"fmt"
 	"log"
 	"models"
 	"net/http"
 	"os"
+	"path/filepath"
 	"reflect"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
 	"utils"
+
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/gosimple/slug"
 	"github.com/jinzhu/gorm"
@@ -20,53 +26,27 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-type Columns struct {
-	cols []string
-}
+var db *gorm.DB
 
-func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-		return
-	}
-
+func init() {
+	var err error
 	dbHost := os.Getenv("POSTGRES_HOST")
 	dbName := os.Getenv("POSTGRES_DB")
 	dbUser := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	connStr := fmt.Sprintf("host=%s port=5432 user=%s dbname=%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword)
 
-	db, err := gorm.Open("postgres", connStr)
+	db, err = gorm.Open("postgres", connStr)
 	if err != nil {
-		fmt.Println("Failed to connect to database!", err.Error())
-		panic("Failed to connect to database")
-	}
-
-	tx := db.Begin()
-
-	defer func() {
-		if err := tx.Commit().Error; err != nil {
-			fmt.Println(err)
-			tx.Rollback()
-		}
-		if db.Error != nil {
-			log.Fatalf(db.Error.Error())
-			db.Rollback()
-		}
-		db.Close()
-	}()
-
-	fmt.Println("Successfully connect to database!")
-
-	_, err = processCSVData(tx, "output.xlsx", "PRODUCTS")
-	if err != nil {
-		fmt.Printf("Error while processing csv data: %s", err.Error())
+		msg := "Failed to connect to database!"
+		fmt.Println(msg, err.Error())
+		log.Fatal(err.Error())
 		return
 	}
-}
 
-func processCSVData(db *gorm.DB, filePath string, uploadType string) ([]string, error) {
+	fmt.Println("Successfully connect to database!")
+	fmt.Println(db)
+
 	for _, model := range []interface{}{
 		&models.City{},
 		&models.Characteristic{},
@@ -77,52 +57,131 @@ func processCSVData(db *gorm.DB, filePath string, uploadType string) ([]string, 
 		&models.ProductImage{},
 	} {
 		if !db.HasTable(model) {
-			panic(fmt.Sprintf("Table for model %s does not exist", reflect.TypeOf(model).Elem().Name()))
+			msg := fmt.Sprintf("Table for model %s does not exist", reflect.TypeOf(model).Elem().Name())
+			log.Fatal(msg)
+			return
 		}
 	}
 
-	// Parse CSV data and process accordingly based on uploadType
-	var ignoredColumns = Columns{
-		cols: []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY"},
+}
+
+// TODO need to fix children categories and (lft, rght, lvl)
+func main() {
+	fmt.Println("Initializing golang server...")
+	router := gin.Default()
+
+	authGroup := router.Group("/api/upload")
+
+	authGroup.Use(auth.AuthMiddleware(db))
+
+	authGroup.PUT("/:filename", processCSVData)
+
+	// Swagger handler
+	router.GET("/api/swagger", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Start server
+	router.Run(":8080")
+	fmt.Println("Golang server started")
+}
+
+func processCSVData(c *gin.Context) {
+	filename := c.Param("filename")
+
+	// Create a bytes buffer to store the file content
+	var buf bytes.Buffer
+
+	// Read content from the request body into the buffer
+	_, err := buf.ReadFrom(c.Request.Body)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Internal server error. Unable to read file content." + err.Error()})
+		return
 	}
-	var failedImages []string
+
+	// Retrieve upload type from query parameters
+	uploadType := c.Query("type")
+
+	// Process the file object and upload type as needed
+	// In this example, we're just printing them out
+
+	tmpDir := "../media/tmp"
+	if err = os.MkdirAll(tmpDir, os.ModePerm); err != nil {
+		c.JSON(500, gin.H{"error": "Internal server error. Unable to create directory."})
+		return
+	}
+	flPth := filepath.Join(tmpDir, filename)
+	out, err := os.Create(flPth)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Internal server error. Unable to create file."})
+		return
+	}
+
+	defer out.Close()
+
+	_, err = buf.WriteTo(out)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Internal server error. Unable to save file." + err.Error()})
+		return
+	}
+
+	err = godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", err)
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// Parse CSV data and process accordingly based on uploadType
+	var ignoredColumns = &models.Columns{
+		Cols: []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY"},
+	}
 
 	var startTime = time.Now()
 	switch uploadType {
 	case "PRODUCTS":
-		err := productsProcess(db, filePath, &ignoredColumns)
-		if err != nil {
-			return nil, err
-		}
+		go func() {
+			c.String(200, "Products process started")
+			err := productsProcess(db, flPth, ignoredColumns)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			fmt.Printf("XLSX data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
+		}()
 
 	case "BRANDS":
-		fmt.Println("BRAND data process")
-		// Process brand data
-		// Your logic for processing brands here
+		go func() {
+			fmt.Println("BRAND data process")
+			// Process brand data
+			// Your logic for processing brands here
+			fmt.Printf("BRAND data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
+		}()
 	default:
-		return nil, fmt.Errorf("unknown upload type: %s, End time: %.9f", uploadType, time.Since(startTime).Seconds())
+		c.String(500, fmt.Sprintf("unknown upload type: %s", uploadType))
 	}
-	fmt.Printf("CSV data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
-	return failedImages, nil
 }
 
-func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) error {
+func productsProcess(db *gorm.DB, filePath string, ignoredColumns *models.Columns) error {
 
 	colNms := make(map[string]int, 0)
 	cityCols := make([]string, 0)
-	chrCols := Columns{cols: []string{}}
+	chrCols := models.Columns{Cols: []string{}}
 
-	defer func() {
-		fmt.Println(db.Error)
-	}()
-
-	xlFile, err := xlsx.OpenFile(fmt.Sprintf("../media/tmp/%s", filePath))
+	xlFile, err := xlsx.OpenFile(filePath)
 	if err != nil {
 		log.Fatalf("Error opening XLSX file: %s\n", err)
 		return err
 	}
-	ctNms := &Columns{
-		cols: []string{},
+	defer func() {
+		fmt.Println("Products processed, remove tmp file")
+		if err := os.Remove(filePath); err == nil {
+			fmt.Println("tmp file successfully deleted")
+		}
+	}()
+
+	ctNms := &models.Columns{
+		Cols: []string{},
 	}
 
 	// Select cities from db
@@ -134,7 +193,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 
 	// Insert city names into slice
 	for _, c := range cities {
-		ctNms.cols = append(ctNms.cols, c.Name)
+		ctNms.Cols = append(ctNms.Cols, c.Name)
 	}
 
 	// Iterate over each sheet in the XLSX file
@@ -155,13 +214,13 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 					cityCols = append(cityCols, cellVal)
 					cityIdx++
 				} else {
-					chrCols.cols = append(chrCols.cols, cellVal)
+					chrCols.Cols = append(chrCols.Cols, cellVal)
 					chrIdx++
 				}
 			}
 		}
 
-		for _, el := range ignoredColumns.cols {
+		for _, el := range ignoredColumns.Cols {
 			if _, ok := colNms[el]; !ok {
 				fmt.Println(el, ok)
 				return fmt.Errorf("не все обязательные поля найдены в документе")
@@ -170,12 +229,10 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 
 		// Iterate over each row, start from second, in the sheet
 		var colName string
-
 		for _, row := range sheet.Rows[1:] {
 			idx := 0
 			prod := models.Product{}
 			ctg := models.Category{}
-			prntCtg := models.Category{}
 
 			idx = colNms["CATEGORIES"]
 
@@ -184,11 +241,11 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 
 				var err error
 				// Process categories
-				if err = processCategories(db, row.Cells[idx].String(), &ctg, &prntCtg); err != nil {
+				if err = processCategories(db, row.Cells[idx].String(), &ctg); err != nil {
 					return nil
 				}
-				idx = colNms["TITLE"]
 
+				idx = colNms["TITLE"]
 				processProduct(db, row.Cells[idx].String(), &prod, &ctg)
 
 				idx = colNms["PRIORITY"]
@@ -198,7 +255,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *Columns) erro
 				processImages(&prod, db, row.Cells[idx].String())
 
 				// Process row's cells
-				for _, colName := range chrCols.cols {
+				for _, colName := range chrCols.Cols {
 					if err = processCharacteristics(ctg.ID, &prod, db, row.Cells[colNms[colName]], colName); err != nil {
 						return err
 					}
@@ -242,17 +299,20 @@ func processProduct(tx *gorm.DB, cellVal string, prod *models.Product, ctg *mode
 	return nil
 }
 
-func processCategories(tx *gorm.DB, cellVal string, ctg, parentCategory *models.Category) error {
+func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category) error {
 	catNames := strings.Split(cellVal, " | ")
 
-	var parentID *uint // Initialize parentID pointer
-	for _, catName := range catNames {
+	var prntID *uint // Initialize parentID
+	// var prntCtg *models.Category
+	for idx, catName := range catNames {
 
+		fmt.Printf("PROCESS %s\n", catName)
+		// fmt.Println("PARENT CATEGORY ", prntCtg)
 		var category models.Category
 		// Check if the category already exists
 		if tx.Where(&models.Category{Name: catName}).First(&category).RecordNotFound() {
 			// If the category doesn't exist, create it
-			newCategory := models.Category{Name: catName, Slug: slug.Make(catName), ParentID: parentID}
+			newCategory := models.Category{Name: catName, Slug: slug.Make(catName), ParentID: prntID}
 
 			// Create the category
 			if err := tx.Create(&newCategory).Error; err != nil {
@@ -262,10 +322,9 @@ func processCategories(tx *gorm.DB, cellVal string, ctg, parentCategory *models.
 			}
 
 			// Calculate left and right boundaries
-			newCategory.Left, newCategory.Right = calculateBoundaries(tx, parentCategory)
+			newCategory.Left, newCategory.Right = utils.CalculateBoundaries(tx, prntID)
 
-			// Calculate the level of the category and set treeID
-			newCategory.Level = utils.CalculateLevel(newCategory.Parent)
+			newCategory.Level = idx
 			newCategory.TreeID = 1
 
 			if err := tx.Save(&newCategory).Error; err != nil {
@@ -280,16 +339,8 @@ func processCategories(tx *gorm.DB, cellVal string, ctg, parentCategory *models.
 			// Update last checked category
 			*ctg = category
 		}
-		// Update parent category id
-		parentID = &ctg.ID
-		// if parentCategory != nil {
-		// 	parentCategory.Children = append(parentCategory.Children, ctg)
-		// 	ctg.Parent = parentCategory
-		// 	if err := tx.Save(&ctg).Error; err != nil {
-		// 		log.Fatal(err)
-		// 		return err
-		// 	}
-		// }
+
+		prntID = &ctg.ID
 	}
 	return nil
 }
@@ -305,7 +356,7 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 		return err
 	}
 
-	if find, err := findByField(cities, "Name", colName); err != nil {
+	if find, err := utils.FindByField(cities, "Name", colName); err != nil {
 		fmt.Println("City not found: ", colName)
 		return err
 	} else {
@@ -398,77 +449,4 @@ func processImages(prod *models.Product, tx *gorm.DB, cell string) error {
 		}
 	}
 	return nil
-}
-
-func (cols *Columns) Contains(el string) bool {
-	sort.Strings(cols.cols)
-
-	low := 0
-	slice := cols.cols
-	high := len(slice) - 1
-
-	for low <= high {
-		mid := (low + high) / 2
-		if slice[mid] == el {
-			return true
-		} else if slice[mid] < el {
-			low = mid + 1
-		} else {
-			high = mid - 1
-		}
-	}
-
-	return false
-}
-
-// findByField finds an element in the slice of any structs by the provided field value.
-func findByField(slice interface{}, field string, value interface{}) (interface{}, error) {
-	sliceValue := reflect.ValueOf(slice)
-	if sliceValue.Kind() != reflect.Slice {
-		return nil, fmt.Errorf("findByField: kind %s not a slice", sliceValue.Kind())
-	}
-
-	for i := 0; i < sliceValue.Len(); i++ {
-		item := sliceValue.Index(i)
-		if item.Kind() != reflect.Struct {
-			return nil, fmt.Errorf("findByField: not a slice of structs")
-		}
-
-		fieldValue := item.FieldByName(field)
-		if !fieldValue.IsValid() {
-			continue
-		}
-
-		if reflect.DeepEqual(fieldValue.Interface(), value) {
-			return item.Interface(), nil
-		}
-	}
-
-	return nil, fmt.Errorf("value %s not found in provided slice", value)
-}
-
-// Calculate left and right boundaries for the new node
-func calculateBoundaries(db *gorm.DB, parent *models.Category) (int, int) {
-	if parent == nil {
-		// If the node has no parent, set lft to 1 and rght to 2
-		return 1, 2
-	}
-
-	// Find the maximum right boundary of the parent's children
-	maxRght := db.Model(&models.Category{}).
-		Where("parent_id = ?", parent.ID).
-		Select("MAX(rght)").
-		Row()
-
-	var maxRghtValue int
-	if err := maxRght.Scan(&maxRghtValue); err != nil {
-		// Handle error
-		return 0, 0
-	}
-
-	// Set lft to the maximum right boundary of the parent's children
-	lft := maxRghtValue + 1
-	// Set rght to lft + 1
-	rght := lft + 1
-	return lft, rght
 }
