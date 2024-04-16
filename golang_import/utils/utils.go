@@ -146,7 +146,6 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 			continue
 		}
 
-		fmt.Printf("Image saved to %s", baseMediaPath+catalogPath+flName+".webp\n")
 		webpBuffer.Reset()
 		if err := tx.Create(&models.ProductImage{Image: catalogPath + flName + ".webp", ProductID: prod.ID}).Error; err != nil {
 			return err
@@ -206,7 +205,6 @@ func WatermarkImg(origImg image.Image, wtmrkPath string) error {
 	// Draw watermark onto the original image
 	draw.DrawMask(origImg.(draw.Image), wtrmkBounds.Add(position), wtrmkImg, image.Point{}, mask, image.Point{}, draw.Over)
 
-	fmt.Println("Image success watermarked")
 	return nil
 }
 

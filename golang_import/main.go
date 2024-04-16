@@ -19,9 +19,10 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	_ "main/docs"
+
 	"github.com/gosimple/slug"
 	"github.com/jinzhu/gorm"
-	"github.com/joho/godotenv"
 	_ "github.com/swaggo/http-swagger"
 	"github.com/tealeg/xlsx"
 )
@@ -45,7 +46,6 @@ func init() {
 	}
 
 	fmt.Println("Successfully connect to database!")
-	fmt.Println(db)
 
 	for _, model := range []interface{}{
 		&models.City{},
@@ -62,46 +62,59 @@ func init() {
 			return
 		}
 	}
-
 }
 
-// TODO need to fix children categories and (lft, rght, lvl)
+// @title Products Import API
+// @version 1.12.2
+// @description API for product imoprt
 func main() {
 	fmt.Println("Initializing golang server...")
 	router := gin.Default()
 
 	authGroup := router.Group("/api/upload")
 
-	authGroup.Use(auth.AuthMiddleware(db))
+	authGroup.Use(auth.AuthMiddleware())
 
-	authGroup.PUT("/:filename", processCSVData)
+	authGroup.PUT("/:filename", processXLSXData)
 
 	// Swagger handler
-	router.GET("/api/swagger", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Start server
 	router.Run(":8080")
 	fmt.Println("Golang server started")
 }
 
-func processCSVData(c *gin.Context) {
+// @Summary Загрузка файла товаров
+// @Description Загрузка файла с товарами для импорта
+// @ID uploadFile
+// @Accept multipart/form-data
+// @Produce json
+// @Param filename path string true "Имя файла"
+// @Param type query string true "Тип данных для импорта (PRODUCTS, BRANDS)"
+// @Success 200 {string} string "OK"
+// @Router /api/upload/{filename} [PUT]
+// @Tags Import
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+func processXLSXData(c *gin.Context) {
+
 	filename := c.Param("filename")
 
 	// Create a bytes buffer to store the file content
 	var buf bytes.Buffer
 
-	// Read content from the request body into the buffer
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Internal server error. Unable to read file content." + err.Error()})
 		return
 	}
 
+	if buf.Len() == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File data is required."})
+		return
+	}
+
 	// Retrieve upload type from query parameters
 	uploadType := c.Query("type")
-
-	// Process the file object and upload type as needed
-	// In this example, we're just printing them out
 
 	tmpDir := "../media/tmp"
 	if err = os.MkdirAll(tmpDir, os.ModePerm); err != nil {
@@ -123,15 +136,6 @@ func processCSVData(c *gin.Context) {
 		return
 	}
 
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
 	// Parse CSV data and process accordingly based on uploadType
 	var ignoredColumns = &models.Columns{
 		Cols: []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY"},
@@ -141,7 +145,7 @@ func processCSVData(c *gin.Context) {
 	switch uploadType {
 	case "PRODUCTS":
 		go func() {
-			c.String(200, "Products process started")
+			c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 			err := productsProcess(db, flPth, ignoredColumns)
 			if err != nil {
 				log.Fatal(err)
@@ -153,6 +157,8 @@ func processCSVData(c *gin.Context) {
 	case "BRANDS":
 		go func() {
 			fmt.Println("BRAND data process")
+			c.JSON(http.StatusOK, gin.H{"message": "Success authorized, brands process started..."})
+
 			// Process brand data
 			// Your logic for processing brands here
 			fmt.Printf("BRAND data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
@@ -222,7 +228,6 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *models.Column
 
 		for _, el := range ignoredColumns.Cols {
 			if _, ok := colNms[el]; !ok {
-				fmt.Println(el, ok)
 				return fmt.Errorf("не все обязательные поля найдены в документе")
 			}
 		}
@@ -267,7 +272,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *models.Column
 				}
 				return nil
 			})
-			fmt.Printf("Product %s created\n", prod.Title)
+			fmt.Printf("Product %s processed\n", prod.Title)
 		}
 	}
 	return nil
@@ -275,7 +280,6 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns *models.Column
 
 func processPriority(cellVal string, prod *models.Product) {
 	if cellVal == "" {
-		fmt.Println("Empty priority cell, continue...")
 		return
 	}
 
@@ -306,8 +310,6 @@ func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category) error 
 	// var prntCtg *models.Category
 	for idx, catName := range catNames {
 
-		fmt.Printf("PROCESS %s\n", catName)
-		// fmt.Println("PARENT CATEGORY ", prntCtg)
 		var category models.Category
 		// Check if the category already exists
 		if tx.Where(&models.Category{Name: catName}).First(&category).RecordNotFound() {

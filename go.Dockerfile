@@ -5,5 +5,6 @@ WORKDIR /code/golang_import
 
 RUN go mod tidy
 RUN go build
+RUN swag init
 
-CMD sleep 9999999999999999
+CMD go run main
