@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import time
 from drf_spectacular.utils import OpenApiExample
 import requests
@@ -42,8 +43,10 @@ class SendSMSView(GenericAPIView):
         Args:
             phone_number (str): Номер телефона в международном формате.
         """
+        sms_login = settings.SMS_LOGIN
+        sms_password = settings.SMS_PASSWORD
+
         bot_token = settings.TG_BOT_TOKEN
-        api_key = settings.SMS_RU_TOKEN
         send_to_telegram = settings.SEND_TO_TELEGRAM
         chat_id = settings.CHAT_ID
 
@@ -74,12 +77,21 @@ class SendSMSView(GenericAPIView):
         message = f"Ваш код: {code}. Никому не сообщайте его!"
 
         try:
-            sms_link = "https://sms.ru/sms/send"
+            sms_link = "http://api.prostor-sms.ru/messages/v2/send.json"
             sms_params = {
-                "api_id": api_key,
-                "to": phone_number,
-                "msg": message,
-                "json": 1,  # to receive response in JSON format
+                "scheduleTime": datetime.now() + timedelta(seconds=5),
+                "messages": [
+                    {
+                        "phone": phone_number,
+                        "sender": "Altawest",
+                        "clientId": "1",
+                        "text": message,
+                    },
+                ],
+                "statusQueueName": "myQueue1",
+                "showBillingDetails": False,
+                "login": sms_login,
+                "password": sms_password,
             }
 
             tg_link = f"https://api.telegram.org/bot{bot_token}/sendMessage"
@@ -90,7 +102,7 @@ class SendSMSView(GenericAPIView):
             }
 
             if not send_to_telegram:
-                response = requests.get(sms_link, params=sms_params)
+                response = requests.post(sms_link, data=sms_params)
             else:
                 response = requests.post(tg_link, params=tg_params)
 
@@ -168,14 +180,11 @@ class VerifyConfirmCode(GenericAPIView):
         if created:
             user.set_password(phone_number)
             user.save()
-        
+
         serialized_tokens = MyTokenObtainPairSerializer().validate(
             {"username": user.username, "password": user.phone}
         )
         return Response(
-            {
-                "message": "User successfully activated",
-                **serialized_tokens
-            },
+            {"message": "User successfully activated", **serialized_tokens},
             status=status.HTTP_200_OK,
         )
