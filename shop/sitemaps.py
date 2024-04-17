@@ -1,3 +1,4 @@
+import os
 from django.db.models.base import Model
 from django.shortcuts import redirect
 from django.contrib.sitemaps import Sitemap
@@ -42,7 +43,7 @@ class ProductSitemap(CustomSitemap, Sitemap):
         return obj.updated_at
 
     def location(self, obj: Model) -> str:
-        return self.get_abs_path(reverse("api:products-productdetail", args=[obj.pk]))
+        return os.path.join(obj.category.slug, obj.slug)
 
 
 # TODO занести в сайтмап урлы
