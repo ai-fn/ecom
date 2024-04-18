@@ -1,8 +1,10 @@
 from rest_framework.viewsets import ModelViewSet 
-from api.mixins import CityPricesMixin
+from api.mixins import CityPricesMixin, GeneralSearchMixin
 from api.permissions import ReadOnlyOrAdminPermission
+
 from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
+
 from shop.models import Category, Price, Product
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.db.models import Q, F, Sum
@@ -11,7 +13,7 @@ from rest_framework.decorators import action
 
 
 @extend_schema(tags=["Shop"])
-class ProductViewSet(CityPricesMixin, ModelViewSet):
+class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
@@ -30,6 +32,8 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
+        search = self.request.query_params.get('search')
+
         self.domain = self.request.query_params.get("city_domain")
         price_lte = self.request.query_params.get("price_lte")
         price_gte = self.request.query_params.get("price_gte")
@@ -37,6 +41,13 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
         category = self.request.query_params.get("category")
 
         filter_conditions = Q()
+
+        if search:
+            search_results = self.search(search, self.domain, exclude_=("review", "brand", "category"))['products']
+            if search_results:
+                queryset = queryset.filter(pk__in=[el.get("id", 0) for el in search_results])
+            else:
+                queryset = Product.objects.none()
 
         if self.domain or price_gte or price_lte or brand_slug:
 
@@ -336,6 +347,12 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 description="Домен города для фильтрации цен",
             ),
             OpenApiParameter(
+                name="search",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Параметр для поиска",
+            ),
+            OpenApiParameter(
                 name="price_gte",
                 type=float,
                 location=OpenApiParameter.QUERY,
@@ -362,9 +379,9 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        self.queryset = self.get_queryset()
 
-        if not queryset.exists():
+        if not self.queryset.exists():
             return Response([])
         
         return super().list(request, *args, **kwargs)

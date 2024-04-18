@@ -1,3 +1,4 @@
+import os
 from django.db.models.base import Model
 from django.shortcuts import redirect
 from django.contrib.sitemaps import Sitemap
@@ -9,6 +10,7 @@ from shop.models import Product, Category
 class CustomSitemap:
 
     def __init__(self, domain=None) -> None:
+        self.catalog_url = "katalog"
         self.base_domain = "krov.market/"
         if domain is not None:
             self.domain = domain
@@ -20,7 +22,7 @@ class CustomSitemap:
         return self.base_domain
 
     def get_abs_path(self, link):
-        return "/".join(link.split("/")[3:])
+        return os.path.join(self.catalog_url, *link.split("/")[3:])
 
 
 # TODO занести в сайтмап урлы
@@ -42,7 +44,7 @@ class ProductSitemap(CustomSitemap, Sitemap):
         return obj.updated_at
 
     def location(self, obj: Model) -> str:
-        return self.get_abs_path(reverse("api:products-productdetail", args=[obj.pk]))
+        return os.path.join(self.catalog_url, obj.category.slug, obj.slug)
 
 
 # TODO занести в сайтмап урлы

@@ -33,7 +33,13 @@ class XlsxFileUploadView(APIView):
         tags=["Settings"],
     )
     def put(self, request, filename, format=None):
-        file_obj = request.data["file"]
+        file_obj = request.data.get("file")
+        if file_obj is None:
+            return Response(
+                {"error": "File object is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
         upload_type = request.query_params.get("type")
 
         file_name = default_storage.save(

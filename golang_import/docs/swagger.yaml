@@ -1,0 +1,40 @@
+info:
+  contact: {}
+  description: API for product imoprt
+  title: Products Import API
+  version: 1.12.2
+paths:
+  /api/upload/{filename}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Загрузка файла с товарами для импорта
+      operationId: uploadFile
+      parameters:
+      - description: Имя файла
+        in: path
+        name: filename
+        required: true
+        type: string
+      - description: Тип данных для импорта (PRODUCTS, BRANDS)
+        in: query
+        name: type
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Загрузка файла товаров
+      tags:
+      - Import
+swagger: "2.0"
