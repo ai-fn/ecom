@@ -51,34 +51,22 @@ class GeneralSearchMixin:
                     "title^2",
                     "description",
                 ),
-                "indexes": (
-                    ProductDocument._index._name,
-                )
+                "indexes": (ProductDocument._index._name,),
             },
             "category": {
                 "queries": (Q("wildcard", category__name={"value": f"*{query}*"}),),
-                "fields": (
-                    "category__name",
-                ),
-                "indexes": (
-                    CategoryDocument._index._name,
-                )
+                "fields": ("category__name",),
+                "indexes": (CategoryDocument._index._name,),
             },
             "brand": {
                 "queries": (Q("wildcard", brand__name={"value": f"*{query}*"}),),
-                "fields": (
-                    "brand__name",
-                ),
+                "fields": ("brand__name",),
                 "index": 1,
             },
             "review": {
                 "queries": (Q("wildcard", review={"value": f"*{query}*"}),),
-                "fields": (
-                    "review",
-                ),
-                "indexes": (
-                    ReviewDocument._index._name,
-                )
+                "fields": ("review",),
+                "indexes": (ReviewDocument._index._name,),
             },
         }
         should, fields, indexes = [], [], []
@@ -97,6 +85,18 @@ class GeneralSearchMixin:
             index=indexes,
         )
 
+        if exclude_ is not None and len(exclude_) > 0:
+            search = search.extra(
+                size=sum(
+                    [
+                        globals()[classname.capitalize()].objects.count()
+                        for classname in default
+                        if classname not in exclude_
+                        and classname.capitalize() in globals()
+                    ]
+                )
+            )
+
         if query:
             search = search.query(
                 "bool",
@@ -104,13 +104,10 @@ class GeneralSearchMixin:
                     Q(
                         "multi_match",
                         query=query,
-                        fields=[
-                            "name^3",
-                            *fields
-                        ],
+                        fields=["name^3", *fields],
                     ),
                     Q("wildcard", name={"value": f"*{query}*"}),
-                    *should
+                    *should,
                 ],
                 minimum_should_match=1,
             )
