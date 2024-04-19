@@ -32,3 +32,4 @@ from .cart_item import SimplifiedCartItemSerializer
 from .footer_settings import FooterItemSerializer
 from .main_page_slider_image import MainPageSliderImageSerializer
 from .main_page_category_bar_item import MainPageCategoryBarItemSerializer
+from .sidebar_menu_item import SideBarMenuItemSerializer
