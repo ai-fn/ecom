@@ -1,14 +1,78 @@
+import base64
+import io
+import os
+from typing import Iterable
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
+from loguru import logger
 
+from itertools import chain
 from account.models import City, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
 
+from PIL import Image
 
-class Category(MPTTModel, TimeBasedModel):
+
+class ThumbModel(TimeBasedModel):
+    class Meta:
+        abstract = True
+
+    thumb_img = models.TextField(verbose_name="Миниатюра", null=True, max_length=512)
+
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None
+    ) -> None:
+        if not self.thumb_img:
+            image_path: str
+            if getattr(self, "image", False) and self.image:
+                image_path = self.image.file.name
+            elif getattr(self, "catalog_image", False) and self.catalog_image:
+                image_path = self.catalog_image.file.name
+            else:
+                return super().save(force_insert, force_update, using, update_fields)
+
+            if os.path.isfile(image_path):
+                try:
+                    with Image.open(image_path) as file:
+                        thumb_image_size = (
+                            getattr(
+                                settings,
+                                "THUMB_IMAGE_WIDTH",
+                                10,
+                            ),
+                            getattr(
+                                settings,
+                                "THUMB_IMAGE_HEIGHT",
+                                10,
+                            ),
+                        )
+                        thumb_image = file.copy().resize(thumb_image_size)
+                        with io.BytesIO() as buffer:
+                            thumb_image.save(buffer, format="PNG")
+                            self.thumb_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
+                        
+                    if update_fields is not None:
+                        update_fields = chain(update_fields, ("thumb_img",))
+                    elif update_fields is None and self.pk:
+                        update_fields = ("thumb_img",)
+
+                except Exception as err:
+                    logger.error(
+                        f"Error while create thumn image for {self.__class__.__name__} object with pk {self.pk}: {err}"
+                    )
+
+        return super().save(force_insert, force_update, using, update_fields)
+
+
+class Category(ThumbModel, MPTTModel):
     name = models.CharField(
         max_length=255,
         verbose_name="Категория",
@@ -131,7 +195,7 @@ class Brand(TimeBasedModel):
         return f"{self.name}"
 
 
-class Product(TimeBasedModel):
+class Product(ThumbModel):
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
@@ -157,10 +221,6 @@ class Product(TimeBasedModel):
         verbose_name="Наименование",
     )
     description = models.TextField(verbose_name="Описание")
-    image = models.ImageField(
-        upload_to="catalog/",
-        verbose_name="Изображение",
-    )
     catalog_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение в каталоге",
@@ -234,7 +294,7 @@ class ProductFrequenlyBoughtTogether(TimeBasedModel):
         unique_together = (("product_from", "product_to"),)
 
 
-class ProductImage(models.Model):
+class ProductImage(ThumbModel):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
@@ -254,7 +314,7 @@ class ProductImage(models.Model):
         return f"Image for {self.product.title}"
 
 
-class Promo(TimeBasedModel):
+class Promo(ThumbModel):
     class Meta:
         verbose_name = "Акция"
         verbose_name_plural = "Акции"
@@ -463,13 +523,13 @@ class FooterItem(TimeBasedModel):
         ordering = ["order"]
         verbose_name = "Элемент Footer"
         verbose_name_plural = "Элементы Footer"
-        unique_together = ('column', 'order')
+        unique_together = ("column", "order")
 
     def __str__(self):
         return f"Элемент Footer_{self.title}-{self.id}"
 
 
-class MainPageSliderImage(TimeBasedModel):
+class MainPageSliderImage(ThumbModel):
     order = models.IntegerField(unique=True, verbose_name="Порядковый номер")
     link = models.URLField(blank=True, null=True, verbose_name="Ссылка")
     title = models.CharField(
@@ -511,13 +571,15 @@ class MainPageCategoryBarItem(TimeBasedModel):
 
 
 class SideBarMenuItem(TimeBasedModel):
-    
-    order = models.PositiveSmallIntegerField(default=0, verbose_name="Порядковый номер", unique=True)
+
+    order = models.PositiveSmallIntegerField(
+        default=0, verbose_name="Порядковый номер", unique=True
+    )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     link = models.CharField(max_length=255, verbose_name="Ссылка")
 
     class Meta:
-        ordering = ("order", )
+        ordering = ("order",)
         verbose_name = "Элемент бокового меню"
         verbose_name_plural = "Элементы бокового меню"
 
