@@ -25,9 +25,12 @@ from api.views import (
     MainPageSliderImageViewSet,
     MainPageCategoryBarItemViewSet,
 )
-from api.views import SendSMSView
+from api.views import (
+    SendSMSView,
+    PromoViewSet,
+    SideBarMenuItemViewSet
+)
 from api.views.general_search import GeneralSearchView
-from api.views import PromoViewSet
 
 router = routers.DefaultRouter()
 router.register(r"products", ProductViewSet, basename="products")
@@ -46,6 +49,7 @@ router.register(r"footer-items", FooterItemViewSet)
 router.register(r"main-page-slider-image", MainPageSliderImageViewSet)
 router.register(r"promos", PromoViewSet, basename="promo")
 router.register(r"category-bar-item", MainPageCategoryBarItemViewSet)
+router.register(r"sidebar-menu-item", SideBarMenuItemViewSet)
 
 app_name= "api"
 

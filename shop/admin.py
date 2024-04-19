@@ -19,6 +19,7 @@ from shop.models import (
     MainPageSliderImage,
     MainPageCategoryBarItem,
     ProductFrequenlyBoughtTogether,
+    SideBarMenuItem,
 )
 from mptt.admin import DraggableMPTTAdmin
 
@@ -107,6 +108,9 @@ class ProductImageAdmin(admin.ModelAdmin):
     list_display = [
         "product",
     ]
+    search_fields = (
+        "product__title",
+    )
 
 
 @admin.register(Review)
@@ -231,3 +235,16 @@ class MainPageCategoryBarItemAdmin(admin.ModelAdmin):
     )
 
     search_fields = ("text", "link")
+
+@admin.register(SideBarMenuItem)
+class SideBarMenuItemAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "title",
+        "link",
+    )
+    search_fields = (
+        "title",
+        "link",
+    )

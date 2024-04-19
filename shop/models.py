@@ -508,3 +508,18 @@ class MainPageCategoryBarItem(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"MainPageCategoryBarItem_{self.id}"
+
+
+class SideBarMenuItem(TimeBasedModel):
+    
+    order = models.PositiveSmallIntegerField(default=0, verbose_name="Порядковый номер", unique=True)
+    title = models.CharField(max_length=100, verbose_name="Заголовок")
+    link = models.CharField(max_length=255, verbose_name="Ссылка")
+
+    class Meta:
+        ordering = ("order", )
+        verbose_name = "Элемент бокового меню"
+        verbose_name_plural = "Элементы бокового меню"
+
+    def __str__(self) -> str:
+        return f"SideBarMenuItem_{self.id}"
