@@ -22,7 +22,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
-        if self.action == "list" or self.action == "frequenly_bought":
+        if self.action == "list" or self.action == "frequenly_bought" or self.action == "popular_products":
             return ProductCatalogSerializer
         elif self.action == "productdetail":
             return ProductDetailSerializer
@@ -216,6 +216,16 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
         self.queryset = instance.frequenly_bought_together.order_by(
             "product_to__total_purchase_count"
         )
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        description="Получение популярных товаров",
+        summary="Получение популярных товаров",
+        responses={200: ProductCatalogSerializer(many=True)},
+    )
+    @action(methods=["get"], detail=False)
+    def popular_products(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset().filter(is_popular=True)
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
