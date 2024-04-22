@@ -78,7 +78,7 @@ def update_cities():
     repo_dir = "city_repo"
 
     try:
-        subprocess.run(['git', 'clone', repo_url, repo_dir], check=True)
+        subprocess.run(["git", "clone", repo_url, repo_dir], check=True)
         print("Repository cloned successfully.")
     except subprocess.CalledProcessError as e:
         print("Error:", e)
@@ -88,11 +88,11 @@ def update_cities():
     city_csv_path = os.path.join(repo_dir, "city.csv")
 
     try:
-        with open(city_csv_path, newline='', encoding='utf-8') as csvfile:
+        with open(city_csv_path, newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             city_names = []
             for row in reader:
-                
+
                 if row["city"] != "":
                     city_names.append(row["city"])
                 elif row["region_type"] == "г":
@@ -101,7 +101,6 @@ def update_cities():
                     city_names.append(row["area"])
 
         print("City names extracted successfully:")
-        # print(city_names) 
     except FileNotFoundError:
         print("city.csv not found.")
     except Exception as e:
@@ -109,7 +108,7 @@ def update_cities():
     finally:
         # Clean up: delete the cloned repository directory
         try:
-            subprocess.run(['rm', '-rf', repo_dir], check=True)
+            subprocess.run(["rm", "-rf", repo_dir], check=True)
         except subprocess.CalledProcessError as e:
             print("Error cleaning up:", e)
 
@@ -255,11 +254,10 @@ def process_dataframe(df, upload_type):
 
                                     # Сохранение первого изображение в нескольких форматах
                                     if idx == 0:
-
                                         # Сохранение каталожной версии изображения
                                         catalog_format = getattr(
                                             settings,
-                                            "PRODUCT_CATALOG_IAMGE_FORMAT",
+                                            "PRODUCT_CATALOG_IMAGE_FORMAT",
                                             "webp",
                                         )
                                         catalog_image_size = (
@@ -307,7 +305,7 @@ def process_dataframe(df, upload_type):
                                         )
                                         search_image_format = getattr(
                                             settings,
-                                            "PRODUCT_SEARCH_IAMGE_FORMAT",
+                                            "PRODUCT_SEARCH_IMAGE_FORMAT",
                                             "webp",
                                         )
                                         with BytesIO() as buffer:

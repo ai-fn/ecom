@@ -37,7 +37,6 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
             "brand",
             "brand_id",
             "description",
-            "image",
             "slug",
             "created_at",
             "city_price",
@@ -47,4 +46,5 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
             "in_stock",
             "is_popular",
             "priority",
+            "thumb_img",
         ]

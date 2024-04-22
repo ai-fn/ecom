@@ -1,4 +1,4 @@
-from rest_framework.viewsets import ModelViewSet 
+from rest_framework.viewsets import ModelViewSet
 from api.mixins import CityPricesMixin, GeneralSearchMixin
 from api.permissions import ReadOnlyOrAdminPermission
 
@@ -32,7 +32,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        search = self.request.query_params.get('search')
+        search = self.request.query_params.get("search")
 
         self.domain = self.request.query_params.get("city_domain")
         price_lte = self.request.query_params.get("price_lte")
@@ -43,9 +43,13 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
         filter_conditions = Q()
 
         if search:
-            search_results = self.search(search, self.domain, exclude_=("review", "brand", "category"))['products']
+            search_results = self.search(
+                search, self.domain, exclude_=("review", "brand", "category")
+            )["products"]
             if search_results:
-                queryset = queryset.filter(pk__in=[el.get("id", 0) for el in search_results])
+                queryset = queryset.filter(
+                    pk__in=[el.get("id", 0) for el in search_results]
+                )
             else:
                 queryset = Product.objects.none()
 
@@ -120,6 +124,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         "title": "Product A",
                         "brand": 1,
                         "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                         "slug": "product-a",
                         "city_price": 100.0,
                         "old_price": 120.0,
@@ -137,12 +142,15 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         "in_stock": True,
                         "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
+                        "in_stock": True,
                     },
                     {
                         "id": 2,
                         "title": "Product B",
                         "brand": 2,
                         "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                         "slug": "product-b",
                         "city_price": 150.0,
                         "old_price": 110.0,
@@ -160,6 +168,8 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         "in_stock": True,
                         "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
+                        "in_stock": True,
                     },
                 ],
             ),
@@ -172,6 +182,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         "title": "Product A",
                         "brand": 1,
                         "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                         "slug": "product-a",
                         "city_price": 100.0,
                         "old_price": 120.0,
@@ -189,30 +200,8 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         "in_stock": True,
                         "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "cart_quantity": 10,
-                    },
-                    {
-                        "id": 2,
-                        "title": "Product B",
-                        "brand": 2,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "slug": "product-b",
-                        "city_price": 150.0,
-                        "old_price": 110.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-b",
+                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
                         "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "cart_quantity": 10,
                     },
                 ],
@@ -224,7 +213,9 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
 
         instance = self.get_object()
 
-        self.queryset = instance.frequenly_bought_together.order_by("product_to__total_purchase_count")
+        self.queryset = instance.frequenly_bought_together.order_by(
+            "product_to__total_purchase_count"
+        )
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
@@ -241,6 +232,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         "title": "Product A",
                         "brand": 1,
                         "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                         "slug": "product-a",
                         "city_price": 100.0,
                         "old_price": 120.0,
@@ -255,32 +247,13 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                             },
                         ],
                         "category_slug": "category-a",
+                        "brand_slug": "brand-a",
                         "in_stock": True,
+                        "is_popular": True,
                         "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    },
-                    {
-                        "id": 2,
-                        "title": "Product B",
-                        "brand": 2,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "slug": "product-b",
-                        "city_price": 150.0,
-                        "old_price": 110.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-b",
+                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
                         "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     },
                 ],
             ),
@@ -293,6 +266,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         "title": "Product A",
                         "brand": 1,
                         "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                         "slug": "product-a",
                         "city_price": 100.0,
                         "old_price": 120.0,
@@ -307,33 +281,13 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                             },
                         ],
                         "category_slug": "category-a",
+                        "brand_slug": "brand-a",
                         "in_stock": True,
+                        "is_popular": True,
                         "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "cart_quantity": 10,
-                    },
-                    {
-                        "id": 2,
-                        "title": "Product B",
-                        "brand": 2,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "slug": "product-b",
-                        "city_price": 150.0,
-                        "old_price": 110.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "/media/category-b",
+                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
                         "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "cart_quantity": 10,
                     },
                 ],
@@ -383,7 +337,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
 
         if not self.queryset.exists():
             return Response([])
-        
+
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
@@ -421,6 +375,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                     "brand_id": 1,
                     "description": "Product description",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
                     "created_at": "2024-03-14T10:00:00Z",
                     "city_price": 100.0,
@@ -493,6 +448,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                     "title": "Product A",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
                     "city_price": 100.0,
                     "old_price": 120.0,
@@ -507,6 +463,11 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "in_stock": True,
+                    "is_popular": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                 },
                 description="Пример запроса на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример запроса на создание нового продукта в каталоге",
@@ -520,6 +481,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                     "title": "Product A",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
                     "city_price": 100.0,
                     "old_price": 120.0,
@@ -534,6 +496,11 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "in_stock": True,
+                    "is_popular": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                 },
                 description="Пример ответа на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример ответа на создание нового продукта в каталоге",
@@ -557,6 +524,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                     "title": "Product A",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
                     "city_price": 100.0,
                     "old_price": 120.0,
@@ -571,6 +539,8 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         },
                     ],
                     "category_slug": "category-a",
+                    "is_popular": True,
+                    "in_stock": True,
                 },
                 description="Пример ответа для получения информации о конкретном продукте в каталоге в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном продукте в каталоге отзыве",
@@ -591,9 +561,10 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                 name="Update Request Example",
                 request_only=True,
                 value={
-                    "title": "Updated Product Title",
+                    "title": "Updated Product A",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
                     "city_price": 100.0,
                     "old_price": 120.0,
@@ -608,6 +579,13 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "in_stock": True,
+                    "is_popular": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
+                    "in_stock": True,
                 },
                 description="Пример запроса на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример запроса на обновление информации о продукте в каталоге",
@@ -618,9 +596,10 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                 response_only=True,
                 value={
                     "id": 1,
-                    "title": "Updated Product Title",
+                    "title": "Product A",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
                     "city_price": 100.0,
                     "old_price": 120.0,
@@ -635,6 +614,13 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "in_stock": True,
+                    "is_popular": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
+                    "in_stock": True,
                 },
                 description="Пример ответа на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на обновление информации о продукте в каталоге",
@@ -668,8 +654,9 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                 value={
                     "id": 1,
                     "title": "Updated Product A",
-                    "brand": 2,
+                    "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
                     "city_price": 100.0,
                     "old_price": 120.0,
@@ -684,6 +671,14 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                         },
                     ],
                     "category_slug": "category-a",
+                    "brand_slug": "brand-a",
+                    "in_stock": True,
+                    "is_popular": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
+                    "in_stock": True,
+                    "cart_quantity": 10,
                 },
                 description="Пример ответа на частичное обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о продукте в каталоге",

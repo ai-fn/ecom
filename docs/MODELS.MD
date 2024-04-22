@@ -40,7 +40,6 @@
 | brand                     | Бренд                    | ForeignKey      |
 | title                     | Наименование             | CharField       | 255                   |
 | description               | Описание                 | TextField       |
-| image                     | Изображение              | ImageField      |
 | catalog_image             | Изображение в каталоге   | ImageField      |
 | search_image              | Изображение в поиске     | ImageField      |
 | slug                      | Слаг ЧПУ                 | SlugField       | 256                   |
