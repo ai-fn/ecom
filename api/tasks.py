@@ -335,7 +335,9 @@ def process_dataframe(df, upload_type):
 
                                     # Добавление водяного знака на изображение
                                     path_to_watermark = settings.WATERMARK_PATH
-                                    opacity = 0.6  # 20% opacity
+                                    opacity = getattr(
+                                        settings, "WATERMARK_OPACITY", 0.6
+                                    )  # 60% opacity
                                     watermark = Image.open(path_to_watermark)
                                     watermark = set_opacity(watermark, opacity)
 
@@ -344,7 +346,9 @@ def process_dataframe(df, upload_type):
                                     overlay = Image.new(
                                         "RGBA", pil_image.size, (0, 0, 0, 0)
                                     )
-                                    margin = 30  # margin in pixels
+                                    margin = getattr(
+                                        settings, "WATERMARK_MARGIN", 30
+                                    )  # margin in pixels
 
                                     position = (
                                         pil_image.width - watermark.width - margin,
