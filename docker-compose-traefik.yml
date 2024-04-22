@@ -47,39 +47,6 @@ services:
       options:
         loki-url: http://147.45.106.166:3100/loki/api/v1/push
         loki-external-labels: job=dockerlogs,owner=dev-megashop-backend,environment=development
-    
-  golang:
-    build:
-        context: .
-        dockerfile: go.Dockerfile
-    volumes:
-      - .:/code
-    depends_on:
-      - db
-      - web
-    environment:
-      - POSTGRES_HOST=db
-    env_file:
-      - .env
-    
-    networks:
-      - traefik
-      - internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.services.megashop.loadbalancer.server.port=8080"
-      - "traefik.http.routers.megashop.rule=Host(`dev-api-shop.altawest.ru`)"
-      - "traefik.http.routers.megashop.entrypoints=http"
-      - "traefik.http.routers.megashop-secure.rule=Host(`dev-api-shop.altawest.ru`)"
-      - "traefik.http.routers.megashop-secure.entrypoints=https"
-      - "traefik.http.routers.megashop-secure.tls.certresolver=traefik-resolver"
-
-    logging:
-      driver: loki
-      options:
-        loki-url: http://147.45.106.166:3100/loki/api/v1/push
-        loki-external-labels: job=dockerlogs,owner=dev-megashop-backend,environment=development
 
   celery:
     build: .
