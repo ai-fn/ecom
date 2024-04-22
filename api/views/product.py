@@ -222,6 +222,16 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
         description="Получение популярных товаров",
         summary="Получение популярных товаров",
         responses={200: ProductCatalogSerializer(many=True)},
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                description="Домен города",
+                type=str,
+                default="msk.krov.market",
+                location=OpenApiParameter.QUERY,
+                required=True
+            )
+        ],
     )
     @action(methods=["get"], detail=False)
     def popular_products(self, request, *args, **kwargs):
