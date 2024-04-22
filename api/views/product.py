@@ -219,6 +219,16 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
+        description="Получение популярных товаров",
+        summary="Получение популярных товаров",
+        responses={200: ProductCatalogSerializer(many=True)},
+    )
+    @action(methods=["get"], detail=False)
+    def popular_products(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset().filter(is_popular=True)
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
         description="Получить список всех продуктов в каталоге",
         summary="Получить список всех продуктов в каталоге",
         responses={200: ProductCatalogSerializer()},
