@@ -199,37 +199,29 @@ def process_dataframe(df, upload_type):
                                 "Empty category name encountered. Skipping category creation."
                             )
 
-                    product_title = row.get("TITLE")
+                    product_title = row["TITLE"]
+                    product_priority = row.get("PRIORITY")
+
+                    product_description = row.get("DESCRIPTION", "Dummy Description")
                     product_slug = translit.slugify(product_title)
-                    product_sku = row.get("SKU")  # Получаем артикул товара
 
                     if (
-                        product_slug and product_sku
-                    ):  # Проверяем, что slug продукта не пустой
-
-                        product_priority = row.get("PRIORITY")
-                        if (
-                            product_priority
-                            and isinstance(product_priority, (int, float))
-                            and product_priority > 0
-                        ):
-                            product_priority = product_priority
-                        else:
-                            logger.info(
-                                "Product PRIORITY not provided or invalid, use default"
-                            )
-                            product_priority = Product._meta.get_field(
-                                "priority"
-                            ).default
-
-                        product_description = row.get(
-                            "DESCRIPTION", "Описание отсутствует"
+                        product_priority
+                        and isinstance(product_priority, (int, float))
+                        and product_priority > 0
+                    ):
+                        product_priority = product_priority
+                    else:
+                        logger.info(
+                            "Product PRIORITY not provided or invalid, use default"
                         )
+                        product_priority = Product._meta.get_field("priority").default
 
+                    # TODO добавить DESCRIPTION потом
+                    if product_slug:  # Проверяем, что slug продукта не пустой
                         product, created = Product.objects.get_or_create(
-                            article=product_sku,
+                            title=product_title,
                             defaults={
-                                "title": product_title,
                                 "priority": product_priority,
                                 "description": product_description,
                                 "category": category,
@@ -238,13 +230,9 @@ def process_dataframe(df, upload_type):
                         )
 
                         if not created:
-                            product.slug = product_slug
-                            product.title = product_title
                             product.description = product_description
                             product.priority = product_priority
-                            product.save(
-                                update_fields=["description", "priority", "title"]
-                            )
+                            product.save(update_fields=["description", "priority"])
 
                         product_image_urls = row["IMAGES"].split(",")
                         if len(product_image_urls) > 0:
@@ -347,9 +335,7 @@ def process_dataframe(df, upload_type):
 
                                     # Добавление водяного знака на изображение
                                     path_to_watermark = settings.WATERMARK_PATH
-                                    opacity = getattr(
-                                        settings, "WATERMARK_OPACITY", 0.6
-                                    )  # 60% opacity
+                                    opacity = 0.6  # 20% opacity
                                     watermark = Image.open(path_to_watermark)
                                     watermark = set_opacity(watermark, opacity)
 
@@ -358,9 +344,7 @@ def process_dataframe(df, upload_type):
                                     overlay = Image.new(
                                         "RGBA", pil_image.size, (0, 0, 0, 0)
                                     )
-                                    margin = getattr(
-                                        settings, "WATERMARK_MARGIN", 30
-                                    )  # margin in pixels
+                                    margin = 30  # margin in pixels
 
                                     position = (
                                         pil_image.width - watermark.width - margin,
@@ -432,7 +416,7 @@ def process_dataframe(df, upload_type):
 
                     else:
                         logger.error(
-                            f"Unable to create product with title '{product_title}' and article '{product_sku}'. Skipping product creation."
+                            f"Unable to create slug for product title '{product_title}'. Skipping product creation."
                         )
             # Добавьте логику для BRANDS, если необходимо
         return failed_images or []
@@ -516,8 +500,8 @@ def export_products_to_csv(email_to=None):
             writer.writerow(
                 [
                     product["title"],
-                    product["article"],
                     categories_names,
+                    "SKU",  # SKU
                     product["description"],
                     *characteristic_values_cells,
                     *price_cells,

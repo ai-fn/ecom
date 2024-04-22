@@ -36,7 +36,6 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
             "id",
             "title",
             "brand",
-            "article",
             "slug",
             "city_price",
             "old_price",

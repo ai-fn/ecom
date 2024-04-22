@@ -78,7 +78,6 @@ class BrandAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
-        "article",
         "title",
         "category",
     )
@@ -87,8 +86,6 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = (
         "category",
         "brand",
-        "is_popular",
-        "in_stock",
     )
     inlines = [PromoInline, CharacteristicValueInline]
 

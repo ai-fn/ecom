@@ -1,4 +1,3 @@
-from django.conf import settings
 from shop.models import Category, Brand, FooterItem, MainPageSliderImage, Product, City
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
@@ -9,7 +8,7 @@ from unidecode import unidecode
 @receiver(post_save, sender=City)
 def set_category_order(sender, created, instance, **kwargs):
     if created and not instance.domain:
-        instance.domain = f'{slugify(unidecode(instance.name))}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
+        instance.domain = slugify(unidecode(instance.name))
         instance.save()
 
 
