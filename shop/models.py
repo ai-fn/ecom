@@ -21,7 +21,7 @@ class ThumbModel(TimeBasedModel):
     class Meta:
         abstract = True
 
-    thumb_img = models.TextField(verbose_name="Миниатюра", null=True, max_length=512)
+    thumb_img = models.TextField(verbose_name="Миниатюра", null=True, blank=True, max_length=512)
 
     def save(
         self,
@@ -224,10 +224,14 @@ class Product(ThumbModel):
     catalog_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение в каталоге",
+        blank=True,
+        null=True
     )
     search_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение в поиске",
+        blank=True,
+        null=True
     )
     slug = models.SlugField(
         unique=True,
@@ -254,6 +258,11 @@ class Product(ThumbModel):
         blank=True,
         verbose_name="Часто покупают вместе с",
     )
+    article = models.CharField(
+        verbose_name="Артикул",
+        max_length=128,
+        unique=True,
+    )
 
     class Meta:
         verbose_name = "Товар"
@@ -262,6 +271,7 @@ class Product(ThumbModel):
             models.Index(fields=["title"]),
             models.Index(fields=["slug"]),
             models.Index(fields=["category"]),
+            # models.Index(fields=["article"]),
         ]
 
     def __str__(self):
