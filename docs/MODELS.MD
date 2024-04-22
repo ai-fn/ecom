@@ -12,6 +12,7 @@
 | is_visible   | Доступна ли категория напрямую или видна ли                                              | BooleanField    | по умолчанию false    |
 | is_popular   | Популярна ли категория                                                                   | BooleanField    | по умолчанию false    |
 | order        | Ручной ввод порядка вывода категорий                                                     | BigIntegerField |                       |
+| thumb_img    | Миниатюра                                                                                | TextField       | 512                   |
 
 
 2. Модель CategoryMetaData
@@ -48,6 +49,8 @@
 | is_popular                | Популярен ли товар       | BooleanField    |
 | priority                  | Приоритет показа         | IntegerField    | 1 - 1,000,000         |
 | frequenly_bought_together | Часто покупают вместе с  | ManyToManyField |
+| thumb_img                 | Миниатюра                | TextField       | 512                   |
+
 
 5. Модель ProductFrequenlyBoughtTogether
 
@@ -63,6 +66,7 @@
 | ------------- | ----------- | ---------- | --------------------- |
 | product       | Товар       | ForeignKey |
 | image         | Изображение | ImageField |
+| thumb_img     | Миниатюра   | TextField  | 512                   |
 
 7. Модель Promo
 
@@ -72,6 +76,7 @@
 | categories    | Категории                 | ManyToManyField |
 | products      | Продукты                  | ManyToManyField |
 | image         | Изображение               | ImageField      |
+| thumb_img     | Миниатюра                 | TextField       | 512                   |
 | cities        | Города, где действует     | ManyToManyField |
 | is_active     | Активна ли акция          | BooleanField    |
 | active_to     | До какого времени активна | DateField       |
@@ -140,6 +145,7 @@
 | descriptions  | Заголовок на изображении | CharField    | 255                   |
 | button_text   | Текст кнопки             | CharField    | 100                   |
 | image         | Изображение              | ImageField   |
+| thumb_img     | Миниатюра                | TextField    | 512                   |
 
 15. Модель MainPageCategoryBarItem
 
