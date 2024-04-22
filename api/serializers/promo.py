@@ -40,6 +40,7 @@ class PromoSerializer(serializers.ModelSerializer):
             "cities_id",
             "active_to",
             "is_active",
+            "thumb_img",
         ]
 
     def create(self, validated_data):

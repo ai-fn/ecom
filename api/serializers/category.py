@@ -35,6 +35,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "image_url",
             "is_visible",
             "is_popular",
+            "thumb_img",
         ]
     
     def get_icon(self, obj) -> str | None:

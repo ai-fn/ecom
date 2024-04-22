@@ -8,7 +8,7 @@ class MainPageSliderImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MainPageSliderImage
-        fields = ['id', 'order', 'link', 'title', "description",  'button_text', "image"]
+        fields = ['id', 'order', 'link', 'title', "description",  'button_text', "image", "thumb_img",]
     
     def get_image(self, obj) -> str | None:
         return obj.image.url if obj.image else None

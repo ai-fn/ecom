@@ -8,7 +8,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
-        fields = ["image_url"]
+        fields = ["image_url", "thumb_img",]
 
     def get_image_url(self, obj) -> str:
         return obj.image.url if obj.image else None

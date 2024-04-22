@@ -46,4 +46,5 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
             "in_stock",
             "is_popular",
             "priority",
+            "thumb_img",
         ]

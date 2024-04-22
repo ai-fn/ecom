@@ -21,7 +21,8 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
             "is_visible",
             "icon",
             "image_url",
-            "order"
+            "order",
+            "thumb_img",
         ]
     
     def get_icon(self, obj) -> str:
