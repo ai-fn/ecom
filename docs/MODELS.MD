@@ -40,6 +40,7 @@
 | additional_categories     | Дополнительные категории | ManyToManyField |
 | brand                     | Бренд                    | ForeignKey      |
 | title                     | Наименование             | CharField       | 255                   |
+| article                   | Артикль                  | CharField       | 128 уникальный        |
 | description               | Описание                 | TextField       |
 | catalog_image             | Изображение в каталоге   | ImageField      |
 | search_image              | Изображение в поиске     | ImageField      |

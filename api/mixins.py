@@ -174,7 +174,7 @@ class ValidateAddressMixin:
 
             if not location:
                 raise serializers.ValidationError(
-                    f"Получено: {address}. Неверный адрес. Пожалуйста, укажите действительный адрес с указанием города, области, улицы и номера дома."
+                    "Указан несуществующий адрес"
                 )
 
             logger.info(f"Найден адрес: {location.address}")
