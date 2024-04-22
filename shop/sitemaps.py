@@ -1,6 +1,6 @@
 import os
-from django.conf import settings
 from django.db.models.base import Model
+from django.shortcuts import redirect
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
@@ -11,7 +11,7 @@ class CustomSitemap:
 
     def __init__(self, domain=None) -> None:
         self.catalog_url = "katalog"
-        self.base_domain = getattr(settings, "BASE_DOMAIN", "krov.market") + "/"
+        self.base_domain = "krov.market/"
         if domain is not None:
             self.domain = domain
         
