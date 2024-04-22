@@ -22,7 +22,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
     permission_classes = [ReadOnlyOrAdminPermission]
 
     def get_serializer_class(self):
-        if self.action == "list" or self.action == "frequenly_bought":
+        if self.action == "list" or self.action == "frequenly_bought" or self.action == "popular_products":
             return ProductCatalogSerializer
         elif self.action == "productdetail":
             return ProductDetailSerializer
