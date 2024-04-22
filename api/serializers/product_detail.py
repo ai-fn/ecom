@@ -35,6 +35,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
             "category_id",
             "title",
             "brand",
+            "article",
             "brand_id",
             "description",
             "slug",
