@@ -271,7 +271,7 @@ class Product(ThumbModel):
             models.Index(fields=["title"]),
             models.Index(fields=["slug"]),
             models.Index(fields=["category"]),
-            # models.Index(fields=["article"]),
+            models.Index(fields=["article"]),
         ]
 
     def __str__(self):
