@@ -45,7 +45,6 @@ type BaseModel struct {
 
 type Category struct {
 	CustomModel
-	BaseModel
 	Name      string      `gorm:"column:name"`
 	Slug      string      `gorm:"column:slug"`
 	ParentID  *uint       `gorm:"column:parent_id"`
@@ -64,10 +63,10 @@ type Category struct {
 
 type Product struct {
 	CustomModel
-	BaseModel
 	CategoryID           uint        `gorm:"column:category_id"`
 	BrandID              *uint       `gorm:"column:brand_id"`
 	Title                string      `gorm:"column:title"`
+	Article              string      `gorm:"column:article;type:varchar(128);uniqueIndex"`
 	Description          string      `gorm:"column:description;type:text"`
 	Image                string      `gorm:"column:image;type:varchar(255)"`
 	CatalogImage         string      `gorm:"column:catalog_image;type:varchar(255)"`
@@ -91,7 +90,6 @@ type Brand struct {
 
 type Price struct {
 	CustomModel
-	BaseModel
 	ProductID uint     `gorm:"column:product_id"`
 	CityID    uint     `gorm:"column:city_id"`
 	Price     float64  `gorm:"column:price;type:decimal(10,2)"`
@@ -100,14 +98,12 @@ type Price struct {
 
 type Characteristic struct {
 	CustomModel
-	BaseModel
 	Name       string `gorm:"column:name;unique"`
 	CategoryID uint   `gorm:"column:category_id"`
 }
 
 type CharacteristicValue struct {
 	CustomModel
-	BaseModel
 	ProductID        uint   `gorm:"column:product_id"`
 	CharacteristicID uint   `gorm:"column:characteristic_id"`
 	Value            string `gorm:"column:value;type:varchar(255)"`
@@ -121,7 +117,6 @@ type ProductImage struct {
 
 type City struct {
 	CustomModel
-	BaseModel
 	Name              string `gorm:"column:name"`
 	Domain            string `gorm:"column:domain"`
 	Address           string `gorm:"column:address"`

@@ -96,7 +96,7 @@ class SendSMSView(GenericAPIView):
 
             tg_link = f"https://api.telegram.org/bot{bot_token}/sendMessage"
             tg_params = {
-                "chat_id": chat_id,  # phone_number if not phone_number.startswith("+7") else phone_number.replace("+7", "8"),
+                "chat_id": chat_id,
                 "text": message,
                 "json": 1,  # to receive response in JSON format
             }

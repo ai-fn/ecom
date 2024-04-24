@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"encoding/csv"
 	"fmt"
 	"image"
 	"image/color"
@@ -20,7 +21,174 @@ import (
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/nfnt/resize"
+	"github.com/xuri/excelize/v2"
 )
+
+type CommonReader interface {
+	openFile(fp string) error
+	Read() ([]string, error)
+	Close() error
+	GetFileReader() FileReader
+}
+
+type FileReaderInterface interface {
+	SetColumns([]string) error
+}
+
+type FileReader struct {
+	rIdx           int
+	CtNms          *models.Columns
+	ChrCols        *models.Columns
+	IgnoredColumns *models.Columns
+	Columns        []string
+	FilePath       string
+}
+
+type CSVReader struct {
+	FileReader    FileReader
+	File          *os.File
+	DefaultReader *csv.Reader
+}
+
+type XLSXReader struct {
+	FileReader FileReader
+	File       *excelize.File
+	Rows       *excelize.Rows
+}
+
+func (r *CSVReader) GetFileReader() FileReader {
+	return r.FileReader
+}
+
+func (r *XLSXReader) GetFileReader() FileReader {
+	return r.FileReader
+}
+
+func (r *CSVReader) openFile(fp string) error {
+	file, err := os.Open(fp)
+	if err != nil {
+		return err
+	}
+
+	r.File = file
+	r.DefaultReader = csv.NewReader(file)
+	return nil
+}
+
+func (r *CSVReader) Read() (row []string, err error) {
+	row, err = r.DefaultReader.Read()
+	if err != nil {
+		return
+	}
+
+	if r.FileReader.rIdx == 0 {
+		r.FileReader.SetColumns(row)
+	}
+	return
+}
+
+func (r *CSVReader) Close() error {
+	if r.File != nil {
+		if err := r.File.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *FileReader) SetColumns(row []string) error {
+	r.Columns = row
+
+	if err := r.colsIsValid(); err != nil {
+		return err
+	}
+
+	for _, cellVal := range r.Columns {
+		if !r.IgnoredColumns.Contains(cellVal) {
+
+			// Select characteristic columns
+			if !r.CtNms.Contains(cellVal) {
+				r.ChrCols.Cols = append(r.ChrCols.Cols, cellVal)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (r *FileReader) colsIsValid() error {
+	for _, el := range r.IgnoredColumns.Cols {
+		if !r.IgnoredColumns.Contains(el) {
+			return fmt.Errorf("не все обязательные поля найдены в документе")
+		}
+	}
+	return nil
+}
+
+func (r *XLSXReader) openFile(fp string) error {
+	file, err := excelize.OpenFile(fp)
+	if err != nil {
+		return err
+	}
+	r.File = file
+	if rows, err := file.Rows(file.GetSheetList()[0]); err != nil { // Read only first sheet
+		return err
+	} else {
+		r.Rows = rows
+	}
+	return nil
+}
+
+func (r *XLSXReader) Read() (row []string, err error) {
+	if r.Rows.Next() {
+		row, err = r.Rows.Columns()
+		if err != nil {
+			return
+		}
+		if r.FileReader.rIdx == 0 {
+			r.FileReader.SetColumns(row)
+		}
+		return
+	}
+	return
+}
+
+func (r *XLSXReader) Close() error {
+	if r.File != nil {
+		if err := r.File.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func NewReader(fp string, ignoredColumns []string) (CommonReader, error) {
+	var cmnReader CommonReader
+	format := filepath.Ext(fp)
+	reader := FileReader{
+		FilePath:       fp,
+		IgnoredColumns: &models.Columns{Cols: ignoredColumns},
+		CtNms:          &models.Columns{},
+		ChrCols:        &models.Columns{},
+	}
+	switch format {
+	case ".xlsx":
+		cmnReader = &XLSXReader{
+			FileReader: reader,
+		}
+	case ".csv":
+		cmnReader = &CSVReader{
+			FileReader: reader,
+		}
+	default:
+		return nil, fmt.Errorf("unexpected file format: %s", format)
+	}
+
+	if err := cmnReader.openFile(fp); err != nil {
+		return nil, err
+	}
+	return cmnReader, nil
+}
 
 func ConvertStrToUint(s ...string) ([]uint, error) {
 	if s == nil {

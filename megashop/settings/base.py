@@ -112,10 +112,21 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DB_NAMES = ("test", "default")
+USE_TEST_DB = os.environ.get("USE_TEST_DB", "1") == "1"
+
 DATABASES = {
-    "default": {
+    DB_NAMES[not USE_TEST_DB]: {
         "ENGINE": "django_prometheus.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "default_db_name"),
+        "USER": os.environ.get("POSTGRES_USER", "default_user"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
+        "HOST": "db",  # Или другой хост, если он определён
+        "PORT": "5432",  # Стандартный порт для PostgreSQL
+    },
+    DB_NAMES[USE_TEST_DB]: {
+        "ENGINE": "django_prometheus.db.backends.postgresql",
+        "NAME": "test_" + os.environ.get("POSTGRES_DB", "default_db_name"),
         "USER": os.environ.get("POSTGRES_USER", "default_user"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
         "HOST": "db",  # Или другой хост, если он определён
@@ -249,7 +260,7 @@ except ValueError as e:
     WATERMARK_OPACITY = 0.6
 
 try:
-    WATERMARK_MARGIN = int(os.environ.get("WATERMARK_OPACITY", 30))
+    WATERMARK_MARGIN = int(os.environ.get("WATERMARK_MARGIN", 30))
 except ValueError as e:
     logger.error(f"invalid watermark margin setting, using defult (30): {e}")
     WATERMARK_MARGIN = 30
