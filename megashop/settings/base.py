@@ -252,12 +252,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 WATERMARK_PATH = os.path.join(MEDIA_ROOT, os.getenv('WATERMARK_PATH', 'watermark.png'))
 try:
-    WATERMARK_OPACITY = float(os.environ.get("WATERMARK_OPACITY", 0.6))
-    if WATERMARK_OPACITY > 1:
-        raise ValueError("Watermark opaticy must be in range 0-1")
+    WATERMARK_OPACITY = float(os.environ.get("WATERMARK_OPACITY", 60))
+    if WATERMARK_OPACITY > 100:
+        raise ValueError("Watermark opaticy must be in range from 0 to 100")
 except ValueError as e:
     logger.error(f"invalid watermark opacity setting, using default (0.6): {e}")
-    WATERMARK_OPACITY = 0.6
+    WATERMARK_OPACITY = 60 / 10
+else:
+    WATERMARK_OPACITY /= 10
 
 try:
     WATERMARK_MARGIN = int(os.environ.get("WATERMARK_MARGIN", 30))
