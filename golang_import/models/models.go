@@ -11,9 +11,14 @@ type Columns struct {
 	Cols []string
 }
 
-type Login struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+type ThumbModel struct {
+	Thumb string `gorm:"column:thumb_img;type:text"`
+}
+
+type CustomModel struct {
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type CustomUser struct {
@@ -31,16 +36,6 @@ type CustomUser struct {
 	House      string `gorm:"column:house"`
 	IsCustomer bool   `gorm:"column:is_customer"`
 	MiddleName string `gorm:"column:middle_name"`
-}
-
-type CustomModel struct {
-	ID        uint `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-type BaseModel struct {
-	DeletedAt *time.Time `sql:"index"`
 }
 
 type Category struct {
@@ -63,12 +58,12 @@ type Category struct {
 
 type Product struct {
 	CustomModel
+	ThumbModel
 	CategoryID           uint        `gorm:"column:category_id"`
 	BrandID              *uint       `gorm:"column:brand_id"`
 	Title                string      `gorm:"column:title"`
 	Article              string      `gorm:"column:article;type:varchar(128);uniqueIndex"`
 	Description          string      `gorm:"column:description;type:text"`
-	Image                string      `gorm:"column:image;type:varchar(255)"`
 	CatalogImage         string      `gorm:"column:catalog_image;type:varchar(255)"`
 	SearchImage          string      `gorm:"column:search_image;type:varchar(255)"`
 	Slug                 string      `gorm:"column:slug;unique"`
@@ -110,9 +105,11 @@ type CharacteristicValue struct {
 }
 
 type ProductImage struct {
-	ID        int    `gorm:"primary_key"`
+	CustomModel
+	ThumbModel
 	ProductID uint   `gorm:"column:product_id"`
 	Image     string `gorm:"column:image;type:varchar(255)"`
+	Name      string `gorm:"column:name;type:varchar(128)"`
 }
 
 type City struct {

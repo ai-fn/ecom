@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/csv"
 	"fmt"
 	"image"
@@ -26,9 +27,9 @@ import (
 
 type CommonReader interface {
 	openFile(fp string) error
-	Read() ([]string, error)
+	Read() ([][]string, error)
 	Close() error
-	GetFileReader() FileReader
+	GetFileReader() *FileReader
 }
 
 type FileReaderInterface interface {
@@ -36,7 +37,6 @@ type FileReaderInterface interface {
 }
 
 type FileReader struct {
-	rIdx           int
 	CtNms          *models.Columns
 	ChrCols        *models.Columns
 	IgnoredColumns *models.Columns
@@ -45,22 +45,22 @@ type FileReader struct {
 }
 
 type CSVReader struct {
-	FileReader    FileReader
+	FileReader    *FileReader
 	File          *os.File
 	DefaultReader *csv.Reader
 }
 
 type XLSXReader struct {
-	FileReader FileReader
+	FileReader *FileReader
 	File       *excelize.File
 	Rows       *excelize.Rows
 }
 
-func (r *CSVReader) GetFileReader() FileReader {
+func (r *CSVReader) GetFileReader() *FileReader {
 	return r.FileReader
 }
 
-func (r *XLSXReader) GetFileReader() FileReader {
+func (r *XLSXReader) GetFileReader() *FileReader {
 	return r.FileReader
 }
 
@@ -75,14 +75,14 @@ func (r *CSVReader) openFile(fp string) error {
 	return nil
 }
 
-func (r *CSVReader) Read() (row []string, err error) {
-	row, err = r.DefaultReader.Read()
+func (r *CSVReader) Read() (rows [][]string, err error) {
+	rows, err = r.DefaultReader.ReadAll()
 	if err != nil {
 		return
 	}
 
-	if r.FileReader.rIdx == 0 {
-		r.FileReader.SetColumns(row)
+	if err = r.FileReader.SetColumns(rows[0]); err != nil {
+		return
 	}
 	return
 }
@@ -99,27 +99,27 @@ func (r *CSVReader) Close() error {
 func (r *FileReader) SetColumns(row []string) error {
 	r.Columns = row
 
-	if err := r.colsIsValid(); err != nil {
-		return err
-	}
-
 	for _, cellVal := range r.Columns {
 		if !r.IgnoredColumns.Contains(cellVal) {
 
 			// Select characteristic columns
-			if !r.CtNms.Contains(cellVal) {
-				r.ChrCols.Cols = append(r.ChrCols.Cols, cellVal)
+			if r.CtNms.Contains(cellVal) {
+				r.CtNms.Cols = append(r.CtNms.Cols, cellVal)
+				continue
 			}
+			r.ChrCols.Cols = append(r.ChrCols.Cols, cellVal)
 		}
 	}
 
 	return nil
 }
 
-func (r *FileReader) colsIsValid() error {
+func (r *FileReader) ColsIsValid() error {
+	var cols = models.Columns{Cols: r.Columns}
 	for _, el := range r.IgnoredColumns.Cols {
-		if !r.IgnoredColumns.Contains(el) {
-			return fmt.Errorf("не все обязательные поля найдены в документе")
+
+		if !cols.Contains(el) {
+			return fmt.Errorf("не все обязательные поля найдены в документе: %s", el)
 		}
 	}
 	return nil
@@ -136,17 +136,18 @@ func (r *XLSXReader) openFile(fp string) error {
 	} else {
 		r.Rows = rows
 	}
+
 	return nil
 }
 
-func (r *XLSXReader) Read() (row []string, err error) {
+func (r *XLSXReader) Read() (rows [][]string, err error) {
 	if r.Rows.Next() {
-		row, err = r.Rows.Columns()
+		rows, err = r.File.GetRows(r.File.GetSheetName(0))
 		if err != nil {
 			return
 		}
-		if r.FileReader.rIdx == 0 {
-			r.FileReader.SetColumns(row)
+		if err = r.FileReader.SetColumns(rows[0]); err != nil {
+			return
 		}
 		return
 	}
@@ -165,7 +166,7 @@ func (r *XLSXReader) Close() error {
 func NewReader(fp string, ignoredColumns []string) (CommonReader, error) {
 	var cmnReader CommonReader
 	format := filepath.Ext(fp)
-	reader := FileReader{
+	reader := &FileReader{
 		FilePath:       fp,
 		IgnoredColumns: &models.Columns{Cols: ignoredColumns},
 		CtNms:          &models.Columns{},
@@ -212,18 +213,18 @@ func getSize(imgType string) ([]uint, error) {
 	dfltVals["SEARCH"] = []string{"42", "50"}
 	dfltVals["WT_MARK"] = []string{"42", "50"}
 
-	width := os.Getenv(fmt.Sprintf("%s_IMAGE_WIDTH", imgType))
-	height := os.Getenv(fmt.Sprintf("%s_IMAGE_HEIGHT", imgType))
+	width := os.Getenv(fmt.Sprintf("PRODUCT_%s_IMAGE_WIDTH", imgType))
+	height := os.Getenv(fmt.Sprintf("PRODUCT_%s_IMAGE_HEIGHT", imgType))
 	if width == "" || height == "" {
 		if size, exists := dfltVals[imgType]; exists {
 			return ConvertStrToUint(size[0], size[1])
 		}
-		return ConvertStrToUint(width, height)
+		return nil, fmt.Errorf("provided wrong image type: %s", imgType)
 	}
-	return nil, fmt.Errorf("provided wrong image type: %s", imgType)
+	return ConvertStrToUint(width, height)
 }
 
-func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []string) error {
+func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []string) error {
 	var catalogPath = os.Getenv("CATALOG_PATH")
 	if catalogPath == "" {
 		catalogPath = "catalog/products/"
@@ -271,13 +272,27 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 	default:
 		img, _, err = image.Decode(bytes.NewReader(data))
 	}
+
 	if err != nil {
 		log.Fatalf("error while image decode: %s", err)
 		fmt.Println(err.Error())
 		return err
 	}
 
+	if err = setThumbImage(prod, img); err != nil {
+		log.Fatal(err)
+	} else {
+		if err = tx.Save(&prod).Error; err != nil {
+			log.Fatal(err.Error())
+			return err
+		}
+	}
+
 	for _, imgType := range imgTypes {
+		if !tx.Where(&models.ProductImage{Name: fmt.Sprintf("%s_%s", imgType, bsName)}).First(&models.ProductImage{}).RecordNotFound() {
+			continue
+		}
+
 		size, err := getSize(imgType)
 		if err != nil {
 			log.Fatalf("error while get size: %s", err)
@@ -315,12 +330,43 @@ func SaveImages(prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []
 		}
 
 		webpBuffer.Reset()
-		if err := tx.Create(&models.ProductImage{Image: catalogPath + flName + ".webp", ProductID: prod.ID}).Error; err != nil {
+		var newProdImage = &models.ProductImage{Image: catalogPath + flName + ".webp", ProductID: prod.ID, Name: fmt.Sprintf("%s_%s", imgType, bsName)}
+		if err = setThumbImage(newProdImage, resized); err != nil {
+			log.Fatal(err)
+		}
+
+		if err := tx.Create(newProdImage).Error; err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func setThumbImage(obj interface{}, img image.Image) (err error) {
+	var thumbBuff bytes.Buffer
+	var attributeName = "ThumbModel"
+	thumb_img := resize.Resize(8, 8, img, resize.Lanczos2)
+
+	if err = jpeg.Encode(&thumbBuff, thumb_img, &jpeg.Options{}); err != nil {
+		err = fmt.Errorf("error while encode image into thumb buffer: %s", err.Error())
+		return
+	} else {
+		val := reflect.ValueOf(obj).Elem() // Get the reflect.Value of the pointer's element
+		field := val.FieldByName(attributeName)
+		if !field.IsValid() {
+			err = fmt.Errorf("attribute '%s' not found", attributeName)
+			return
+		}
+
+		if !field.CanSet() {
+			err = fmt.Errorf("cannot set attribute '%s'", attributeName)
+			return
+		}
+
+		field.Set(reflect.ValueOf(models.ThumbModel{Thumb: base64.RawStdEncoding.EncodeToString(thumbBuff.Bytes())}))
+	}
+	return
 }
 
 func WatermarkImg(origImg image.Image, wtmrkPath string) error {
@@ -369,9 +415,10 @@ func WatermarkImg(origImg image.Image, wtmrkPath string) error {
 	}
 
 	position := image.Pt(origBounds.Dx()-wtrmkBounds.Dx()-margin, origBounds.Dy()-wtrmkBounds.Dy()-margin)
+	drawImg := image.NewRGBA(image.Rect(0, 0, origImg.Bounds().Dx(), origImg.Bounds().Dy()))
 
 	// Draw watermark onto the original image
-	draw.DrawMask(origImg.(draw.Image), wtrmkBounds.Add(position), wtrmkImg, image.Point{}, mask, image.Point{}, draw.Over)
+	draw.DrawMask(drawImg, wtrmkBounds.Add(position), wtrmkImg, image.Point{}, mask, image.Point{}, draw.Over)
 
 	return nil
 }
@@ -397,6 +444,14 @@ func parseInt(s string) (int, error) {
 	}
 
 	return result, nil
+}
+
+func GetFromSlice(slice []string, idx int) (string, error) {
+	if idx < 0 || len(slice) <= idx {
+		return "", fmt.Errorf("index out of range: %d of %d", idx, len(slice))
+	}
+
+	return slice[idx], nil
 }
 
 // findByField finds an element in the slice of any structs by the provided field value.
