@@ -1,3 +1,4 @@
+import requests
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAdminUser
@@ -34,40 +35,7 @@ class XlsxFileUploadView(APIView):
     )
     def put(self, request, filename, format=None):
         file_obj = request.data.get("file")
-        if file_obj is None:
-            return Response(
-                {"error": "File object is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        
         upload_type = request.query_params.get("type")
-
-        file_name = default_storage.save(
-            "tmp/" + filename, ContentFile(file_obj.read())
-        )
-        file_path = default_storage.path(file_name)
-
-        # Проверка на поддерживаемые типы
-        if upload_type not in ["PRODUCTS", "BRANDS"]:
-            return Response(
-                {"error": "Unsupported type parameter."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if filename.endswith(".xlsx"):
-            result = handle_xlsx_file_task.delay(file_path, upload_type)
-        elif filename.endswith(".csv"):
-            result = handle_csv_file_task.delay(file_path, upload_type)
-        else:
-            return Response(
-                {"error": "Unsupported file format."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if not result:
-            return Response(
-                {"error": "Error processing file."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        return Response({"result": result.get()}, status=status.HTTP_200_OK)
+        
+        r = requests.put(f"http://golang:8080/api/upload/{filename}?type={upload_type}", files={"file": ContentFile(file_obj.read())}, headers={"Authorization": request.headers.get("Authorization")})
+        return Response(r.json(), status=r.status_code)
