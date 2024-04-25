@@ -311,6 +311,10 @@ class ProductImage(ThumbModel):
         related_name="images",
         verbose_name="Товар",
     )
+    name = models.CharField(
+        max_length=128,
+        verbose_name="Название"
+    )
     image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение",
@@ -322,6 +326,11 @@ class ProductImage(ThumbModel):
 
     def __str__(self):
         return f"Image for {self.product.title}"
+    
+    def delete(self, using, keep_parents) -> tuple[int, dict[str, int]]:
+        if os.path.isfile(self.image.path):
+            os.remove(self.image.path)
+        return super().delete(using, keep_parents)
 
 
 class Promo(ThumbModel):

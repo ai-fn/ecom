@@ -109,10 +109,10 @@ class ProductFrequenlyBoughtTogetherAdmin(admin.ModelAdmin):
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = [
-        "product",
+        "product", "name",
     ]
     search_fields = (
-        "product__title",
+        "product__title", "name",
     )
 
 
