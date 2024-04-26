@@ -57,7 +57,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
 
             if self.domain:
 
-                price_filter = Q(prices__city__domain=self.domain)
+                price_filter = Q(prices__city_group__cities__domain=self.domain)
 
                 if price_lte is not None:
                     price_filter &= Q(prices__price__lte=price_lte)

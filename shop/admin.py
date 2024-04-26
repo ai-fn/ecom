@@ -153,7 +153,7 @@ class CharacteristicValueAdmin(admin.ModelAdmin):
 class PriceAdmin(admin.ModelAdmin):
     list_display = (
         "product",
-        "city",
+        "city_group",
         "price",
     )
 

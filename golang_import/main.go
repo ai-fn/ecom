@@ -152,7 +152,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 	}()
 
 	// Select cities from db
-	var cities []models.City
+	var cities []models.CityGroup
 	result := db.Find(&cities)
 	if result.Error != nil {
 		return fmt.Errorf("failed to get cities: " + result.Error.Error())
@@ -390,8 +390,8 @@ func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category, prntID
 	return nil
 }
 
-func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName string, cities []models.City) error {
-	var city models.City
+func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName string, cities []models.CityGroup) error {
+	var city models.CityGroup
 	var price models.Price
 	var err error
 
@@ -405,11 +405,11 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 		fmt.Println("City not found: ", colName)
 		return err
 	} else {
-		city = find.(models.City)
+		city = find.(models.CityGroup)
 	}
 
-	if tx.Where(&models.Price{CityID: city.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
-		newPrice := models.Price{CityID: city.ID, ProductID: prod.ID, Price: priceVal}
+	if tx.Where(&models.Price{CityGroupID: city.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
+		newPrice := models.Price{CityGroupID: city.ID, ProductID: prod.ID, Price: priceVal}
 		if err := tx.Create(&newPrice).Error; err != nil {
 			// Print error and return
 			fmt.Println("Error creating price:", err)

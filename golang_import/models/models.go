@@ -83,14 +83,6 @@ type Brand struct {
 	Order int    `gorm:"column:order"`
 }
 
-type Price struct {
-	CustomModel
-	ProductID uint     `gorm:"column:product_id"`
-	CityID    uint     `gorm:"column:city_id"`
-	Price     float64  `gorm:"column:price;type:decimal(10,2)"`
-	OldPrice  *float64 `gorm:"column:old_price;type:decimal(10,2)"`
-}
-
 type Characteristic struct {
 	CustomModel
 	Name       string `gorm:"column:name;unique"`
@@ -110,6 +102,21 @@ type ProductImage struct {
 	ProductID uint   `gorm:"column:product_id"`
 	Image     string `gorm:"column:image;type:varchar(255)"`
 	Name      string `gorm:"column:name;type:varchar(128)"`
+}
+
+type Price struct {
+	CustomModel
+	ProductID   uint     `gorm:"column:product_id"`
+	CityGroupID uint     `gorm:"column:city_group_id"`
+	Price       float64  `gorm:"column:price;type:decimal(10,2)"`
+	OldPrice    *float64 `gorm:"column:old_price;type:decimal(10,2)"`
+}
+
+type CityGroup struct {
+	CustomModel
+	Name     string
+	MainCity *City   `gorm:"foreignKey:MainCityID"`
+	Cities   []*City `gorm:"many2many:city_group_cities;"`
 }
 
 type City struct {
@@ -158,6 +165,10 @@ func (CharacteristicValue) TableName() string {
 
 func (City) TableName() string {
 	return "account_city"
+}
+
+func (CityGroup) TableName() string {
+	return "account_citygroup"
 }
 
 func (CustomUser) TableName() string {

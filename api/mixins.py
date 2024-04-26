@@ -134,7 +134,7 @@ class GeneralSearchMixin:
                     continue
 
                 if city:
-                    price = Price.objects.filter(product=product, city=city).first()
+                    price = Price.objects.filter(product=product, city_group__cities=city).first()
                     if price:
                         product_data = ProductDocumentSerializer(product).data
                         product_data["price"] = PriceSerializer(price).data
@@ -209,15 +209,31 @@ class SerializerGetPricesMixin:
     def get_city_price(self, obj) -> Decimal | None:
         city_domain = self.context.get("city_domain")
         if city_domain:
-            price = Price.objects.filter(city__domain=city_domain, product=obj).first()
+            try:
+                c = City.objects.get(domain=city_domain)
+            except City.DoesNotExist:
+                logger.info(f"City with domain {city_domain} not found")
+                return None
+            
+            price = Price.objects.filter(city_group__cities=c, product=obj).first()
             if price:
                 return price.price
+            
+        logger.info(f"Price for city {c.name} by domain {city_domain} not found")
         return None
 
     def get_old_price(self, obj) -> Decimal | None:
         city_domain = self.context.get("city_domain")
         if city_domain:
-            price = Price.objects.filter(city__domain=city_domain, product=obj).first()
+            try:
+                c = City.objects.get(domain=city_domain)
+            except City.DoesNotExist:
+                logger.info(f"City with domain {city_domain} not found")
+                return None
+
+            price = Price.objects.filter(city_group__cities=c, product=obj).first()
             if price:
                 return price.old_price
+            
+        logger.info(f"Price for city {c.name} by domain {city_domain} not found")
         return None

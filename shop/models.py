@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from loguru import logger
 
 from itertools import chain
-from account.models import City, CustomUser, TimeBasedModel
+from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
 
 from PIL import Image
@@ -21,14 +21,16 @@ class ThumbModel(TimeBasedModel):
     class Meta:
         abstract = True
 
-    thumb_img = models.TextField(verbose_name="Миниатюра", null=True, blank=True, max_length=512)
+    thumb_img = models.TextField(
+        verbose_name="Миниатюра", null=True, blank=True, max_length=512
+    )
 
     def save(
         self,
         force_insert: bool = False,
         force_update: bool = False,
         using: str | None = None,
-        update_fields: Iterable[str] | None = None
+        update_fields: Iterable[str] | None = None,
     ) -> None:
         if not self.thumb_img:
             image_path: str
@@ -57,8 +59,10 @@ class ThumbModel(TimeBasedModel):
                         thumb_image = file.copy().resize(thumb_image_size)
                         with io.BytesIO() as buffer:
                             thumb_image.save(buffer, format="PNG")
-                            self.thumb_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
-                        
+                            self.thumb_img = base64.b64encode(buffer.getvalue()).decode(
+                                "utf-8"
+                            )
+
                     if update_fields is not None:
                         update_fields = chain(update_fields, ("thumb_img",))
                     elif update_fields is None and self.pk:
@@ -225,13 +229,13 @@ class Product(ThumbModel):
         upload_to="catalog/products/",
         verbose_name="Изображение в каталоге",
         blank=True,
-        null=True
+        null=True,
     )
     search_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение в поиске",
         blank=True,
-        null=True
+        null=True,
     )
     slug = models.SlugField(
         unique=True,
@@ -311,10 +315,7 @@ class ProductImage(ThumbModel):
         related_name="images",
         verbose_name="Товар",
     )
-    name = models.CharField(
-        max_length=128,
-        verbose_name="Название"
-    )
+    name = models.CharField(max_length=128, verbose_name="Название")
     image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение",
@@ -326,7 +327,7 @@ class ProductImage(ThumbModel):
 
     def __str__(self):
         return f"Image for {self.product.title}"
-    
+
     def delete(self, using, keep_parents) -> tuple[int, dict[str, int]]:
         if os.path.isfile(self.image.path):
             os.remove(self.image.path)
@@ -426,7 +427,12 @@ class Price(TimeBasedModel):
     product = models.ForeignKey(
         Product, related_name="prices", on_delete=models.CASCADE
     )
-    city = models.ForeignKey(City, related_name="prices", on_delete=models.CASCADE)
+    city_group = models.ForeignKey(
+        CityGroup,
+        related_name="prices",
+        on_delete=models.CASCADE,
+        verbose_name="Группа городов",
+    )
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     old_price = models.DecimalField(
         max_digits=10,
@@ -438,15 +444,15 @@ class Price(TimeBasedModel):
     class Meta:
         verbose_name = "Цена"
         verbose_name_plural = "Цены"
-        unique_together = ("product", "city")
+        unique_together = ("product", "city_group")
         indexes = [
             models.Index(
-                fields=["product", "city"]
+                fields=["product", "city_group"]
             ),  # Compound index for common queries involving both fields
         ]
 
     def __str__(self):
-        return f"{self.product.title} - {self.city.name}: {self.price}"
+        return f"{self.product.title} - {self.city_group.name}: {self.price}"
 
 
 class SettingChoices(models.TextChoices):

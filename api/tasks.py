@@ -17,6 +17,7 @@ from tempfile import NamedTemporaryFile
 from pytils import translit
 from django.utils import timezone
 from django.utils.text import slugify as django_slugify
+from account.models import CityGroup
 from api.serializers.product_detail import ProductDetailSerializer
 
 from shop.models import (
@@ -91,14 +92,34 @@ def update_cities():
         with open(city_csv_path, newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             city_names = []
+            cities = {}
+            region: str
+            city: str
+            region_type: str
+            region_name: str
             for row in reader:
+                
+                city = row["city"]
+                region = row["region"]
+                region_type = row["region_type"]
+                city_obj = {"capital_marker": row["capital_marker"]}
+                region_name = f"{region} {region_type}" if region_type not in ("Респ", "г") else f"{region_type} {region}"
+                
+                cities.setdefault(region_name, [])
+                if region_type == "г":
+                    city_obj["name"] = region_name
+                    city_obj["capital_marker"] = "2"
+                else:
+                    if city != "":
+                        city_obj["name"] = city
+                    elif row["region_type"] == "г":
+                        city_obj["name"] = region
+                    elif row["area_type"] == "г":
+                        city_obj["name"] = row["area"]
+                    else:
+                        continue
 
-                if row["city"] != "":
-                    city_names.append(row["city"])
-                elif row["region_type"] == "г":
-                    city_names.append(row["region"])
-                elif row["area_type"] == "г":
-                    city_names.append(row["area"])
+                cities[region_name].append(city_obj)
 
         print("City names extracted successfully:")
     except FileNotFoundError:
@@ -112,15 +133,30 @@ def update_cities():
         except subprocess.CalledProcessError as e:
             print("Error cleaning up:", e)
 
-    current_cities = City.objects.values_list("name", flat=True)
-    diff = set(city_names).difference(set(current_cities))
+    current_city_groups = CityGroup.objects.all()
+    current_cities = City.objects.all()
+    with transaction.atomic():
+        new_cities: list
+        for k, v in cities.items():
+            new_cities = []
+            try:
+                group = current_city_groups.get(name=k)
+            except CityGroup.DoesNotExist:
+                group = CityGroup.objects.create(name=k)
+            
+            for c in v:
+                try:
+                    city = current_cities.get(name=c["name"])
+                except City.DoesNotExist:
+                    city = City.objects.create(name=c["name"])
+                    new_cities.append(city)
+                
+                if c["capital_marker"] == "2":
+                    group.main_city = city
+                    group.save(update_fields=["main_city"])
 
-    if len(diff) > 0:
-        with transaction.atomic():
-            for c in diff:
-                City.objects.create(name=c)
-        print("Cities successfully created")
-
+            if len(new_cities) > 0:
+                group.cities.add(*new_cities)
 
 @shared_task
 def handle_csv_file_task(file_path, upload_type):
@@ -392,7 +428,7 @@ def process_dataframe(df, upload_type):
                                 new_price = float(row[column_name])
                                 price, created = Price.objects.get_or_create(
                                     product=product,
-                                    city=city,
+                                    city_group__cities=city,
                                     defaults={"price": new_price},
                                 )
 
@@ -459,7 +495,7 @@ def export_products_to_csv(email_to=None):
     # Экспорт данных в CSV
     products = Product.objects.all()
     prices = Price.objects.all()
-    city_names = City.objects.values_list("name", flat=True)
+    city_group_names = prices.values_list("city_group__name", flat=True)
     characteristic_names = Characteristic.objects.values_list("name", flat=True)
     characteristic_values = (
         CharacteristicValue.objects.values_list("value", "characteristic", "product")
@@ -479,7 +515,7 @@ def export_products_to_csv(email_to=None):
                 "SKU",
                 "DESCRIPTION",
                 *characteristic_names,
-                *city_names,
+                *city_group_names,
                 "PRIORITY",
             ]
         )
@@ -487,9 +523,9 @@ def export_products_to_csv(email_to=None):
 
             # Select product prices by city name
             price_cells = []
-            for name in city_names:
+            for name in city_group_names:
                 try:
-                    val = prices.get(product=product["id"], city__name=name).price
+                    val = prices.get(product=product["id"], city_group__name=name).price
                 except (Price.DoesNotExist, AttributeError):
                     val = ""
                 price_cells.append(val)
@@ -516,8 +552,8 @@ def export_products_to_csv(email_to=None):
             writer.writerow(
                 [
                     product["title"],
-                    product["article"],
                     categories_names,
+                    product["article"],
                     product["description"],
                     *characteristic_values_cells,
                     *price_cells,
