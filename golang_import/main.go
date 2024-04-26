@@ -107,15 +107,14 @@ func processXLSXData(c *gin.Context) {
 
 	switch uploadType {
 	case "PRODUCTS":
+		c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 		go func() {
 			err := productsProcess(db, flPth, ignoredColumns)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				fmt.Println(err.Error())
 				return
 			}
 			fmt.Printf("Products data processed in %.9fs.\n", time.Since(startTime).Seconds())
-			c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 		}()
 
 	case "BRANDS":
