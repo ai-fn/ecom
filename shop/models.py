@@ -602,6 +602,12 @@ class SideBarMenuItem(TimeBasedModel):
     )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     link = models.CharField(max_length=255, verbose_name="Ссылка")
+    icon = models.ImageField(
+        verbose_name="Изображение",
+        upload_to="sidebar_icons",
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ("order",)
