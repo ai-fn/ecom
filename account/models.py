@@ -77,7 +77,7 @@ class City(TimeBasedModel):
 
 
 class CityGroup(TimeBasedModel):
-    name = models.CharField(max_length=255, verbose_name="Город")
+    name = models.CharField(max_length=255, verbose_name="Город", unique=True)
     main_city = models.ForeignKey(
         "City",
         on_delete=models.SET_NULL,
@@ -135,12 +135,14 @@ class CustomUser(AbstractUser):
             models.Index(fields=["phone"], name="customuser_phone_idx"),
             models.Index(fields=["city"], name="customuser_city_idx"),
         ]
-    
+
     def delete(self, using: Any = ..., keep_parents: bool = ...):
 
         if not self.is_active:
             pass
         else:
             self.is_active = True
-            self.first_name = f"Удаленный пользователь ({self.first_name} {self.last_name})"
-            self.save(update_fields=['is_active', 'first_name'])
+            self.first_name = (
+                f"Удаленный пользователь ({self.first_name} {self.last_name})"
+            )
+            self.save(update_fields=["is_active", "first_name"])
