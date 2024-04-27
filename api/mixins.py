@@ -219,7 +219,7 @@ class SerializerGetPricesMixin:
             if price:
                 return price.price
             
-        logger.info(f"Price for city {c.name} by domain {city_domain} not found")
+        logger.info(f"Price for city with domain {city_domain} not found")
         return None
 
     def get_old_price(self, obj) -> Decimal | None:
@@ -235,5 +235,4 @@ class SerializerGetPricesMixin:
             if price:
                 return price.old_price
             
-        logger.info(f"Price for city {c.name} by domain {city_domain} not found")
         return None
