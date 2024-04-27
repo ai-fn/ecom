@@ -114,7 +114,7 @@ type Price struct {
 
 type CityGroup struct {
 	CustomModel
-	Name     string
+	Name     string  `gorm:"column:name;type:varchar(255);unique"`
 	MainCity *City   `gorm:"foreignKey:MainCityID"`
 	Cities   []*City `gorm:"many2many:city_group_cities;"`
 }

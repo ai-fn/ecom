@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -157,6 +158,11 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 		return fmt.Errorf("failed to get cities: " + result.Error.Error())
 	}
 
+	// Сортируем массив по полю Name
+	sort.Slice(cities, func(i, j int) bool {
+		return cities[i].Name < cities[j].Name
+	})
+
 	// Insert city names into slice
 	for _, c := range cities {
 		r.GetFileReader().CtNms.Cols = append(r.GetFileReader().CtNms.Cols, c.Name)
@@ -213,6 +219,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 					return err
 				}
 			}
+			// fmt.Println(colNms, r.GetFileReader().CtNms.Cols)
 
 			for _, ctCol = range r.GetFileReader().CtNms.Cols {
 				idx, ok := colNms[ctCol]
@@ -222,11 +229,13 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 
 				ctVal, err := utils.GetFromSlice(row, idx)
 				if err != nil {
+					fmt.Println(err.Error())
 					continue
 				}
+				fmt.Println(ctVal)
 
 				if err = processPrices(&prod, db, ctVal, ctCol, cities); err != nil {
-					return err
+					fmt.Println(err.Error())
 				}
 			}
 			fmt.Printf("Product %s processed\n", prod.Title)
@@ -281,25 +290,23 @@ func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models
 	idx, ok = colNms["PRIORITY"]
 	if ok {
 		cellVal, err = utils.GetFromSlice(row, idx)
-		if err != nil {
-			return err
-		}
-
-		if cellVal != "" {
-			priority, err := strconv.ParseFloat(cellVal, 32)
-			if err != nil {
-				return fmt.Errorf("error while parse priority: %s", err.Error())
+		if err == nil {
+			if cellVal != "" {
+				priority, err := strconv.ParseFloat(cellVal, 32)
+				if err == nil {
+					prod.Priority = int(priority)
+				}
 			}
-			prod.Priority = int(priority)
 		}
-	} else {
+	}
+	if !ok || err != nil {
 		prod.Priority = 500
 	}
 
 	prod.Description = dsc
 	prod.Title = title
 
-	if err := tx.Save(&prod).Error; err != nil {
+	if err = tx.Save(&prod).Error; err != nil {
 		return err
 	}
 
@@ -390,9 +397,9 @@ func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category, prntID
 }
 
 func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName string, cities []models.CityGroup) error {
-	var city models.CityGroup
-	var price models.Price
 	var err error
+	var price models.Price
+	var cityGroup models.CityGroup
 
 	priceVal, err := strconv.ParseFloat(cellVal, 64)
 	if err != nil {
@@ -400,15 +407,14 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 		return err
 	}
 
-	if find, err := utils.FindByField(cities, "Name", colName); err != nil {
-		fmt.Println("City not found: ", colName)
-		return err
+	if idx := utils.BinaryCityGroupSearch(cities, colName); idx >= 0 {
+		cityGroup = cities[idx]
 	} else {
-		city = find.(models.CityGroup)
+		return fmt.Errorf("city with name %s not found", colName)
 	}
 
-	if tx.Where(&models.Price{CityGroupID: city.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
-		newPrice := models.Price{CityGroupID: city.ID, ProductID: prod.ID, Price: priceVal}
+	if tx.Where(&models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
+		newPrice := models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID, Price: priceVal}
 		if err := tx.Create(&newPrice).Error; err != nil {
 			// Print error and return
 			fmt.Println("Error creating price:", err)

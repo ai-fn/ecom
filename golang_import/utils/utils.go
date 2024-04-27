@@ -506,3 +506,26 @@ func CalculateBoundaries(db *gorm.DB, prntID *uint) (int, int) {
 	rght := lft + 1
 	return lft, rght
 }
+
+// Array must be sorted by searched field
+func BinaryCityGroupSearch(arr []models.CityGroup, pattern string) int {
+	low := 0
+	high := len(arr) - 1
+
+	for low <= high {
+		mid := (low + high) / 2
+		midVal := arr[mid].Name
+
+		if midVal == pattern {
+			return mid
+		}
+
+		switch {
+		case midVal < pattern:
+			low = mid + 1
+		case midVal > pattern:
+			high = mid - 1
+		}
+	}
+	return -1
+}

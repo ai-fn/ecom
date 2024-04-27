@@ -66,6 +66,7 @@ class City(TimeBasedModel):
     class Meta:
         verbose_name = "Город"
         verbose_name_plural = "Города"
+        ordering = ("name",)
         indexes = [
             models.Index(fields=["name"], name="city_name_idx"),
             models.Index(fields=["domain"], name="city_domain_idx"),
@@ -77,11 +78,12 @@ class City(TimeBasedModel):
 
 
 class CityGroup(TimeBasedModel):
-    name = models.CharField(max_length=255, verbose_name="Город", unique=True)
+    name = models.CharField(max_length=255, verbose_name="Название группы", unique=True)
     main_city = models.ForeignKey(
         "City",
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="main_city_for_group",
         verbose_name="Главный город",
     )
@@ -98,6 +100,9 @@ class CityGroup(TimeBasedModel):
             models.Index(fields=["name"], name="citygroup_name_idx"),
             models.Index(fields=["main_city"], name="citygroup_main_city_idx"),
         ]
+    
+    def __str__(self) -> str:
+        return f"Группа {self.name}"
 
 
 class CustomUser(AbstractUser):
