@@ -7,6 +7,7 @@ from shop.models import Product
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.urls import NoReverseMatch, reverse
 from rest_framework.response import Response
 
 
@@ -40,9 +41,18 @@ class XlsxFileUploadView(APIView):
 
         if file_obj is None:
             return Response({"error": "File object is requeire"})
-        
+
         if upload_type is None:
             return Response({"error": "Type parametr is required"})
-        
-        r = requests.put(f"http://{host}:{port}/api/upload/{filename}?type={upload_type}", files={"file": ContentFile(file_obj.read())}, headers={"Authorization": request.headers.get("Authorization")})
+
+        try:
+            path = reverse("api:upload_products", kwargs={"filename": filename})
+        except NoReverseMatch:
+            path = f"/api/upload/{filename}"
+
+        r = requests.put(
+            f"http://{host}:{port}{path}?type={upload_type}",
+            files={"file": ContentFile(file_obj.read())},
+            headers={"Authorization": request.headers.get("Authorization")},
+        )
         return Response(r.json(), status=r.status_code)

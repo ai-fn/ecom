@@ -219,7 +219,6 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 					return err
 				}
 			}
-			// fmt.Println(colNms, r.GetFileReader().CtNms.Cols)
 
 			for _, ctCol = range r.GetFileReader().CtNms.Cols {
 				idx, ok := colNms[ctCol]
@@ -227,14 +226,13 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 					continue
 				}
 
-				ctVal, err := utils.GetFromSlice(row, idx)
+				priceVal, err := utils.GetFromSlice(row, idx)
 				if err != nil {
 					fmt.Println(err.Error())
 					continue
 				}
-				fmt.Println(ctVal)
 
-				if err = processPrices(&prod, db, ctVal, ctCol, cities); err != nil {
+				if err = processPrices(&prod, db, priceVal, ctCol, cities); err != nil {
 					fmt.Println(err.Error())
 				}
 			}
