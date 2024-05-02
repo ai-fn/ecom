@@ -616,3 +616,28 @@ class SideBarMenuItem(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"SideBarMenuItem_{self.id}"
+
+
+class ProductGroup(TimeBasedModel):
+    
+    name = models.CharField(
+        verbose_name="Наименование",
+        max_length=255,
+        unique=True
+    )
+    products = models.ManyToManyField(Product, verbose_name="Продукты", blank=True)
+    characteristic = models.ForeignKey(
+        Characteristic,
+        verbose_name="Характеристика",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        ordering = ("name",)
+        verbose_name = "Грпппа продуктов"
+        verbose_name_plural = "Грпппы продуктов"
+
+    def __str__(self):
+        return f"Группа продуктов {self.name}"

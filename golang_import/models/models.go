@@ -75,6 +75,21 @@ type Product struct {
 	Brand                *Brand      `gorm:"foreignKey:BrandID"`
 }
 
+type ProductImage struct {
+	CustomModel
+	ThumbModel
+	ProductID uint   `gorm:"column:product_id"`
+	Image     string `gorm:"column:image;type:varchar(255)"`
+	Name      string `gorm:"column:name;type:varchar(128)"`
+}
+
+type ProductGroup struct {
+	CustomModel
+	Name           string          `gorm:"unique"`
+	Products       []*Product      `gorm:"many2many:shop_productgroup_products;"`
+	Characteristic *Characteristic `gorm:"foreignKey:CharacteristicID"`
+}
+
 type Brand struct {
 	CustomModel
 	Name  string `gorm:"column:name"`
@@ -94,14 +109,6 @@ type CharacteristicValue struct {
 	ProductID        uint   `gorm:"column:product_id"`
 	CharacteristicID uint   `gorm:"column:characteristic_id"`
 	Value            string `gorm:"column:value;type:varchar(255)"`
-}
-
-type ProductImage struct {
-	CustomModel
-	ThumbModel
-	ProductID uint   `gorm:"column:product_id"`
-	Image     string `gorm:"column:image;type:varchar(255)"`
-	Name      string `gorm:"column:name;type:varchar(128)"`
 }
 
 type Price struct {
@@ -141,6 +148,10 @@ func (Brand) TableName() string {
 
 func (Product) TableName() string {
 	return "shop_product"
+}
+
+func (ProductGroup) TableName() string {
+	return "shop_productgroup"
 }
 
 func (ProductImage) TableName() string {

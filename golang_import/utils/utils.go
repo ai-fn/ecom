@@ -508,22 +508,27 @@ func CalculateBoundaries(db *gorm.DB, prntID *uint) (int, int) {
 }
 
 // Array must be sorted by searched field
-func BinaryCityGroupSearch(arr []models.CityGroup, pattern string) int {
+func BinarySearch(arr interface{}, pattern interface{}, less func(a, b interface{}) bool, equal func(a, b interface{}) bool) int {
+	v := reflect.ValueOf(arr)
+	if v.Kind() != reflect.Slice {
+		fmt.Println("arr is not a slice")
+		return -1
+	}
+
 	low := 0
-	high := len(arr) - 1
+	high := v.Len() - 1
 
 	for low <= high {
 		mid := (low + high) / 2
-		midVal := arr[mid].Name
+		midVal := v.Index(mid).Interface()
 
-		if midVal == pattern {
+		if equal(midVal, pattern) {
 			return mid
 		}
 
-		switch {
-		case midVal < pattern:
+		if less(midVal, pattern) {
 			low = mid + 1
-		case midVal > pattern:
+		} else {
 			high = mid - 1
 		}
 	}

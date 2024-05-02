@@ -103,7 +103,7 @@ func processXLSXData(c *gin.Context) {
 	}
 
 	// Parse CSV data and process accordingly based on uploadType
-	var ignoredColumns = []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY"}
+	var ignoredColumns = []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP", "CHARACTERISTIC"}
 	var startTime = time.Now()
 
 	switch uploadType {
@@ -153,7 +153,13 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 
 	// Select cities from db
 	var cities []models.CityGroup
+	var groups []*models.ProductGroup
 	result := db.Find(&cities)
+	if result.Error != nil {
+		return fmt.Errorf("failed to get cities: " + result.Error.Error())
+	}
+
+	result = db.Find(&groups)
 	if result.Error != nil {
 		return fmt.Errorf("failed to get cities: " + result.Error.Error())
 	}
@@ -203,6 +209,10 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 				return err
 			}
 
+			if err = processProductGroup(prod, groups, db, row, colNms); err != nil {
+				fmt.Println(err)
+			}
+
 			// Process row's cells
 			for _, chrCol = range r.GetFileReader().ChrCols.Cols {
 				idx, ok := colNms[chrCol]
@@ -243,6 +253,35 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 	return nil
 }
 
+func processProductGroup(prod models.Product, groups []*models.ProductGroup, tx *gorm.DB, row []string, colNms map[string]int) error {
+	var group *models.ProductGroup
+	idx, ok := colNms["GROUP"]
+	if !ok {
+		fmt.Println("GROUP column not found")
+		return nil
+	}
+
+	cellVal, err := utils.GetFromSlice(row, idx)
+	if err != nil {
+		return err
+	}
+
+	grNms := strings.Split(cellVal, ", ")
+	for _, nm := range grNms {
+		if idx := utils.BinarySearch(
+			groups, nm,
+			func(a, b interface{}) bool { return a.(*models.ProductGroup).Name < b.(string) },
+			func(a, b interface{}) bool { return a.(*models.ProductGroup).Name == b.(string) },
+		); idx < 0 {
+			continue
+		} else {
+			tx.Model(&group).Association("Products").Append(prod)
+		}
+	}
+
+	return nil
+}
+
 func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models.Category, colNms map[string]int) error {
 	var title string
 	var dsc string
@@ -276,7 +315,7 @@ func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models
 	}
 
 	slg := slug.Make(title)
-	if tx.Where(&models.Product{Article: cellVal, Slug: slg}).First(&prod).RecordNotFound() {
+	if tx.Where(&models.Product{Article: cellVal}).First(&prod).RecordNotFound() {
 		newProd := models.Product{Article: cellVal, Title: title, Slug: slg, CategoryID: ctg.ID, BrandID: nil}
 		if err := tx.Create(&newProd).Error; err != nil {
 			return err
@@ -405,7 +444,11 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 		return err
 	}
 
-	if idx := utils.BinaryCityGroupSearch(cities, colName); idx >= 0 {
+	if idx := utils.BinarySearch(
+		cities, colName,
+		func(a, b interface{}) bool { return a.(models.CityGroup).Name < b.(string) },
+		func(a, b interface{}) bool { return a.(models.CityGroup).Name == b.(string) },
+	); idx >= 0 {
 		cityGroup = cities[idx]
 	} else {
 		return fmt.Errorf("city with name %s not found", colName)
