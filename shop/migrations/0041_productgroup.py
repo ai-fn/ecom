@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('name', models.CharField(max_length=255, unique=True, verbose_name='Наименование')),
                 ('characteristic', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='shop.characteristic', verbose_name='Характеристика')),
-                ('products', models.ManyToManyField(to='shop.product', verbose_name='Продукты')),
+                ('products', models.ManyToManyField(blank=True, to='shop.product', verbose_name='Продукты')),
             ],
             options={
                 'verbose_name': 'Грпппа продуктов',

@@ -100,7 +100,7 @@ class CityGroup(TimeBasedModel):
             models.Index(fields=["name"], name="citygroup_name_idx"),
             models.Index(fields=["main_city"], name="citygroup_main_city_idx"),
         ]
-    
+
     def __str__(self) -> str:
         return f"Группа {self.name}"
 
@@ -130,6 +130,9 @@ class CustomUser(AbstractUser):
     is_customer = models.BooleanField(
         verbose_name="Покупатель ли юзер?",
         default=False,
+    )
+    email_confirmed = models.BooleanField(
+        default=False, verbose_name="Подтверждена ли почта"
     )
     middle_name = models.CharField(
         verbose_name="Отчество", blank=True, null=True, max_length=20
