@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,7 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var scKey string = "django-insecure-dqm6w2nl1q2i!%t%+z1*r)!-%8lg9@fm81k&ms$2z2pnej3%xt"
+		var scKey string = os.Getenv("SECRET_KEY")
 
 		tokenStr := c.Request.Header.Get("Authorization")[7:]
 		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
