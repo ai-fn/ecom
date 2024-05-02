@@ -38,6 +38,11 @@ class CityAdmin(admin.ModelAdmin):
         "domain",
         "address",
     )
+    search_fields = (
+        "name",
+        "domain",
+        "address",
+    )
 
 
 @admin.register(CityGroup)
@@ -45,7 +50,9 @@ class CityGroupAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "main_city",
-        
+    )
+    search_fields = (
+        "name",
     )
 
 def ready():
