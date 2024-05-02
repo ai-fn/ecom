@@ -274,8 +274,6 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 	}
 
 	if err != nil {
-		log.Fatalf("error while image decode: %s", err)
-		fmt.Println(err.Error())
 		return err
 	}
 

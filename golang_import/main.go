@@ -225,6 +225,10 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 					continue
 				}
 
+				if chrVal == "" {
+					continue
+				}
+
 				if err = processCharacteristics(ctg.ID, &prod, db, chrVal, chrCol); err != nil {
 					return err
 				}
@@ -285,6 +289,7 @@ func processProductGroup(prod models.Product, groups []*models.ProductGroup, tx 
 func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models.Category, colNms map[string]int) error {
 	var title string
 	var dsc string
+	var inStock bool = true // default value for field "in_stock"
 
 	idx, ok := colNms["SKU"]
 	if !ok {
@@ -316,7 +321,7 @@ func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models
 
 	slg := slug.Make(title)
 	if tx.Where(&models.Product{Article: cellVal}).First(&prod).RecordNotFound() {
-		newProd := models.Product{Article: cellVal, Title: title, Slug: slg, CategoryID: ctg.ID, BrandID: nil}
+		newProd := models.Product{Article: cellVal, Title: title, Slug: slg, CategoryID: ctg.ID, BrandID: nil, InStock: inStock}
 		if err := tx.Create(&newProd).Error; err != nil {
 			return err
 		}
@@ -354,13 +359,14 @@ func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models
 			return err
 		}
 		if err = processImages(cellVal, prod, tx); err != nil {
-			return err
+			fmt.Println(err.Error())
 		}
 	}
 	return nil
 }
 
 func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
+	var types = []string{"WATERMARK"}
 	imgs := strings.Split(cellVal, ",")
 
 	if len(imgs) > 0 {
@@ -377,13 +383,12 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 			defer response.Body.Close()
 
 			if idx == 0 {
-				if err := utils.SaveImages(bsName, prod, tx, response, []string{"WATERMARK", "CATALOG", "SEARCH"}); err != nil {
-					return err
-				}
-			} else {
-				if err := utils.SaveImages(bsName, prod, tx, response, []string{"WATERMARK"}); err != nil {
-					return err
-				}
+				types = []string{"WATERMARK", "CATALOG", "SEARCH"}
+			}
+
+			if err := utils.SaveImages(bsName, prod, tx, response, types); err != nil {
+				fmt.Println(err.Error())
+				continue
 			}
 		}
 	}
