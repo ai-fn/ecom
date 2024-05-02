@@ -97,4 +97,5 @@ class UserDetailInfoSerializer(
             "street",
             "house",
             "is_active",
+            "email_confirmed"
         )

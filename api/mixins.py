@@ -1,12 +1,24 @@
-from decimal import Decimal
 import time
+from django.urls import reverse
+import phonenumbers
+
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.template.loader import render_to_string
+from django.utils.translation import gettext_lazy as _
+
+from decimal import Decimal
 from elasticsearch_dsl import Q, Search
 from elasticsearch_dsl.connections import connections
 
 from loguru import logger
 from typing import Any, Dict, Iterable
 from django.conf import settings
-import phonenumbers
 
 from geopy.geocoders import Nominatim
 
@@ -134,7 +146,9 @@ class GeneralSearchMixin:
                     continue
 
                 if city:
-                    price = Price.objects.filter(product=product, city=city).first()
+                    price = Price.objects.filter(
+                        product=product, city_group__cities=city
+                    ).first()
                     if price:
                         product_data = ProductDocumentSerializer(product).data
                         product_data["price"] = PriceSerializer(price).data
@@ -173,12 +187,64 @@ class ValidateAddressMixin:
             location = geolocator.geocode(address)
 
             if not location:
-                raise serializers.ValidationError(
-                    "Указан несуществующий адрес"
-                )
+                raise serializers.ValidationError("Указан несуществующий адрес")
 
             logger.info(f"Найден адрес: {location.address}")
         return data
+
+
+class SendVirifyEmailMixin:
+
+    def _generate_unique_token(
+        self,
+        request,
+        user,
+        email,
+    ):
+        current_site = get_current_site(request)
+        site_name = current_site.name
+        domain = current_site.domain
+        link = reverse(
+            "account:verify-email",
+            kwargs={
+                "uid64": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": settings.DEFAULT_TOKEN_GENERATOR.make_token(user),
+            },
+        )
+        context = {
+            "email": email,
+            "domain": domain,
+            "site_name": site_name,
+            "user": user,
+            "link": link,
+            "protocol": ["https", "http"][settings.DEBUG],
+        }
+        return context
+
+    def _send_confirm_email(
+        self, request, user, email, email_template_name="email/index.html"
+    ):
+        context = self._generate_unique_token(request, user, email)
+        body = render_to_string(email_template_name, context)
+
+        result = send_mail(
+            _("Confrim email"),
+            "",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=True,
+            auth_user=settings.EMAIL_HOST_USER,
+            auth_password=settings.EMAIL_HOST_PASSWORD,
+            html_message=body,
+        )
+        if result:
+            return Response(
+                {"message": "Message sent successfully"}, status=HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"error": "Message sent failed"}, status=HTTP_400_BAD_REQUEST
+            )
 
 
 class TokenExpiredTimeMixin:
@@ -209,15 +275,30 @@ class SerializerGetPricesMixin:
     def get_city_price(self, obj) -> Decimal | None:
         city_domain = self.context.get("city_domain")
         if city_domain:
-            price = Price.objects.filter(city__domain=city_domain, product=obj).first()
+            try:
+                c = City.objects.get(domain=city_domain)
+            except City.DoesNotExist:
+                logger.info(f"City with domain {city_domain} not found")
+                return None
+
+            price = Price.objects.filter(city_group__cities=c, product=obj).first()
             if price:
                 return price.price
+
+        logger.info(f"Price for city with domain {city_domain} not found")
         return None
 
     def get_old_price(self, obj) -> Decimal | None:
         city_domain = self.context.get("city_domain")
         if city_domain:
-            price = Price.objects.filter(city__domain=city_domain, product=obj).first()
+            try:
+                c = City.objects.get(domain=city_domain)
+            except City.DoesNotExist:
+                logger.info(f"City with domain {city_domain} not found")
+                return None
+
+            price = Price.objects.filter(city_group__cities=c, product=obj).first()
             if price:
                 return price.old_price
+
         return None

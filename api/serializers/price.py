@@ -8,6 +8,6 @@ class PriceSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "product",
-            "city",
+            "city_group",
             "price",
         ]

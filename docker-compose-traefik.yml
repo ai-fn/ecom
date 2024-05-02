@@ -61,20 +61,8 @@ services:
       - POSTGRES_HOST=db
     env_file:
       - .env
-    
     networks:
-      - traefik
       - internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.services.megashop.loadbalancer.server.port=8080"
-      - "traefik.http.routers.megashop.rule=Host(`dev-api-shop.altawest.ru`)"
-      - "traefik.http.routers.megashop.entrypoints=http"
-      - "traefik.http.routers.megashop-secure.rule=Host(`dev-api-shop.altawest.ru`)"
-      - "traefik.http.routers.megashop-secure.entrypoints=https"
-      - "traefik.http.routers.megashop-secure.tls.certresolver=traefik-resolver"
-
     logging:
       driver: loki
       options:
@@ -83,7 +71,7 @@ services:
 
   celery:
     build: .
-    command: celery -A megashop worker --loglevel=info --pool=solo
+    command: celery -A megashop worker --loglevel=info --beat
     restart: always
     volumes:
       - .:/code
@@ -97,7 +85,7 @@ services:
 
   celerybeat:
     build: .
-    command: celery -A megashop beat --loglevel=debug
+    command: celery -A megashop beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     restart: always
     volumes:
       - .:/code

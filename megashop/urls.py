@@ -55,7 +55,7 @@ def custom_schema_view(request, *args, **kwargs):
 
 urlpatterns = (
     [
-        path("account/", include("account.urls")),
+        path("account/", include("account.urls", namespace="account")),
         path("admin/", admin.site.urls),
         path("search/", view=search_views.search_view, name="search"),
         path("feeds/products/feeds.xml", ProductsFeed(), name='prods-feeds'),

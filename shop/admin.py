@@ -11,6 +11,7 @@ from shop.models import (
     CharacteristicValue,
     Price,
     Product,
+    ProductGroup,
     ProductImage,
     Promo,
     Review,
@@ -47,6 +48,11 @@ class CharacteristicValueInline(admin.TabularInline):
 
 class PromoInline(admin.TabularInline):
     model = Promo.products.through
+    extra = 1
+
+
+class ProductGroupInline(admin.TabularInline):
+    model = ProductGroup.products.through
     extra = 1
 
 
@@ -90,7 +96,16 @@ class ProductAdmin(admin.ModelAdmin):
         "is_popular",
         "in_stock",
     )
-    inlines = [PromoInline, CharacteristicValueInline]
+    inlines = [PromoInline, CharacteristicValueInline, ProductGroupInline]
+
+
+@admin.register(ProductGroup)
+class ProductGroupAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "characteristic",
+    )
+    search_fields = ("name", "products__title")
 
 
 @admin.register(ProductFrequenlyBoughtTogether)
@@ -109,10 +124,10 @@ class ProductFrequenlyBoughtTogetherAdmin(admin.ModelAdmin):
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = [
-        "product",
+        "product", "name",
     ]
     search_fields = (
-        "product__title",
+        "product__title", "name",
     )
 
 
@@ -153,7 +168,7 @@ class CharacteristicValueAdmin(admin.ModelAdmin):
 class PriceAdmin(admin.ModelAdmin):
     list_display = (
         "product",
-        "city",
+        "city_group",
         "price",
     )
 
