@@ -1,6 +1,7 @@
 from rest_framework import response, status
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
 
 from account.models import City
 from api.permissions import ReadOnlyOrAdminPermission
@@ -48,6 +49,17 @@ class CityViewSet(ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        description="Частичное изменение информации о пользователе",
+        summary="Частичное изменение информации о пользователе",
+        responses={200: CitySerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'])
+    def all_cities(request, *args, **kwargs):
+        return Response(
+            {"results": CitySerializer(City.objects.all(), many=True).data}, status=status.HTTP_200_OK
+        )
 
     @extend_schema(
         description="Получить информацию о конкретном городе.",
