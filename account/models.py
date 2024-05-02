@@ -66,6 +66,7 @@ class City(TimeBasedModel):
     class Meta:
         verbose_name = "Город"
         verbose_name_plural = "Города"
+        ordering = ("name",)
         indexes = [
             models.Index(fields=["name"], name="city_name_idx"),
             models.Index(fields=["domain"], name="city_domain_idx"),
@@ -77,11 +78,12 @@ class City(TimeBasedModel):
 
 
 class CityGroup(TimeBasedModel):
-    name = models.CharField(max_length=255, verbose_name="Город")
+    name = models.CharField(max_length=255, verbose_name="Название группы", unique=True)
     main_city = models.ForeignKey(
         "City",
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="main_city_for_group",
         verbose_name="Главный город",
     )
@@ -98,6 +100,9 @@ class CityGroup(TimeBasedModel):
             models.Index(fields=["name"], name="citygroup_name_idx"),
             models.Index(fields=["main_city"], name="citygroup_main_city_idx"),
         ]
+
+    def __str__(self) -> str:
+        return f"Группа {self.name}"
 
 
 class CustomUser(AbstractUser):
@@ -126,6 +131,9 @@ class CustomUser(AbstractUser):
         verbose_name="Покупатель ли юзер?",
         default=False,
     )
+    email_confirmed = models.BooleanField(
+        default=False, verbose_name="Подтверждена ли почта"
+    )
     middle_name = models.CharField(
         verbose_name="Отчество", blank=True, null=True, max_length=20
     )
@@ -135,12 +143,14 @@ class CustomUser(AbstractUser):
             models.Index(fields=["phone"], name="customuser_phone_idx"),
             models.Index(fields=["city"], name="customuser_city_idx"),
         ]
-    
+
     def delete(self, using: Any = ..., keep_parents: bool = ...):
 
         if not self.is_active:
             pass
         else:
             self.is_active = True
-            self.first_name = f"Удаленный пользователь ({self.first_name} {self.last_name})"
-            self.save(update_fields=['is_active', 'first_name'])
+            self.first_name = (
+                f"Удаленный пользователь ({self.first_name} {self.last_name})"
+            )
+            self.save(update_fields=["is_active", "first_name"])

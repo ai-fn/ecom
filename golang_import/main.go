@@ -2,7 +2,6 @@ package main
 
 import (
 	"auth"
-	"bytes"
 	"fmt"
 	"log"
 	"models"
@@ -10,32 +9,29 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 	"utils"
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-
-	_ "main/docs"
 
 	"github.com/gosimple/slug"
 	"github.com/jinzhu/gorm"
-	_ "github.com/swaggo/http-swagger"
-	"github.com/tealeg/xlsx"
 )
 
 var db *gorm.DB
 
 func init() {
 	var err error
-	dbHost := os.Getenv("POSTGRES_HOST")
-	dbName := os.Getenv("POSTGRES_DB")
-	dbUser := os.Getenv("POSTGRES_USER")
-	dbPassword := os.Getenv("POSTGRES_PASSWORD")
-	connStr := fmt.Sprintf("host=%s port=5432 user=%s dbname=%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword)
+	var (
+		dbHost     = os.Getenv("POSTGRES_HOST")
+		dbName     = os.Getenv("POSTGRES_DB")
+		dbUser     = os.Getenv("POSTGRES_USER")
+		dbPassword = os.Getenv("POSTGRES_PASSWORD")
+	)
+	connStr := fmt.Sprintf("host=%s port=5432 user=%s dbname=test_%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword)
 
 	db, err = gorm.Open("postgres", connStr)
 	if err != nil {
@@ -64,9 +60,6 @@ func init() {
 	}
 }
 
-// @title Products Import API
-// @version 1.12.2
-// @description API for product imoprt
 func main() {
 	fmt.Println("Initializing golang server...")
 	router := gin.Default()
@@ -77,81 +70,52 @@ func main() {
 
 	authGroup.PUT("/:filename", processXLSXData)
 
-	// Swagger handler
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	router.Run(":8080")
 	fmt.Println("Golang server started")
 }
 
-// @Summary Загрузка файла товаров
-// @Description Загрузка файла с товарами для импорта
-// @ID uploadFile
-// @Accept multipart/form-data
-// @Produce json
-// @Param filename path string true "Имя файла"
-// @Param type query string true "Тип данных для импорта (PRODUCTS, BRANDS)"
-// @Success 200 {string} string "OK"
-// @Router /api/upload/{filename} [PUT]
-// @Tags Import
-// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 func processXLSXData(c *gin.Context) {
 
 	filename := c.Param("filename")
-
-	// Create a bytes buffer to store the file content
-	var buf bytes.Buffer
-
-	_, err := buf.ReadFrom(c.Request.Body)
-	if err != nil {
-		c.JSON(500, gin.H{"error": "Internal server error. Unable to read file content." + err.Error()})
-		return
-	}
-
-	if buf.Len() == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "File data is required."})
-		return
-	}
 
 	// Retrieve upload type from query parameters
 	uploadType := c.Query("type")
 
 	tmpDir := "../media/tmp"
-	if err = os.MkdirAll(tmpDir, os.ModePerm); err != nil {
-		c.JSON(500, gin.H{"error": "Internal server error. Unable to create directory."})
+	if err := os.MkdirAll(tmpDir, os.ModePerm); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error. Unable to create directory: " + err.Error()})
 		return
 	}
 	flPth := filepath.Join(tmpDir, filename)
-	out, err := os.Create(flPth)
+
+	// Try to get file from request
+	file, err := c.FormFile("file")
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Internal server error. Unable to create file."})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	defer out.Close()
-
-	_, err = buf.WriteTo(out)
+	// Save the file to disk
+	err = c.SaveUploadedFile(file, flPth)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Internal server error. Unable to save file." + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
 	}
 
 	// Parse CSV data and process accordingly based on uploadType
-	var ignoredColumns = &models.Columns{
-		Cols: []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY"},
-	}
-
+	var ignoredColumns = []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP", "CHARACTERISTIC"}
 	var startTime = time.Now()
+
 	switch uploadType {
 	case "PRODUCTS":
+		c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 		go func() {
-			c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 			err := productsProcess(db, flPth, ignoredColumns)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Println(err.Error())
 				return
 			}
-			fmt.Printf("XLSX data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
+			fmt.Printf("Products data processed in %.9fs.\n", time.Since(startTime).Seconds())
 		}()
 
 	case "BRANDS":
@@ -164,149 +128,276 @@ func processXLSXData(c *gin.Context) {
 			fmt.Printf("BRAND data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
 		}()
 	default:
-		c.String(500, fmt.Sprintf("unknown upload type: %s", uploadType))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "unknown upload type: " + uploadType})
 	}
 }
 
-func productsProcess(db *gorm.DB, filePath string, ignoredColumns *models.Columns) error {
-
+func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) error {
 	colNms := make(map[string]int, 0)
-	cityCols := make([]string, 0)
-	chrCols := models.Columns{Cols: []string{}}
 
-	xlFile, err := xlsx.OpenFile(filePath)
+	r, err := utils.NewReader(filePath, ignoredColumns)
 	if err != nil {
-		log.Fatalf("Error opening XLSX file: %s\n", err)
+		log.Fatalf("error while create new reader: %s", err.Error())
 		return err
 	}
+
 	defer func() {
 		fmt.Println("Products processed, remove tmp file")
 		if err := os.Remove(filePath); err == nil {
 			fmt.Println("tmp file successfully deleted")
+		} else {
+			fmt.Println("tmp file not found, exit.")
 		}
+		r.Close()
 	}()
 
-	ctNms := &models.Columns{
-		Cols: []string{},
-	}
-
 	// Select cities from db
-	var cities []models.City
+	var cities []models.CityGroup
+	var groups []*models.ProductGroup
 	result := db.Find(&cities)
 	if result.Error != nil {
 		return fmt.Errorf("failed to get cities: " + result.Error.Error())
 	}
 
-	// Insert city names into slice
-	for _, c := range cities {
-		ctNms.Cols = append(ctNms.Cols, c.Name)
+	result = db.Find(&groups)
+	if result.Error != nil {
+		return fmt.Errorf("failed to get cities: " + result.Error.Error())
 	}
 
-	// Iterate over each sheet in the XLSX file
-	for _, sheet := range xlFile.Sheets {
-		chrIdx := 0
-		cityIdx := 0
+	// Сортируем массив по полю Name
+	sort.Slice(cities, func(i, j int) bool {
+		return cities[i].Name < cities[j].Name
+	})
 
-		// Process column names
-		var cellVal string
-		for cIdx, cell := range sheet.Rows[0].Cells {
-			cellVal = cell.String()
-			colNms[cellVal] = cIdx
+	// Insert city names into slice
+	for _, c := range cities {
+		r.GetFileReader().CtNms.Cols = append(r.GetFileReader().CtNms.Cols, c.Name)
+	}
 
-			if !ignoredColumns.Contains(cellVal) {
+	// Iterate over each row, start from second, in the sheet
 
-				// Select city and characteristic columns
-				if ctNms.Contains(cellVal) {
-					cityCols = append(cityCols, cellVal)
-					cityIdx++
-				} else {
-					chrCols.Cols = append(chrCols.Cols, cellVal)
-					chrIdx++
+	rows, err := r.Read()
+	if err != nil {
+		return err
+	}
+
+	for i, col := range r.GetFileReader().Columns {
+		colNms[col] = i
+	}
+
+	for idx, row := range rows[1:] {
+
+		prod := models.Product{}
+		ctg := models.Category{}
+
+		idx = colNms["CATEGORIES"]
+
+		// Initializer Transaction
+		db.Transaction(func(tx *gorm.DB) error {
+
+			var err error
+			var prntID *uint
+			var chrCol string
+			var ctCol string
+			// Process categories
+			if err = processCategories(db, row[idx], &ctg, prntID); err != nil {
+				return err
+			}
+
+			if err = processProduct(db, row, &prod, &ctg, colNms); err != nil {
+				fmt.Println("Error while process product: ", err.Error())
+				return err
+			}
+
+			if err = processProductGroup(prod, groups, db, row, colNms); err != nil {
+				fmt.Println(err)
+			}
+
+			// Process row's cells
+			for _, chrCol = range r.GetFileReader().ChrCols.Cols {
+				idx, ok := colNms[chrCol]
+				if !ok {
+					continue
+				}
+
+				chrVal, err := utils.GetFromSlice(row, idx)
+				if err != nil {
+					continue
+				}
+
+				if chrVal == "" {
+					continue
+				}
+
+				if err = processCharacteristics(ctg.ID, &prod, db, chrVal, chrCol); err != nil {
+					return err
 				}
 			}
-		}
 
-		for _, el := range ignoredColumns.Cols {
-			if _, ok := colNms[el]; !ok {
-				return fmt.Errorf("не все обязательные поля найдены в документе")
+			for _, ctCol = range r.GetFileReader().CtNms.Cols {
+				idx, ok := colNms[ctCol]
+				if !ok {
+					continue
+				}
+
+				priceVal, err := utils.GetFromSlice(row, idx)
+				if err != nil {
+					fmt.Println(err.Error())
+					continue
+				}
+
+				if err = processPrices(&prod, db, priceVal, ctCol, cities); err != nil {
+					fmt.Println(err.Error())
+				}
 			}
-		}
-
-		// Iterate over each row, start from second, in the sheet
-		var colName string
-		for _, row := range sheet.Rows[1:] {
-			idx := 0
-			prod := models.Product{}
-			ctg := models.Category{}
-
-			idx = colNms["CATEGORIES"]
-
-			// Initializer Transaction
-			db.Transaction(func(tx *gorm.DB) error {
-
-				var err error
-				// Process categories
-				if err = processCategories(db, row.Cells[idx].String(), &ctg); err != nil {
-					return nil
-				}
-
-				idx = colNms["TITLE"]
-				processProduct(db, row.Cells[idx].String(), &prod, &ctg)
-
-				idx = colNms["PRIORITY"]
-				processPriority(row.Cells[idx].String(), &prod)
-
-				idx = colNms["IMAGES"]
-				processImages(&prod, db, row.Cells[idx].String())
-
-				// Process row's cells
-				for _, colName := range chrCols.Cols {
-					if err = processCharacteristics(ctg.ID, &prod, db, row.Cells[colNms[colName]], colName); err != nil {
-						return err
-					}
-				}
-				for _, colName = range cityCols {
-					if err = processPrices(&prod, db, row.Cells[colNms[colName]].String(), colName, cities); err != nil {
-						return err
-					}
-				}
-				return nil
-			})
 			fmt.Printf("Product %s processed\n", prod.Title)
-		}
+			return nil
+		})
 	}
 	return nil
 }
 
-func processPriority(cellVal string, prod *models.Product) {
-	if cellVal == "" {
-		return
+func processProductGroup(prod models.Product, groups []*models.ProductGroup, tx *gorm.DB, row []string, colNms map[string]int) error {
+	var group *models.ProductGroup
+	idx, ok := colNms["GROUP"]
+	if !ok {
+		fmt.Println("GROUP column not found")
+		return nil
 	}
 
-	priority, err := strconv.ParseFloat(cellVal, 32)
+	cellVal, err := utils.GetFromSlice(row, idx)
 	if err != nil {
-		log.Fatalf("error while parse priority: %s", err.Error())
-		return
+		return err
 	}
-	prod.Priority = int(priority)
+
+	grNms := strings.Split(cellVal, ", ")
+	for _, nm := range grNms {
+		if idx := utils.BinarySearch(
+			groups, nm,
+			func(a, b interface{}) bool { return a.(*models.ProductGroup).Name < b.(string) },
+			func(a, b interface{}) bool { return a.(*models.ProductGroup).Name == b.(string) },
+		); idx < 0 {
+			continue
+		} else {
+			tx.Model(&group).Association("Products").Append(prod)
+		}
+	}
+
+	return nil
 }
 
-func processProduct(tx *gorm.DB, cellVal string, prod *models.Product, ctg *models.Category) error {
-	if tx.Where(&models.Product{Title: cellVal}).First(&prod).RecordNotFound() {
-		newProd := models.Product{Title: cellVal, Slug: slug.Make(cellVal), CategoryID: ctg.ID, BrandID: nil}
+func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models.Category, colNms map[string]int) error {
+	var title string
+	var dsc string
+	var inStock bool = true // default value for field "in_stock"
+
+	idx, ok := colNms["SKU"]
+	if !ok {
+		return fmt.Errorf("SKU column is required")
+	}
+	cellVal, err := utils.GetFromSlice(row, idx)
+	if err != nil {
+		return err
+	}
+
+	idx, ok = colNms["TITLE"]
+	if !ok {
+		title = "TITLE"
+	} else {
+		title, err = utils.GetFromSlice(row, idx)
+		if err != nil {
+			return err
+		}
+	}
+
+	if idx, ok := colNms["DESCRIPTION"]; ok {
+		dsc, err = utils.GetFromSlice(row, idx)
+		if err != nil {
+			return err
+		}
+	} else {
+		dsc = "Нет описания"
+	}
+
+	slg := slug.Make(title)
+	if tx.Where(&models.Product{Article: cellVal}).First(&prod).RecordNotFound() {
+		newProd := models.Product{Article: cellVal, Title: title, Slug: slg, CategoryID: ctg.ID, BrandID: nil, InStock: inStock}
 		if err := tx.Create(&newProd).Error; err != nil {
-			// Print error and return
 			return err
 		}
 		*prod = newProd
 	}
+
+	// Set Priority
+	idx, ok = colNms["PRIORITY"]
+	if ok {
+		cellVal, err = utils.GetFromSlice(row, idx)
+		if err == nil {
+			if cellVal != "" {
+				priority, err := strconv.ParseFloat(cellVal, 32)
+				if err == nil {
+					prod.Priority = int(priority)
+				}
+			}
+		}
+	}
+	if !ok || err != nil {
+		prod.Priority = 500
+	}
+
+	prod.Description = dsc
+	prod.Title = title
+
+	if err = tx.Save(&prod).Error; err != nil {
+		return err
+	}
+
+	// Set Images
+	if idx, ok := colNms["IMAGES"]; ok {
+		cellVal, err = utils.GetFromSlice(row, idx)
+		if err != nil {
+			return err
+		}
+		if err = processImages(cellVal, prod, tx); err != nil {
+			fmt.Println(err.Error())
+		}
+	}
 	return nil
 }
 
-func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category) error {
+func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
+	var types = []string{"WATERMARK"}
+	imgs := strings.Split(cellVal, ",")
+
+	if len(imgs) > 0 {
+		var bsName string
+		for idx, imgUrl := range imgs {
+			bsName = strings.Split(filepath.Base(imgUrl), ".")[0]
+
+			response, err := http.Get(imgUrl)
+			if err != nil {
+				log.Fatalf("error while get image by url %s", imgUrl)
+				fmt.Println(err.Error())
+				continue
+			}
+			defer response.Body.Close()
+
+			if idx == 0 {
+				types = []string{"WATERMARK", "CATALOG", "SEARCH"}
+			}
+
+			if err := utils.SaveImages(bsName, prod, tx, response, types); err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+		}
+	}
+	return nil
+}
+
+func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category, prntID *uint) error {
 	catNames := strings.Split(cellVal, " | ")
 
-	var prntID *uint // Initialize parentID
 	// var prntCtg *models.Category
 	for idx, catName := range catNames {
 
@@ -347,10 +438,10 @@ func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category) error 
 	return nil
 }
 
-func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName string, cities []models.City) error {
-	var city models.City
-	var price models.Price
+func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName string, cities []models.CityGroup) error {
 	var err error
+	var price models.Price
+	var cityGroup models.CityGroup
 
 	priceVal, err := strconv.ParseFloat(cellVal, 64)
 	if err != nil {
@@ -358,15 +449,18 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 		return err
 	}
 
-	if find, err := utils.FindByField(cities, "Name", colName); err != nil {
-		fmt.Println("City not found: ", colName)
-		return err
+	if idx := utils.BinarySearch(
+		cities, colName,
+		func(a, b interface{}) bool { return a.(models.CityGroup).Name < b.(string) },
+		func(a, b interface{}) bool { return a.(models.CityGroup).Name == b.(string) },
+	); idx >= 0 {
+		cityGroup = cities[idx]
 	} else {
-		city = find.(models.City)
+		return fmt.Errorf("city with name %s not found", colName)
 	}
 
-	if tx.Where(&models.Price{CityID: city.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
-		newPrice := models.Price{CityID: city.ID, ProductID: prod.ID, Price: priceVal}
+	if tx.Where(&models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
+		newPrice := models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID, Price: priceVal}
 		if err := tx.Create(&newPrice).Error; err != nil {
 			// Print error and return
 			fmt.Println("Error creating price:", err)
@@ -387,11 +481,10 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 	return nil
 }
 
-func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, cell *xlsx.Cell, charCol string) error {
+func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val string, charCol string) error {
 
 	char := &models.Characteristic{}
 	charVal := &models.CharacteristicValue{}
-	val := cell.String()
 
 	if tx.Where(&models.Characteristic{Name: charCol}).First(&char).RecordNotFound() {
 		// If the record doesn't exist, create it
@@ -417,37 +510,10 @@ func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, cell 
 		*charVal = newCharVal
 	} else {
 		// If the record exists, update it
-		charVal.Value = cell.String()
+		charVal.Value = val
 		if err := tx.Save(charVal).Error; err != nil {
 			fmt.Println(err)
 			return err
-		}
-	}
-	return nil
-}
-
-func processImages(prod *models.Product, tx *gorm.DB, cell string) error {
-	imgs := strings.Split(cell, ",")
-
-	if len(imgs) > 0 {
-		for idx, imgUrl := range imgs {
-			response, err := http.Get(imgUrl)
-			if err != nil {
-				log.Fatalf("error while get image by url %s", imgUrl)
-				fmt.Println(err.Error())
-				continue
-			}
-			defer response.Body.Close()
-
-			if idx == 0 {
-				if err := utils.SaveImages(prod, tx, response, []string{"WATERMARK", "CATALOG", "SEARCH"}); err != nil {
-					return err
-				}
-			} else {
-				if err := utils.SaveImages(prod, tx, response, []string{"WATERMARK"}); err != nil {
-					return err
-				}
-			}
 		}
 	}
 	return nil

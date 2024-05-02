@@ -47,10 +47,31 @@ services:
       options:
         loki-url: http://147.45.106.166:3100/loki/api/v1/push
         loki-external-labels: job=dockerlogs,owner=dev-megashop-backend,environment=development
+    
+  golang:
+    build:
+        context: .
+        dockerfile: go.Dockerfile
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - web
+    environment:
+      - POSTGRES_HOST=db
+    env_file:
+      - .env
+    networks:
+      - internal
+    logging:
+      driver: loki
+      options:
+        loki-url: http://147.45.106.166:3100/loki/api/v1/push
+        loki-external-labels: job=dockerlogs,owner=dev-megashop-backend,environment=development
 
   celery:
     build: .
-    command: celery -A megashop worker --loglevel=info --pool=solo
+    command: celery -A megashop worker --loglevel=info --beat
     restart: always
     volumes:
       - .:/code
@@ -64,7 +85,7 @@ services:
 
   celerybeat:
     build: .
-    command: celery -A megashop beat --loglevel=debug
+    command: celery -A megashop beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     restart: always
     volumes:
       - .:/code

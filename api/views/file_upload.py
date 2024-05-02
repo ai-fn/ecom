@@ -1,14 +1,14 @@
+import os
+import requests
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAdminUser
-from api.serializers.setting import SettingSerializer
-from api.tasks import handle_csv_file_task, handle_xlsx_file_task
 from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.urls import NoReverseMatch, reverse
 from rest_framework.response import Response
-from rest_framework import status
 
 
 class XlsxFileUploadView(APIView):
@@ -34,40 +34,25 @@ class XlsxFileUploadView(APIView):
     )
     def put(self, request, filename, format=None):
         file_obj = request.data.get("file")
-        if file_obj is None:
-            return Response(
-                {"error": "File object is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        
         upload_type = request.query_params.get("type")
 
-        file_name = default_storage.save(
-            "tmp/" + filename, ContentFile(file_obj.read())
+        host = os.environ.get("GO_HOST", "golang")
+        port = os.environ.get("GO_PORT", "8080")
+
+        if file_obj is None:
+            return Response({"error": "File object is requeire"})
+
+        if upload_type is None:
+            return Response({"error": "Type parametr is required"})
+
+        try:
+            path = reverse("api:upload_products", kwargs={"filename": filename})
+        except NoReverseMatch:
+            path = f"/api/upload/{filename}"
+
+        r = requests.put(
+            f"http://{host}:{port}{path}?type={upload_type}",
+            files={"file": ContentFile(file_obj.read())},
+            headers={"Authorization": request.headers.get("Authorization")},
         )
-        file_path = default_storage.path(file_name)
-
-        # Проверка на поддерживаемые типы
-        if upload_type not in ["PRODUCTS", "BRANDS"]:
-            return Response(
-                {"error": "Unsupported type parameter."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if filename.endswith(".xlsx"):
-            result = handle_xlsx_file_task.delay(file_path, upload_type)
-        elif filename.endswith(".csv"):
-            result = handle_csv_file_task.delay(file_path, upload_type)
-        else:
-            return Response(
-                {"error": "Unsupported file format."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if not result:
-            return Response(
-                {"error": "Error processing file."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        return Response({"result": result.get()}, status=status.HTTP_200_OK)
+        return Response(r.json(), status=r.status_code)

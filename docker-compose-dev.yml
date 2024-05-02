@@ -24,6 +24,7 @@ services:
       - .:/code
     depends_on:
       - db
+    restart: always
     environment:
       - POSTGRES_HOST=db
     env_file:

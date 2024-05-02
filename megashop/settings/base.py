@@ -15,6 +15,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from loguru import logger
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -111,10 +112,21 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DB_NAMES = ("test", "default")
+USE_TEST_DB = os.environ.get("USE_TEST_DB", "1") == "1"
+
 DATABASES = {
-    "default": {
+    DB_NAMES[not USE_TEST_DB]: {
         "ENGINE": "django_prometheus.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "default_db_name"),
+        "USER": os.environ.get("POSTGRES_USER", "default_user"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
+        "HOST": "db",  # Или другой хост, если он определён
+        "PORT": "5432",  # Стандартный порт для PostgreSQL
+    },
+    DB_NAMES[USE_TEST_DB]: {
+        "ENGINE": "django_prometheus.db.backends.postgresql",
+        "NAME": "test_" + os.environ.get("POSTGRES_DB", "default_db_name"),
         "USER": os.environ.get("POSTGRES_USER", "default_user"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
         "HOST": "db",  # Или другой хост, если он определён
@@ -240,15 +252,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 WATERMARK_PATH = os.path.join(MEDIA_ROOT, os.getenv('WATERMARK_PATH', 'watermark.png'))
 try:
-    WATERMARK_OPACITY = float(os.environ.get("WATERMARK_OPACITY", 0.6))
-    if WATERMARK_OPACITY > 1:
-        raise ValueError("Watermark opaticy must be in range 0-1")
+    WATERMARK_OPACITY = float(os.environ.get("WATERMARK_OPACITY", 60))
+    if WATERMARK_OPACITY > 100:
+        raise ValueError("Watermark opaticy must be in range from 0 to 100")
 except ValueError as e:
     logger.error(f"invalid watermark opacity setting, using default (0.6): {e}")
-    WATERMARK_OPACITY = 0.6
+    WATERMARK_OPACITY = 60 / 10
+else:
+    WATERMARK_OPACITY /= 10
 
 try:
-    WATERMARK_MARGIN = int(os.environ.get("WATERMARK_OPACITY", 30))
+    WATERMARK_MARGIN = int(os.environ.get("WATERMARK_MARGIN", 30))
 except ValueError as e:
     logger.error(f"invalid watermark margin setting, using defult (30): {e}")
     WATERMARK_MARGIN = 30
@@ -267,8 +281,8 @@ DEFAULT_TOKEN_GENERATOR = PasswordResetTokenGenerator()
 # Email settings
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', True)
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', False)
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', "True") == "True"
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', "False") == "True"
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')

@@ -11,9 +11,14 @@ type Columns struct {
 	Cols []string
 }
 
-type Login struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+type ThumbModel struct {
+	Thumb string `gorm:"column:thumb_img;type:text"`
+}
+
+type CustomModel struct {
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type CustomUser struct {
@@ -33,19 +38,8 @@ type CustomUser struct {
 	MiddleName string `gorm:"column:middle_name"`
 }
 
-type CustomModel struct {
-	ID        uint `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-type BaseModel struct {
-	DeletedAt *time.Time `sql:"index"`
-}
-
 type Category struct {
 	CustomModel
-	BaseModel
 	Name      string      `gorm:"column:name"`
 	Slug      string      `gorm:"column:slug"`
 	ParentID  *uint       `gorm:"column:parent_id"`
@@ -64,12 +58,12 @@ type Category struct {
 
 type Product struct {
 	CustomModel
-	BaseModel
+	ThumbModel
 	CategoryID           uint        `gorm:"column:category_id"`
 	BrandID              *uint       `gorm:"column:brand_id"`
 	Title                string      `gorm:"column:title"`
+	Article              string      `gorm:"column:article;type:varchar(128);uniqueIndex"`
 	Description          string      `gorm:"column:description;type:text"`
-	Image                string      `gorm:"column:image;type:varchar(255)"`
 	CatalogImage         string      `gorm:"column:catalog_image;type:varchar(255)"`
 	SearchImage          string      `gorm:"column:search_image;type:varchar(255)"`
 	Slug                 string      `gorm:"column:slug;unique"`
@@ -81,6 +75,21 @@ type Product struct {
 	Brand                *Brand      `gorm:"foreignKey:BrandID"`
 }
 
+type ProductImage struct {
+	CustomModel
+	ThumbModel
+	ProductID uint   `gorm:"column:product_id"`
+	Image     string `gorm:"column:image;type:varchar(255)"`
+	Name      string `gorm:"column:name;type:varchar(128)"`
+}
+
+type ProductGroup struct {
+	CustomModel
+	Name           string          `gorm:"unique"`
+	Products       []*Product      `gorm:"many2many:shop_productgroup_products;"`
+	Characteristic *Characteristic `gorm:"foreignKey:CharacteristicID"`
+}
+
 type Brand struct {
 	CustomModel
 	Name  string `gorm:"column:name"`
@@ -89,39 +98,36 @@ type Brand struct {
 	Order int    `gorm:"column:order"`
 }
 
-type Price struct {
-	CustomModel
-	BaseModel
-	ProductID uint     `gorm:"column:product_id"`
-	CityID    uint     `gorm:"column:city_id"`
-	Price     float64  `gorm:"column:price;type:decimal(10,2)"`
-	OldPrice  *float64 `gorm:"column:old_price;type:decimal(10,2)"`
-}
-
 type Characteristic struct {
 	CustomModel
-	BaseModel
 	Name       string `gorm:"column:name;unique"`
 	CategoryID uint   `gorm:"column:category_id"`
 }
 
 type CharacteristicValue struct {
 	CustomModel
-	BaseModel
 	ProductID        uint   `gorm:"column:product_id"`
 	CharacteristicID uint   `gorm:"column:characteristic_id"`
 	Value            string `gorm:"column:value;type:varchar(255)"`
 }
 
-type ProductImage struct {
-	ID        int    `gorm:"primary_key"`
-	ProductID uint   `gorm:"column:product_id"`
-	Image     string `gorm:"column:image;type:varchar(255)"`
+type Price struct {
+	CustomModel
+	ProductID   uint     `gorm:"column:product_id"`
+	CityGroupID uint     `gorm:"column:city_group_id"`
+	Price       float64  `gorm:"column:price;type:decimal(10,2)"`
+	OldPrice    *float64 `gorm:"column:old_price;type:decimal(10,2)"`
+}
+
+type CityGroup struct {
+	CustomModel
+	Name     string  `gorm:"column:name;type:varchar(255);unique"`
+	MainCity *City   `gorm:"foreignKey:MainCityID"`
+	Cities   []*City `gorm:"many2many:city_group_cities;"`
 }
 
 type City struct {
 	CustomModel
-	BaseModel
 	Name              string `gorm:"column:name"`
 	Domain            string `gorm:"column:domain"`
 	Address           string `gorm:"column:address"`
@@ -142,6 +148,10 @@ func (Brand) TableName() string {
 
 func (Product) TableName() string {
 	return "shop_product"
+}
+
+func (ProductGroup) TableName() string {
+	return "shop_productgroup"
 }
 
 func (ProductImage) TableName() string {
@@ -166,6 +176,10 @@ func (CharacteristicValue) TableName() string {
 
 func (City) TableName() string {
 	return "account_city"
+}
+
+func (CityGroup) TableName() string {
+	return "account_citygroup"
 }
 
 func (CustomUser) TableName() string {
