@@ -193,8 +193,8 @@ class AccountInfoViewSet(
         if "email" in request.data:
             address = request.data.get("email")
 
-            # if address == user.email and user.email_confirmed:
-            #     return Response({"message": _("prodided email address already confirmed")})
+            if address == user.email and user.email_confirmed:
+                return Response({"message": _("prodided email address already confirmed")})
             
             user.email = address
             user.email_confirmed = False
