@@ -62,6 +62,9 @@ class City(TimeBasedModel):
         null=True,
         max_length=128,
     )
+    population = models.PositiveBigIntegerField(
+        verbose_name="Численность населения", default=0
+    )
 
     class Meta:
         verbose_name = "Город"

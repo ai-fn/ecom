@@ -18,7 +18,7 @@ class CityViewSet(ModelViewSet):
         viewsets (_type_): _description_
     """
 
-    queryset = City.objects.all().order_by("-created_at")
+    queryset = City.objects.all().order_by("-population")
     serializer_class = CitySerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 
@@ -51,8 +51,8 @@ class CityViewSet(ModelViewSet):
         return super().list(request, *args, **kwargs)
     
     @extend_schema(
-        description="Частичное изменение информации о пользователе",
-        summary="Частичное изменение информации о пользователе",
+        description="Получение списка всех городов",
+        summary="Получение списка всех городов",
         responses={200: CitySerializer(many=True)}
     )
     @action(detail=False, methods=['get'])

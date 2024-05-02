@@ -1,37 +1,26 @@
 import csv
 import os
 import subprocess
-import uuid
 from celery import shared_task
 from django.conf import settings
 from django.db import transaction
 from loguru import logger
-import pandas as pd
-import magic
-import requests
 
 from PIL import Image
-from io import BytesIO
 
-from tempfile import NamedTemporaryFile
-from pytils import translit
 from django.utils import timezone
 from django.utils.text import slugify as django_slugify
-from account.models import CityGroup
 from api.serializers.product_detail import ProductDetailSerializer
 
 from shop.models import (
-    Category,
     Characteristic,
     CharacteristicValue,
     Product,
-    ProductImage,
     Price,
     City,
     Promo,
 )
 from unidecode import unidecode
-from django.core.files.base import ContentFile
 
 
 def custom_slugify(value):
@@ -69,17 +58,19 @@ def update_cities():
     try:
         with open(city_csv_path, newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
-            city_names = []
+            city_names = {}
             for row in reader:
+                p = int(row["population"])
 
                 if row["city"] != "":
-                    city_names.append(row["city"])
+                    city_names[row["city"]] = p
                 elif row["region_type"] == "г":
-                    city_names.append(row["region"])
+                    city_names[row["region"]] = p
                 elif row["area_type"] == "г":
-                    city_names.append(row["area"])
+                    city_names[row["area"]] = p
+                else:
+                    continue
 
-        print("City names extracted successfully:")
     except FileNotFoundError:
         print("city.csv not found.")
     except Exception as e:
@@ -91,13 +82,18 @@ def update_cities():
         except subprocess.CalledProcessError as e:
             print("Error cleaning up:", e)
 
-    current_cities = City.objects.values_list("name", flat=True)
-    diff = set(city_names).difference(set(current_cities))
+    current_cities = City.objects.values_list("name")
+    diff = set(city_names.keys()).difference(set(current_cities))
 
     if len(diff) > 0:
         with transaction.atomic():
             for c in diff:
-                City.objects.create(name=c)
+                p = city_names[c]
+                c, created = City.objects.get_or_create(name=c, defaults={"population": p})
+                if not created and c.population != p:
+                    c.population = p
+                    c.save()
+
         print("Cities successfully created")
 
 
