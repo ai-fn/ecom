@@ -56,9 +56,9 @@ class CityViewSet(ModelViewSet):
         responses={200: CitySerializer(many=True)}
     )
     @action(detail=False, methods=['get'])
-    def all_cities(request, *args, **kwargs):
+    def all_cities(self, request, *args, **kwargs):
         return Response(
-            {"results": CitySerializer(City.objects.all(), many=True).data}, status=status.HTTP_200_OK
+            {"results": CitySerializer(self.queryset, many=True).data}, status=status.HTTP_200_OK
         )
 
     @extend_schema(
