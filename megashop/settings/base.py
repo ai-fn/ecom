@@ -113,7 +113,7 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DB_NAMES = ("test", "default")
-USE_TEST_DB = os.environ.get("USE_TEST_DB", "1") == "1"
+USE_TEST_DB = os.environ.get("USE_TEST_DB", "0") == "1"
 
 DATABASES = {
     DB_NAMES[not USE_TEST_DB]: {
