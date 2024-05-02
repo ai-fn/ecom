@@ -4,10 +4,11 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 
 from api.mixins import SendVirifyEmailMixin
+from api.serializers.city import CitySerializer
 from api.serializers.user import UserDetailInfoSerializer, UserRegistrationSerializer
 from api.permissions import OwnerOrIsAdmin
 
-from account.models import CustomUser
+from account.models import City, CustomUser
 
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
@@ -15,6 +16,7 @@ from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
+from rest_framework.decorators import action
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
@@ -202,3 +204,12 @@ class AccountInfoViewSet(
             return self._send_confirm_email(request, user, address)
 
         return super().partial_update(request, *args, **kwargs)
+
+    @extend_schema(
+        tags=['Account']
+    )
+    @action(detail=False, methods=['get'])
+    def all_cities(request, *args, **kwargs):
+        return Response(
+            {"results": CitySerializer(City.objects.all(), many=True).data}, status=status.HTTP_200_OK
+        )
