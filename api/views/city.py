@@ -18,7 +18,7 @@ class CityViewSet(ModelViewSet):
         viewsets (_type_): _description_
     """
 
-    queryset = City.objects.all().order_by("-created_at")
+    queryset = City.objects.all().order_by("-population")
     serializer_class = CitySerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 

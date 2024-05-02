@@ -37,6 +37,7 @@ class CityAdmin(admin.ModelAdmin):
         "name",
         "domain",
         "address",
+        "population",
     )
     search_fields = (
         "name",
