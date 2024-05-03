@@ -11,7 +11,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
-	"log"
 	"models"
 	"net/http"
 	"os"
@@ -199,7 +198,7 @@ func ConvertStrToUint(s ...string) ([]uint, error) {
 	for idx, el := range s {
 		val, err := strconv.ParseUint(el, 10, 64)
 		if err != nil {
-			log.Fatalf("cannot parse %s to int", el)
+			fmt.Printf("cannot parse %s to int\n", el)
 		}
 		res[idx] = uint(val)
 	}
@@ -232,7 +231,7 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Fatalf("error while read response body: %s", err.Error())
+		fmt.Printf("error while read response body: %s\n", err.Error())
 		return err
 	}
 
@@ -248,7 +247,6 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		fmt.Printf("Media path is not exist: %s, creating...\n", baseMediaPath+catalogPath)
 
 		if err = os.MkdirAll(baseMediaPath+catalogPath, os.ModePerm); err != nil {
-			log.Fatalf("error while make media dirs: %s", err.Error())
 			return err
 		}
 	}
@@ -278,10 +276,10 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 	}
 
 	if err = setThumbImage(prod, img); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	} else {
 		if err = tx.Save(&prod).Error; err != nil {
-			log.Fatal(err.Error())
+			fmt.Println(err.Error())
 			return err
 		}
 	}
@@ -293,8 +291,7 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 
 		size, err := getSize(imgType)
 		if err != nil {
-			log.Fatalf("error while get size: %s", err)
-			fmt.Println(err.Error())
+			fmt.Printf("error while get size: %s\n", err)
 			continue
 		}
 
@@ -305,8 +302,7 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		if imgType == "WATERMARK" {
 			err = WatermarkImg(resized, wtrmkPath)
 			if err != nil {
-				log.Fatalf("error while watermark image: %s", err.Error())
-				fmt.Println(err.Error())
+				fmt.Printf("error while watermark image: %s\n", err.Error())
 				continue
 			}
 		}
@@ -314,30 +310,28 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		// Encode the image as WebP
 		err = png.Encode(&webpBuffer, resized)
 		if err != nil {
-			log.Fatalf("error while encode image as webp: %s", err)
-			fmt.Println(err.Error())
+			fmt.Printf("error while encode image as webp: %s\n", err)
 			continue
 		}
 
 		// Save image
 		err = os.WriteFile(baseMediaPath+catalogPath+flName+".webp", webpBuffer.Bytes(), 0644)
 		if err != nil {
-			log.Fatalf("error while write file: %s", err)
-			fmt.Println(err.Error())
+			fmt.Printf("error while write file: %s\n", err)
 			continue
 		}
 
 		webpBuffer.Reset()
 		var newProdImage = &models.ProductImage{Image: catalogPath + flName + ".webp", ProductID: prod.ID, Name: fmt.Sprintf("%s_%s", imgType, bsName)}
 		if err = setThumbImage(newProdImage, resized); err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			continue
 		}
 
 		if err := tx.Create(newProdImage).Error; err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -494,7 +488,7 @@ func CalculateBoundaries(db *gorm.DB, prntID *uint) (int, int) {
 	var maxRghtValue int
 	if err := maxRght.Scan(&maxRghtValue); err != nil {
 		// Handle error
-		log.Fatalf(err.Error())
+		fmt.Println(err.Error())
 		return 0, 0
 	}
 
