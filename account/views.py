@@ -74,7 +74,7 @@ class AccountInfoViewSet(
         examples=[
             OpenApiExample(
                 name="Request Example",
-                value={"email": "dummy@gmail.com"},
+                value={},
                 request_only=True,
             ),
             OpenApiExample(
@@ -82,10 +82,10 @@ class AccountInfoViewSet(
             ),
         ],
     )
-    @action(methods=["post"], detail=False)
+    @action(methods=["get"], detail=False)
     @method_decorator(cache_page(60 * 15))
     def resend_verify_email(self, request, *args, **kwargs):
-        email = request.data.get("email")
+        email = request.user.email
         if not email:
             return Response({"email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
