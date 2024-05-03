@@ -31,14 +31,11 @@ func init() {
 		dbUser     = os.Getenv("POSTGRES_USER")
 		dbPassword = os.Getenv("POSTGRES_PASSWORD")
 	)
-	connStr := fmt.Sprintf("host=%s port=5432 user=%s dbname=%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword)
+	connStr := fmt.Sprintf("host=%s port=5432 user=%s dbname=test_%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword)
 
 	db, err = gorm.Open("postgres", connStr)
 	if err != nil {
-		msg := "Failed to connect to database!"
-		fmt.Println(msg, err.Error())
-		log.Fatal(err.Error())
-		return
+		log.Fatal("Failed to connect to database: " + err.Error())
 	}
 
 	fmt.Println("Successfully connect to database!")
@@ -54,8 +51,11 @@ func init() {
 	} {
 		if !db.HasTable(model) {
 			msg := fmt.Sprintf("Table for model %s does not exist", reflect.TypeOf(model).Elem().Name())
-			log.Fatal(msg)
-			return
+			fmt.Println(msg + ", creating...")
+			if err := db.AutoMigrate(model).Error; err == nil {
+				fmt.Printf("Model %s successfully migrate", model)
+			}
+			log.Fatalf("Error while migrate model %s", model)
 		}
 	}
 }
@@ -137,7 +137,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 
 	r, err := utils.NewReader(filePath, ignoredColumns)
 	if err != nil {
-		log.Fatalf("error while create new reader: %s", err.Error())
+		fmt.Printf("error while create new reader: %s\n", err.Error())
 		return err
 	}
 
@@ -174,8 +174,6 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 		r.GetFileReader().CtNms.Cols = append(r.GetFileReader().CtNms.Cols, c.Name)
 	}
 
-	// Iterate over each row, start from second, in the sheet
-
 	rows, err := r.Read()
 	if err != nil {
 		return err
@@ -185,7 +183,8 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 		colNms[col] = i
 	}
 
-	for idx, row := range rows[1:] {
+	// Iterate over each row, start from second, in the sheet
+	for idx, row := range rows[850:] {
 
 		prod := models.Product{}
 		ctg := models.Category{}
@@ -230,7 +229,8 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 				}
 
 				if err = processCharacteristics(ctg.ID, &prod, db, chrVal, chrCol); err != nil {
-					return err
+					fmt.Println(err.Error())
+					continue
 				}
 			}
 
@@ -312,10 +312,8 @@ func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models
 
 	if idx, ok := colNms["DESCRIPTION"]; ok {
 		dsc, err = utils.GetFromSlice(row, idx)
-		if err != nil {
-			return err
-		}
-	} else {
+	}
+	if !ok || err != nil {
 		dsc = "Нет описания"
 	}
 
@@ -367,7 +365,7 @@ func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models
 
 func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 	var types = []string{"WATERMARK"}
-	imgs := strings.Split(cellVal, ",")
+	imgs := strings.Split(cellVal, " || ")
 
 	if len(imgs) > 0 {
 		var bsName string
@@ -376,8 +374,7 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 
 			response, err := http.Get(imgUrl)
 			if err != nil {
-				log.Fatalf("error while get image by url %s", imgUrl)
-				fmt.Println(err.Error())
+				fmt.Println("error while get image by url %s", imgUrl)
 				continue
 			}
 			defer response.Body.Close()
@@ -402,10 +399,11 @@ func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category, prntID
 	for idx, catName := range catNames {
 
 		var category models.Category
+		slg := slug.Make(catName)
 		// Check if the category already exists
-		if tx.Where(&models.Category{Name: catName}).First(&category).RecordNotFound() {
+		if tx.Where(&models.Category{Slug: slg}).First(&category).RecordNotFound() {
 			// If the category doesn't exist, create it
-			newCategory := models.Category{Name: catName, Slug: slug.Make(catName), ParentID: prntID, IsVisible: true}
+			newCategory := models.Category{Name: catName, Slug: slg, ParentID: prntID, IsVisible: true}
 
 			// Create the category
 			if err := tx.Create(&newCategory).Error; err != nil {
@@ -445,7 +443,6 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 
 	priceVal, err := strconv.ParseFloat(cellVal, 64)
 	if err != nil {
-		log.Fatalf("error while setting new price: %s", err.Error())
 		return err
 	}
 
@@ -474,7 +471,6 @@ func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName st
 		price.Price = priceVal
 
 		if err = tx.Save(&price).Error; err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
@@ -512,7 +508,6 @@ func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val s
 		// If the record exists, update it
 		charVal.Value = val
 		if err := tx.Save(charVal).Error; err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
