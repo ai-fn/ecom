@@ -1,5 +1,5 @@
+import os
 import time
-from django.urls import reverse
 import phonenumbers
 
 from rest_framework.response import Response
@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
+from django.core.cache import cache
 
 from decimal import Decimal
 from elasticsearch_dsl import Q, Search
@@ -193,9 +194,31 @@ class ValidateAddressMixin:
         return data
 
 
-class SendVirifyEmailMixin:
+class GenerateCodeMixin:
 
-    def _generate_unique_token(
+    def _generate_code(self, length=4):
+        from string import digits
+        from random import choices
+
+        return "".join(choices(digits, k=length))
+
+
+class SendVirifyEmailMixin(GenerateCodeMixin):
+
+    _EMAIL_CACHE_PREFIX = getattr(settings, "EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")
+    _EMAIL_CACHE_LIFE_TIME = getattr(settings, "EMAIL_CACHE_LIFE_TIME", 60 * 2)
+
+
+    def _get_code(self, email: str):
+        return cache.get(key=self._get_cache_key(email))
+
+    def _get_cache_key(self, email: str) -> str:
+        return f"{self._EMAIL_CACHE_PREFIX}_{email}"
+
+    def _invalidate_cache(self, email: str) -> None:
+        cache.delete(self._get_cache_key(email))
+
+    def _generate_message(
         self,
         request,
         user,
@@ -204,27 +227,46 @@ class SendVirifyEmailMixin:
         current_site = get_current_site(request)
         site_name = current_site.name
         domain = current_site.domain
-        link = reverse(
-            "account:verify-email",
-            kwargs={
-                "uid64": urlsafe_base64_encode(force_bytes(user.pk)),
-                "token": settings.DEFAULT_TOKEN_GENERATOR.make_token(user),
+
+        code = self._generate_code()
+        expiration_time = time.time() + self._EMAIL_CACHE_LIFE_TIME
+        cache.set(
+            key=self._get_cache_key(email),
+            value={
+                "expiration_time": expiration_time,
+                "code": code,
             },
+            timeout=self._EMAIL_CACHE_LIFE_TIME,
         )
+
         context = {
             "email": email,
             "domain": domain,
             "site_name": site_name,
             "user": user,
-            "link": link,
+            "code": code,
             "protocol": ["https", "http"][settings.DEBUG],
         }
-        return context
+        return context, expiration_time
 
     def _send_confirm_email(
         self, request, user, email, email_template_name="email/index.html"
     ):
-        context = self._generate_unique_token(request, user, email)
+        
+        cached_data = self._get_code("email")
+        if cached_data:
+            expiration_time = cached_data.get("expiration_time")
+            remaining_time = expiration_time - time.time()
+            if remaining_time >= 0:
+                return Response(
+                        {
+                            "message": f"Please wait. Time remaining: return {remaining_time // 60:02d}:{remaining_time % 60:02d}",
+                            "expiration_time": expiration_time
+                        },
+                        status=HTTP_400_BAD_REQUEST,
+                    )
+
+        context, expiration_time = self._generate_message(request, user, email)
         body = render_to_string(email_template_name, context)
 
         result = send_mail(
@@ -239,7 +281,7 @@ class SendVirifyEmailMixin:
         )
         if result:
             return Response(
-                {"message": "Message sent successfully"}, status=HTTP_200_OK
+                {"message": "Message sent successfully", "expiration_time": expiration_time}, status=HTTP_200_OK
             )
         else:
             return Response(

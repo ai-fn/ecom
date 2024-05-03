@@ -1,6 +1,7 @@
 from typing import Any
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -109,6 +110,11 @@ class CityGroup(TimeBasedModel):
 
 
 class CustomUser(AbstractUser):
+    first_name = models.CharField(
+        _("first name"), max_length=150, blank=True, null=True
+    )
+    last_name = models.CharField(_("last name"), max_length=150, blank=True, null=True)
+    email = models.EmailField(_("email address"), blank=True, null=True)
     phone = models.CharField(
         verbose_name="Номер телефона", null=True, blank=True, unique=True, max_length=16
     )
