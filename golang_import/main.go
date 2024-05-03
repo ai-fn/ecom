@@ -405,7 +405,7 @@ func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category, prntID
 		// Check if the category already exists
 		if tx.Where(&models.Category{Name: catName}).First(&category).RecordNotFound() {
 			// If the category doesn't exist, create it
-			newCategory := models.Category{Name: catName, Slug: slug.Make(catName), ParentID: prntID}
+			newCategory := models.Category{Name: catName, Slug: slug.Make(catName), ParentID: prntID, IsVisible: true}
 
 			// Create the category
 			if err := tx.Create(&newCategory).Error; err != nil {
