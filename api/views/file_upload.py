@@ -50,9 +50,15 @@ class XlsxFileUploadView(APIView):
         except NoReverseMatch:
             path = f"/api/upload/{filename}"
 
-        r = requests.put(
-            f"http://{host}:{port}{path}?type={upload_type}",
-            files={"file": ContentFile(file_obj.read())},
-            headers={"Authorization": request.headers.get("Authorization")},
-        )
-        return Response(r.json(), status=r.status_code)
+        try:
+            r = requests.put(
+                f"http://{host}:{port}{path}?type={upload_type}",
+                files={"file": ContentFile(file_obj.read())},
+                headers={"Authorization": request.headers.get("Authorization")},
+            )
+            return Response(r.json(), status=r.status_code)
+
+        except requests.exceptions.ConnectionError as e:
+            from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
+
+            return Response({"error": "Failed to connect to the service: " + str(e)}, status=HTTP_503_SERVICE_UNAVAILABLE)
