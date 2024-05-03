@@ -78,7 +78,7 @@ class AccountInfoViewSet(
                 request_only=True,
             ),
             OpenApiExample(
-                name="Response Example", value={"code": "9999"}, response_only=True
+                name="Response Example", value={"code": "9999", "expiration_time": 1714730191.0360472}, response_only=True
             ),
         ],
     )
