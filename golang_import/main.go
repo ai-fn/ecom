@@ -184,7 +184,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 	}
 
 	// Iterate over each row, start from second, in the sheet
-	for idx, row := range rows[850:] {
+	for idx, row := range rows[1:] {
 
 		prod := models.Product{}
 		ctg := models.Category{}
