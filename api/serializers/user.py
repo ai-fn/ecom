@@ -73,7 +73,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer, ValidatePhoneNumbe
             phone=validated_data["phone"],
         )
         user.set_password(validated_data["phone"])
-        user.save
+        user.save()
         return user
 
 

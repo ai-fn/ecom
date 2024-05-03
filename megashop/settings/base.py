@@ -293,7 +293,7 @@ SMS_PASSWORD = os.environ.get("SMS_PASSWORD", "DEFAULT")
 
 CONFIRM_CODE_LIFE_TIME = os.environ.get("CONFIRM_CODE_LIFE_TIME", 60)
 SMS_CACHE_PREFIX = os.environ.get("SMS_CACHE_PREFIX", "SMS_CACHE")
-CACHE_PREFIX = os.environ.get("CACHE_PREFIX", "SMS_CACHE")
+CACHE_PREFIX = os.environ.get("CACHE_PREFIX", "CACHE_PREFIX")
 
 BASE_DOMAIN = os.environ.get('BASE_DOMAIN', 'krov.market')
 
@@ -316,3 +316,12 @@ CACHES = {
         "KEY_PREFIX": CACHE_PREFIX
     }
 }
+CACHE_BACKEND = 'default'
+
+# VERIFY EMAIL SETTINGS
+EMAIL_CACHE_PREFIX = os.getenv("EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")
+try:
+    EMAIL_CACHE_LIFE_TIME = int(os.getenv("EMAIL_CACHE_LIFE_TIME"))
+except (ValueError, TypeError):
+    logger.info("invalid EMAIL_CACHE_LIFE_TIME, using default (120)")
+    EMAIL_CACHE_LIFE_TIME = 60 * 2
