@@ -188,6 +188,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 
 		prod := models.Product{}
 		ctg := models.Category{}
+		prodCtgs := []models.Category{}
 
 		idx = colNms["CATEGORIES"]
 
@@ -199,11 +200,11 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 			var chrCol string
 			var ctCol string
 			// Process categories
-			if err = processCategories(db, row[idx], &ctg, prntID); err != nil {
+			if err = processCategories(&prodCtgs, db, row[idx], &ctg, prntID); err != nil {
 				return err
 			}
 
-			if err = processProduct(db, row, &prod, &ctg, colNms); err != nil {
+			if err = processProduct(prodCtgs, db, row, &prod, &ctg, colNms); err != nil {
 				fmt.Println("Error while process product: ", err.Error())
 				return err
 			}
@@ -286,7 +287,7 @@ func processProductGroup(prod models.Product, groups []*models.ProductGroup, tx 
 	return nil
 }
 
-func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models.Category, colNms map[string]int) error {
+func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod *models.Product, ctg *models.Category, colNms map[string]int) error {
 	var title string
 	var dsc string
 	var inStock bool = true // default value for field "in_stock"
@@ -343,11 +344,18 @@ func processProduct(tx *gorm.DB, row []string, prod *models.Product, ctg *models
 		prod.Priority = 500
 	}
 
+	// Set Title & Description
 	prod.Description = dsc
 	prod.Title = title
-
 	if err = tx.Save(&prod).Error; err != nil {
 		return err
+	}
+
+	// Set additional categories
+	for _, ctg := range prodCtgs {
+		if err = tx.Model(&prod).Association("AdditionalCategories").Append(ctg).Error; err != nil {
+			fmt.Println("ERRORR: ", err)
+		}
 	}
 
 	// Set Images
@@ -374,7 +382,7 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 
 			response, err := http.Get(imgUrl)
 			if err != nil {
-				fmt.Println("error while get image by url %s", imgUrl)
+				fmt.Printf("error while get image by url %s\n", imgUrl)
 				continue
 			}
 			defer response.Body.Close()
@@ -392,10 +400,10 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 	return nil
 }
 
-func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category, prntID *uint) error {
+func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string, ctg *models.Category, prntID *uint) error {
 	catNames := strings.Split(cellVal, " | ")
 
-	// var prntCtg *models.Category
+	// process all categories
 	for idx, catName := range catNames {
 
 		var category models.Category
@@ -431,6 +439,7 @@ func processCategories(tx *gorm.DB, cellVal string, ctg *models.Category, prntID
 			*ctg = category
 		}
 
+		*prodCtgs = append(*prodCtgs, *ctg)
 		prntID = &ctg.ID
 	}
 	return nil
