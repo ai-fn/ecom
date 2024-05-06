@@ -88,12 +88,10 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
             filter_conditions &= Q(category__slug__in=categories) | Q(
                 additional_categories__slug=category
             )
-        
-        queryset = queryset.filter(filter_conditions)
 
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
-            queryset = queryset.annotate(
+            queryset = queryset.filter(filter_conditions).annotate(
                 cart_quantity=Sum(
                     "cart_items__quantity",
                     filter=F("cart_items__customer_id") == self.request.user.id,
