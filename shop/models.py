@@ -22,7 +22,7 @@ class ThumbModel(TimeBasedModel):
         abstract = True
 
     thumb_img = models.TextField(
-        verbose_name="Миниатюра", null=True, blank=True, max_length=512
+        verbose_name="Миниатюра", null=True, blank=True, max_length=1024
     )
 
     def save(
@@ -224,7 +224,7 @@ class Product(ThumbModel):
         max_length=255,
         verbose_name="Наименование",
     )
-    description = models.TextField(verbose_name="Описание")
+    description = models.TextField(verbose_name="Описание", null=True, blank=True)
     catalog_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение в каталоге",
@@ -619,19 +619,15 @@ class SideBarMenuItem(TimeBasedModel):
 
 
 class ProductGroup(TimeBasedModel):
-    
-    name = models.CharField(
-        verbose_name="Наименование",
-        max_length=255,
-        unique=True
-    )
+
+    name = models.CharField(verbose_name="Наименование", max_length=255, unique=True)
     products = models.ManyToManyField(Product, verbose_name="Продукты", blank=True)
     characteristic = models.ForeignKey(
         Characteristic,
         verbose_name="Характеристика",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
     )
 
     class Meta:
