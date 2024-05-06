@@ -71,7 +71,7 @@ type Product struct {
 	IsPopular            bool        `gorm:"column:is_popular"`
 	Priority             int         `gorm:"column:priority"`
 	Category             Category    `gorm:"foreignKey:CategoryID"`
-	AdditionalCategories []*Category `gorm:"many2many:product_additional_categories"`
+	AdditionalCategories []*Category `gorm:"many2many:shop_product_additional_categories"`
 	Brand                *Brand      `gorm:"foreignKey:BrandID"`
 }
 
