@@ -446,7 +446,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
         self.domain = request.query_params.get("city_domain")
         if self.domain:
             price_data = (
-                Price.objects.filter(product=product, city__domain=self.domain)
+                Price.objects.filter(product=product, city_group__cities__domain=self.domain)
                 .values("price", "old_price")
                 .first()
             )
