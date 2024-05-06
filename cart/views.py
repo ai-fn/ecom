@@ -314,7 +314,7 @@ class OrderViewSet(ModelViewSet):
                     friquenly_bought_together.save(update_fields=["purchase_count"])
                 try:
                     price = Price.objects.get(
-                        city__domain=city_domain, product=item.product
+                        city_group__cities__domain=city_domain, product=item.product
                     )
                     prod = ProductsInOrder.objects.create(
                         order=order,
