@@ -314,7 +314,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 	if idx, ok := colNms["DESCRIPTION"]; ok {
 		dsc, err = utils.GetFromSlice(row, idx)
 	}
-	if !ok || err != nil {
+	if dsc == "" {
 		dsc = "Нет описания"
 	}
 
@@ -324,6 +324,12 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 		if err := tx.Create(&newProd).Error; err != nil {
 			return err
 		}
+
+		prod.Slug = fmt.Sprintf("%s-%d", prod.Slug, prod.ID)
+		if err := tx.Save(&newProd).Error; err != nil {
+			return err
+		}
+
 		*prod = newProd
 	}
 
