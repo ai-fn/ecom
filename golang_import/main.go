@@ -325,7 +325,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 			return err
 		}
 
-		prod.Slug = fmt.Sprintf("%s-%d", prod.Slug, prod.ID)
+		newProd.Slug = fmt.Sprintf("%s-%d", newProd.Slug, prod.ID)
 		if err := tx.Save(&newProd).Error; err != nil {
 			return err
 		}
