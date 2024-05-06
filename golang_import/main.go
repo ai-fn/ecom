@@ -358,11 +358,11 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 	}
 
 	// Set additional categories
-	for _, ctg := range prodCtgs {
-		if err = tx.Model(&prod).Association("AdditionalCategories").Append(ctg).Error; err != nil {
-			fmt.Println("ERRORR: ", err)
-		}
-	}
+	// for _, ctg := range prodCtgs {
+	// 	if err = tx.Model(&prod).Association("AdditionalCategories").Append(ctg).Error; err != nil {
+	// 		fmt.Println("ERRORR: ", err)
+	// 	}
+	// }
 
 	// Set Images
 	if idx, ok := colNms["IMAGES"]; ok {
