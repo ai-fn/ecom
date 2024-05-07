@@ -4,6 +4,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
@@ -205,4 +206,35 @@ func (cols *Columns) Contains(el string) bool {
 	}
 
 	return false
+}
+
+func (c *Category) BeforeCreate(tx *gorm.DB) (err error) {
+	if c.ParentID == nil {
+		var maxRight *uint
+		if err := tx.Model(&Category{}).Select("MAX(rght)").Row().Scan(&maxRight); err != nil {
+			return err
+		}
+		if maxRight == nil {
+			maxRight = new(uint)
+		}
+
+		c.Left = *maxRight + 1
+		c.Right = *maxRight + 2
+	} else {
+		var parentCategory Category
+		if err := tx.First(&parentCategory, c.ParentID).Error; err != nil {
+			return err
+		}
+		c.Left = parentCategory.Right
+		c.Right = parentCategory.Right + 1
+		if err := tx.Model(&Category{}).Where("rght >= ?", c.Left).Update("rght", gorm.Expr("rght + 2")).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(&Category{}).Where("lft > ?", c.Left).Update("lft", gorm.Expr("lft + 2")).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

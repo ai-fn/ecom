@@ -492,33 +492,6 @@ func FindByField(slice interface{}, field string, value interface{}) (interface{
 	return nil, fmt.Errorf("value %s not found in provided slice", value)
 }
 
-// Calculate left and right boundaries for the new node
-func CalculateBoundaries(db *gorm.DB, prntID *uint) (uint, uint) {
-	if prntID == nil {
-		// If the node has no parent, set lft to 1 and rght to 2
-		return 1, 2
-	}
-
-	// Find the maximum right boundary of the parent's children
-	maxRght := db.Model(&models.Category{}).
-		Where("parent_id = ?", &prntID).
-		Select("MAX(rght)").
-		Row()
-
-	var maxRghtValue int
-	if err := maxRght.Scan(&maxRghtValue); err != nil {
-		// Handle error
-		fmt.Println(err.Error())
-		return 0, 0
-	}
-
-	// Set lft to the maximum right boundary of the parent's children
-	lft := maxRghtValue + 1
-	// Set rght to lft + 1
-	rght := lft + 1
-	return uint(lft), uint(rght)
-}
-
 // Array must be sorted by searched field
 func BinarySearch(arr interface{}, pattern interface{}, less func(a, b interface{}) bool, equal func(a, b interface{}) bool) int {
 	v := reflect.ValueOf(arr)

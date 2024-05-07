@@ -196,11 +196,10 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 		db.Transaction(func(tx *gorm.DB) error {
 
 			var err error
-			var prntID *uint
 			var chrCol string
 			var ctCol string
 			// Process categories
-			if err = processCategories(&prodCtgs, db, row[idx], &ctg, prntID); err != nil {
+			if err = processCategories(&prodCtgs, db, row[idx], &ctg); err != nil {
 				return err
 			}
 
@@ -407,7 +406,7 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 	return nil
 }
 
-func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string, ctg *models.Category, prntID *uint) error {
+func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string, ctg *models.Category) error {
 	catNames := strings.Split(cellVal, " | ")
 	var prnt *models.Category
 
@@ -426,6 +425,8 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 				IsVisible: true,
 				TreeID:    1,
 				Level:     uint(idx),
+				Left:      0,
+				Right:     0,
 			}
 
 			// Create the category
@@ -436,7 +437,7 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 			}
 
 			// Calculate left and right boundaries
-			newCategory.Left, newCategory.Right = utils.CalculateBoundaries(tx, prntID)
+			// newCategory.Left, newCategory.Right = utils.CalculateBoundaries(tx, &newCategory)
 			newCategory.Order = newCategory.ID
 
 			if idx > 0 && prnt != nil {
@@ -461,7 +462,6 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 		}
 
 		*prodCtgs = append(*prodCtgs, *ctg)
-		prntID = &ctg.ID
 		prnt = ctg
 	}
 	return nil
