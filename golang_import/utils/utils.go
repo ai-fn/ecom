@@ -315,20 +315,40 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		}
 
 		// Save image
-		err = os.WriteFile(baseMediaPath+catalogPath+flName+".webp", webpBuffer.Bytes(), 0644)
+		filePath := baseMediaPath + catalogPath + flName + ".webp"
+		err = os.WriteFile(filePath, webpBuffer.Bytes(), 0644)
 		if err != nil {
 			fmt.Printf("error while write file: %s\n", err)
 			continue
 		}
 
 		webpBuffer.Reset()
-		var newProdImage = &models.ProductImage{Image: catalogPath + flName + ".webp", ProductID: prod.ID, Name: fmt.Sprintf("%s_%s", imgType, bsName)}
-		if err = setThumbImage(newProdImage, resized); err != nil {
-			fmt.Println(err)
-			continue
+		switch imgType {
+		case "WATERMARK":
+			var newProdImage = &models.ProductImage{
+				Image:     catalogPath + flName + ".webp",
+				ProductID: prod.ID,
+				Name:      fmt.Sprintf("%s_%s", imgType, bsName),
+			}
+			if err = setThumbImage(newProdImage, resized); err != nil {
+				fmt.Println(err)
+				continue
+			}
+			err = tx.Create(&newProdImage).Error
+
+		case "CATALOG":
+			prod.CatalogImage = flName
+			err = tx.Save(&prod).Error
+
+		case "SEARCH":
+			prod.SearchImage = flName
+			err = tx.Save(&prod).Error
+
+		default:
+			fmt.Println("Unknown image type")
 		}
 
-		if err := tx.Create(newProdImage).Error; err != nil {
+		if err != nil {
 			return err
 		}
 	}
