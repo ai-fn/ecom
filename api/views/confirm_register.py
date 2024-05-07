@@ -43,8 +43,6 @@ class SendSMSView(GenericAPIView):
         Args:
             phone_number (str): Номер телефона в международном формате.
         """
-        sms_login = settings.SMS_LOGIN
-        sms_password = settings.SMS_PASSWORD
 
         bot_token = settings.TG_BOT_TOKEN
         send_to_telegram = settings.SEND_TO_TELEGRAM
@@ -75,23 +73,15 @@ class SendSMSView(GenericAPIView):
 
         code = "".join(rd.choices(digits, k=4))
         message = f"Ваш код: {code}. Никому не сообщайте его!"
+        api_key = getattr(settings, "SMS_RU_TOKEN", "default")
 
         try:
-            sms_link = "http://api.prostor-sms.ru/messages/v2/send.json"
+            sms_link = "https://sms.ru/sms/send"
             sms_params = {
-                "scheduleTime": datetime.now() + timedelta(seconds=5),
-                "messages": [
-                    {
-                        "phone": phone_number,
-                        "sender": "Altawest",
-                        "clientId": "1",
-                        "text": message,
-                    },
-                ],
-                "statusQueueName": "myQueue1",
-                "showBillingDetails": False,
-                "login": sms_login,
-                "password": sms_password,
+                "api_id": api_key,
+                "to": phone_number,
+                "msg": message,
+                "json": 1,  # to receive response in JSON format
             }
 
             tg_link = f"https://api.telegram.org/bot{bot_token}/sendMessage"
@@ -102,7 +92,7 @@ class SendSMSView(GenericAPIView):
             }
 
             if not send_to_telegram:
-                response = requests.post(sms_link, data=sms_params)
+                response = requests.get(sms_link, params=sms_params)
             else:
                 response = requests.post(tg_link, params=tg_params)
 
