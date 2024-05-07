@@ -493,7 +493,7 @@ func FindByField(slice interface{}, field string, value interface{}) (interface{
 }
 
 // Calculate left and right boundaries for the new node
-func CalculateBoundaries(db *gorm.DB, prntID *uint) (int, int) {
+func CalculateBoundaries(db *gorm.DB, prntID *uint) (uint, uint) {
 	if prntID == nil {
 		// If the node has no parent, set lft to 1 and rght to 2
 		return 1, 2
@@ -516,7 +516,7 @@ func CalculateBoundaries(db *gorm.DB, prntID *uint) (int, int) {
 	lft := maxRghtValue + 1
 	// Set rght to lft + 1
 	rght := lft + 1
-	return lft, rght
+	return uint(lft), uint(rght)
 }
 
 // Array must be sorted by searched field

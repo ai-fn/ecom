@@ -47,13 +47,13 @@ type Category struct {
 	Image     string      `gorm:"column:image;type:varchar(255)"`
 	IsVisible bool        `gorm:"column:is_visible"`
 	IsPopular bool        `gorm:"column:is_popular"`
-	Order     int         `gorm:"column:order"`
+	Order     uint        `gorm:"column:order"`
 	Parent    *Category   `gorm:"foreignKey:ParentID"`
 	Children  []*Category `gorm:"foreignKey:ParentID"`
-	Left      int         `gorm:"column:lft"`
-	Right     int         `gorm:"column:rght"`
-	TreeID    int         `gorm:"column:tree_id"`
-	Level     int         `gorm:"column:level"`
+	Left      uint        `gorm:"column:lft"`
+	Right     uint        `gorm:"column:rght"`
+	TreeID    uint        `gorm:"column:tree_id"`
+	Level     uint        `gorm:"column:level"`
 }
 
 type Product struct {
@@ -69,7 +69,7 @@ type Product struct {
 	Slug                 string      `gorm:"column:slug;unique"`
 	InStock              bool        `gorm:"column:in_stock"`
 	IsPopular            bool        `gorm:"column:is_popular"`
-	Priority             int         `gorm:"column:priority"`
+	Priority             uint        `gorm:"column:priority"`
 	Category             Category    `gorm:"foreignKey:CategoryID"`
 	AdditionalCategories []*Category `gorm:"many2many:shop_product_additional_categories"`
 	Brand                *Brand      `gorm:"foreignKey:BrandID"`
@@ -95,7 +95,7 @@ type Brand struct {
 	Name  string `gorm:"column:name"`
 	Icon  string `gorm:"column:icon;type:varchar(255)"`
 	Slug  string `gorm:"column:slug;unique"`
-	Order int    `gorm:"column:order"`
+	Order uint   `gorm:"column:order"`
 }
 
 type Characteristic struct {

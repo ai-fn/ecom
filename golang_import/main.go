@@ -341,7 +341,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 			if cellVal != "" {
 				priority, err := strconv.ParseFloat(cellVal, 32)
 				if err == nil {
-					prod.Priority = int(priority)
+					prod.Priority = uint(priority)
 				}
 			}
 		}
@@ -425,7 +425,7 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 				// ParentID:  prntID,
 				IsVisible: true,
 				TreeID:    1,
-				Level:     idx,
+				Level:     uint(idx),
 			}
 
 			// Create the category
@@ -437,7 +437,7 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 
 			// Calculate left and right boundaries
 			newCategory.Left, newCategory.Right = utils.CalculateBoundaries(tx, prntID)
-			newCategory.Order = int(newCategory.ID)
+			newCategory.Order = newCategory.ID
 
 			if idx > 0 && prnt != nil {
 				prnt.Children = append(prnt.Children, &newCategory)
