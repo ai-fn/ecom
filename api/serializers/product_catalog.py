@@ -49,4 +49,5 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
             "cart_quantity",
             "is_popular",
             "thumb_img",
+            "description",
         ]
