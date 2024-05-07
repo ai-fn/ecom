@@ -146,7 +146,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 		if err := os.Remove(filePath); err == nil {
 			fmt.Println("tmp file successfully deleted")
 		} else {
-			fmt.Println("tmp file not found, exit.")
+			fmt.Println("error while deleting tmp file: " + err.Error())
 		}
 		r.Close()
 	}()
@@ -353,16 +353,17 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 	// Set Title & Description
 	prod.Description = dsc
 	prod.Title = title
+
 	if err = tx.Save(&prod).Error; err != nil {
 		return err
 	}
 
 	// Set additional categories
-	// for _, ctg := range prodCtgs {
-	// 	if err = tx.Model(&prod).Association("AdditionalCategories").Append(ctg).Error; err != nil {
-	// 		fmt.Println("ERRORR: ", err)
-	// 	}
-	// }
+	for _, ctg := range prodCtgs {
+		if err = tx.Model(&prod).Association("AdditionalCategories").Append(ctg).Error; err != nil {
+			fmt.Println("error while add additional category: ", err.Error())
+		}
+	}
 
 	// Set Images
 	if idx, ok := colNms["IMAGES"]; ok {
@@ -408,6 +409,7 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 
 func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string, ctg *models.Category, prntID *uint) error {
 	catNames := strings.Split(cellVal, " | ")
+	var prnt *models.Category
 
 	// process all categories
 	for idx, catName := range catNames {
@@ -417,7 +419,14 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 		// Check if the category already exists
 		if tx.Where(&models.Category{Slug: slg}).First(&category).RecordNotFound() {
 			// If the category doesn't exist, create it
-			newCategory := models.Category{Name: catName, Slug: slg, ParentID: prntID, IsVisible: true}
+			newCategory := models.Category{
+				Name: catName,
+				Slug: slg,
+				// ParentID:  prntID,
+				IsVisible: true,
+				TreeID:    1,
+				Level:     idx,
+			}
 
 			// Create the category
 			if err := tx.Create(&newCategory).Error; err != nil {
@@ -428,9 +437,15 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 
 			// Calculate left and right boundaries
 			newCategory.Left, newCategory.Right = utils.CalculateBoundaries(tx, prntID)
+			newCategory.Order = int(newCategory.ID)
 
-			newCategory.Level = idx
-			newCategory.TreeID = 1
+			if idx > 0 && prnt != nil {
+				prnt.Children = append(prnt.Children, &newCategory)
+				if err := tx.Save(&prnt).Error; err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
 
 			if err := tx.Save(&newCategory).Error; err != nil {
 				fmt.Println(err)
@@ -447,6 +462,7 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 
 		*prodCtgs = append(*prodCtgs, *ctg)
 		prntID = &ctg.ID
+		prnt = ctg
 	}
 	return nil
 }
@@ -522,7 +538,7 @@ func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val s
 	} else {
 		// If the record exists, update it
 		charVal.Value = val
-		if err := tx.Save(charVal).Error; err != nil {
+		if err := tx.Save(&charVal).Error; err != nil {
 			return err
 		}
 	}

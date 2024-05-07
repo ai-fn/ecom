@@ -474,14 +474,14 @@ func FindByField(slice interface{}, field string, value interface{}) (interface{
 
 // Calculate left and right boundaries for the new node
 func CalculateBoundaries(db *gorm.DB, prntID *uint) (int, int) {
-	if prntID == nil || (*prntID) == 0 {
+	if prntID == nil {
 		// If the node has no parent, set lft to 1 and rght to 2
 		return 1, 2
 	}
 
 	// Find the maximum right boundary of the parent's children
 	maxRght := db.Model(&models.Category{}).
-		Where("parent_id = ?", prntID).
+		Where("parent_id = ?", &prntID).
 		Select("MAX(rght)").
 		Row()
 
