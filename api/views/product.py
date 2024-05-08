@@ -89,7 +89,8 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                 additional_categories__slug=category
             )
         
-        queryset = queryset.filter(filter_conditions)
+        # TODO distinct may be optimized
+        queryset = queryset.filter(filter_conditions).distinct()
 
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
