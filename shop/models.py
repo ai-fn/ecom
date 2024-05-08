@@ -637,3 +637,99 @@ class ProductGroup(TimeBasedModel):
 
     def __str__(self):
         return f"Группа продуктов {self.name}"
+
+
+class OpenGraphMeta(TimeBasedModel):
+
+    name = models.CharField(
+        verbose_name=_("Наименование страницы"),
+        max_length=255,
+        help_text=_("(Главная страница, возвраты, товар, категория)"),
+        unique=True,
+    )
+    title = models.CharField(
+        verbose_name=_("Заголовок"),
+        max_length=255,
+    )
+    description = models.TextField(
+        verbose_name=_("Описание"),
+        max_length=1024,
+    )
+    url = models.CharField(
+        verbose_name=_("Ссылка"),
+        max_length=255,
+    )
+    site_name = models.CharField(
+        verbose_name=_("Наименование сайта"),
+        max_length=255,
+        default="Кров маркет"
+    )
+    locale = models.CharField(
+        verbose_name=_("Языковой код"),
+        help_text=_("В формате ru_Ru"),
+        max_length=10,
+        default="ru_RU",
+        null=True,
+        blank=True,
+    )
+    type = models.CharField(
+        verbose_name=_("Тип объекта данных"),
+        max_length=20,
+        default="website",
+        null=True,
+        blank=True,
+    )
+    category = models.ForeignKey(
+        Category,
+        verbose_name=_("Категория товаров"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    product = models.ForeignKey(
+        Product,
+        verbose_name=_("Товар"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
+    def clean(self) -> None:
+        if self.category and self.product:
+            raise ValidationError(_('Можно задать либо поле категории, либо поле продукта, но не оба.'))
+
+        return super().clean()
+
+    class Meta:
+        verbose_name = "Метаданные OpenGraph"
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(category_id__isnull=True) | models.Q(product_id__isnull=True),
+                name='%(app_label)s_%(class)s_category_product_exclusivity'
+            )
+        ]
+
+
+
+class ImageMetaData(TimeBasedModel):
+
+    url = models.CharField(
+        verbose_name=_("Ссылка"),
+    )
+    width = models.PositiveSmallIntegerField(
+        verbose_name=_("Ширина"),
+    )
+    height = models.PositiveSmallIntegerField(
+        verbose_name=_("Высота"),
+    )
+    open_graph_meta = models.ForeignKey(
+        OpenGraphMeta,
+        verbose_name=_("Метаданные"),
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="images",
+    )
+
+    class Meta:
+        verbose_name = _("Изображение метаданных")
+        verbose_name = _("Изображения метаданных")

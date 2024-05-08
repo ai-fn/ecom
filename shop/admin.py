@@ -9,6 +9,8 @@ from shop.models import (
     CategoryMetaData,
     Characteristic,
     CharacteristicValue,
+    ImageMetaData,
+    OpenGraphMeta,
     Price,
     Product,
     ProductGroup,
@@ -265,4 +267,41 @@ class SideBarMenuItemAdmin(admin.ModelAdmin):
     search_fields = (
         "title",
         "link",
+    )
+
+
+@admin.register(OpenGraphMeta)
+class OpenGraphMetaAdmin(admin.ModelAdmin):
+    
+    list_display = (
+        "id",
+        "title",
+        "url",
+    )
+    search_fields = (
+        "title",
+        "description",
+        "url",
+        "site_name",
+        "locale",
+        "type",
+    )
+    list_filter = (
+        "type",
+        "locale",
+    )
+
+@admin.register(ImageMetaData)
+class ImageMetaDataAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "url",
+        "width",
+        "height",
+    )
+    search_fields = (
+        "url",
+    )
+    list_filter = (
+        "open_graph_meta",
     )
