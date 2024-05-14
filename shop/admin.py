@@ -11,6 +11,7 @@ from shop.models import (
     CharacteristicValue,
     ImageMetaData,
     OpenGraphMeta,
+    Page,
     Price,
     Product,
     ProductGroup,
@@ -87,6 +88,7 @@ class BrandAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "article",
+        "id",
         "title",
         "category",
     )
@@ -284,10 +286,9 @@ class OpenGraphMetaAdmin(admin.ModelAdmin):
         "url",
         "site_name",
         "locale",
-        "type",
+        "content_type",
     )
     list_filter = (
-        "type",
         "locale",
     )
 
@@ -295,13 +296,26 @@ class OpenGraphMetaAdmin(admin.ModelAdmin):
 class ImageMetaDataAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "url",
+        "image",
         "width",
         "height",
     )
     search_fields = (
-        "url",
+        "image",
+        "width",
+        "height",
     )
-    list_filter = (
-        "open_graph_meta",
+
+@admin.register(Page)
+class PageAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "description",
+    )
+    prepopulated_fields = {
+        "slug": ("title",)
+    }
+    search_fields = (
+        "title",
+        "description",
     )

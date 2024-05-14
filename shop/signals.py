@@ -1,5 +1,5 @@
 from django.conf import settings
-from shop.models import Category, Brand, FooterItem, MainPageSliderImage, Product, City
+from shop.models import Category, Brand, FooterItem, MainPageSliderImage, Page, Product, City
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
@@ -38,6 +38,13 @@ def set_brand_order(sender, instance, **kwargs):
 def set_product_slug(sender, created, instance, **kwargs):
     if created:
         instance.slug = slugify(unidecode(instance.title)) + f"-{instance.id}"
+        instance.save()
+
+
+@receiver(post_save, sender=Page)
+def set_page_slug(sender, created, instance, **kwargs):
+    if created and not instance.slug:
+        instance.slug = slugify(unidecode(instance.title))
         instance.save()
 
 
