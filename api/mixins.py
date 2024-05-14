@@ -206,7 +206,7 @@ class GenerateCodeMixin:
 class SendVirifyEmailMixin(GenerateCodeMixin):
 
     _EMAIL_CACHE_PREFIX = getattr(settings, "EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")
-    _EMAIL_CACHE_LIFE_TIME = getattr(settings, "EMAIL_CACHE_LIFE_TIME", 60 * 2)
+    _EMAIL_CACHE_LIFE_TIME = getattr(settings, "EMAIL_CACHE_LIFE_TIME", 60 * 60)
 
 
     def _get_code(self, email: str):

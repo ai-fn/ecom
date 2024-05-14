@@ -20,7 +20,7 @@ from ..serializers.confirm_code import ConfirmCodeSerializer
 from account.models import CustomUser
 from drf_spectacular.utils import extend_schema
 
-code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60))
+code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60*10))
 
 
 @extend_schema(
