@@ -1,35 +1,38 @@
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from shop.models import ImageMetaData, OpenGraphMeta
 
 
 class ImageMetaDataSerializer(ModelSerializer):
 
-    open_graph_meta = PrimaryKeyRelatedField(write_only=True)
+    image = SerializerMethodField()
+
+    def get_image(self, obj) -> str:
+        return obj.image.url if obj.image else None
+
     class Meta:
         model = ImageMetaData
-        exclude = ["open_graph_meta"]
+        exclude = ["open_graph_meta", "created_at", "updated_at", "id"]
 
 
 class OpenGraphMetaSerializer(ModelSerializer):
-    
-    images = ImageMetaDataSerializer(many=True)
 
+    images = ImageMetaDataSerializer(many=True, read_only=True, source="imagemetadata_set")
+    
+    def to_representation(self, instance: OpenGraphMeta):
+        data = super().to_representation(instance)
+        return {
+            'title': data['title'],
+            'description': data['description'],
+            'OpenGraph': {
+                'url': data['url'],
+                'siteName': data['site_name'],
+                'images': data['images'],
+                'locale': data['locale'],
+                'type': "website",
+            },
+        }
+    
     class Meta:
         model = OpenGraphMeta
         exclude = []
-    
-    def to_representation(self, obj: OpenGraphMeta):
-        return {
-            'title': obj.title,
-            'description': obj.description,
-            'OpenGraph': {
-                'title': obj.title,
-                'description': obj.description,
-                'url': obj.url,
-                'siteName': obj.site_name,
-                'images': obj.images,
-                'locale': obj.locale,
-                'type': obj.type,
-            }
-        }

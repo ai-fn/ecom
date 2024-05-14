@@ -8,6 +8,9 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+
 from loguru import logger
 
 from itertools import chain
@@ -115,6 +118,10 @@ class Category(ThumbModel, MPTTModel):
     order = models.BigIntegerField(
         verbose_name="Порядковый номер категории", blank=True
     )
+    opengraph_metadata = GenericRelation("OpenGraphMeta", related_query_name="category")
+
+    def get_absolute_url(self):
+        return f"katalog/{self.slug}"
 
     class Meta:
         verbose_name = "Категория"
@@ -267,6 +274,7 @@ class Product(ThumbModel):
         max_length=128,
         unique=True,
     )
+    opengraph_metadata = GenericRelation("OpenGraphMeta", related_query_name="product")
 
     class Meta:
         verbose_name = "Товар"
@@ -282,7 +290,7 @@ class Product(ThumbModel):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("api:products-list", args=[self.pk])
+        return os.path.join("katalog", self.category.slug, self.slug)
 
 
 class ProductFrequenlyBoughtTogether(TimeBasedModel):
@@ -641,12 +649,6 @@ class ProductGroup(TimeBasedModel):
 
 class OpenGraphMeta(TimeBasedModel):
 
-    name = models.CharField(
-        verbose_name=_("Наименование страницы"),
-        max_length=255,
-        help_text=_("(Главная страница, возвраты, товар, категория)"),
-        unique=True,
-    )
     title = models.CharField(
         verbose_name=_("Заголовок"),
         max_length=255,
@@ -660,9 +662,7 @@ class OpenGraphMeta(TimeBasedModel):
         max_length=255,
     )
     site_name = models.CharField(
-        verbose_name=_("Наименование сайта"),
-        max_length=255,
-        default="Кров маркет"
+        verbose_name=_("Наименование сайта"), max_length=255, default="Кров маркет"
     )
     locale = models.CharField(
         verbose_name=_("Языковой код"),
@@ -672,50 +672,23 @@ class OpenGraphMeta(TimeBasedModel):
         null=True,
         blank=True,
     )
-    type = models.CharField(
-        verbose_name=_("Тип объекта данных"),
-        max_length=20,
-        default="website",
-        null=True,
-        blank=True,
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, verbose_name=_("Тип объекта")
     )
-    category = models.ForeignKey(
-        Category,
-        verbose_name=_("Категория товаров"),
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
-    product = models.ForeignKey(
-        Product,
-        verbose_name=_("Товар"),
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
+    object_id = models.PositiveIntegerField(verbose_name=_("ID объекта"))
+    content_object = GenericForeignKey("content_type", "object_id")
 
-    def clean(self) -> None:
-        if self.category and self.product:
-            raise ValidationError(_('Можно задать либо поле категории, либо поле продукта, но не оба.'))
-
-        return super().clean()
+    def __str__(self) -> str:
+        return f"Метаданные для {self.content_object}"
 
     class Meta:
-        verbose_name = "Метаданные OpenGraph"
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(category_id__isnull=True) | models.Q(product_id__isnull=True),
-                name='%(app_label)s_%(class)s_category_product_exclusivity'
-            )
-        ]
-
+        verbose_name = _("Метаданные")
+        verbose_name_plural = _("Метаданные")
 
 
 class ImageMetaData(TimeBasedModel):
 
-    url = models.CharField(
-        verbose_name=_("Ссылка"),
-    )
+    image = models.ImageField(verbose_name=_("Изображение"), upload_to="pages/")
     width = models.PositiveSmallIntegerField(
         verbose_name=_("Ширина"),
     )
@@ -723,13 +696,33 @@ class ImageMetaData(TimeBasedModel):
         verbose_name=_("Высота"),
     )
     open_graph_meta = models.ForeignKey(
-        OpenGraphMeta,
-        verbose_name=_("Метаданные"),
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="images",
+        OpenGraphMeta, on_delete=models.CASCADE, verbose_name=_("Метаданные")
     )
+
+    def __str__(self) -> str:
+        return f"Изображение метаданных {self.id}"
 
     class Meta:
         verbose_name = _("Изображение метаданных")
-        verbose_name = _("Изображения метаданных")
+        verbose_name_plural = _("Изображения метаданных")
+
+
+class Page(TimeBasedModel):
+    title = models.CharField(max_length=255, verbose_name=_("Наименование"))
+    description = models.TextField(max_length=1024, verbose_name=_("Описание"))
+    slug = models.SlugField(unique=True, verbose_name=_("Слаг страницы"))
+    image = models.ImageField(
+        _("Изображение"), upload_to="pages/", blank=True, null=True
+    )
+
+    opengraph_metadata = GenericRelation(OpenGraphMeta, related_query_name="page")
+
+    class Meta:
+        verbose_name = _("Страница")
+        verbose_name_plural = _("Страницы")
+
+    def __str__(self) -> str:
+        return f"Страница {self.title}"
+
+    def get_absolute_url(self):
+        return f"/{self.slug}/"

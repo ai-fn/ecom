@@ -24,6 +24,7 @@ from api.views import (
     FooterItemViewSet,
     MainPageSliderImageViewSet,
     MainPageCategoryBarItemViewSet,
+    MetadataViewSet,
 )
 from api.views import (
     SendSMSView,
@@ -33,8 +34,10 @@ from api.views import (
 from api.views.general_search import GeneralSearchView
 
 router = routers.DefaultRouter()
+
 router.register(r"products", ProductViewSet, basename="products")
 router.register(r"reviews", ReviewViewSet)
+router.register(r"metadata", MetadataViewSet)
 router.register(r"characteristics", CharacteristicViewSet)
 router.register(r"characteristics-values", CharacteristicValueViewSet)
 router.register(r"prices", PriceViewSet)

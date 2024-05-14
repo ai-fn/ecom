@@ -2,6 +2,7 @@ from django.urls import path
 from shop.views import ProductListView
 from api.views import SimilarProducts
 
+
 app_name = "shop"
 
 urlpatterns = [
