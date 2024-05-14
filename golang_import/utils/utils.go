@@ -297,7 +297,7 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 
 		flName := fmt.Sprintf("%s_%s", imgType, fileName)
 
-		resized := resize.Resize(size[0], size[1], img, resize.Lanczos3)
+		resized := resize.Resize(size[1]*16/9, size[1], img, resize.Lanczos3)
 
 		if imgType == "WATERMARK" {
 			err = WatermarkImg(resized, wtrmkPath)
