@@ -239,6 +239,12 @@ class Product(ThumbModel):
         blank=True,
         null=True,
     )
+    original_image = models.ImageField(
+        upload_to="catalog/products/",
+        verbose_name="Исходное изображение",
+        blank=True,
+        null=True,
+    )
     slug = models.SlugField(
         unique=True,
         max_length=256,

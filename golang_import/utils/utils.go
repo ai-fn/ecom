@@ -202,21 +202,20 @@ func ConvertStrToUint(s ...string) ([]uint, error) {
 }
 
 func getSize(imgType string) ([]uint, error) {
-	dfltVals := make(map[string][]string)
-	dfltVals["CATALOG"] = []string{"500", "500"}
-	dfltVals["WATERMARK"] = []string{"1280", "720"}
-	dfltVals["SEARCH"] = []string{"42", "50"}
-	dfltVals["WT_MARK"] = []string{"42", "50"}
+	dfltVals := make(map[string]string)
+	dfltVals["CATALOG"] = "500"
+	dfltVals["WATERMARK"] = "720"
+	dfltVals["SEARCH"] = "50"
+	dfltVals["WT_MARK"] = "50"
 
-	width := os.Getenv(fmt.Sprintf("PRODUCT_%s_IMAGE_WIDTH", imgType))
 	height := os.Getenv(fmt.Sprintf("PRODUCT_%s_IMAGE_HEIGHT", imgType))
-	if width == "" || height == "" {
+	if height == "" {
 		if size, exists := dfltVals[imgType]; exists {
-			return ConvertStrToUint(size[0], size[1])
+			return ConvertStrToUint(size)
 		}
 		return nil, fmt.Errorf("provided wrong image type: %s", imgType)
 	}
-	return ConvertStrToUint(width, height)
+	return ConvertStrToUint(height)
 }
 
 func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []string) error {
@@ -283,59 +282,24 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 			continue
 		}
 
-		size, err := getSize(imgType)
-		if err != nil {
-			fmt.Printf("error while get size: %s\n", err)
-			continue
-		}
-
 		flName := fmt.Sprintf("%s_%s", imgType, fileName)
-
-		resized := resize.Resize(size[1]*16/9, size[1], img, resize.Lanczos3)
-
-		if imgType == "WATERMARK" {
-			resized, err = WatermarkImg(resized, wtrmkPath)
-			if err != nil {
-				fmt.Printf("error while watermark image: %s\n", err.Error())
-				continue
-			}
-		}
-
-		err = png.Encode(&webpBuffer, resized)
-		if err != nil {
-			fmt.Printf("error while encode image as webp: %s\n", err)
-			continue
-		}
-
-		filePath := baseMediaPath + catalogPath + flName + ".webp"
-		err = os.WriteFile(filePath, webpBuffer.Bytes(), 0644)
-		if err != nil {
-			fmt.Printf("error while write file: %s\n", err)
-			continue
-		}
-
-		webpBuffer.Reset()
 		pth := catalogPath + flName + ".webp"
+		filePath := baseMediaPath + pth
+
 		switch imgType {
+		case "ORIGINAL":
+			err = saveImageFile(webpBuffer, img, filePath)
+
 		case "WATERMARK":
-			var newProdImage = &models.ProductImage{
-				Image:     pth,
-				ProductID: prod.ID,
-				Name:      fmt.Sprintf("%s_%s", imgType, bsName),
-			}
-			if err = setThumbImage(newProdImage, resized); err != nil {
-				fmt.Println(err)
+			img, err = WatermarkImg(img, wtrmkPath)
+			if err != nil {
+				fmt.Printf("error while watermark image: %v\n", err)
 				continue
 			}
-			err = tx.Create(&newProdImage).Error
+			err = processAndSaveImage(img, webpBuffer, filePath, imgType, bsName, prod, tx)
 
-		case "CATALOG":
-			prod.CatalogImage = pth
-			err = tx.Save(&prod).Error
-
-		case "SEARCH":
-			prod.SearchImage = pth
-			err = tx.Save(&prod).Error
+		case "CATALOG", "SEARCH":
+			err = processAndSaveImage(img, webpBuffer, filePath, imgType, bsName, prod, tx)
 
 		default:
 			fmt.Println("Unknown image type")
@@ -344,7 +308,81 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		if err != nil {
 			return err
 		}
+		webpBuffer.Reset()
 	}
+	return nil
+}
+
+func processAndSaveImage(img image.Image, webpBuffer bytes.Buffer, filePath, imgType, bsName string, prod *models.Product, tx *gorm.DB) error {
+	size, err := getSize(imgType)
+	if err != nil {
+		fmt.Printf("error while get size: %s\n", err)
+		return err
+	}
+
+	if err := saveResized(size, img, webpBuffer, filePath); err != nil {
+		fmt.Printf("error while save resized image: %v\n", err)
+		return err
+	}
+
+	switch imgType {
+	case "CATALOG":
+		prod.CatalogImage = filePath
+	case "SEARCH":
+		prod.SearchImage = filePath
+	}
+
+	newProdImage := &models.ProductImage{
+		Image:     filePath,
+		ProductID: prod.ID,
+		Name:      fmt.Sprintf("%s_%s", imgType, bsName),
+	}
+
+	if imgType == "WATERMARK" {
+		if err := setThumbImage(newProdImage, img); err != nil {
+			fmt.Printf("error while set thumb image: %v\n", err)
+			return err
+		}
+	}
+
+	if err := tx.Create(newProdImage).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Save(prod).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Save the image in the 16:9 aspect ratio
+func saveResized(size []uint, img image.Image, webpBuffer bytes.Buffer, filePath string) error {
+	if len(size) < 1 {
+		return fmt.Errorf("size must have at least one value")
+	}
+
+	resized := resize.Resize(size[0]*16/9, size[0], img, resize.Lanczos3)
+	if err := saveImageFile(webpBuffer, resized, filePath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func saveImageFile(webpBuffer bytes.Buffer, img image.Image, filePath string) error {
+	err := png.Encode(&webpBuffer, img)
+	if err != nil {
+		fmt.Printf("error while encode image as webp: %s\n", err)
+		return err
+	}
+
+	err = os.WriteFile(filePath, webpBuffer.Bytes(), 0644)
+	if err != nil {
+		fmt.Printf("error while write file: %s\n", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -391,7 +429,11 @@ func WatermarkImg(origImg image.Image, wtmrkPath string) (image.Image, error) {
 		return nil, err
 	}
 
-	wtrmkImg = resize.Resize(uint(wtrmrkSize[1]*16/9), uint(wtrmrkSize[1]), wtrmkImg, resize.Lanczos3)
+	if len(wtrmrkSize) < 1 {
+		return nil, fmt.Errorf("size must have at least one value")
+	}
+
+	wtrmkImg = resize.Resize(uint(wtrmrkSize[0]*16/9), uint(wtrmrkSize[0]), wtrmkImg, resize.Lanczos3)
 
 	opacity, err := getEnvInt("WATERMARK_OPACITY", 80)
 	if err != nil {
