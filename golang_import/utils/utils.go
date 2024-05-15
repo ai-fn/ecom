@@ -202,20 +202,17 @@ func ConvertStrToUint(s ...string) ([]uint, error) {
 }
 
 func getSize(imgType string) ([]uint, error) {
-	dfltVals := make(map[string]string)
-	dfltVals["CATALOG"] = "500"
-	dfltVals["WATERMARK"] = "720"
-	dfltVals["SEARCH"] = "50"
-	dfltVals["WT_MARK"] = "50"
+	dfltVals := make(map[string][]string)
+	dfltVals["CATALOG"] = []string{"500", "500"}
+	dfltVals["WATERMARK"] = []string{"1280", "720"}
+	dfltVals["SEARCH"] = []string{"42", "50"}
+	dfltVals["WT_MARK"] = []string{"42", "50"}
 
-	height := os.Getenv(fmt.Sprintf("PRODUCT_%s_IMAGE_HEIGHT", imgType))
-	if height == "" {
-		if size, exists := dfltVals[imgType]; exists {
-			return ConvertStrToUint(size)
-		}
-		return nil, fmt.Errorf("provided wrong image type: %s", imgType)
+	if size, exists := dfltVals[imgType]; exists {
+		return ConvertStrToUint(size...)
 	}
-	return ConvertStrToUint(height)
+
+	return nil, fmt.Errorf("provided wrong image type: %s", imgType)
 }
 
 func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []string) error {
@@ -286,23 +283,10 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		pth := catalogPath + flName + ".webp"
 		filePath := baseMediaPath + pth
 
-		switch imgType {
-		case "ORIGINAL":
+		if imgType == "ORIGINAL" {
 			err = saveImageFile(webpBuffer, img, filePath)
-
-		case "WATERMARK":
-			img, err = WatermarkImg(img, wtrmkPath)
-			if err != nil {
-				fmt.Printf("error while watermark image: %v\n", err)
-				continue
-			}
-			err = processAndSaveImage(img, webpBuffer, filePath, imgType, bsName, prod, tx)
-
-		case "CATALOG", "SEARCH":
-			err = processAndSaveImage(img, webpBuffer, filePath, imgType, bsName, prod, tx)
-
-		default:
-			fmt.Println("Unknown image type")
+		} else {
+			err = processAndSaveImage(img, webpBuffer, filePath, wtrmkPath, imgType, bsName, prod, tx)
 		}
 
 		if err != nil {
@@ -313,61 +297,66 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 	return nil
 }
 
-func processAndSaveImage(img image.Image, webpBuffer bytes.Buffer, filePath, imgType, bsName string, prod *models.Product, tx *gorm.DB) error {
+func processAndSaveImage(img image.Image, webpBuffer bytes.Buffer, filePath, wtrmkPath, imgType, bsName string, prod *models.Product, tx *gorm.DB) error {
 	size, err := getSize(imgType)
 	if err != nil {
 		fmt.Printf("error while get size: %s\n", err)
 		return err
 	}
-
-	if err := saveResized(size, img, webpBuffer, filePath); err != nil {
-		fmt.Printf("error while save resized image: %v\n", err)
-		return err
-	}
-
-	switch imgType {
-	case "CATALOG":
-		prod.CatalogImage = filePath
-	case "SEARCH":
-		prod.SearchImage = filePath
-	}
-
-	newProdImage := &models.ProductImage{
-		Image:     filePath,
-		ProductID: prod.ID,
-		Name:      fmt.Sprintf("%s_%s", imgType, bsName),
-	}
+	img = resizeImg(img, size)
 
 	if imgType == "WATERMARK" {
+		img, err = WatermarkImg(img, wtrmkPath)
+		if err != nil {
+			fmt.Printf("error while watermark image: %v\n", err)
+			return err
+		}
+
+		newProdImage := &models.ProductImage{
+			Image:     filePath,
+			ProductID: prod.ID,
+			Name:      fmt.Sprintf("%s_%s", imgType, bsName),
+		}
+
 		if err := setThumbImage(newProdImage, img); err != nil {
 			fmt.Printf("error while set thumb image: %v\n", err)
 			return err
 		}
+		if err := tx.Create(newProdImage).Error; err != nil {
+			return err
+		}
+	} else {
+		switch imgType {
+		case "CATALOG":
+			prod.CatalogImage = filePath
+		case "SEARCH":
+			prod.SearchImage = filePath
+		}
+
+		if err := tx.Save(prod).Error; err != nil {
+			return err
+		}
 	}
 
-	if err := tx.Create(newProdImage).Error; err != nil {
-		return err
-	}
-
-	if err := tx.Save(prod).Error; err != nil {
+	if err := saveImageFile(webpBuffer, img, filePath); err != nil {
+		fmt.Printf("error while save resized image: %v\n", err)
 		return err
 	}
 
 	return nil
 }
 
-// Save the image in the 16:9 aspect ratio
-func saveResized(size []uint, img image.Image, webpBuffer bytes.Buffer, filePath string) error {
-	if len(size) < 1 {
-		return fmt.Errorf("size must have at least one value")
-	}
+func resizeImg(img image.Image, size []uint) (resized image.Image) {
+	newWidth, newHeight := int(size[0]), int(size[1])
+	resized = resize.Resize(size[0], 0, img, resize.Lanczos3)
 
-	resized := resize.Resize(size[0]*16/9, size[0], img, resize.Lanczos3)
-	if err := saveImageFile(webpBuffer, resized, filePath); err != nil {
-		return err
+	if resized.Bounds().Dy() > newHeight {
+		yOffset := (resized.Bounds().Dy() - newHeight) / 2
+		resized = resized.(interface {
+			SubImage(r image.Rectangle) image.Image
+		}).SubImage(image.Rect(0, yOffset, newWidth, yOffset+newHeight))
 	}
-
-	return nil
+	return
 }
 
 func saveImageFile(webpBuffer bytes.Buffer, img image.Image, filePath string) error {
@@ -389,7 +378,7 @@ func saveImageFile(webpBuffer bytes.Buffer, img image.Image, filePath string) er
 func setThumbImage(obj interface{}, img image.Image) (err error) {
 	var thumbBuff bytes.Buffer
 	var attributeName = "ThumbModel"
-	thumb_img := resize.Resize(8, 8, img, resize.Lanczos2)
+	thumb_img := resize.Resize(0, 8, img, resize.Lanczos2)
 
 	if err = jpeg.Encode(&thumbBuff, thumb_img, &jpeg.Options{}); err != nil {
 		err = fmt.Errorf("error while encode image into thumb buffer: %s", err.Error())
@@ -429,11 +418,7 @@ func WatermarkImg(origImg image.Image, wtmrkPath string) (image.Image, error) {
 		return nil, err
 	}
 
-	if len(wtrmrkSize) < 1 {
-		return nil, fmt.Errorf("size must have at least one value")
-	}
-
-	wtrmkImg = resize.Resize(uint(wtrmrkSize[0]*16/9), uint(wtrmrkSize[0]), wtrmkImg, resize.Lanczos3)
+	wtrmkImg = resize.Resize(0, wtrmrkSize[0], wtrmkImg, resize.Lanczos3)
 
 	opacity, err := getEnvInt("WATERMARK_OPACITY", 80)
 	if err != nil {
@@ -451,7 +436,7 @@ func WatermarkImg(origImg image.Image, wtmrkPath string) (image.Image, error) {
 		margin = 30
 	}
 
-	position := image.Pt(origBounds.Dx()-wtrmkBounds.Dx()-margin, origBounds.Dy()-wtrmkBounds.Dy()-margin)
+	position := image.Pt(origBounds.Max.X-wtrmkBounds.Dx()-margin, origBounds.Max.Y-wtrmkBounds.Dy()-margin)
 	drawImg := image.NewRGBA(origBounds)
 
 	draw.Draw(drawImg, origBounds, origImg, origBounds.Min, draw.Src)
