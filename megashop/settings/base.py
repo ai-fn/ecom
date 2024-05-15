@@ -250,23 +250,6 @@ LOGIN_URL = "login"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-WATERMARK_PATH = os.path.join(MEDIA_ROOT, os.getenv('WATERMARK_PATH', 'watermark.png'))
-try:
-    WATERMARK_OPACITY = float(os.environ.get("WATERMARK_OPACITY", 60))
-    if WATERMARK_OPACITY > 100:
-        raise ValueError("Watermark opaticy must be in range from 0 to 100")
-except ValueError as e:
-    logger.error(f"invalid watermark opacity setting, using default (0.6): {e}")
-    WATERMARK_OPACITY = 60 / 10
-else:
-    WATERMARK_OPACITY /= 10
-
-try:
-    WATERMARK_MARGIN = int(os.environ.get("WATERMARK_MARGIN", 30))
-except ValueError as e:
-    logger.error(f"invalid watermark margin setting, using defult (30): {e}")
-    WATERMARK_MARGIN = 30
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -321,8 +304,4 @@ CACHE_BACKEND = 'default'
 
 # VERIFY EMAIL SETTINGS
 EMAIL_CACHE_PREFIX = os.getenv("EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")
-try:
-    EMAIL_CACHE_LIFE_TIME = int(os.getenv("EMAIL_CACHE_LIFE_TIME"))
-except (ValueError, TypeError):
-    logger.info("invalid EMAIL_CACHE_LIFE_TIME, using default (120)")
-    EMAIL_CACHE_LIFE_TIME = 60 * 2
+EMAIL_CACHE_LIFE_TIME = int(os.getenv("EMAIL_CACHE_LIFE_TIME", 120))

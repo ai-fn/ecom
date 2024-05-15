@@ -313,7 +313,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 }
 
 func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
-	var types = []string{"WATERMARK"}
+	var types = []string{"ORIGINAL", "WATERMARK"}
 	imgs := strings.Split(cellVal, " || ")
 
 	if len(imgs) > 0 {
@@ -329,7 +329,7 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 			defer response.Body.Close()
 
 			if idx == 0 {
-				types = []string{"WATERMARK", "CATALOG", "SEARCH"}
+				types = append(types, "CATALOG", "SEARCH")
 			}
 
 			if err := utils.SaveImages(bsName, prod, tx, response, types); err != nil {
