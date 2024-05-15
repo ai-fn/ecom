@@ -67,6 +67,7 @@ type Product struct {
 	Description          string      `gorm:"column:description;type:text"`
 	CatalogImage         string      `gorm:"column:catalog_image;type:varchar(255)"`
 	SearchImage          string      `gorm:"column:search_image;type:varchar(255)"`
+	OriginalImage        string      `gorm:"column:original_image;type:varchar(255)"`
 	Slug                 string      `gorm:"column:slug;unique"`
 	InStock              bool        `gorm:"column:in_stock"`
 	IsPopular            bool        `gorm:"column:is_popular"`

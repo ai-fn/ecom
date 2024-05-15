@@ -122,6 +122,16 @@ class Category(ThumbModel, MPTTModel):
 
     def get_absolute_url(self):
         return f"katalog/{self.slug}"
+    
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        # Проверяем, является ли категория главной (не имеет родителя)
+        if self.parent and self.image:
+            raise ValidationError(
+                "Изображение может быть добавлено только к главной категории."
+            )
 
     class Meta:
         verbose_name = "Категория"
@@ -135,21 +145,6 @@ class Category(ThumbModel, MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ["name"]
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse(
-            "api:shop:product_list_by_category", kwargs={"category_slug": self.slug}
-        )
-
-    def clean(self):
-        # Проверяем, является ли категория главной (не имеет родителя)
-        if self.parent and self.image:
-            raise ValidationError(
-                "Изображение может быть добавлено только к главной категории."
-            )
 
 
 class CategoryMetaData(TimeBasedModel):
@@ -241,6 +236,12 @@ class Product(ThumbModel):
     search_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение в поиске",
+        blank=True,
+        null=True,
+    )
+    original_image = models.ImageField(
+        upload_to="catalog/products/",
+        verbose_name="Исходное изображение",
         blank=True,
         null=True,
     )
@@ -725,4 +726,4 @@ class Page(TimeBasedModel):
         return f"Страница {self.title}"
 
     def get_absolute_url(self):
-        return f"/{self.slug}/"
+        return f"{self.slug}"

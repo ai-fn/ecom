@@ -44,6 +44,7 @@
 | description               | Описание                 | TextField       |
 | catalog_image             | Изображение в каталоге   | ImageField      |
 | search_image              | Изображение в поиске     | ImageField      |
+| search_image              | Исходное изображение     | ImageField      |
 | slug                      | Слаг ЧПУ                 | SlugField       | 256                   |
 | similar_products          | Похожие продукты         | ManyToManyField |
 | in_stock                  | В наличии ли товар       | BooleanField    |
@@ -67,186 +68,222 @@
 | ------------- | ----------- | ---------- | --------------------- |
 | product       | Товар       | ForeignKey |
 | image         | Изображение | ImageField |
+| name          | Изображение | CharField  |
 | thumb_img     | Миниатюра   | TextField  | 512                   |
 
-7. Модель Promo
+## 1. Модель "Акция" (Promo)
 
-| Имя параметра | Описание                  | Тип данных      | Максимальное значение |
-| ------------- | ------------------------- | --------------- | --------------------- |
-| name          | Название акции            | CharField       | 64                    |
-| categories    | Категории                 | ManyToManyField |
-| products      | Продукты                  | ManyToManyField |
-| image         | Изображение               | ImageField      |
-| thumb_img     | Миниатюра                 | TextField       | 512                   |
-| cities        | Города, где действует     | ManyToManyField |
-| is_active     | Активна ли акция          | BooleanField    |
-| active_to     | До какого времени активна | DateField       |
+| Имя параметра | Описание                         | Тип данных      | Максимальное значение |
+| ------------- | -------------------------------- | --------------- | --------------------- |
+| name          | Название акции                   | CharField       | До 64 символов        |
+| categories    | Категории в акции                | ManyToManyField | -                     |
+| products      | Товары в акции                   | ManyToManyField | -                     |
+| image         | Изображение                      | ImageField      | -                     |
+| cities        | Города                           | ManyToManyField | -                     |
+| is_active     | Активна ли акция                 | BooleanField    | True/False            |
+| active_to     | До какого времени акция активна? | DateField       | -                     |
 
-8. Модель Review
+## 2. Модель "Отзыв" (Review)
 
-| Имя параметра | Описание    | Тип данных                | Максимальное значение |
-| ------------- | ----------- | ------------------------- | --------------------- |
-| product       | Товар       | ForeignKey                |
-| user          | Комментатор | ForeignKey                |
-| rating        | Рейтинг     | PositiveSmallIntegerField | 0 - 5                 |
-| review        | Отзыв       | TextField                 | 255                   |
+| Имя параметра | Описание    | Тип данных           | Максимальное значение |
+| ------------- | ----------- | -------------------- | --------------------- |
+| product       | Товар       | ForeignKey           | -                     |
+| user          | Комментатор | ForeignKey           | -                     |
+| rating        | Рейтинг     | PositiveSmallInteger | 0 - 5                 |
+| review        | Отзыв       | TextField            | До 255 символов       |
 
-9. Модель Characteristic
+## 3. Модель "Характеристика" (Characteristic)
 
-| Имя параметра | Описание                | Тип данных | Максимальное значение |
-| ------------- | ----------------------- | ---------- | --------------------- |
-| name          | Название характеристики | CharField  | 255                   |
-| category      | Категория               | ForeignKey |
+| Имя параметра | Описание  | Тип данных | Максимальное значение |
+| ------------- | --------- | ---------- | --------------------- |
+| name          | Название  | CharField  | До 255 символов       |
+| category      | Категория | ForeignKey | -                     |
 
-10. Модель CharacteristicValue
+## 4. Модель "Значение характеристики для товара" (CharacteristicValue)
 
-| Имя параметра  | Описание                           | Тип данных | Максимальное значение |
-| -------------- | ---------------------------------- | ---------- | --------------------- |
-| product        | Товар                              | ForeignKey |
-| characteristic | Характеристика                     | ForeignKey |
-| value          | Значение характеристики для товара | CharField  | 255                   |
+| Имя параметра  | Описание                                       | Тип данных | Максимальное значение |
+| -------------- | ---------------------------------------------- | ---------- | --------------------- |
+| product        | Товар                                          | ForeignKey | -                     |
+| characteristic | Характеристика                                 | ForeignKey | -                     |
+| value          | Значение характеристики для конкретного товара | CharField  | До 255 символов       |
 
-11. Модель Price
+## 5. Модель "Цена" (Price)
 
-| Имя параметра | Описание    | Тип данных   | Максимальное значение |
-| ------------- | ----------- | ------------ | --------------------- |
-| product       | Товар       | ForeignKey   |
-| city          | Город       | ForeignKey   |
-| price         | Цена        | DecimalField |
-| old_price     | Старая цена | DecimalField |
+| Имя параметра | Описание       | Тип данных   | Максимальное значение |
+| ------------- | -------------- | ------------ | --------------------- |
+| product       | Товар          | ForeignKey   | -                     |
+| city_group    | Группа городов | ForeignKey   | -                     |
+| price         | Цена           | DecimalField | -                     |
+| old_price     | Старая цена    | DecimalField | -                     |
 
-12. Модель Setting
+## 1. Модель "Настройка" (Setting)
 
-| Имя параметра  | Описание              | Тип данных   | Максимальное значение |
-| -------------- | --------------------- | ------------ | --------------------- |
-| type           | Тип                   | CharField    |
-| value_string   | Строковое значение    | CharField    | 255                   |
-| value_boolean  | Логическое значение   | BooleanField |
-| value_number   | Числовое значение     | IntegerField |
-| predefined_key | Предопределенный ключ | CharField    | 255                   |
-| custom_key     | Пользовательский ключ | CharField    | 255                   |
+| Имя параметра  | Описание              | Тип данных   | Максимальное значение       |
+| -------------- | --------------------- | ------------ | --------------------------- |
+| type           | Тип                   | CharField    | До 50 символов              |
+| value_string   | Строковое значение    | CharField    | До 255 символов             |
+| value_boolean  | Логическое значение   | BooleanField | True/False                  |
+| value_number   | Числовое значение     | IntegerField | -                           |
+| predefined_key | Предопределенный ключ | CharField    | До 255 символов             |
+| custom_key     | Пользовательский ключ | CharField    | До 255 символов, уникальное |
 
-13.  Модель FooterItem
+## 2. Модель "Элемент Footer" (FooterItem)
 
-| Имя параметра   | Описание         | Тип данных               | Максимальное значение |
-| --------------- | ---------------- | ------------------------ | --------------------- |
-| footer_settings | Настройки Footer | ForeignKey               |
-| order           | Порядковый номер | PositiveIntegerField     |
-| title           | Наименование     | CharField                | 100                   |
-| link            | Ссылка           | URLField                 |
-| column          | Номер колонки    | PositivSmallIntegerField |
+| Имя параметра | Описание         | Тип данных           | Максимальное значение |
+| ------------- | ---------------- | -------------------- | --------------------- |
+| column        | Номер колонки    | PositiveSmallInteger | -                     |
+| order         | Порядковый номер | PositiveIntegerField | -                     |
+| title         | Наименование     | CharField            | До 100 символов       |
+| link          | Ссылка           | CharField            | -                     |
 
-14. Модель MainPageSliderImage
-
-| Имя параметра | Описание                 | Тип данных   | Максимальное значение |
-| ------------- | ------------------------ | ------------ | --------------------- |
-| order         | Порядковый номер         | IntegerField | уникальный            |
-| link          | Ссылка                   | URLField     |
-| title         | Заголовок на изображении | CharField    | 255                   |
-| descriptions  | Заголовок на изображении | CharField    | 255                   |
-| button_text   | Текст кнопки             | CharField    | 100                   |
-| image         | Изображение              | ImageField   |
-| thumb_img     | Миниатюра                | TextField    | 512                   |
-
-15. Модель MainPageCategoryBarItem
+## 3. Модель "Изображение главной страницы" (MainPageSliderImage)
 
 | Имя параметра | Описание         | Тип данных   | Максимальное значение |
 | ------------- | ---------------- | ------------ | --------------------- |
-| order         | Порядковый номер | IntegerField | уникальный            |
-| link          | Ссылка           | URLField     |
-| text          | Текст            | CharField    | 100                   |
+| order         | Порядковый номер | IntegerField | -                     |
+| link          | Ссылка           | URLField     | -                     |
+| title         | Заголовок        | CharField    | До 255 символов       |
+| description   | Описание         | CharField    | До 255 символов       |
+| button_text   | Текст на кнопке  | CharField    | До 100 символов       |
+| image         | Изображение      | ImageField   | -                     |
 
-16. Модель SideBarMenuItem
+## 4. Модель "Категория для панели на главной странице" (MainPageCategoryBarItem)
 
-| Имя параметра | Описание         | Тип данных        | Максимальное значение |
-| ------------- | ---------------- | ----------------- | --------------------- |
-| order         | Порядковый номер | SmallIntegerField | уникальный            |
-| link          | Ссылка           | CharField         | 255                   |
-| title         | Заголовок        | CharField         | 100                   |
+| Имя параметра | Описание         | Тип данных   | Максимальное значение |
+| ------------- | ---------------- | ------------ | --------------------- |
+| order         | Порядковый номер | IntegerField | -                     |
+| link          | Ссылка           | URLField     | -                     |
+| text          | Текст            | CharField    | До 100 символов       |
 
+## 5. Модель "Элемент бокового меню" (SideBarMenuItem)
+
+| Имя параметра | Описание         | Тип данных           | Максимальное значение |
+| ------------- | ---------------- | -------------------- | --------------------- |
+| order         | Порядковый номер | PositiveSmallInteger | Уникальное            |
+| title         | Заголовок        | CharField            | До 100 символов       |
+| link          | Ссылка           | CharField            | До 255 символов       |
+| icon          | Иконка           | ImageField           | -                     |
+
+## 6. Модель "Группа продуктов" (ProductGroup)
+
+| Имя параметра  | Описание       | Тип данных      | Максимальное значение       |
+| -------------- | -------------- | --------------- | --------------------------- |
+| name           | Наименование   | CharField       | До 255 символов, уникальное |
+| products       | Продукты       | ManyToManyField | -                           |
+| characteristic | Характеристика | ForeignKey      | -                           |
+
+## 7. Модель "Метаданные для открытого графа" (OpenGraphMeta)
+
+| Имя параметра | Описание           | Тип данных           | Максимальное значение                       |
+| ------------- | ------------------ | -------------------- | ------------------------------------------- |
+| title         | Заголовок          | CharField            | До 255 символов                             |
+| description   | Описание           | TextField            | До 1024 символов                            |
+| url           | Ссылка             | CharField            | До 255 символов                             |
+| site_name     | Наименование сайта | CharField            | До 255 символов, по умолчанию "Кров маркет" |
+| locale        | Языковой код       | CharField            | До 10 символов, формат "ru_RU"              |
+| content_type  | Тип объекта        | ForeignKey           | -                                           |
+| object_id     | ID объекта         | PositiveIntegerField | -                                           |
+
+## 8. Модель "Изображение метаданных" (ImageMetaData)
+
+| Имя параметра   | Описание    | Тип данных                | Максимальное значение |
+| --------------- | ----------- | ------------------------- | --------------------- |
+| image           | Изображение | ImageField                | -                     |
+| width           | Ширина      | PositiveSmallIntegerField | -                     |
+| height          | Высота      | PositiveSmallIntegerField | -                     |
+| open_graph_meta | Метаданные  | ForeignKey                | -                     |
+
+## 9. Модель "Страница" (Page)
+
+| Имя параметра | Описание      | Тип данных | Максимальное значение |
+| ------------- | ------------- | ---------- | --------------------- |
+| title         | Наименование  | CharField  | До 255 символов       |
+| description   | Описание      | TextField  | До 1024 символов      |
+| slug          | Слаг страницы | SlugField  | Уникальное            |
+| image         | Изображение   | ImageField | -                     |
 
 ## Cart App
 
-1. Модель OrderStatus
- 
+## 1. Модель "Статус заказа" (OrderStatus)
+
 | Имя параметра | Описание         | Тип данных | Максимальное значение |
 | ------------- | ---------------- | ---------- | --------------------- |
-| name          | Название статуса | CharField  | 128                   |
+| name          | Название статуса | CharField  | До 128 символов       |
 
-2. Модель Order
+## 2. Модель "Заказ" (Order)
 
 | Имя параметра | Описание      | Тип данных      | Максимальное значение |
 | ------------- | ------------- | --------------- | --------------------- |
-| customer      | Покупатель    | ForeignKey      |                       |
-| products      | Товары        | ManyToManyField |                       |
-| region        | Область       | CharField       | 255                   |
-| district      | Район         | CharField       | 255                   |
-| city_name     | Город         | CharField       | 255                   |
-| street        | Улица         | CharField       | 255                   |
-| house         | Номер дома    | CharField       | 255                   |
-| total         | Сумма заказа  | DecimalField    |                       |
-| status        | Статус заказа | ForeignKey      |                       |
+| customer      | Покупатель    | ForeignKey      | -                     |
+| products      | Товары        | ManyToManyField | -                     |
+| region        | Область       | CharField       | До 255 символов       |
+| district      | Район         | CharField       | До 255 символов       |
+| city_name     | Город         | CharField       | До 255 символов       |
+| street        | Улица         | CharField       | До 255 символов       |
+| house         | Номер дома    | CharField       | До 255 символов       |
+| total         | Сумма заказа  | DecimalField    | -                     |
+| status        | Статус заказа | ForeignKey      | -                     |
 
+## 3. Модель "Товары в заказе" (ProductsInOrder)
 
-3. Модель ProductsInOrder
+| Имя параметра | Описание          | Тип данных           | Максимальное значение |
+| ------------- | ----------------- | -------------------- | --------------------- |
+| order         | Заказ             | ForeignKey           | -                     |
+| product       | Товар             | ForeignKey           | -                     |
+| quantity      | Количество товара | PositiveSmallInteger | -                     |
+| price         | Цена товара       | DecimalField         | -                     |
 
-| Имя параметра | Описание                     | Тип данных                | Максимальное значение |
-| ------------- | ---------------------------- | ------------------------- | --------------------- |
-| order         | Заказ                        | ForeignKey                |                       |
-| product       | Товар                        | ForeignKey                |                       |
-| quantity      | Количество товара в заказе   | PositiveSmallIntegerField |                       |
-| price         | Цена товара на момент заказа | DecimalField              |                       |
+## 4. Модель "Продукт в корзине пользователя" (CartItem)
 
-
-4. Модель CartItem
-   
-
-| Имя параметра | Описание   | Тип данных           | Максимальное значение |
-| ------------- | ---------- | -------------------- | --------------------- |
-| customer      | Покупатель | ForeignKey           |                       |
-| product       | Товар      | ForeignKey           |                       |
-| quantity      | Количество | PositiveIntegerField |                       |
+| Имя параметра | Описание   | Тип данных      | Максимальное значение |
+| ------------- | ---------- | --------------- | --------------------- |
+| customer      | Покупатель | ForeignKey      | -                     |
+| product       | Товар      | ForeignKey      | -                     |
+| quantity      | Количество | PositiveInteger | -                     |
 
 
 ## Account App
 
-1. Модель City
+## 1. Модель "Город" (City)
 
-| Имя параметра      | Описание               | Тип данных      | Максимальное значение |
-| ------------------ | ---------------------- | --------------- | --------------------- |
-| name               | Город                  | CharField       | 255                   |
-| domain             | Домен                  | CharField       | 255                   |
-| address            | Адрес                  | CharField       | 256                   |
-| number             | Номер телефона         | BigIntegerField |                       |
-| how_to_get_office  | Как добраться до офиса | CharField       | 512                   |
-| schedule           | График работы          | TextField       |                       |
-| nominative_case    | Именительный падеж     | CharField       | 128                   |
-| genitive_case      | Родительный падеж      | CharField       | 128                   |
-| dative_case        | Дательный падеж        | CharField       | 128                   |
-| accusative_case    | Винительный падеж      | CharField       | 128                   |
-| instrumental_case  | Творительный падеж     | CharField       | 128                   |
-| prepositional_case | Предложный падеж       | CharField       | 128                   |
+| Имя параметра      | Описание               | Тип данных              | Максимальное значение      |
+| ------------------ | ---------------------- | ----------------------- | -------------------------- |
+| name               | Город                  | CharField               | До 255 символов            |
+| domain             | Домен                  | CharField               | До 255 символов, null      |
+| address            | Адрес                  | CharField               | До 256 символов, null      |
+| number             | Номер телефона         | BigIntegerField         | 0 и более                  |
+| how_to_get_office  | Как добраться до офиса | CharField               | До 512 символов, null      |
+| schedule           | График работы          | TextField               | По умолчанию "Отсутствует" |
+| nominative_case    | Именительный падеж     | CharField               | До 128 символов, null      |
+| genitive_case      | Родительный падеж      | CharField               | До 128 символов, null      |
+| dative_case        | Дательный падеж        | CharField               | До 128 символов, null      |
+| accusative_case    | Винительный падеж      | CharField               | До 128 символов, null      |
+| instrumental_case  | Творительный падеж     | CharField               | До 128 символов, null      |
+| prepositional_case | Предложный падеж       | CharField               | До 128 символов, null      |
+| population         | Численность населения  | PositiveBigIntegerField | 0 и более                  |
 
-2. Модель CityGroup
+## 2. Модель "Группа городов" (CityGroup)
 
-| Имя параметра | Описание      | Тип данных             | Максимальное значение |
-| ------------- | ------------- | ---------------------- | --------------------- |
-| name          | Город         | CharField              | 255                   |
-| main_city     | Главный город | ForeignKey (City)      |                       |
-| cities        | Города        | ManyToManyField (City) |                       |
+| Имя параметра | Описание        | Тип данных      | Максимальное значение       |
+| ------------- | --------------- | --------------- | --------------------------- |
+| name          | Название группы | CharField       | До 255 символов, уникальное |
+| main_city     | Главный город   | ForeignKey      | -                           |
+| cities        | Города          | ManyToManyField | -                           |
 
+## 3. Модель "Пользователь" (CustomUser)
 
-3. Модель CustomUser
-
-| Имя параметра | Описание            | Тип данных        | Максимальное значение |
-| ------------- | ------------------- | ----------------- | --------------------- |
-| phone         | Номер телефона      | CharField         | 16                    |
-| city          | Город               | ForeignKey (City) |                       |
-| region        | Область             | CharField         | 255                   |
-| district      | Район               | CharField         | 255                   |
-| city_name     | Город               | CharField         | 255                   |
-| street        | Улица               | CharField         | 255                   |
-| house         | Номер дома          | CharField         | 255                   |
-| is_customer   | Покупатель ли юзер? | BooleanField      |                       |
-| middle_name   | Отчество            | CharField         | 20                    |
-
+| Имя параметра   | Описание            | Тип данных   | Максимальное значение            |
+| --------------- | ------------------- | ------------ | -------------------------------- |
+| first_name      | Имя                 | CharField    | До 150 символов, null            |
+| last_name       | Фамилия             | CharField    | До 150 символов, null            |
+| email           | Email адрес         | EmailField   | -                                |
+| phone           | Номер телефона      | CharField    | До 16 символов, уникальное, null |
+| city            | Город               | ForeignKey   | -                                |
+| region          | Область             | CharField    | До 255 символов, null            |
+| district        | Район               | CharField    | До 255 символов, null            |
+| city_name       | Город               | CharField    | До 255 символов, null            |
+| street          | Улица               | CharField    | До 255 символов, null            |
+| house           | Номер дома          | CharField    | До 255 символов, null            |
+| is_customer     | Покупатель          | BooleanField | True/False                       |
+| email_confirmed | Подтверждение email | BooleanField | True/False                       |
+| middle_name     | Отчество            | CharField    | До 20 символов, null             |

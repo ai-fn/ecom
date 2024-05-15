@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 
 from api.serializers import OpenGraphMetaSerializer
@@ -25,11 +25,34 @@ class MetadataViewSet(GenericViewSet):
     @extend_schema(
         description="Получение метаданных",
         summary="Получение метаданных",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                response_only=True,
+                value={
+                    "title": "Документация",
+                    "description": "Документация",
+                    "OpenGraph": {
+                        "url": "http://moskva.krov.market/dokumentaciya/",
+                        "siteName": "Кров маркет",
+                        "images": [
+                            {
+                                "image": "/media/pages/image-70e50210-8678-4b3a-90f9-3626526c11cb_ZnnxbcK.webp",
+                                "width": 1280,
+                                "height": 720,
+                            }
+                        ],
+                        "locale": "ru_RU",
+                        "type": "website",
+                    },
+                },
+            )
+        ],
         parameters=[
             OpenApiParameter(
                 name="content_type",
-                description="Наименование страницы",
-                default="Главная страница",
+                description="Тип объекта",
+                default="product",
                 required=True,
                 type=str,
             ),
@@ -57,13 +80,18 @@ class MetadataViewSet(GenericViewSet):
             tp = ContentType.objects.get(model=content_type)
             model = tp.model_class()
         except ContentType.DoesNotExist:
-            return Response({"error": _("unknown content type")}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": _("unknown content type")}, status=HTTP_400_BAD_REQUEST
+            )
 
         try:
             instance = model.objects.get(slug=obj_slug)
         except model.DoesNotExist:
-            return Response({"error": _(f"{model.__name__} with provided slug not found")}, status=HTTP_400_BAD_REQUEST)
-            
+            return Response(
+                {"error": _(f"{model.__name__} with provided slug not found")},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
         meta = self._get_obj_metadata(instance, request, tp)
 
         serializer = self.get_serializer(meta)
@@ -84,8 +112,10 @@ class MetadataViewSet(GenericViewSet):
                 "description": description,
                 "site_name": "Кров маркет",
                 "locale": "ru_RU",
-                "url": f"{request.scheme}://{domain}/{obj.get_absolute_url()}" if hasattr(obj, "get_absolute_url") else f"/{self.slug}/"
-            }
+                "url": (
+                    f"{request.scheme}://{domain}/{obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else f'{self.slug}/'}"
+                ),
+            },
         )
 
         if images:
@@ -95,7 +125,7 @@ class MetadataViewSet(GenericViewSet):
             self._get_image_meta_data(meta, image)
 
         return meta
-    
+
     def _get_image_meta_data(self, meta, image):
         img_url = getattr(image, "url", None) or getattr(image.image, "url", None)
         img_file = getattr(image, "file", None) or getattr(image.image, "file", None)
@@ -116,9 +146,5 @@ class MetadataViewSet(GenericViewSet):
         ImageMetaData.objects.get_or_create(
             open_graph_meta=meta,
             image=img_url,
-            defaults={
-                "width": width,
-                "height": height,
-                "image": img_url
-            },
+            defaults={"width": width, "height": height, "image": img_url},
         )
