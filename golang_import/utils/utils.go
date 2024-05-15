@@ -101,7 +101,6 @@ func (r *FileReader) SetColumns(row []string) error {
 	for _, cellVal := range r.Columns {
 		if !r.IgnoredColumns.Contains(cellVal) {
 
-			// Select characteristic columns
 			if r.CtNms.Contains(cellVal) {
 				r.CtNms.Cols = append(r.CtNms.Cols, cellVal)
 				continue
@@ -145,10 +144,7 @@ func (r *XLSXReader) Read() (rows [][]string, err error) {
 		if err != nil {
 			return
 		}
-		if err = r.FileReader.SetColumns(rows[0]); err != nil {
-			return
-		}
-		return
+		r.FileReader.SetColumns(rows[0])
 	}
 	return
 }
@@ -242,7 +238,6 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		baseMediaPath = "../media/"
 	}
 
-	// Check or create base media path
 	if _, err := os.Stat(baseMediaPath + catalogPath); os.IsNotExist(err) {
 		fmt.Printf("Media path is not exist: %s, creating...\n", baseMediaPath+catalogPath)
 
@@ -261,7 +256,6 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 	var img image.Image
 	var fileName string = fmt.Sprintf("image-%s", uuid.New())
 
-	// Decode images in different formats
 	switch format {
 	case ".png":
 		img, err = png.Decode(bytes.NewReader(data))
@@ -300,21 +294,19 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		resized := resize.Resize(size[1]*16/9, size[1], img, resize.Lanczos3)
 
 		if imgType == "WATERMARK" {
-			err = WatermarkImg(resized, wtrmkPath)
+			resized, err = WatermarkImg(resized, wtrmkPath)
 			if err != nil {
 				fmt.Printf("error while watermark image: %s\n", err.Error())
 				continue
 			}
 		}
 
-		// Encode the image as WebP
 		err = png.Encode(&webpBuffer, resized)
 		if err != nil {
 			fmt.Printf("error while encode image as webp: %s\n", err)
 			continue
 		}
 
-		// Save image
 		filePath := baseMediaPath + catalogPath + flName + ".webp"
 		err = os.WriteFile(filePath, webpBuffer.Bytes(), 0644)
 		if err != nil {
@@ -323,10 +315,11 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		}
 
 		webpBuffer.Reset()
+		pth := catalogPath + flName + ".webp"
 		switch imgType {
 		case "WATERMARK":
 			var newProdImage = &models.ProductImage{
-				Image:     catalogPath + flName + ".webp",
+				Image:     pth,
 				ProductID: prod.ID,
 				Name:      fmt.Sprintf("%s_%s", imgType, bsName),
 			}
@@ -337,11 +330,11 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 			err = tx.Create(&newProdImage).Error
 
 		case "CATALOG":
-			prod.CatalogImage = flName
+			prod.CatalogImage = pth
 			err = tx.Save(&prod).Error
 
 		case "SEARCH":
-			prod.SearchImage = flName
+			prod.SearchImage = pth
 			err = tx.Save(&prod).Error
 
 		default:
@@ -364,7 +357,7 @@ func setThumbImage(obj interface{}, img image.Image) (err error) {
 		err = fmt.Errorf("error while encode image into thumb buffer: %s", err.Error())
 		return
 	} else {
-		val := reflect.ValueOf(obj).Elem() // Get the reflect.Value of the pointer's element
+		val := reflect.ValueOf(obj).Elem()
 		field := val.FieldByName(attributeName)
 		if !field.IsValid() {
 			err = fmt.Errorf("attribute '%s' not found", attributeName)
@@ -381,71 +374,65 @@ func setThumbImage(obj interface{}, img image.Image) (err error) {
 	return
 }
 
-func WatermarkImg(origImg image.Image, wtmrkPath string) error {
+func WatermarkImg(origImg image.Image, wtmrkPath string) (image.Image, error) {
 	wtrmkFile, err := os.Open(wtmrkPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer wtrmkFile.Close()
 
 	wtrmkImg, _, err := image.Decode(wtrmkFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	wtrmrkSize, err := getSize("WT_MARK")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	wtrmkImg = resize.Resize(wtrmrkSize[0], wtrmrkSize[1], wtrmkImg, resize.Lanczos3)
-	strOpacity := os.Getenv("WATERMARK_OPACITY")
-	if strOpacity == "" {
-		strOpacity = "60"
-	}
+	wtrmkImg = resize.Resize(uint(wtrmrkSize[1]*16/9), uint(wtrmrkSize[1]), wtrmkImg, resize.Lanczos3)
 
-	opacity, err := parseInt(strOpacity)
+	opacity, err := getEnvInt("WATERMARK_OPACITY", 80)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	mask := image.NewUniform(&color.Alpha{uint8(255 * opacity / 100)}) // Set provided opacity
+	opacityColor := color.Alpha{A: uint8(opacity)}
 
-	// Calculate the position to place the watermark
 	origBounds := origImg.Bounds()
 	wtrmkBounds := wtrmkImg.Bounds()
 
-	// Get watermark margin or set default
-	strMargin := os.Getenv("WATERMARK_MARGIN")
-	if strMargin == "" {
-		strMargin = "30"
-	}
-	margin, err := parseInt(strMargin)
+	margin, err := getEnvInt("WATERMARK_MARGIN", 30)
 	if err != nil {
 		fmt.Println("Invalid watermark margin, set default (30)")
 		margin = 30
 	}
 
 	position := image.Pt(origBounds.Dx()-wtrmkBounds.Dx()-margin, origBounds.Dy()-wtrmkBounds.Dy()-margin)
-	drawImg := image.NewRGBA(image.Rect(0, 0, origImg.Bounds().Dx(), origImg.Bounds().Dy()))
+	drawImg := image.NewRGBA(origBounds)
 
-	// Draw watermark onto the original image
-	draw.DrawMask(drawImg, wtrmkBounds.Add(position), wtrmkImg, image.Point{}, mask, image.Point{}, draw.Over)
+	draw.Draw(drawImg, origBounds, origImg, origBounds.Min, draw.Src)
 
-	return nil
+	draw.DrawMask(drawImg, wtrmkBounds.Add(position), wtrmkImg, wtrmkBounds.Min, &image.Uniform{C: opacityColor}, image.Point{}, draw.Over)
+
+	return drawImg, nil
 }
 
 func parseInt(s string) (int, error) {
 	var result int
 	var negative bool
+	var startIndex int
 
-	for i, char := range s {
-		if i == 0 && char == '-' {
-			negative = true
-			continue
-		}
+	if s[0] == '-' {
+		negative = true
+		startIndex = 1
+	}
+
+	for i := startIndex; i < len(s); i++ {
+		char := s[i]
 		if char < '0' || char > '9' {
-			return 0, fmt.Errorf("invalid input: each num must be from 0 to 9")
+			return 0, fmt.Errorf("invalid input: each character must be from 0 to 9")
 		}
 		digit := int(char - '0')
 		result = result*10 + digit
@@ -466,7 +453,6 @@ func GetFromSlice(slice []string, idx int) (string, error) {
 	return slice[idx], nil
 }
 
-// findByField finds an element in the slice of any structs by the provided field value.
 func FindByField(slice interface{}, field string, value interface{}) (interface{}, error) {
 	sliceValue := reflect.ValueOf(slice)
 	if sliceValue.Kind() != reflect.Slice {
@@ -492,7 +478,6 @@ func FindByField(slice interface{}, field string, value interface{}) (interface{
 	return nil, fmt.Errorf("value %s not found in provided slice", value)
 }
 
-// Array must be sorted by searched field
 func BinarySearch(arr interface{}, pattern interface{}, less func(a, b interface{}) bool, equal func(a, b interface{}) bool) int {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice {
@@ -518,4 +503,12 @@ func BinarySearch(arr interface{}, pattern interface{}, less func(a, b interface
 		}
 	}
 	return -1
+}
+
+func getEnvInt(key string, defaultValue int) (int, error) {
+	valueStr := os.Getenv(key)
+	if valueStr == "" {
+		return defaultValue, nil
+	}
+	return parseInt(valueStr)
 }

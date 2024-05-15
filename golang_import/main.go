@@ -31,9 +31,8 @@ func init() {
 		dbUser     = os.Getenv("POSTGRES_USER")
 		dbPassword = os.Getenv("POSTGRES_PASSWORD")
 	)
-	connStr := fmt.Sprintf("host=%s port=5432 user=%s dbname=%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword)
 
-	db, err = gorm.Open("postgres", connStr)
+	db, err = gorm.Open("postgres", fmt.Sprintf("host=%s port=5432 user=%s dbname=%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword))
 	if err != nil {
 		log.Fatal("Failed to connect to database: " + err.Error())
 	}
@@ -50,18 +49,18 @@ func init() {
 		&models.ProductImage{},
 	} {
 		if !db.HasTable(model) {
-			msg := fmt.Sprintf("Table for model %s does not exist", reflect.TypeOf(model).Elem().Name())
-			fmt.Println(msg + ", creating...")
-			if err := db.AutoMigrate(model).Error; err == nil {
+			fmt.Printf("Table for model %s does not exist, creating...\n", reflect.TypeOf(model).Elem().Name())
+			if err := db.AutoMigrate(model).Error; err != nil {
+				log.Fatalf("Error while migrate model %s", model)
+			} else {
 				fmt.Printf("Model %s successfully migrate", model)
 			}
-			log.Fatalf("Error while migrate model %s", model)
 		}
 	}
 }
 
 func main() {
-	fmt.Println("Initializing golang server...")
+	fmt.Println("Initializing Go server...")
 	router := gin.Default()
 
 	authGroup := router.Group("/api/upload")
@@ -75,10 +74,7 @@ func main() {
 }
 
 func processXLSXData(c *gin.Context) {
-
 	filename := c.Param("filename")
-
-	// Retrieve upload type from query parameters
 	uploadType := c.Query("type")
 
 	tmpDir := "../media/tmp"
@@ -88,21 +84,17 @@ func processXLSXData(c *gin.Context) {
 	}
 	flPth := filepath.Join(tmpDir, filename)
 
-	// Try to get file from request
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Save the file to disk
-	err = c.SaveUploadedFile(file, flPth)
-	if err != nil {
+	if err := c.SaveUploadedFile(file, flPth); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
 	}
 
-	// Parse CSV data and process accordingly based on uploadType
 	var ignoredColumns = []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP", "CHARACTERISTIC"}
 	var startTime = time.Now()
 
@@ -110,8 +102,7 @@ func processXLSXData(c *gin.Context) {
 	case "PRODUCTS":
 		c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 		go func() {
-			err := productsProcess(db, flPth, ignoredColumns)
-			if err != nil {
+			if err := productsProcess(db, flPth, ignoredColumns); err != nil {
 				fmt.Println(err.Error())
 				return
 			}
@@ -122,9 +113,6 @@ func processXLSXData(c *gin.Context) {
 		go func() {
 			fmt.Println("BRAND data process")
 			c.JSON(http.StatusOK, gin.H{"message": "Success authorized, brands process started..."})
-
-			// Process brand data
-			// Your logic for processing brands here
 			fmt.Printf("BRAND data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
 		}()
 	default:
@@ -133,43 +121,38 @@ func processXLSXData(c *gin.Context) {
 }
 
 func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) error {
-	colNms := make(map[string]int, 0)
+	colNms := make(map[string]int)
 
 	r, err := utils.NewReader(filePath, ignoredColumns)
 	if err != nil {
-		fmt.Printf("error while create new reader: %s\n", err.Error())
+		fmt.Printf("error while creating new reader: %s\n", err.Error())
 		return err
 	}
-
 	defer func() {
-		fmt.Println("Products processed, remove tmp file")
-		if err := os.Remove(filePath); err == nil {
-			fmt.Println("tmp file successfully deleted")
+		fmt.Println("Products processed, removing tmp file")
+		if err := os.Remove(filePath); err != nil {
+			fmt.Printf("error while deleting tmp file: %s\n", err.Error())
 		} else {
-			fmt.Println("error while deleting tmp file: " + err.Error())
+			fmt.Println("tmp file successfully deleted")
 		}
 		r.Close()
 	}()
 
-	// Select cities from db
 	var cities []models.CityGroup
 	var groups []*models.ProductGroup
-	result := db.Find(&cities)
-	if result.Error != nil {
-		return fmt.Errorf("failed to get cities: " + result.Error.Error())
+
+	if err := db.Find(&cities).Error; err != nil {
+		return fmt.Errorf("failed to get cities: %v", err)
 	}
 
-	result = db.Find(&groups)
-	if result.Error != nil {
-		return fmt.Errorf("failed to get cities: " + result.Error.Error())
+	if err := db.Find(&groups).Error; err != nil {
+		return fmt.Errorf("failed to get groups: %v", err)
 	}
 
-	// Сортируем массив по полю Name
 	sort.Slice(cities, func(i, j int) bool {
 		return cities[i].Name < cities[j].Name
 	})
 
-	// Insert city names into slice
 	for _, c := range cities {
 		r.GetFileReader().CtNms.Cols = append(r.GetFileReader().CtNms.Cols, c.Name)
 	}
@@ -183,72 +166,24 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 		colNms[col] = i
 	}
 
-	// Iterate over each row, start from second, in the sheet
-	for idx, row := range rows[1:] {
-
+	for _, row := range rows[1:] {
 		prod := models.Product{}
 		ctg := models.Category{}
 		prodCtgs := []models.Category{}
 
-		idx = colNms["CATEGORIES"]
-
-		// Initializer Transaction
 		db.Transaction(func(tx *gorm.DB) error {
-
-			var err error
-			var chrCol string
-			var ctCol string
-			// Process categories
-			if err = processCategories(&prodCtgs, db, row[idx], &ctg); err != nil {
+			if err := processCategories(&prodCtgs, tx, row[colNms["CATEGORIES"]], &ctg); err != nil {
 				return err
 			}
-
-			if err = processProduct(prodCtgs, db, row, &prod, &ctg, colNms); err != nil {
-				fmt.Println("Error while process product: ", err.Error())
+			if err := processProduct(prodCtgs, tx, row, &prod, &ctg, colNms); err != nil {
+				fmt.Printf("Error while processing product: %v\n", err)
 				return err
 			}
-
-			if err = processProductGroup(prod, groups, db, row, colNms); err != nil {
-				fmt.Println(err)
+			if err := processProductGroup(prod, groups, tx, row, colNms); err != nil {
+				fmt.Printf("Error while processing product group: %v\n", err)
 			}
-
-			// Process row's cells
-			for _, chrCol = range r.GetFileReader().ChrCols.Cols {
-				idx, ok := colNms[chrCol]
-				if !ok {
-					continue
-				}
-
-				chrVal, err := utils.GetFromSlice(row, idx)
-				if err != nil {
-					continue
-				}
-
-				if chrVal == "" {
-					continue
-				}
-
-				if err = processCharacteristics(ctg.ID, &prod, db, chrVal, chrCol); err != nil {
-					fmt.Println(err.Error())
-					continue
-				}
-			}
-
-			for _, ctCol = range r.GetFileReader().CtNms.Cols {
-				idx, ok := colNms[ctCol]
-				if !ok {
-					continue
-				}
-
-				priceVal, err := utils.GetFromSlice(row, idx)
-				if err != nil {
-					fmt.Println(err.Error())
-					continue
-				}
-
-				if err = processPrices(&prod, db, priceVal, ctCol, cities); err != nil {
-					fmt.Println(err.Error())
-				}
+			if err := processRowCells(tx, r, row, colNms, &prod, &ctg, cities); err != nil {
+				fmt.Printf("Error while processing row cells: %v\n", err)
 			}
 			fmt.Printf("Product %s processed\n", prod.Title)
 			return nil
@@ -410,54 +345,39 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 	catNames := strings.Split(cellVal, " | ")
 	var prnt *models.Category
 
-	// process all categories
-	for idx, catName := range catNames {
-
-		var category models.Category
+	for idx, catName := range catNames[:len(catNames)-1] {
 		slg := slug.Make(catName)
-		// Check if the category already exists
+		var category models.Category
 		if tx.Where(&models.Category{Slug: slg}).First(&category).RecordNotFound() {
-			// If the category doesn't exist, create it
 			newCategory := models.Category{
-				Name: catName,
-				Slug: slg,
-				// ParentID:  prntID,
+				Name:      catName,
+				Slug:      slg,
 				IsVisible: true,
 				TreeID:    1,
 				Level:     uint(idx),
-				Left:      0,
-				Right:     0,
 			}
 
-			// Create the category
 			if err := tx.Create(&newCategory).Error; err != nil {
-
-				fmt.Println("Error creating category:", err)
+				fmt.Printf("Error creating category: %v\n", err)
 				return err
 			}
-
-			// Calculate left and right boundaries
-			// newCategory.Left, newCategory.Right = utils.CalculateBoundaries(tx, &newCategory)
 			newCategory.Order = newCategory.ID
 
 			if idx > 0 && prnt != nil {
 				prnt.Children = append(prnt.Children, &newCategory)
-				if err := tx.Save(&prnt).Error; err != nil {
-					fmt.Println(err)
+				if err := tx.Save(prnt).Error; err != nil {
+					fmt.Printf("Error saving parent category: %v\n", err)
 					return err
 				}
 			}
 
 			if err := tx.Save(&newCategory).Error; err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error saving new category: %v\n", err)
 				return err
 			}
 
-			// Update last checked category
 			*ctg = newCategory
-
 		} else {
-			// Update last checked category
 			*ctg = category
 		}
 
@@ -468,78 +388,83 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 }
 
 func processPrices(prod *models.Product, tx *gorm.DB, cellVal string, colName string, cities []models.CityGroup) error {
-	var err error
-	var price models.Price
-	var cityGroup models.CityGroup
-
 	priceVal, err := strconv.ParseFloat(cellVal, 64)
 	if err != nil {
 		return err
 	}
 
+	var price models.Price
 	if idx := utils.BinarySearch(
 		cities, colName,
 		func(a, b interface{}) bool { return a.(models.CityGroup).Name < b.(string) },
 		func(a, b interface{}) bool { return a.(models.CityGroup).Name == b.(string) },
 	); idx >= 0 {
-		cityGroup = cities[idx]
+		cityGroup := cities[idx]
+		if tx.Where(&models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
+			newPrice := models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID, Price: priceVal}
+			if err := tx.Create(&newPrice).Error; err != nil {
+				fmt.Printf("Error creating price: %v\n", err)
+				return err
+			}
+		} else {
+			price.OldPrice = &price.Price
+			price.Price = priceVal
+			if err := tx.Save(&price).Error; err != nil {
+				return err
+			}
+		}
 	} else {
 		return fmt.Errorf("city with name %s not found", colName)
-	}
-
-	if tx.Where(&models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID}).First(&price).RecordNotFound() {
-		newPrice := models.Price{CityGroupID: cityGroup.ID, ProductID: prod.ID, Price: priceVal}
-		if err := tx.Create(&newPrice).Error; err != nil {
-			// Print error and return
-			fmt.Println("Error creating price:", err)
-			return err
-		}
-
-	} else {
-		// Price already exist
-		// Set new price and old price
-		price.OldPrice = &price.Price
-		price.Price = priceVal
-
-		if err = tx.Save(&price).Error; err != nil {
-			return err
-		}
 	}
 	return nil
 }
 
 func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val string, charCol string) error {
-
 	char := &models.Characteristic{}
 	charVal := &models.CharacteristicValue{}
 
-	if tx.Where(&models.Characteristic{Name: charCol}).First(&char).RecordNotFound() {
-		// If the record doesn't exist, create it
+	if tx.Where(&models.Characteristic{Name: charCol}).First(char).RecordNotFound() {
 		newChar := models.Characteristic{Name: charCol, CategoryID: ctgId}
 		if err := tx.Create(&newChar).Error; err != nil {
-			// Print error and return
-			fmt.Println("Error creating characteristic:", err, "\n", newChar, "\n", char, "\n", prod, "CATEGORY ID: -------  ", ctgId)
+			fmt.Printf("Error creating characteristic: %v\n", err)
 			return err
 		}
-
 		*char = newChar
 	}
 
-	if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}).First(&charVal).RecordNotFound() {
-		// If the record doesn't exist, create it
+	if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}).First(charVal).RecordNotFound() {
 		newCharVal := models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID, Value: val}
 		if err := tx.Create(&newCharVal).Error; err != nil {
-			// Print error and return
-			fmt.Println("Error creating characteristic value:", err)
+			fmt.Printf("Error creating characteristic value: %v\n", err)
 			return err
 		}
-
 		*charVal = newCharVal
 	} else {
-		// If the record exists, update it
 		charVal.Value = val
-		if err := tx.Save(&charVal).Error; err != nil {
+		if err := tx.Save(charVal).Error; err != nil {
 			return err
+		}
+	}
+	return nil
+}
+func processRowCells(tx *gorm.DB, r utils.CommonReader, row []string, colNms map[string]int, prod *models.Product, ctg *models.Category, cities []models.CityGroup) error {
+	for _, chrCol := range r.GetFileReader().ChrCols.Cols {
+		if idx, ok := colNms[chrCol]; ok {
+			if chrVal, err := utils.GetFromSlice(row, idx); err == nil && chrVal != "" {
+				if err := processCharacteristics(ctg.ID, prod, tx, chrVal, chrCol); err != nil {
+					fmt.Printf("Error while processing characteristics: %v\n", err)
+				}
+			}
+		}
+	}
+
+	for _, ctCol := range r.GetFileReader().CtNms.Cols {
+		if idx, ok := colNms[ctCol]; ok {
+			if priceVal, err := utils.GetFromSlice(row, idx); err == nil {
+				if err := processPrices(prod, tx, priceVal, ctCol, cities); err != nil {
+					fmt.Printf("Error while processing prices: %v\n", err)
+				}
+			}
 		}
 	}
 	return nil
