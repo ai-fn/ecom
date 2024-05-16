@@ -175,6 +175,9 @@ class PriceAdmin(admin.ModelAdmin):
         "city_group",
         "price",
     )
+    search_fields = (
+        "product__title",
+    )
 
 
 @admin.register(Setting)
