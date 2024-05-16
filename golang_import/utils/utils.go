@@ -203,10 +203,10 @@ func ConvertStrToUint(s ...string) ([]uint, error) {
 
 func getSize(imgType string) ([]uint, error) {
 	dfltVals := make(map[string][]string)
-	dfltVals["CATALOG"] = []string{"500", "500"}
+	dfltVals["CATALOG"] = []string{"960", "540"}
 	dfltVals["WATERMARK"] = []string{"1280", "720"}
-	dfltVals["SEARCH"] = []string{"42", "50"}
-	dfltVals["WT_MARK"] = []string{"42", "50"}
+	dfltVals["SEARCH"] = []string{"68", "38"}
+	dfltVals["WT_MARK"] = []string{"68", "38"}
 
 	if size, exists := dfltVals[imgType]; exists {
 		return ConvertStrToUint(size...)
@@ -306,7 +306,7 @@ func processAndSaveImage(img image.Image, webpBuffer bytes.Buffer, filePath, wtr
 	img = resizeImg(img, size)
 
 	if imgType == "WATERMARK" {
-		img, err = WatermarkImg(img, wtrmkPath)
+		img, err = watermarkImg(img, wtrmkPath)
 		if err != nil {
 			fmt.Printf("error while watermark image: %v\n", err)
 			return err
@@ -346,17 +346,25 @@ func processAndSaveImage(img image.Image, webpBuffer bytes.Buffer, filePath, wtr
 	return nil
 }
 
-func resizeImg(img image.Image, size []uint) (resized image.Image) {
-	newWidth, newHeight := int(size[0]), int(size[1])
-	resized = resize.Resize(size[0], 0, img, resize.Lanczos3)
+func resizeImg(img image.Image, size []uint) image.Image {
 
-	if resized.Bounds().Dy() > newHeight {
-		yOffset := (resized.Bounds().Dy() - newHeight) / 2
+	targetRatio := uint(4 / 3)
+	targetHeight, targetWidth := size[1]/targetRatio, int(size[0]/targetRatio)
+
+	resized := resize.Resize(0, targetHeight, img, resize.Lanczos3)
+	resultWidth := resized.Bounds().Dx()
+
+	if resultWidth < targetWidth {
+		resized = extendToWidth(resized, targetWidth)
+	} else if resultWidth > targetWidth {
+		// Cropp image
+
+		xOffset := (resultWidth - targetWidth) / 2
 		resized = resized.(interface {
 			SubImage(r image.Rectangle) image.Image
-		}).SubImage(image.Rect(0, yOffset, newWidth, yOffset+newHeight))
+		}).SubImage(image.Rect(xOffset, 0, xOffset+targetWidth, int(targetHeight)))
 	}
-	return
+	return resized
 }
 
 func saveImageFile(webpBuffer bytes.Buffer, img image.Image, filePath string) error {
@@ -401,7 +409,7 @@ func setThumbImage(obj interface{}, img image.Image) (err error) {
 	return
 }
 
-func WatermarkImg(origImg image.Image, wtmrkPath string) (image.Image, error) {
+func watermarkImg(origImg image.Image, wtmrkPath string) (image.Image, error) {
 	wtrmkFile, err := os.Open(wtmrkPath)
 	if err != nil {
 		return nil, err
@@ -470,6 +478,20 @@ func parseInt(s string) (int, error) {
 	}
 
 	return result, nil
+}
+
+func extendToWidth(origImg image.Image, width int) image.Image {
+	origBounds := origImg.Bounds()
+
+	newImg := image.NewRGBA(image.Rect(0, 0, width, origBounds.Dy()))
+
+	dstPt := image.Pt(
+		(origBounds.Dx()-newImg.Bounds().Dx())/2,
+		0,
+	)
+	draw.Draw(newImg, newImg.Bounds(), origImg, dstPt, draw.Over)
+
+	return newImg
 }
 
 func GetFromSlice(slice []string, idx int) (string, error) {
