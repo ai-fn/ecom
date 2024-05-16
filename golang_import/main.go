@@ -62,6 +62,7 @@ func init() {
 func main() {
 	fmt.Println("Initializing Go server...")
 	router := gin.Default()
+	router.SetTrustedProxies([]string{"127.0.0.1", "web"})
 
 	authGroup := router.Group("/api/upload")
 
