@@ -21,7 +21,6 @@ class CategoryDocumentSerializer(DocumentSerializer):
 
 
 class ProductDocumentSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True)
     category_slug = serializers.SlugField(
         source="category.slug",
         read_only=True,
