@@ -1,17 +1,36 @@
 stages:
+  - cleanup
   - deploy
+  - tests
 
-variables:
-  GITLAB_USER: "valisov"
-
-deploy:
-  only:
-    - main
-  stage: deploy
+cleanup:
+  stage: cleanup
   script:
     - |
       set -x
-      echo "Configuring SSH..."
+      echo "Configuring SSH for cleanup..."
+      mkdir -p ~/.ssh/
+      echo "$SSH_KEY" > ~/.ssh/gitlab
+      chmod 600 ~/.ssh/gitlab
+      cat >>~/.ssh/config << END
+      Host target-shop
+        HostName $SSH_HOST
+        User $SSH_USER
+        IdentityFile ~/.ssh/gitlab
+        LogLevel ERROR
+        StrictHostKeyChecking no
+      END
+      echo "Running Docker cleanup..."
+      ssh target-shop "docker system prune -af"
+
+deploy:
+  stage: deploy
+  only:
+    - main
+  script:
+    - |
+      set -x
+      echo "Configuring SSH for deploy..."
       mkdir -p ~/.ssh/
       echo "$SSH_KEY" > ~/.ssh/gitlab
       chmod 600 ~/.ssh/gitlab
@@ -24,4 +43,33 @@ deploy:
         StrictHostKeyChecking no
       END
       echo "Running deploy..."
-      ssh target-shop "cd shop-backend/ && docker compose -f docker-compose-traefik.yml down && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git && docker compose -f docker-compose-traefik.yml build && docker compose -f docker-compose-traefik.yml up -d --force-recreate && docker compose exec web python manage.py migrate --settings=megashop.settings.local && docker compose exec web python manage.py migrate --settings=megashop.settings.local"
+        ssh target-shop "cd shop-backend/ &&
+        docker compose -f docker-compose-traefik.yml down &&
+        git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
+        docker compose -f docker-compose-traefik.yml build &&
+        docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
+        docker compose exec web python manage.py migrate --settings=megashop.settings.local"
+
+  dependencies:
+    - cleanup 
+
+  
+  tests:
+    stage: tests
+    script:
+      - |
+        set -x
+        echo "Configuring SSH for tests..."
+        mkdir -p ~/.ssh/
+        echo "$SSH_KEY" > ~/.ssh/gitlab
+        chmod 600 ~/.ssh/gitlab
+        cat >>~/.ssh/config << END
+        Host target-shop
+          HostName $SSH_HOST
+          User $SSH_USER
+          IdentityFile ~/.ssh/gitlab
+          LogLevel ERROR
+          StrictHostKeyChecking no
+        END
+        echo "Running tests..."
+        ssh target-shop "cd shop-backend && docker compose exec web python manage.py test"
