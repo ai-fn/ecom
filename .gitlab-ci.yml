@@ -54,22 +54,22 @@ deploy:
     - cleanup 
 
   
-  tests:
-    stage: tests
-    script:
-      - |
-        set -x
-        echo "Configuring SSH for tests..."
-        mkdir -p ~/.ssh/
-        echo "$SSH_KEY" > ~/.ssh/gitlab
-        chmod 600 ~/.ssh/gitlab
-        cat >>~/.ssh/config << END
-        Host target-shop
-          HostName $SSH_HOST
-          User $SSH_USER
-          IdentityFile ~/.ssh/gitlab
-          LogLevel ERROR
-          StrictHostKeyChecking no
-        END
-        echo "Running tests..."
-        ssh target-shop "cd shop-backend && docker compose exec web python manage.py test"
+tests:
+  stage: tests
+  script:
+    - |
+      set -x
+      echo "Configuring SSH for tests..."
+      mkdir -p ~/.ssh/
+      echo "$SSH_KEY" > ~/.ssh/gitlab
+      chmod 600 ~/.ssh/gitlab
+      cat >>~/.ssh/config << END
+      Host target-shop
+        HostName $SSH_HOST
+        User $SSH_USER
+        IdentityFile ~/.ssh/gitlab
+        LogLevel ERROR
+        StrictHostKeyChecking no
+      END
+      echo "Running tests..."
+      ssh target-shop "cd shop-backend && docker compose exec web python manage.py test"
