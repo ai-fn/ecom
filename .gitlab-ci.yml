@@ -1,8 +1,11 @@
 stages:
-  - cleanup
   - deploy
 
-before_script:
+deploy:
+  stage: deploy
+  only:
+    - main
+  script:
     - |
       set -x
       echo "Configuring SSH..."
@@ -17,29 +20,11 @@ before_script:
         LogLevel ERROR
         StrictHostKeyChecking no
       END
-
-cleanup:
-  stage: cleanup
-  script:
-    - |
-      set -x
-      echo "Running Docker cleanup..."
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/gitlab $SSH_USER@$SSH_HOST "cd shop-backend && docker system prune -af"
-
-deploy:
-  stage: deploy
-  only:
-    - main
-  script:
-    - |
-      set -x
       echo "Running deploy..."
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/gitlab $SSH_USER@$SSH_HOST "cd shop-backend/ &&
+      ssh target-shop "cd shop-backend/ &&
         docker-compose -f docker-compose-traefik.yml down &&
         git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
         docker-compose -f docker-compose-traefik.yml build &&
         docker-compose -f docker-compose-traefik.yml up -d --force-recreate &&
-        docker-compose exec web python manage.py migrate --settings=megashop.settings.local"
-
-  dependencies:
-    - cleanup
+        docker-compose exec web python manage.py migrate --settings=megashop.settings.local &&
+        docker system prune -af"
