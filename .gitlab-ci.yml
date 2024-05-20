@@ -24,7 +24,7 @@ cleanup:
     - |
       set -x
       echo "Running Docker cleanup..."
-      ssh -i ~/.ssh/gitlab $SSH_USER@$SSH_HOST "cd shop-backend && docker system prune -af"
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/gitlab $SSH_USER@$SSH_HOST "cd shop-backend && docker system prune -af"
 
 deploy:
   stage: deploy
@@ -34,7 +34,7 @@ deploy:
     - |
       set -x
       echo "Running deploy..."
-      ssh -i ~/.ssh/gitlab $SSH_USER@$SSH_HOST "cd shop-backend/ &&
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/gitlab $SSH_USER@$SSH_HOST "cd shop-backend/ &&
         docker-compose -f docker-compose-traefik.yml down &&
         git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
         docker-compose -f docker-compose-traefik.yml build &&
