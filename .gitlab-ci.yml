@@ -3,13 +3,20 @@ stages:
   - deploy
 
 before_script:
-  - |
-    set -x
-    echo "Configuring SSH..."
-    mkdir -p ~/.ssh/
-    echo "$SSH_KEY" > ~/.ssh/gitlab
-    chmod 600 ~/.ssh/gitlab
-    ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+    - |
+      set -x
+      echo "Configuring SSH..."
+      mkdir -p ~/.ssh/
+      echo "$SSH_KEY" > ~/.ssh/gitlab
+      chmod 600 ~/.ssh/gitlab
+      cat >>~/.ssh/config << END
+      Host target-shop
+        HostName $SSH_HOST
+        User $SSH_USER
+        IdentityFile ~/.ssh/gitlab
+        LogLevel ERROR
+        StrictHostKeyChecking no
+      END
 
 cleanup:
   stage: cleanup
