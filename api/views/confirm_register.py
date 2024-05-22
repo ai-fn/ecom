@@ -20,7 +20,8 @@ from ..serializers.confirm_code import ConfirmCodeSerializer
 from account.models import CustomUser
 from drf_spectacular.utils import extend_schema
 
-code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60*10))
+code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60*30))
+remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60*2))
 
 
 @extend_schema(
@@ -62,11 +63,11 @@ class SendSMSView(GenericAPIView):
         cached_data = cache.get(cache_key)
 
         if cached_data:
-            remaining_time = cached_data.get("expiration_time") - time.time()
-            if remaining_time >= 0:
+            ren_time = cached_data.get("expiration_time") - time.time()
+            if ren_time >= 0:
                 return Response(
                     {
-                        "message": f"Please wait. Time remaining: {int(remaining_time)} seconds"
+                        "message": f"Please wait. Time remaining: {int(ren_time)} seconds"
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
@@ -102,11 +103,11 @@ class SendSMSView(GenericAPIView):
                 cache.set(
                     cache_key,
                     {
-                        "expiration_time": time.time() + code_lifetime,
+                        "expiration_time": time.time() + remaining_time,
                         "code": code,
                     },
                     timeout=code_lifetime,
-                )  # Cache for 60 seconds
+                )
                 return Response({"success": True}, status=status.HTTP_200_OK)
             else:
                 return Response(
