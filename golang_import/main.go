@@ -2,6 +2,7 @@ package main
 
 import (
 	"auth"
+	"bytes"
 	"fmt"
 	"log"
 	"models"
@@ -15,6 +16,7 @@ import (
 	"time"
 	"utils"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
 	"github.com/gosimple/slug"
@@ -108,6 +110,9 @@ func processXLSXData(c *gin.Context) {
 				return
 			}
 			fmt.Printf("Products data processed in %.9fs.\n", time.Since(startTime).Seconds())
+			if err := rebuildIndex(); err != nil {
+				log.Fatalf(err.Error())
+			}
 		}()
 
 	case "BRANDS":
@@ -115,6 +120,9 @@ func processXLSXData(c *gin.Context) {
 			fmt.Println("BRAND data process")
 			c.JSON(http.StatusOK, gin.H{"message": "Success authorized, brands process started..."})
 			fmt.Printf("BRAND data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
+			if err := rebuildIndex(); err != nil {
+				log.Fatalf(err.Error())
+			}
 		}()
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unknown upload type: " + uploadType})
@@ -424,8 +432,9 @@ func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val s
 	char := &models.Characteristic{}
 	charVal := &models.CharacteristicValue{}
 
-	if tx.Where(&models.Characteristic{Name: charCol}).First(char).RecordNotFound() {
-		newChar := models.Characteristic{Name: charCol, CategoryID: ctgId}
+	slug := slug.Make(charCol)
+	if tx.Where(&models.Characteristic{Slug: slug}).First(char).RecordNotFound() {
+		newChar := models.Characteristic{Name: charCol, CategoryID: ctgId, Slug: slug}
 		if err := tx.Create(&newChar).Error; err != nil {
 			fmt.Printf("Error creating characteristic: %v\n", err)
 			return err
@@ -469,4 +478,39 @@ func processRowCells(tx *gorm.DB, r utils.CommonReader, row []string, colNms map
 		}
 	}
 	return nil
+}
+
+func rebuildIndex() error {
+	client := &http.Client{}
+
+	url := "http://web:8000/api/update_index/"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte("")))
+	if err != nil {
+		log.Printf("Error while create request 'update index': %v", err)
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("Error while reqeust execution: %v", err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		log.Println("Индексы успешно обновлены")
+	} else {
+		log.Printf("Не удалось обновить индексы. Статус: %v\n", resp.Status)
+	}
+
+	return nil
+}
+func GetClaims(c *gin.Context) *jwt.StandardClaims {
+	claims, exists := c.Get("Claims")
+	if !exists {
+		return &jwt.StandardClaims{}
+	}
+	return claims.(*jwt.StandardClaims)
 }
