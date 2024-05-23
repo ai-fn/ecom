@@ -16,6 +16,7 @@ from .city import CitySerializer
 from .city_group import CityGroupSerializer
 from .characteristic import CharacteristicSerializer
 from .characteristic_value import CharacteristicValueSerializer
+from .characteristic_filter import CharacteristicFilterSerializer
 from .category import CategorySerializer
 from .product_image import ProductImageSerializer
 from .brand import BrandSerializer
