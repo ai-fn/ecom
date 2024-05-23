@@ -316,6 +316,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
 
         characteristics_queryset = Characteristic.objects.filter(
             category__name__in=queryset.values_list("category__name", flat=True),
+            for_filtering=True,
         )
 
         page = self.paginate_queryset(queryset)
