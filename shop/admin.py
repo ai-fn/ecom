@@ -114,24 +114,19 @@ class ProductGroupAdmin(admin.ModelAdmin):
 
 @admin.register(ProductFrequenlyBoughtTogether)
 class ProductFrequenlyBoughtTogetherAdmin(admin.ModelAdmin):
-    list_display = (
-        "product_from",
-        "product_to",
-        "purchase_count"
-    )
-    list_filter = (
-        "product_from",
-        "product_to"
-    )
+    list_display = ("product_from", "product_to", "purchase_count")
+    list_filter = ("product_from", "product_to")
 
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = [
-        "product", "name",
+        "product",
+        "name",
     ]
     search_fields = (
-        "product__title", "name",
+        "product__title",
+        "name",
     )
 
 
@@ -157,6 +152,9 @@ class CharacteristicAdmin(admin.ModelAdmin):
         "category",
     )
     list_filter = ("category",)
+    prepopulated_fields = {
+        "name": ("slug",)
+    }
 
 
 @admin.register(CharacteristicValue)
@@ -175,9 +173,7 @@ class PriceAdmin(admin.ModelAdmin):
         "city_group",
         "price",
     )
-    search_fields = (
-        "product__title",
-    )
+    search_fields = ("product__title",)
 
 
 @admin.register(Setting)
@@ -261,6 +257,7 @@ class MainPageCategoryBarItemAdmin(admin.ModelAdmin):
 
     search_fields = ("text", "link")
 
+
 @admin.register(SideBarMenuItem)
 class SideBarMenuItemAdmin(admin.ModelAdmin):
 
@@ -277,7 +274,7 @@ class SideBarMenuItemAdmin(admin.ModelAdmin):
 
 @admin.register(OpenGraphMeta)
 class OpenGraphMetaAdmin(admin.ModelAdmin):
-    
+
     list_display = (
         "id",
         "title",
@@ -291,9 +288,8 @@ class OpenGraphMetaAdmin(admin.ModelAdmin):
         "locale",
         "content_type",
     )
-    list_filter = (
-        "locale",
-    )
+    list_filter = ("locale",)
+
 
 @admin.register(ImageMetaData)
 class ImageMetaDataAdmin(admin.ModelAdmin):
@@ -309,15 +305,14 @@ class ImageMetaDataAdmin(admin.ModelAdmin):
         "height",
     )
 
+
 @admin.register(Page)
 class PageAdmin(admin.ModelAdmin):
     list_display = (
         "title",
         "description",
     )
-    prepopulated_fields = {
-        "slug": ("title",)
-    }
+    prepopulated_fields = {"slug": ("title",)}
     search_fields = (
         "title",
         "description",

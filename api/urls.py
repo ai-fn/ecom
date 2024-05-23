@@ -25,6 +25,7 @@ from api.views import (
     MainPageSliderImageViewSet,
     MainPageCategoryBarItemViewSet,
     MetadataViewSet,
+    UpdateIndex,
 )
 from api.views import (
     SendSMSView,
@@ -74,4 +75,5 @@ urlpatterns = [
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("search/", GeneralSearchView.as_view(), name="general-search"),
     path("products_by_id_list/", ProductsById.as_view(), name="products_bu_id_list"),
+    path("update_index/", UpdateIndex.as_view(), name="update_index"),
 ]

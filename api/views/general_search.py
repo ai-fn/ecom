@@ -38,5 +38,5 @@ class GeneralSearchView(GeneralSearchMixin, APIView):
         domain = self.request.query_params.get("city_domain", "")
         query = self.request.query_params.get("q", "")
 
-        categorized_results = self.search(query, domain)
+        categorized_results = self.g_search(query, domain)
         return Response(categorized_results)

@@ -1,28 +1,40 @@
 from rest_framework.viewsets import ModelViewSet
-from api.mixins import CityPricesMixin, GeneralSearchMixin
+from api.filters import ProductFilter
+from api.mixins import CityPricesMixin
 from api.permissions import ReadOnlyOrAdminPermission
 
+from api.serializers.characteristic import CharacteristicSerializer
+from api.serializers.characteristic_filter import CharacteristicFilterSerializer
 from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
 
-from shop.models import Category, Price, Product
+from shop.models import Price, Product, Characteristic
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-from django.db.models import Q, F, Sum
+from django.db.models import F, Sum
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from django_filters import rest_framework as filters
+
 
 @extend_schema(tags=["Shop"])
-class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
+class ProductViewSet(CityPricesMixin, ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
 
     queryset = Product.objects.all().order_by("-created_at")
     permission_classes = [ReadOnlyOrAdminPermission]
+    characteristics_queryset = Characteristic.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ProductFilter
 
     def get_serializer_class(self):
-        if self.action == "list" or self.action == "frequenly_bought" or self.action == "popular_products":
+        if (
+            self.action == "list"
+            or self.action == "frequenly_bought"
+            or self.action == "popular_products"
+        ):
             return ProductCatalogSerializer
         elif self.action == "productdetail":
             return ProductDetailSerializer
@@ -31,70 +43,11 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-
-        search = self.request.query_params.get("search")
-
         self.domain = self.request.query_params.get("city_domain")
-        price_lte = self.request.query_params.get("price_lte")
-        price_gte = self.request.query_params.get("price_gte")
-        brand_slug = self.request.query_params.get("brand_slug")
-        category = self.request.query_params.get("category")
-
-        filter_conditions = Q()
-
-        if search:
-            search_results = self.search(
-                search, self.domain, exclude_=("review", "brand", "category")
-            )["products"]
-            if search_results:
-                queryset = queryset.filter(
-                    pk__in=[el.get("id", 0) for el in search_results]
-                )
-            else:
-                queryset = Product.objects.none()
-
-        if self.domain or price_gte or price_lte or brand_slug:
-
-            if self.domain:
-
-                price_filter = Q(prices__city_group__cities__domain=self.domain)
-
-                if price_lte is not None:
-                    price_filter &= Q(prices__price__lte=price_lte)
-                if price_gte is not None:
-                    price_filter &= Q(prices__price__gte=price_gte)
-
-                queryset = queryset.filter(price_filter).annotate(
-                    city_price=F("prices__price"),
-                    old_price=F("prices__old_price"),
-                )
-
-        if brand_slug:
-            filter_conditions &= Q(brand__slug__icontains=brand_slug)
-
-        if category:
-            categories = [category]
-            try:
-                category_instance = Category.objects.get(slug=category)
-            except Category.DoesNotExist:
-                category_instance = None
-
-            if category_instance:
-                category_childrens = category_instance.get_descendants(
-                    include_self=True
-                ).values_list("slug", flat=True)
-                categories.extend(category_childrens)
-
-            filter_conditions &= Q(category__slug__in=categories) | Q(
-                additional_categories__slug=category
-            )
-        
-        # TODO distinct may be optimized
-        queryset = queryset.filter(filter_conditions).distinct()
 
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
-            queryset = queryset.annotate(
+            self.queryset = queryset.annotate(
                 cart_quantity=Sum(
                     "cart_items__quantity",
                     filter=F("cart_items__customer_id") == self.request.user.id,
@@ -102,9 +55,9 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
             )
 
         # Order the queryset by priority
-        queryset = queryset.order_by("priority")
+        self.queryset = self.queryset.order_by("priority")
 
-        return queryset
+        return self.queryset
 
     @extend_schema(
         description="Список товаров, которые часто покупают вместе с переданным",
@@ -232,7 +185,7 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
                 type=str,
                 default="msk.krov.market",
                 location=OpenApiParameter.QUERY,
-                required=True
+                required=True,
             )
         ],
     )
@@ -356,12 +309,37 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
-        self.queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
 
-        if not self.queryset.exists():
+        if not queryset.exists():
             return Response([])
 
-        return super().list(request, *args, **kwargs)
+        characteristics_queryset = Characteristic.objects.filter(
+            category__name__in=queryset.values_list("category__name", flat=True),
+            for_filtering=True,
+        )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(
+                {
+                    "products": serializer.data,
+                    "characteristics": CharacteristicFilterSerializer(
+                        characteristics_queryset, many=True
+                    ).data,
+                }
+            )
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            {
+                "products": serializer.data,
+                "characteristics": CharacteristicFilterSerializer(
+                    characteristics_queryset, many=True
+                ).data,
+            }
+        )
 
     @extend_schema(
         description="Получение подробой информации о конкретном продукте",
@@ -447,7 +425,9 @@ class ProductViewSet(GeneralSearchMixin, CityPricesMixin, ModelViewSet):
         self.domain = request.query_params.get("city_domain")
         if self.domain:
             price_data = (
-                Price.objects.filter(product=product, city_group__cities__domain=self.domain)
+                Price.objects.filter(
+                    product=product, city_group__cities__domain=self.domain
+                )
                 .values("price", "old_price")
                 .first()
             )

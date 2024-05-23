@@ -53,7 +53,7 @@ class ValidatePhoneNumberMixin:
 
 class GeneralSearchMixin:
 
-    def search(self, query: str, domain: str, exclude_: Iterable = None):
+    def g_search(self, query: str, domain: str, exclude_: Iterable = None):
         default = {
             "product": {
                 "queries": (

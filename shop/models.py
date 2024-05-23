@@ -122,7 +122,7 @@ class Category(ThumbModel, MPTTModel):
 
     def get_absolute_url(self):
         return f"katalog/{self.slug}"
-    
+
     def __str__(self):
         return self.name
 
@@ -405,12 +405,19 @@ class Characteristic(TimeBasedModel):
         verbose_name = "Характеристика"
         verbose_name_plural = "Характеристики"
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(_("Слаг"), unique=True, max_length=256)
     category = models.ForeignKey(
         Category,
         related_name="characteristics",
         on_delete=models.CASCADE,
         null=True,
+    )
+    for_filtering = models.BooleanField(
+        _("Для фильтрации"),
+        default=False,
+        help_text=_("Будет ли эта характеристика отображаться в фильтрах товаров"),
+        blank=True,
     )
 
     def __str__(self):

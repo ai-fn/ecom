@@ -1,5 +1,14 @@
 from django.conf import settings
-from shop.models import Category, Brand, FooterItem, MainPageSliderImage, Page, Product, City
+from shop.models import (
+    Category,
+    Brand,
+    FooterItem,
+    MainPageSliderImage,
+    Page,
+    Product,
+    City,
+    Characteristic,
+)
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
@@ -18,15 +27,18 @@ def set_category_order(sender, instance, **kwargs):
     if not instance.order:
         instance.order = get_order(sender)
 
+
 @receiver(pre_save, sender=FooterItem)
 def set_footeritem_order(sender, instance, **kwargs):
     if not instance.order:
         instance.order = get_order(sender)
 
+
 @receiver(pre_save, sender=MainPageSliderImage)
 def set_main_page_sliger_image_order(sender, instance, **kwargs):
     if not instance.order:
         instance.order = get_order(sender)
+
 
 @receiver(pre_save, sender=Brand)
 def set_brand_order(sender, instance, **kwargs):
@@ -36,7 +48,7 @@ def set_brand_order(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Product)
 def set_product_slug(sender, created, instance, **kwargs):
-    if created:
+    if created and not instance.slug:
         instance.slug = slugify(unidecode(instance.title)) + f"-{instance.id}"
         instance.save()
 
@@ -50,15 +62,24 @@ def set_page_slug(sender, created, instance, **kwargs):
 
 @receiver(post_save, sender=Category)
 def set_category_slug(sender, created, instance, **kwargs):
-    if created:
+    if created and not instance.slug:
         instance.slug = slugify(unidecode(instance.name)) + f"-{instance.id}"
         instance.save()
 
+
 @receiver(post_save, sender=Brand)
 def set_category_slug(sender, created, instance, **kwargs):
-    if created:
-        instance.slug = slugify(unidecode(instance.name)) + f"-{instance.id}"
+    if created and not instance.slug:
+        instance.slug = slugify(unidecode(instance.name))
         instance.save()
+
+
+@receiver(post_save, sender=Characteristic)
+def set_category_slug(sender, created, instance, **kwargs):
+    if created and not instance.slug:
+        instance.slug = slugify(unidecode(instance.name))
+        instance.save()
+
 
 def get_order(sender):
     last_obj = sender.objects.order_by("order").last()
