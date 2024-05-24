@@ -4,7 +4,6 @@ import os
 from typing import Iterable
 from django.conf import settings
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
@@ -13,11 +12,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from loguru import logger
 
-from itertools import chain
 from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
 
-from PIL import Image
 
 
 class ThumbModel(TimeBasedModel):
@@ -27,57 +24,6 @@ class ThumbModel(TimeBasedModel):
     thumb_img = models.TextField(
         verbose_name="Миниатюра", null=True, blank=True, max_length=1024
     )
-
-    def save(
-        self,
-        force_insert: bool = False,
-        force_update: bool = False,
-        using: str | None = None,
-        update_fields: Iterable[str] | None = None,
-    ) -> None:
-        if not self.thumb_img:
-            image_path: str
-            if getattr(self, "image", False) and self.image:
-                image_path = self.image.file.name
-            elif getattr(self, "catalog_image", False) and self.catalog_image:
-                image_path = self.catalog_image.file.name
-            else:
-                return super().save(force_insert, force_update, using, update_fields)
-
-            if os.path.isfile(image_path):
-                try:
-                    with Image.open(image_path) as file:
-                        thumb_image_size = (
-                            getattr(
-                                settings,
-                                "THUMB_IMAGE_WIDTH",
-                                10,
-                            ),
-                            getattr(
-                                settings,
-                                "THUMB_IMAGE_HEIGHT",
-                                10,
-                            ),
-                        )
-                        thumb_image = file.copy().resize(thumb_image_size)
-                        with io.BytesIO() as buffer:
-                            thumb_image.save(buffer, format="PNG")
-                            self.thumb_img = base64.b64encode(buffer.getvalue()).decode(
-                                "utf-8"
-                            )
-
-                    if update_fields is not None:
-                        update_fields = chain(update_fields, ("thumb_img",))
-                    elif update_fields is None and self.pk:
-                        update_fields = ("thumb_img",)
-
-                except Exception as err:
-                    logger.error(
-                        f"Error while create thumn image for {self.__class__.__name__} object with pk {self.pk}: {err}"
-                    )
-
-        return super().save(force_insert, force_update, using, update_fields)
-
 
 class Category(ThumbModel, MPTTModel):
     name = models.CharField(
@@ -337,10 +283,10 @@ class ProductImage(ThumbModel):
     def __str__(self):
         return f"Image for {self.product.title}"
 
-    def delete(self, using, keep_parents) -> tuple[int, dict[str, int]]:
-        if os.path.isfile(self.image.path):
-            os.remove(self.image.path)
-        return super().delete(using, keep_parents)
+    # def delete(self, using, keep_parents) -> tuple[int, dict[str, int]]:
+    #     if os.path.isfile(path := (self.image.path.removeprefix("/code/"))):
+    #         os.remove(path)
+    #     return super().delete(using, keep_parents)
 
 
 class Promo(ThumbModel):
