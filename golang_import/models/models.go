@@ -102,9 +102,10 @@ type Brand struct {
 
 type Characteristic struct {
 	CustomModel
-	Name       string `gorm:"column:name;unique"`
-	Slug       string `gorm:"column:slug;unique"`
-	CategoryID uint   `gorm:"column:category_id"`
+	Name         string `gorm:"column:name;unique"`
+	Slug         string `gorm:"column:slug;unique"`
+	CategoryID   uint   `gorm:"column:category_id"`
+	ForFiltering bool   `gorm:"column:for_filtering;default=False"`
 }
 
 type CharacteristicValue struct {
