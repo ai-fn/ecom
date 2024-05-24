@@ -144,9 +144,7 @@ class CharacteristicAdmin(admin.ModelAdmin):
         "category",
     )
     list_filter = ("category",)
-    prepopulated_fields = {
-        "name": ("slug",)
-    }
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(CharacteristicValue)

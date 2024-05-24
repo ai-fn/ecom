@@ -351,13 +351,14 @@ class Characteristic(TimeBasedModel):
         verbose_name = "Характеристика"
         verbose_name_plural = "Характеристики"
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name=_("Наименование"))
     slug = models.SlugField(_("Слаг"), unique=True, max_length=256)
     category = models.ForeignKey(
         Category,
         related_name="characteristics",
         on_delete=models.CASCADE,
         null=True,
+        verbose_name=_("Категория")
     )
     for_filtering = models.BooleanField(
         _("Для фильтрации"),
