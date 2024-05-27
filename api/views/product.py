@@ -311,10 +311,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
-        if not queryset.exists():
-            return Response([])
-
+        
         characteristics_queryset = Characteristic.objects.filter(characteristicvalue__product__in=queryset, for_filtering=True).distinct()
 
         page = self.paginate_queryset(queryset)
