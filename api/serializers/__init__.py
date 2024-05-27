@@ -35,3 +35,4 @@ from .main_page_slider_image import MainPageSliderImageSerializer
 from .main_page_category_bar_item import MainPageCategoryBarItemSerializer
 from .sidebar_menu_item import SideBarMenuItemSerializer
 from .metadata import ImageMetaDataSerializer, OpenGraphMetaSerializer
+from .search_history import SearchHistorySerializer

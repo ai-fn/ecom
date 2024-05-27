@@ -29,3 +29,4 @@ from .main_page_category_bar_item import MainPageCategoryBarItemViewSet
 from .sidebar_menu_item import SideBarMenuItemViewSet
 from .metadata import MetadataViewSet
 from .update_index import UpdateIndex
+from .search_history import SearchHistoryViewSet

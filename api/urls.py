@@ -26,6 +26,7 @@ from api.views import (
     MainPageCategoryBarItemViewSet,
     MetadataViewSet,
     UpdateIndex,
+    SearchHistoryViewSet,
 )
 from api.views import (
     SendSMSView,
@@ -54,6 +55,7 @@ router.register(r"main-page-slider-image", MainPageSliderImageViewSet)
 router.register(r"promos", PromoViewSet, basename="promo")
 router.register(r"category-bar-item", MainPageCategoryBarItemViewSet)
 router.register(r"sidebar-menu-item", SideBarMenuItemViewSet)
+router.register(r"search-history", SearchHistoryViewSet)
 
 app_name= "api"
 

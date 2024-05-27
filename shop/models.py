@@ -681,3 +681,15 @@ class Page(TimeBasedModel):
 
     def get_absolute_url(self):
         return f"{self.slug}"
+    
+
+class SearchHistory(TimeBasedModel):
+
+    title = models.CharField(verbose_name=_("Заголовок поиска"), max_length=128)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Пользователь"))
+
+    class Meta:
+        verbose_name = _("История поиска")
+        verbose_name_plural = _("Истории поиска")
+        ordering = ("-created_at", )
+        unique_together = (("title", "user"),)

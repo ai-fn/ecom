@@ -16,6 +16,7 @@ from shop.models import (
     ProductImage,
     Promo,
     Review,
+    SearchHistory,
     Setting,
     FooterItem,
     MainPageSliderImage,
@@ -144,7 +145,7 @@ class CharacteristicAdmin(admin.ModelAdmin):
         "category",
     )
     list_filter = ("category",)
-    prepopulated_fields = {"slug": ("name",)}
+    # prepopulated_fields = {"slug": ("name",)}
     search_fields = (
         "name",
         "category__name",
@@ -316,3 +317,16 @@ class PageAdmin(admin.ModelAdmin):
         "title",
         "description",
     )
+
+@admin.register(SearchHistory)
+class SearchHistoryAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "title",
+        "user",
+    )
+    search_fields = (
+        "title",
+    )
+    ordering = ("created_at", "title")
+    list_filter = ("user",)
