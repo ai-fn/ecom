@@ -34,7 +34,7 @@ from api.serializers import (
     ReviewDocumentSerializer,
 )
 from shop.documents import CategoryDocument, ProductDocument, ReviewDocument
-from shop.models import Category, Price, Product
+from shop.models import Category, Price, Product, SearchHistory
 
 
 class ValidatePhoneNumberMixin:
@@ -54,6 +54,9 @@ class ValidatePhoneNumberMixin:
 class GeneralSearchMixin:
 
     def g_search(self, query: str, domain: str, exclude_: Iterable = None):
+        if self.request.user.is_authenticated:
+            SearchHistory.objects.get_or_create(title=query, user=self.request.user)
+
         exclude_ = exclude_ or []
         default = {
             "product": {
