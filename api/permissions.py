@@ -21,7 +21,11 @@ class IsOwner(BasePermission):
     """
     
     def has_object_permission(self, request, view, obj):
-        return getattr(obj, "customer") and request.user == obj.customer
+        obj_user = getattr(obj, "user", "") or getattr(obj, "customer", "")
+        if not obj_user:
+            raise AttributeError(f"'{obj.__class__.__name__}' object has no attribute 'customer' or 'user'")
+
+        return request.user == obj_user
 
 
 class OwnerOrIsAdmin(BasePermission):
