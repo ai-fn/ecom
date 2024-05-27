@@ -11,7 +11,7 @@ class CategoryDocument(Document):
         # Name of the Elasticsearch index
         name = "categories"
         # See Elasticsearch Indices API reference for available settings
-        settings = {"number_of_shards": 1, "number_of_replicas": 0}
+        settings = {"number_of_shards": 1, "number_of_replicas": 1, "refresh_interval": "1s"}
 
     class Django:
         model = Category  # The model associated with this Document
@@ -48,7 +48,7 @@ class ProductDocument(Document):
 
     class Index:
         name = "products"
-        settings = {"number_of_shards": 1, "number_of_replicas": 0}
+        settings = {"number_of_shards": 1, "number_of_replicas": 1, "refresh_interval": "1s"}
 
     class Django:
         model = Product
@@ -77,7 +77,7 @@ class ReviewDocument(Document):
 
     class Index:
         name = "reviews"
-        settings = {"number_of_shards": 1, "number_of_replicas": 0}
+        settings = {"number_of_shards": 2, "number_of_replicas": 1, "refresh_interval": "120s"}
 
     class Django:
         model = Review

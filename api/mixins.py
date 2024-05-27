@@ -54,16 +54,14 @@ class ValidatePhoneNumberMixin:
 class GeneralSearchMixin:
 
     def g_search(self, query: str, domain: str, exclude_: Iterable = None):
+        exclude_ = exclude_ or []
         default = {
             "product": {
                 "queries": (
                     Q("wildcard", title={"value": f"*{query}*"}),
                     Q("wildcard", description={"value": f"*{query}*"}),
                 ),
-                "fields": (
-                    "title^2",
-                    "description",
-                ),
+                "fields": ("title^2", "description"),
                 "indexes": (ProductDocument._index._name,),
             },
             "category": {
@@ -82,43 +80,32 @@ class GeneralSearchMixin:
                 "indexes": (ReviewDocument._index._name,),
             },
         }
+
         should, fields, indexes = [], [], []
 
-        for k in default:
-            if exclude_ is not None and k in exclude_:
-                continue
-
-            should.extend(default[k].get("queries", []))
-            fields.extend(default[k].get("fields", []))
-            indexes.extend(default[k].get("indexes", []))
+        for key, config in default.items():
+            if key not in exclude_:
+                should.extend(config.get("queries", []))
+                fields.extend(config.get("fields", []))
+                indexes.extend(config.get("indexes", []))
 
         client = connections.get_connection()
-        search = Search(
-            using=client,
-            index=indexes,
-        )
+        search = Search(using=client, index=indexes)
 
-        if exclude_ is not None and len(exclude_) > 0:
-            search = search.extra(
-                size=sum(
-                    [
-                        globals()[classname.capitalize()].objects.count()
-                        for classname in default
-                        if classname not in exclude_
-                        and classname.capitalize() in globals()
-                    ]
-                )
-            )
+        if exclude_:
+            search = search.extra(size=sum(
+                [
+                    globals()[classname.capitalize()].objects.count()
+                    for classname in default
+                    if classname not in exclude_ and classname.capitalize() in globals()
+                ]
+            ))
 
         if query:
             search = search.query(
                 "bool",
                 should=[
-                    Q(
-                        "multi_match",
-                        query=query,
-                        fields=["name^3", *fields],
-                    ),
+                    Q("multi_match", query=query, fields=["name^3", *fields]),
                     Q("wildcard", name={"value": f"*{query}*"}),
                     *should,
                 ],
@@ -127,46 +114,46 @@ class GeneralSearchMixin:
 
         response = search.execute()
 
-        if domain:
-            city = City.objects.filter(domain=domain).first()
-        else:
-            city = None
-
-        categorized_results = {
-            "categories": [],
-            "products": [],
-            "reviews": [],
-        }
+        city = City.objects.filter(domain=domain).first() if domain else None
+        categorized_results = {"categories": [], "products": [], "reviews": []}
 
         for hit in response:
             if hit.meta.index == ProductDocument._index._name:
-                try:
-                    product = Product.objects.get(id=hit.id)
-                except Product.DoesNotExist:
-                    logger.info(f"Product with hit {hit.id} not found")
-                    continue
-
-                if city:
-                    price = Price.objects.filter(
-                        product=product, city_group__cities=city
-                    ).first()
-                    if price:
-                        product_data = ProductDocumentSerializer(product).data
-                        product_data["price"] = PriceSerializer(price).data
-                        categorized_results["products"].append(product_data)
-                else:
-                    product_data = ProductDocumentSerializer(product).data
-                    categorized_results["products"].append(product_data)
+                self.process_product(hit, city, categorized_results)
             elif hit.meta.index == CategoryDocument._index._name:
-                category = Category.objects.get(id=hit.id)
-                serializer = CategoryDocumentSerializer(category)
-                categorized_results["categories"].append(serializer.data)
+                self.process_category(hit, categorized_results)
             elif hit.meta.index == ReviewDocument._index._name:
-                serializer = ReviewDocumentSerializer(hit)
-                categorized_results["reviews"].append(serializer.data)
+                self.process_review(hit, categorized_results)
 
         return categorized_results
 
+    def process_product(self, hit, city, categorized_results):
+        try:
+            product = Product.objects.get(id=hit.id)
+        except Product.DoesNotExist:
+            logger.info(f"Product with hit {hit.id} not found")
+            return
+
+        product_data = ProductDocumentSerializer(product).data
+        if city:
+            price = Price.objects.filter(product=product, city_group__cities=city).first()
+            if price:
+                product_data["price"] = PriceSerializer(price).data
+        categorized_results["products"].append(product_data)
+
+    def process_category(self, hit, categorized_results):
+        try:
+            category = Category.objects.get(id=hit.id)
+        except Category.DoesNotExist:
+            logger.info(f"Category with hit {hit.id} not found")
+            return
+
+        serializer = CategoryDocumentSerializer(category)
+        categorized_results["categories"].append(serializer.data)
+
+    def process_review(self, hit, categorized_results):
+        serializer = ReviewDocumentSerializer(hit)
+        categorized_results["reviews"].append(serializer.data)
 
 class ValidateAddressMixin:
 
@@ -327,7 +314,6 @@ class SerializerGetPricesMixin:
             if price:
                 return price.price
 
-        logger.info(f"Price for city with domain {city_domain} not found")
         return None
 
     def get_old_price(self, obj) -> Decimal | None:
