@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet
 from api.filters import ProductFilter
 from api.mixins import CityPricesMixin
@@ -314,10 +315,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
         if not queryset.exists():
             return Response([])
 
-        characteristics_queryset = Characteristic.objects.filter(
-            category__name__in=queryset.values_list("category__name", flat=True),
-            for_filtering=True,
-        )
+        characteristics_queryset = Characteristic.objects.filter(characteristicvalue__product__in=queryset, for_filtering=True).distinct()
 
         page = self.paginate_queryset(queryset)
         if page is not None:
