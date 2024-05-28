@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='characteristicvalue',
             name='slug',
-            field=models.SlugField(blank=False, null=False),
+            field=models.SlugField(blank=False, null=False, verbose_name='Слаг', max_length=128),
         ),
         migrations.AlterField(
             model_name='characteristicvalue',
