@@ -7,6 +7,7 @@ from loguru import logger
 from shop.models import (
     Category,
     Brand,
+    CharacteristicValue,
     FooterItem,
     MainPageSliderImage,
     Page,
@@ -44,6 +45,10 @@ def set_instance_slug(sender, created, instance, **kwargs):
     elif isinstance(sender, Product):
         if created and not instance.slug:
             instance.slug = slugify(unidecode(instance.title))
+            instance.save()
+    elif isinstance(sender, CharacteristicValue):
+        if created and not instance.slug:
+            instance.slug = slugify(unidecode(instance.value))
             instance.save()
 
     elif isinstance(sender, (Category, Characteristic, Brand, Page)):

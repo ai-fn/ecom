@@ -377,10 +377,11 @@ class CharacteristicValue(TimeBasedModel):
         verbose_name_plural = "Значение характеристик для товара"
 
     product = models.ForeignKey(
-        Product, related_name="characteristic_values", on_delete=models.CASCADE
+        Product, verbose_name=_("Продукт"),  related_name="characteristic_values", on_delete=models.CASCADE
     )
-    characteristic = models.ForeignKey(Characteristic, on_delete=models.CASCADE)
-    value = models.CharField(max_length=255)
+    characteristic = models.ForeignKey(Characteristic, verbose_name=_("Характеристика"),  on_delete=models.CASCADE)
+    value = models.CharField(verbose_name=_("Значение"), max_length=255)
+    slug = models.SlugField(verbose_name=_("Слаг"), null=False, blank=False)
 
     def __str__(self):
         return f"{self.characteristic.name}: {self.value}"
