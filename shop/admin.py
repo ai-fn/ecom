@@ -158,9 +158,6 @@ class CharacteristicValueAdmin(admin.ModelAdmin):
         "characteristic",
         "value",
     )
-    prepopulated_fields = {
-        "slug": ("value",)
-    }
     search_fields = (
         "product__title",
         "characteristic__name",
