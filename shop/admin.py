@@ -159,7 +159,7 @@ class CharacteristicValueAdmin(admin.ModelAdmin):
         "value",
     )
     search_fields = (
-        "product__name",
+        "product__title",
         "characteristic__name",
         "value",
     )
