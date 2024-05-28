@@ -110,19 +110,19 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset 
 
     def filter_characteristics(self, queryset, name, value):
-        char_values = {}
+        char_slugs = {}
         filter_conditions = Q()
         if value:
             filters = value.split(',')
             for f in filters:
                 pair = f.split(':', 1)
                 if len(pair) > 1:
-                    char_name, char_value = pair[0], pair[1]
-                    char_values.setdefault(char_name, [])
-                    char_values[char_name].append(char_value)
+                    char_name, char_slug = pair[0], pair[1]
+                    char_slugs.setdefault(char_name, [])
+                    char_slugs[char_name].append(char_slug)
 
-        for char in char_values:
-            filter_conditions &= Q(characteristic_values__characteristic__slug=char, characteristic_values__value__in=char_values[char])
+        for char in char_slugs:
+            filter_conditions &= Q(characteristic_values__characteristic__slug=char, characteristic_values__slug__in=char_slugs[char])
         
         queryset = queryset.filter(filter_conditions, characteristic_values__characteristic__for_filtering=True).distinct()
         return queryset
