@@ -16,4 +16,5 @@ class CharacteristicValueSerializer(serializers.ModelSerializer):
             "characteristic_id",
             "product_id",
             "value",
+            "slug",
         ]
