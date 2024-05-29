@@ -1,8 +1,3 @@
-import base64
-import io
-import os
-from typing import Iterable
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -283,11 +278,6 @@ class ProductImage(ThumbModel):
     def __str__(self):
         return f"Image for {self.product.title}"
 
-    # def delete(self, using, keep_parents) -> tuple[int, dict[str, int]]:
-    #     if os.path.isfile(path := (self.image.path.removeprefix("/code/"))):
-    #         os.remove(path)
-    #     return super().delete(using, keep_parents)
-
 
 class Promo(ThumbModel):
     class Meta:
@@ -390,7 +380,7 @@ class CharacteristicValue(TimeBasedModel):
 
 class Price(TimeBasedModel):
     product = models.ForeignKey(
-        Product, related_name="prices", on_delete=models.CASCADE
+        Product, related_name="prices", on_delete=models.CASCADE, verbose_name=_("Продукт")
     )
     city_group = models.ForeignKey(
         CityGroup,
@@ -547,9 +537,9 @@ class MainPageSliderImage(ThumbModel):
 
 class MainPageCategoryBarItem(TimeBasedModel):
 
-    order = models.IntegerField(unique=True)
-    link = models.URLField(blank=True, null=True)
-    text = models.CharField(max_length=100, blank=True, null=True)
+    order = models.IntegerField(verbose_name=_("Порядковый номер"), unique=True)
+    link = models.CharField(verbose_name=_("Ссылка"), max_length=128)
+    text = models.CharField(verbose_name=_("Текст"), max_length=100)
 
     class Meta:
         ordering = ("order",)

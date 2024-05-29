@@ -71,9 +71,16 @@ admin.site.register(Category, CustomMPTTModelAdmin)
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
     list_display = (
+        "order",
         "id",
         "name",
     )
+    search_fields = (
+        "name",
+        "slug",
+        "order",
+    )
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(Product)
@@ -108,6 +115,13 @@ class ProductGroupAdmin(admin.ModelAdmin):
 class ProductFrequenlyBoughtTogetherAdmin(admin.ModelAdmin):
     list_display = ("product_from", "product_to", "purchase_count")
     list_filter = ("product_from", "product_to")
+    search_fields = (
+        "product_from__title",
+        "product_to__title",
+        "product_from__slug",
+        "product_to__slug",
+        "purchase_count",
+    )
 
 
 @admin.register(ProductImage)
@@ -120,6 +134,7 @@ class ProductImageAdmin(admin.ModelAdmin):
         "product__title",
         "name",
     )
+    list_filter = ("product",)
 
 
 @admin.register(Review)
@@ -130,8 +145,21 @@ class ReviewAdmin(admin.ModelAdmin):
         "product",
         "rating",
     )
+    search_fields = (
+        "user__username",
+        "user__phone",
+        "user__middle_name",
+        "user__first_name",
+        "user__last_name",
+        "product__title",
+        "product__slug",
+        "rating",
+    )
 
-    list_filter = ("product",)
+    list_filter = (
+        "product",
+        "user",
+    )
 
     def reviewer_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
@@ -142,12 +170,15 @@ class CharacteristicAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "category",
+        "for_filtering",
     )
     list_filter = ("category",)
     prepopulated_fields = {"slug": ("name",)}
     search_fields = (
         "name",
+        "slug",
         "category__name",
+        "category__slug",
     )
 
 
@@ -158,13 +189,15 @@ class CharacteristicValueAdmin(admin.ModelAdmin):
         "characteristic",
         "value",
     )
-    prepopulated_fields = {
-        "slug": ("value",)
-    }
+    prepopulated_fields = {"slug": ("value",)}
     search_fields = (
         "product__title",
         "characteristic__name",
         "value",
+    )
+    list_filter = (
+        "product",
+        "characteristic",
     )
 
 
@@ -174,8 +207,13 @@ class PriceAdmin(admin.ModelAdmin):
         "product",
         "city_group",
         "price",
+        "old_price",
     )
     search_fields = ("product__title",)
+    list_filter = (
+        "product",
+        "city_group",
+    )
 
 
 @admin.register(Setting)
@@ -219,6 +257,12 @@ class PromoAdmin(admin.ModelAdmin):
         "cities",
         "is_active",
         "active_to",
+    )
+    search_fields = (
+        "name",
+        "cities__name",
+        "categories__name",
+        "categories__slug",
     )
 
 
