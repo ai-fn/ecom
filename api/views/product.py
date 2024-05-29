@@ -1,15 +1,14 @@
-from django.db.models import Q
+from django.db.models import Max, Min
 from rest_framework.viewsets import ModelViewSet
 from api.filters import ProductFilter
 from api.mixins import CityPricesMixin
 from api.permissions import ReadOnlyOrAdminPermission
 
-from api.serializers.characteristic import CharacteristicSerializer
 from api.serializers.characteristic_filter import CharacteristicFilterSerializer
 from api.serializers.product_catalog import ProductCatalogSerializer
 from api.serializers.product_detail import ProductDetailSerializer
 
-from shop.models import Price, Product, Characteristic
+from shop.models import Category, Price, Product, Characteristic
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.db.models import F, Sum
 from rest_framework.response import Response
@@ -313,6 +312,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         
         characteristics_queryset = Characteristic.objects.filter(characteristicvalue__product__in=queryset, for_filtering=True).distinct()
+        categories_queryset = Category.objects.filter(products__in=queryset, is_visible=True).distinct()
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -323,6 +323,9 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "characteristics": CharacteristicFilterSerializer(
                         characteristics_queryset, many=True
                     ).data,
+                    "categories": categories_queryset.values("name", "slug"),
+                    "smallest_price": queryset.aggregate(min_price=Min("prices__price"))["min_price"],
+                    "greatest_price": queryset.aggregate(max_price=Max("prices__price"))["max_price"],
                 }
             )
 

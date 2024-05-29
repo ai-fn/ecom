@@ -113,6 +113,9 @@ func processXLSXData(c *gin.Context) {
 			if err := rebuildIndex(); err != nil {
 				log.Fatalf(err.Error())
 			}
+			if err := rebuildCtgTree(); err != nil {
+				log.Fatalf(err.Error())
+			}
 		}()
 
 	case "BRANDS":
@@ -482,12 +485,29 @@ func processRowCells(tx *gorm.DB, r utils.CommonReader, row []string, colNms map
 }
 
 func rebuildIndex() error {
-	client := &http.Client{}
+	return sendReqToPyServ("POST", "api/update_index", nil)
+}
 
-	url := "http://web:8000/api/update_index/"
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte("")))
+func rebuildCtgTree() error {
+	return sendReqToPyServ("POST", "api/rebuild_category_tree", nil)
+}
+
+func GetClaims(c *gin.Context) *jwt.StandardClaims {
+	claims, exists := c.Get("Claims")
+	if !exists {
+		return &jwt.StandardClaims{}
+	}
+	return claims.(*jwt.StandardClaims)
+}
+func sendReqToPyServ(method, viewName string, body *bytes.Buffer) error {
+	if body == nil {
+		body = bytes.NewBuffer([]byte(""))
+	}
+
+	client := &http.Client{}
+	url := fmt.Sprintf("http://web:8000/%s/", viewName)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		log.Printf("Error while create request 'update index': %v", err)
 		return err
 	}
 
@@ -495,23 +515,16 @@ func rebuildIndex() error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("Error while reqeust execution: %v", err)
+		log.Printf("Ошибка выполнения запроса %s: %v", url, err)
 		return err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK {
-		log.Println("Индексы успешно обновлены")
+	if resp.StatusCode >= 200 && 400 > resp.StatusCode {
+		log.Printf("Запрос успешно %s выполнен: %s", url, resp.Status)
 	} else {
-		log.Printf("Не удалось обновить индексы. Статус: %v\n", resp.Status)
+		log.Printf("Не удалось выполнить запрос %s. Статус: %v\n", url, resp.StatusCode)
 	}
 
 	return nil
-}
-func GetClaims(c *gin.Context) *jwt.StandardClaims {
-	claims, exists := c.Get("Claims")
-	if !exists {
-		return &jwt.StandardClaims{}
-	}
-	return claims.(*jwt.StandardClaims)
 }

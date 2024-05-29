@@ -26,6 +26,7 @@ from api.views import (
     MainPageCategoryBarItemViewSet,
     MetadataViewSet,
     UpdateIndex,
+    RebuildCategoryTreeAPIView,
 )
 from api.views import (
     SendSMSView,
@@ -76,4 +77,5 @@ urlpatterns = [
     path("search/", GeneralSearchView.as_view(), name="general-search"),
     path("products_by_id_list/", ProductsById.as_view(), name="products_bu_id_list"),
     path("update_index/", UpdateIndex.as_view(), name="update_index"),
+    path("rebuild_category_tree/", RebuildCategoryTreeAPIView.as_view(), name="rebuild_category_tree"),
 ]
