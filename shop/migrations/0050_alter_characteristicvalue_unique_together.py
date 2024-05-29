@@ -10,8 +10,8 @@ def remove_duplicates(app, schema_editor):
     with transaction.atomic():
         for el in duplicates:
             duplicates_enties = CharacteristicValue.objects.filter(characteristic=el["characteristic"], value=el["value"])
-            CharacteristicValue.objects.exclude(pk=duplicates_enties.first().pk).delete()
-
+            if first_el := duplicates_enties.first():
+                CharacteristicValue.objects.exclude(pk=first_el.pk).delete()
 
 
 class Migration(migrations.Migration):
