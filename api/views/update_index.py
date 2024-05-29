@@ -2,7 +2,6 @@ import sys
 from django.http import JsonResponse
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from drf_spectacular.utils import extend_schema
 
 from loguru import logger
 from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
@@ -10,9 +9,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 
-@extend_schema(
-    tags=["api"],
-)
 class UpdateIndex(APIView):
     permission_classes = [AllowAny]
 
