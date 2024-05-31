@@ -446,7 +446,7 @@ func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val s
 		*char = newChar
 	}
 
-	if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, Slug: valSlug}).First(charVal).RecordNotFound() {
+	if tx.Where(&models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID}).First(charVal).RecordNotFound() {
 		newCharVal := models.CharacteristicValue{CharacteristicID: char.ID, ProductID: prod.ID, Value: val, Slug: valSlug}
 		if err := tx.Create(&newCharVal).Error; err != nil {
 			fmt.Printf("Error creating characteristic value: %v\n", err)
@@ -455,6 +455,7 @@ func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val s
 		*charVal = newCharVal
 	} else {
 		charVal.Value = val
+		charVal.Slug = valSlug
 		if err := tx.Save(charVal).Error; err != nil {
 			return err
 		}

@@ -367,7 +367,7 @@ class CharacteristicValue(TimeBasedModel):
     class Meta:
         verbose_name = "Значение характеристики для товара"
         verbose_name_plural = "Значение характеристик для товара"
-        unique_together = (("characteristic", "slug"))
+        unique_together = (("characteristic", "product", "slug"))
 
     product = models.ForeignKey(
         Product, verbose_name=_("Продукт"),  related_name="characteristic_values", on_delete=models.CASCADE

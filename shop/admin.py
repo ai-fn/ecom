@@ -175,7 +175,7 @@ class CharacteristicAdmin(admin.ModelAdmin):
         "category",
         "for_filtering",
     )
-    list_filter = ("category",)
+    list_filter = ("category", "for_filtering",)
     prepopulated_fields = {"slug": ("name",)}
     search_fields = (
         "name",
@@ -188,6 +188,7 @@ class CharacteristicAdmin(admin.ModelAdmin):
 @admin.register(CharacteristicValue)
 class CharacteristicValueAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "product",
         "characteristic",
         "value",
