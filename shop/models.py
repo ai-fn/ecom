@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -197,6 +198,7 @@ class Product(ThumbModel):
     )
     in_stock = models.BooleanField(default=True, verbose_name="В наличии ли товар")
     is_popular = models.BooleanField(default=False, verbose_name="Популярен ли товар")
+    is_new = models.BooleanField(default=False, verbose_name=_("Новый ли товар"))
     priority = models.IntegerField(
         default=500,
         verbose_name="Приоритет показа",

@@ -70,7 +70,8 @@ type Product struct {
 	OriginalImage        string      `gorm:"column:original_image;type:varchar(255)"`
 	Slug                 string      `gorm:"column:slug;unique"`
 	InStock              bool        `gorm:"column:in_stock"`
-	IsPopular            bool        `gorm:"column:is_popular"`
+	IsPopular            bool        `gorm:"column:is_popular;default=false"`
+	IsNew                bool        `gorm:"column:is_new;default=false"`
 	Priority             uint        `gorm:"column:priority"`
 	Category             Category    `gorm:"foreignKey:CategoryID"`
 	AdditionalCategories []*Category `gorm:"many2many:shop_product_additional_categories"`

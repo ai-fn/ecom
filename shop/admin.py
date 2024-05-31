@@ -90,6 +90,8 @@ class ProductAdmin(admin.ModelAdmin):
         "id",
         "title",
         "category",
+        "is_popular",
+        "is_new",
     )
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ("title",)
@@ -98,6 +100,7 @@ class ProductAdmin(admin.ModelAdmin):
         "brand",
         "is_popular",
         "in_stock",
+        "is_new",
     )
     inlines = [PromoInline, CharacteristicValueInline, ProductGroupInline]
 
