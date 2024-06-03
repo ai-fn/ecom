@@ -8,11 +8,14 @@ from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
+from api.decorators import closed_view
+
 
 class UpdateIndex(APIView):
     permission_classes = [AllowAny]
 
-    def post(request, *args, **kwargs):
+    @closed_view
+    def post(self, request, *args, **kwargs):
         try:
             call_command('update_index', )
             return JsonResponse({'status': 'success', 'message': 'Successfully updated Elasticsearch indexes'}, status=HTTP_200_OK)

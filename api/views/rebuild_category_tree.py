@@ -2,14 +2,16 @@ from loguru import logger
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 
+from api.decorators import closed_view
 from shop.models import Category
 
 
 class RebuildCategoryTreeAPIView(APIView):
     permission_classes = [AllowAny]
 
+    @closed_view
     def post(self, request) -> Response:
         try:
             Category.objects.rebuild()
