@@ -354,7 +354,7 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 }
 
 func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string, ctg *models.Category) error {
-	catNames := strings.Split(cellVal, " | ")
+	catNames := strings.Split(cellVal, " || ")
 	var prnt *models.Category
 
 	for idx, catName := range catNames[:len(catNames)-1] {
