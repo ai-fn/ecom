@@ -111,9 +111,9 @@ class CityGroup(TimeBasedModel):
 
 class CustomUser(AbstractUser):
     first_name = models.CharField(
-        _("first name"), max_length=150, blank=True, null=True
+        _("first name"), max_length=35, blank=True, null=True
     )
-    last_name = models.CharField(_("last name"), max_length=150, blank=True, null=True)
+    last_name = models.CharField(_("last name"), max_length=35, blank=True, null=True)
     email = models.EmailField(_("email address"), blank=True, null=True)
     phone = models.CharField(
         verbose_name="Номер телефона", null=True, blank=True, unique=True, max_length=16
@@ -144,7 +144,7 @@ class CustomUser(AbstractUser):
         default=False, verbose_name="Подтверждена ли почта"
     )
     middle_name = models.CharField(
-        verbose_name="Отчество", blank=True, null=True, max_length=20
+        verbose_name="Отчество", blank=True, null=True, max_length=35
     )
 
     class Meta:
