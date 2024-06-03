@@ -194,6 +194,7 @@ class SendVirifyEmailMixin(GenerateCodeMixin):
 
     _EMAIL_CACHE_PREFIX = getattr(settings, "EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")
     _EMAIL_CACHE_LIFE_TIME = getattr(settings, "EMAIL_CACHE_LIFE_TIME", 60 * 60)
+    _EMAIL_CACHE_REMAINING_TIME = getattr(settings, "EMAIL_CACHE_REMAINING_TIME", 60 * 2)
 
 
     def _get_code(self, email: str):
@@ -216,7 +217,7 @@ class SendVirifyEmailMixin(GenerateCodeMixin):
         domain = current_site.domain
 
         code = self._generate_code()
-        expiration_time = time.time() + self._EMAIL_CACHE_LIFE_TIME
+        expiration_time = time.time() + self._EMAIL_CACHE_REMAINING_TIME
         cache.set(
             key=self._get_cache_key(email),
             value={
@@ -239,15 +240,14 @@ class SendVirifyEmailMixin(GenerateCodeMixin):
     def _send_confirm_email(
         self, request, user, email, email_template_name="email/index.html"
     ):
-        
-        cached_data = self._get_code("email")
+        cached_data = self._get_code(email)
         if cached_data:
             expiration_time = cached_data.get("expiration_time")
             remaining_time = expiration_time - time.time()
             if remaining_time >= 0:
                 return Response(
                         {
-                            "message": f"Please wait. Time remaining: return {remaining_time // 60:02d}:{remaining_time % 60:02d}",
+                            "message": f"Please wait. Time remaining: {int(remaining_time) // 60:02d}:{int(remaining_time) % 60:02d}",
                             "expiration_time": expiration_time
                         },
                         status=HTTP_400_BAD_REQUEST,

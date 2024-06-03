@@ -67,7 +67,7 @@ class SendSMSView(GenericAPIView):
             if ren_time >= 0:
                 return Response(
                     {
-                        "message": f"Please wait. Time remaining: {int(ren_time)} seconds"
+                        "message": f"Please wait. Time remaining: {int(ren_time) // 60:02d} seconds"
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
