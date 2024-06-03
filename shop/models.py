@@ -559,11 +559,12 @@ class SideBarMenuItem(TimeBasedModel):
     )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     link = models.CharField(max_length=255, verbose_name="Ссылка")
-    icon = models.ImageField(
-        verbose_name="Изображение",
-        upload_to="sidebar_icons",
+    icon = models.CharField(
+        verbose_name=_("Заголовок иконки"),
         null=True,
         blank=True,
+        max_length=32,
+        help_text=_("delivery, documentation, cart, orders, profile, info"),
     )
 
     class Meta:
