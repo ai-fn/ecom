@@ -10,6 +10,3 @@ class SideBarMenuItemSerializer(ModelSerializer):
     class Meta:
         model = SideBarMenuItem
         exclude = ["created_at", "updated_at"]
-    
-    def get_icon(self, obj):
-        return obj.icon.url if obj.icon else None
