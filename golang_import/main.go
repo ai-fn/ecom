@@ -97,13 +97,12 @@ func processXLSXData(c *gin.Context) {
 		return
 	}
 
-	var ignoredColumns = []string{"TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP", "Применение"}
 	var startTime = time.Now()
 
 	c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 
 	go func() {
-		if err := productsProcess(db, flPth, ignoredColumns); err != nil {
+		if err := productsProcess(db, flPth); err != nil {
 			fmt.Println(err.Error())
 			return
 		}
@@ -117,10 +116,57 @@ func processXLSXData(c *gin.Context) {
 	}()
 }
 
-func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) error {
+func processProductFile(tx *gorm.DB, prod *models.Product, row []string, colNms map[string]int) error {
+	idx, ok := colNms["Сертификаты URL"]
+	if !ok {
+		return fmt.Errorf("product file urls not provided")
+	}
+
+	cnIdx, ok := colNms["Сертификаты Названия"]
+	if !ok {
+		return fmt.Errorf("product file names not provided")
+	}
+
+	urls, err := utils.GetFromSlice(row, idx)
+	if err != nil {
+		return err
+	}
+
+	nms, err := utils.GetFromSlice(row, cnIdx)
+	if err != nil {
+		return err
+	}
+
+	urlSplt := strings.Split(urls, " || ")
+	nmsSplt := strings.Split(nms, " || ")
+	mdPth := "/media/catalog/"
+
+	var flPth string
+	for i := 0; i < min(len(urlSplt), len(nmsSplt)); i++ {
+		if tx.Where(&models.ProductFile{Name: nmsSplt[i], ProductID: prod.ID}).First(&models.ProductFile{}).RecordNotFound() {
+			flPth = filepath.Join(mdPth, "products/documents", urlSplt[i])
+			if _, err := os.Stat(".." + flPth); err == nil {
+				if err := tx.Create(&models.ProductFile{Name: nmsSplt[i], File: flPth, ProductID: prod.ID}).Error; err != nil {
+					log.Printf("ProductFile creation failed: %v\n", err)
+					return err
+				}
+			} else {
+				log.Printf("Product document with name %s not found by path %s", nmsSplt[i], flPth)
+				continue
+			}
+		}
+	}
+
+	return nil
+}
+
+func productsProcess(db *gorm.DB, filePath string) error {
+	var requiredColumns = []string{"TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP"}
+	var ignoredColumns = []string{"Сертификаты URL", "Сертификаты Названия", "Бренд"}
+
 	colNms := make(map[string]int)
 
-	r, err := utils.NewReader(filePath, ignoredColumns)
+	r, err := utils.NewReader(filePath, ignoredColumns, requiredColumns)
 	if err != nil {
 		fmt.Printf("error while creating new reader: %s\n", err.Error())
 		return err
@@ -175,6 +221,9 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 			if err := processProduct(prodCtgs, tx, row, &prod, &ctg, colNms); err != nil {
 				fmt.Printf("Error while processing product: %v\n", err)
 				return err
+			}
+			if err := processProductFile(tx, &prod, row, colNms); err != nil {
+				log.Printf("error while process product documents: %v\n", err)
 			}
 			if err := processProductGroup(prod, groups, tx, row, colNms); err != nil {
 				fmt.Printf("Error while processing product group: %v\n", err)

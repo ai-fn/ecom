@@ -78,6 +78,14 @@ type Product struct {
 	Brand                *Brand      `gorm:"foreignKey:BrandID"`
 }
 
+type ProductFile struct {
+	CustomModel
+	Name      string   `gorm:"column:name;type:varchar(512);"`
+	File      string   `gorm:"column:file;type:varchar(512);"`
+	ProductID uint     `gorm:"column:product_id"`
+	Product   *Product `gorm:"foreignKey:ProductID"`
+}
+
 type ProductImage struct {
 	CustomModel
 	ThumbModel
@@ -154,6 +162,10 @@ func (Brand) TableName() string {
 
 func (Product) TableName() string {
 	return "shop_product"
+}
+
+func (ProductFile) TableName() string {
+	return "shop_productfile"
 }
 
 func (ProductGroup) TableName() string {
