@@ -282,9 +282,6 @@ func SaveImages(bsName, url string, prod *models.Product, tx *gorm.DB, imgTypes 
 		webpBuffer.Reset()
 	}
 
-	if err := tx.Save(prod).Error; err != nil {
-		return err
-	}
 	return nil
 }
 
