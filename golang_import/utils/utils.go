@@ -219,7 +219,7 @@ func getSize(imgType string) ([]uint, error) {
 func SaveImages(bsName, url string, prod *models.Product, tx *gorm.DB, imgTypes []string) error {
 	var catalogPath = os.Getenv("CATALOG_PATH")
 	if catalogPath == "" {
-		catalogPath = "catalog/products/images"
+		catalogPath = "catalog/products/images/"
 	}
 
 	format := filepath.Ext(url)
@@ -229,7 +229,7 @@ func SaveImages(bsName, url string, prod *models.Product, tx *gorm.DB, imgTypes 
 		baseMediaPath = "../media/"
 	}
 
-	imgFl, err := os.Open(baseMediaPath + catalogPath + url)
+	imgFl, err := os.Open(filepath.Join(baseMediaPath, catalogPath, url))
 	if err != nil {
 		return err
 	}
