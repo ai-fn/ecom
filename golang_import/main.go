@@ -161,7 +161,7 @@ func processProductFile(tx *gorm.DB, prod *models.Product, row []string, colNms 
 }
 
 func productsProcess(db *gorm.DB, filePath string) error {
-	var requiredColumns = []string{"TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP"}
+	var requiredColumns = []string{"Заголовок", "Описание", "Изображения", "Категории", "Артикул", "Приоритет", "Группа"}
 	var ignoredColumns = []string{"Сертификаты URL", "Сертификаты Названия", "Бренд"}
 
 	colNms := make(map[string]int)
@@ -209,13 +209,13 @@ func productsProcess(db *gorm.DB, filePath string) error {
 		colNms[col] = i
 	}
 
-	for _, row := range rows[1:3] {
+	for _, row := range rows[1:] {
 		prod := models.Product{}
 		ctg := models.Category{}
 		prodCtgs := []models.Category{}
 
 		db.Transaction(func(tx *gorm.DB) error {
-			if err := processCategories(&prodCtgs, tx, row[colNms["CATEGORIES"]], &ctg); err != nil {
+			if err := processCategories(&prodCtgs, tx, row[colNms["Категории"]], &ctg); err != nil {
 				return err
 			}
 			if err := processProduct(prodCtgs, tx, row, &prod, &ctg, colNms); err != nil {
@@ -248,9 +248,9 @@ func productsProcess(db *gorm.DB, filePath string) error {
 
 func processProductGroup(prod models.Product, groups []*models.ProductGroup, tx *gorm.DB, row []string, colNms map[string]int) error {
 	var group *models.ProductGroup
-	idx, ok := colNms["GROUP"]
+	idx, ok := colNms["Группа"]
 	if !ok {
-		log.Println("GROUP column not found")
+		log.Println("Группа column not found")
 		return nil
 	}
 
@@ -280,18 +280,18 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 	var dsc string
 	var inStock bool = true // default value for field "in_stock"
 
-	idx, ok := colNms["SKU"]
+	idx, ok := colNms["Артикул"]
 	if !ok {
-		return fmt.Errorf("SKU column is required")
+		return fmt.Errorf("Артикул column is required")
 	}
 	cellVal, err := utils.GetFromSlice(row, idx)
 	if err != nil {
 		return err
 	}
 
-	idx, ok = colNms["TITLE"]
+	idx, ok = colNms["Заголовок"]
 	if !ok {
-		title = "TITLE"
+		title = "Заголовок"
 	} else {
 		title, err = utils.GetFromSlice(row, idx)
 		if err != nil {
@@ -299,7 +299,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 		}
 	}
 
-	if idx, ok := colNms["DESCRIPTION"]; ok {
+	if idx, ok := colNms["Описание"]; ok {
 		dsc, err = utils.GetFromSlice(row, idx)
 	}
 	if dsc == "" {
@@ -322,7 +322,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 	}
 
 	// Set Priority
-	idx, ok = colNms["PRIORITY"]
+	idx, ok = colNms["Приоритет"]
 	if ok {
 		cellVal, err = utils.GetFromSlice(row, idx)
 		if err == nil {
@@ -350,7 +350,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 	}
 
 	// Set Images
-	if idx, ok := colNms["IMAGES"]; ok {
+	if idx, ok := colNms["Изображения"]; ok {
 		cellVal, err = utils.GetFromSlice(row, idx)
 		if err != nil {
 			return err
