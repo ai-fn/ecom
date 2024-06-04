@@ -30,6 +30,7 @@ from api.views import (
     RebuildCategoryTreeAPIView,
     AddressAutocompleate,
     FavoriteProductViewSet,
+    ProductFileViewSet,
 )
 from api.views import (
     SendSMSView,
@@ -41,6 +42,7 @@ from api.views.general_search import GeneralSearchView
 router = routers.DefaultRouter()
 
 router.register(r"products", ProductViewSet, basename="products")
+router.register(r"productfiles", ProductFileViewSet)
 router.register(r"reviews", ReviewViewSet)
 router.register(r"favorite-product", FavoriteProductViewSet)
 router.register(r"metadata", MetadataViewSet)

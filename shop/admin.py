@@ -13,6 +13,7 @@ from shop.models import (
     Page,
     Price,
     Product,
+    ProductFile,
     ProductGroup,
     ProductImage,
     Promo,
@@ -112,6 +113,21 @@ class FavoriteProductAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "product", "created_at", "updated_at")
     search_fields = ("user__username", "product__title")
     list_filter = ("created_at", "updated_at")
+
+
+@admin.register(ProductFile)
+class ProductFileAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'product',
+    )
+    list_filter = (
+        "product",
+    )
+    search_fields = (
+        'name',
+        'product__title',
+    )
 
 
 @admin.register(ProductGroup)

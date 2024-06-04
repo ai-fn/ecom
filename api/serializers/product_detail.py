@@ -7,7 +7,7 @@ from api.serializers import (
     ProductImageSerializer,
 )
 from api.serializers import BrandSerializer
-from shop.models import Brand, Category, Product
+from shop.models import Brand, Category, Product, ProductFile
 
 
 class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSerializer):
@@ -25,6 +25,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
         write_only=True,
         source="brand",
     )
+    files = serializers.SerializerMethodField()
     priority = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -48,4 +49,23 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
             "is_popular",
             "priority",
             "thumb_img",
+            "files",
         ]
+
+    def get_files(self, obj):
+        return ProductFileSerializer(obj.files, many=True).data
+
+
+class ProductFileSerializer(serializers.ModelSerializer):
+    
+    file = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductFile
+        exclude = [
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_file(self, obj):
+        return obj.file.url if obj.file else None
