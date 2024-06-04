@@ -72,9 +72,9 @@ admin.site.register(Category, CustomMPTTModelAdmin)
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
     list_display = (
-        "order",
         "id",
         "name",
+        "order",
     )
     search_fields = (
         "name",
