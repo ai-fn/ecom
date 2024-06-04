@@ -35,11 +35,12 @@ type FileReaderInterface interface {
 }
 
 type FileReader struct {
-	CtNms          *models.Columns
-	ChrCols        *models.Columns
-	IgnoredColumns *models.Columns
-	Columns        []string
-	FilePath       string
+	CtNms           *models.Columns
+	ChrCols         *models.Columns
+	IgnoredColumns  *models.Columns
+	RequiredColumns *models.Columns
+	Columns         []string
+	FilePath        string
 }
 
 type CSVReader struct {
@@ -98,7 +99,7 @@ func (r *FileReader) SetColumns(row []string) error {
 	r.Columns = row
 
 	for _, cellVal := range r.Columns {
-		if !r.IgnoredColumns.Contains(cellVal) {
+		if !r.RequiredColumns.Contains(cellVal) && !r.IgnoredColumns.Contains(cellVal) {
 
 			if r.CtNms.Contains(cellVal) {
 				r.CtNms.Cols = append(r.CtNms.Cols, cellVal)
@@ -113,7 +114,7 @@ func (r *FileReader) SetColumns(row []string) error {
 
 func (r *FileReader) ColsIsValid() error {
 	var cols = models.Columns{Cols: r.Columns}
-	for _, el := range r.IgnoredColumns.Cols {
+	for _, el := range r.RequiredColumns.Cols {
 
 		if !cols.Contains(el) {
 			return fmt.Errorf("не все обязательные поля найдены в документе: %s", el)
@@ -157,14 +158,15 @@ func (r *XLSXReader) Close() error {
 	return nil
 }
 
-func NewReader(fp string, ignoredColumns []string) (CommonReader, error) {
+func NewReader(fp string, ignoredColumns, requiredColumns []string) (CommonReader, error) {
 	var cmnReader CommonReader
 	format := filepath.Ext(fp)
 	reader := &FileReader{
-		FilePath:       fp,
-		IgnoredColumns: &models.Columns{Cols: ignoredColumns},
-		CtNms:          &models.Columns{},
-		ChrCols:        &models.Columns{},
+		FilePath:        fp,
+		IgnoredColumns:  &models.Columns{Cols: ignoredColumns},
+		RequiredColumns: &models.Columns{Cols: requiredColumns},
+		CtNms:           &models.Columns{},
+		ChrCols:         &models.Columns{},
 	}
 	switch format {
 	case ".xlsx":
