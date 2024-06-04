@@ -219,7 +219,7 @@ func getSize(imgType string) ([]uint, error) {
 func SaveImages(bsName, url string, prod *models.Product, tx *gorm.DB, imgTypes []string) error {
 	var catalogPath = os.Getenv("CATALOG_PATH")
 	if catalogPath == "" {
-		catalogPath = "catalog/products/"
+		catalogPath = "catalog/products/images"
 	}
 
 	format := filepath.Ext(url)
