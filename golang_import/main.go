@@ -78,7 +78,6 @@ func main() {
 
 func processXLSXData(c *gin.Context) {
 	filename := c.Param("filename")
-	uploadType := c.Query("type")
 
 	tmpDir := "../media/tmp"
 	if err := os.MkdirAll(tmpDir, os.ModePerm); err != nil {
@@ -98,38 +97,24 @@ func processXLSXData(c *gin.Context) {
 		return
 	}
 
-	var ignoredColumns = []string{"TITLE", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP", "CHARACTERISTIC"}
+	var ignoredColumns = []string{"TITLE", "DESCRIPTION", "IMAGES", "CATEGORIES", "SKU", "PRIORITY", "GROUP", "Применение"}
 	var startTime = time.Now()
 
-	switch uploadType {
-	case "PRODUCTS":
-		c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
-		go func() {
-			if err := productsProcess(db, flPth, ignoredColumns); err != nil {
-				fmt.Println(err.Error())
-				return
-			}
-			fmt.Printf("Products data processed in %.9fs.\n", time.Since(startTime).Seconds())
-			if err := rebuildIndex(); err != nil {
-				log.Fatalf(err.Error())
-			}
-			if err := rebuildCtgTree(); err != nil {
-				log.Fatalf(err.Error())
-			}
-		}()
+	c.JSON(http.StatusOK, gin.H{"message": "Success authorized, products process started..."})
 
-	case "BRANDS":
-		go func() {
-			fmt.Println("BRAND data process")
-			c.JSON(http.StatusOK, gin.H{"message": "Success authorized, brands process started..."})
-			fmt.Printf("BRAND data prodcessed in %.9fs.\n", time.Since(startTime).Seconds())
-			if err := rebuildIndex(); err != nil {
-				log.Fatalf(err.Error())
-			}
-		}()
-	default:
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unknown upload type: " + uploadType})
-	}
+	go func() {
+		if err := productsProcess(db, flPth, ignoredColumns); err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		fmt.Printf("Products data processed in %.9fs.\n", time.Since(startTime).Seconds())
+		if err := rebuildIndex(); err != nil {
+			log.Fatalf(err.Error())
+		}
+		if err := rebuildCtgTree(); err != nil {
+			log.Fatalf(err.Error())
+		}
+	}()
 }
 
 func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) error {
@@ -178,7 +163,7 @@ func productsProcess(db *gorm.DB, filePath string, ignoredColumns []string) erro
 		colNms[col] = i
 	}
 
-	for _, row := range rows[1:] {
+	for _, row := range rows[1:3] {
 		prod := models.Product{}
 		ctg := models.Category{}
 		prodCtgs := []models.Category{}
@@ -333,18 +318,11 @@ func processImages(cellVal string, prod *models.Product, tx *gorm.DB) error {
 		for idx, imgUrl := range imgs {
 			bsName = strings.Split(filepath.Base(imgUrl), ".")[0]
 
-			response, err := http.Get(imgUrl)
-			if err != nil {
-				fmt.Printf("error while get image by url %s\n", imgUrl)
-				continue
-			}
-			defer response.Body.Close()
-
 			if idx == 0 {
 				types = append(types, "CATALOG", "SEARCH")
 			}
 
-			if err := utils.SaveImages(bsName, prod, tx, response, types); err != nil {
+			if err := utils.SaveImages(bsName, imgUrl, prod, tx, types); err != nil {
 				fmt.Println(err.Error())
 				continue
 			}
@@ -357,7 +335,7 @@ func processCategories(prodCtgs *[]models.Category, tx *gorm.DB, cellVal string,
 	catNames := strings.Split(cellVal, " || ")
 	var prnt *models.Category
 
-	for idx, catName := range catNames[:len(catNames)-1] {
+	for idx, catName := range catNames {
 		slg := slug.Make(catName)
 		var category models.Category
 		if tx.Where(&models.Category{Slug: slg}).First(&category).RecordNotFound() {
@@ -467,7 +445,7 @@ func processRowCells(tx *gorm.DB, r utils.CommonReader, row []string, colNms map
 		if idx, ok := colNms[chrCol]; ok {
 			if chrVal, err := utils.GetFromSlice(row, idx); err == nil && chrVal != "" {
 				if err := processCharacteristics(ctg.ID, prod, tx, chrVal, chrCol); err != nil {
-					fmt.Printf("Error while processing characteristics: %v\n", err)
+					fmt.Printf("Error while processing characteristics: %v\n%v-%v", err, chrCol, chrVal)
 				}
 			}
 		}

@@ -10,9 +10,7 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"image/png"
-	"io"
 	"models"
-	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -22,6 +20,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/nfnt/resize"
 	"github.com/xuri/excelize/v2"
+	_ "golang.org/x/image/webp"
 )
 
 type CommonReader interface {
@@ -215,32 +214,24 @@ func getSize(imgType string) ([]uint, error) {
 	return nil, fmt.Errorf("provided wrong image type: %s", imgType)
 }
 
-func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Response, imgTypes []string) error {
+func SaveImages(bsName, url string, prod *models.Product, tx *gorm.DB, imgTypes []string) error {
 	var catalogPath = os.Getenv("CATALOG_PATH")
 	if catalogPath == "" {
 		catalogPath = "catalog/products/"
 	}
 
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		fmt.Printf("error while read response body: %s\n", err.Error())
-		return err
-	}
-
-	format := filepath.Ext(r.Request.URL.Path)
+	format := filepath.Ext(url)
 
 	baseMediaPath := os.Getenv("MEDIA_PATH")
 	if baseMediaPath == "" {
 		baseMediaPath = "../media/"
 	}
 
-	if _, err := os.Stat(baseMediaPath + catalogPath); os.IsNotExist(err) {
-		fmt.Printf("Media path is not exist: %s, creating...\n", baseMediaPath+catalogPath)
-
-		if err = os.MkdirAll(baseMediaPath+catalogPath, os.ModePerm); err != nil {
-			return err
-		}
+	imgFl, err := os.Open(baseMediaPath + catalogPath + url)
+	if err != nil {
+		return err
 	}
+	defer imgFl.Close()
 
 	wtrmkPath := os.Getenv("WATERMARK_PATH")
 	if wtrmkPath == "" {
@@ -254,25 +245,18 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 
 	switch format {
 	case ".png":
-		img, err = png.Decode(bytes.NewReader(data))
+		img, err = png.Decode(imgFl)
 	case ".jpg":
-		img, err = jpeg.Decode(bytes.NewReader(data))
+		img, err = jpeg.Decode(imgFl)
 	default:
-		img, _, err = image.Decode(bytes.NewReader(data))
+		img, _, err = image.Decode(imgFl)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	if err = setThumbImage(prod, img); err != nil {
-		fmt.Println(err)
-	} else {
-		if err = tx.Save(&prod).Error; err != nil {
-			fmt.Println(err.Error())
-			return err
-		}
-	}
+	setThumbImage(prod, img)
 
 	for _, imgType := range imgTypes {
 		if !tx.Where(&models.ProductImage{Name: fmt.Sprintf("%s_%s", imgType, bsName)}).First(&models.ProductImage{}).RecordNotFound() {
@@ -283,8 +267,9 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 		pth := catalogPath + flName + ".webp"
 		filePath := baseMediaPath + pth
 
+		var err error
 		if imgType == "ORIGINAL" {
-			err = saveImageFile(webpBuffer, img, filePath)
+			prod.OriginalImage = filePath
 		} else {
 			err = processAndSaveImage(img, webpBuffer, filePath, wtrmkPath, imgType, bsName, prod, tx)
 		}
@@ -293,6 +278,10 @@ func SaveImages(bsName string, prod *models.Product, tx *gorm.DB, r *http.Respon
 			return err
 		}
 		webpBuffer.Reset()
+	}
+
+	if err := tx.Save(prod).Error; err != nil {
+		return err
 	}
 	return nil
 }
@@ -332,10 +321,6 @@ func processAndSaveImage(img image.Image, webpBuffer bytes.Buffer, filePath, wtr
 		case "SEARCH":
 			prod.SearchImage = filePath
 		}
-
-		if err := tx.Save(prod).Error; err != nil {
-			return err
-		}
 	}
 
 	if err := saveImageFile(webpBuffer, img, filePath); err != nil {
@@ -357,8 +342,8 @@ func resizeImg(img image.Image, size []uint) image.Image {
 	if resultWidth < targetWidth {
 		resized = extendToWidth(resized, targetWidth)
 	} else if resultWidth > targetWidth {
-		// Cropp image
 
+		// Cropp image
 		xOffset := (resultWidth - targetWidth) / 2
 		resized = resized.(interface {
 			SubImage(r image.Rectangle) image.Image
