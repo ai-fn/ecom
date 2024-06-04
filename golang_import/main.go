@@ -228,9 +228,17 @@ func productsProcess(db *gorm.DB, filePath string) error {
 			if err := processProductGroup(prod, groups, tx, row, colNms); err != nil {
 				fmt.Printf("Error while processing product group: %v\n", err)
 			}
-			if err := processRowCells(tx, r, row, colNms, &prod, &ctg, cities); err != nil {
+			if err := processRowCells(tx, r, row, colNms, &prod, ctg.ID, cities); err != nil {
 				fmt.Printf("Error while processing row cells: %v\n", err)
 			}
+			if err = processProductBrand(tx, &prod, colNms, row); err != nil {
+				log.Printf("error while process product brand: %v\n", err)
+			}
+
+			if err = tx.Save(&prod).Error; err != nil {
+				return err
+			}
+
 			fmt.Printf("Product %s processed\n", prod.Title)
 			return nil
 		})
@@ -242,7 +250,7 @@ func processProductGroup(prod models.Product, groups []*models.ProductGroup, tx 
 	var group *models.ProductGroup
 	idx, ok := colNms["GROUP"]
 	if !ok {
-		fmt.Println("GROUP column not found")
+		log.Println("GROUP column not found")
 		return nil
 	}
 
@@ -334,10 +342,6 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 	prod.Description = dsc
 	prod.Title = title
 
-	if err = tx.Save(&prod).Error; err != nil {
-		return err
-	}
-
 	// Set additional categories
 	for _, ctg := range prodCtgs {
 		if err = tx.Model(&prod).Association("AdditionalCategories").Append(ctg).Error; err != nil {
@@ -354,6 +358,32 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 		if err = processImages(cellVal, prod, tx); err != nil {
 			fmt.Println(err.Error())
 		}
+	}
+	return nil
+}
+
+func processProductBrand(tx *gorm.DB, prod *models.Product, colNms map[string]int, row []string) error {
+	idx, ok := colNms["Бренд"]
+	if !ok {
+		return fmt.Errorf("'Бренд' column not found")
+	}
+
+	val, err := utils.GetFromSlice(row, idx)
+	if err != nil {
+		return err
+	}
+
+	if val != "" {
+		slug := slug.Make(val)
+		var brand models.Brand
+		if tx.Where(&models.Brand{Name: val, Slug: slug}).First(&brand).RecordNotFound() {
+			brand = models.Brand{Name: val, Slug: slug}
+			if err = tx.Create(&brand).Error; err != nil {
+				log.Printf("error while Brand instance creation: %v\n", err)
+				return err
+			}
+		}
+		prod.BrandID = &brand.ID
 	}
 	return nil
 }
@@ -489,11 +519,11 @@ func processCharacteristics(ctgId uint, prod *models.Product, tx *gorm.DB, val s
 	}
 	return nil
 }
-func processRowCells(tx *gorm.DB, r utils.CommonReader, row []string, colNms map[string]int, prod *models.Product, ctg *models.Category, cities []models.CityGroup) error {
+func processRowCells(tx *gorm.DB, r utils.CommonReader, row []string, colNms map[string]int, prod *models.Product, ctgId uint, cities []models.CityGroup) error {
 	for _, chrCol := range r.GetFileReader().ChrCols.Cols {
 		if idx, ok := colNms[chrCol]; ok {
 			if chrVal, err := utils.GetFromSlice(row, idx); err == nil && chrVal != "" {
-				if err := processCharacteristics(ctg.ID, prod, tx, chrVal, chrCol); err != nil {
+				if err := processCharacteristics(ctgId, prod, tx, chrVal, chrCol); err != nil {
 					fmt.Printf("Error while processing characteristics: %v\n%v-%v", err, chrCol, chrVal)
 				}
 			}
