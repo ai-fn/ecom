@@ -170,21 +170,21 @@ class Product(ThumbModel):
     )
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
     catalog_image = models.ImageField(
-        upload_to="catalog/products/",
+        upload_to="catalog/products/images/",
         verbose_name="Изображение в каталоге",
         blank=True,
         null=True,
         max_length=255
     )
     search_image = models.ImageField(
-        upload_to="catalog/products/",
+        upload_to="catalog/products/images/",
         verbose_name="Изображение в поиске",
         blank=True,
         null=True,
         max_length=255
     )
     original_image = models.ImageField(
-        upload_to="catalog/products/",
+        upload_to="catalog/products/images/",
         verbose_name="Исходное изображение",
         blank=True,
         null=True,
@@ -240,6 +240,18 @@ class Product(ThumbModel):
         return os.path.join("katalog", self.category.slug, self.slug)
 
 
+class ProductFile(TimeBasedModel):
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_("Продукт"), related_name="files")
+    name = models.CharField(verbose_name=_("Наименование"), max_length=512)
+    file = models.FileField(verbose_name=_("Файл"), max_length=512, upload_to="catalog/products/documents/")
+    
+    class Meta:
+        verbose_name = _("Документация")
+        verbose_name_plural = _("Документация")
+        unique_together = (("product", "name"),)
+
+
 class ProductFrequenlyBoughtTogether(TimeBasedModel):
     product_from = models.ForeignKey(
         Product,
@@ -272,7 +284,7 @@ class ProductImage(ThumbModel):
     )
     name = models.CharField(max_length=255, verbose_name="Название")
     image = models.ImageField(
-        upload_to="catalog/products/",
+        upload_to="catalog/products/images/",
         verbose_name="Изображение",
         max_length=255
     )

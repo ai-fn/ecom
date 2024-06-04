@@ -31,3 +31,4 @@ from .metadata import MetadataViewSet
 from .update_index import UpdateIndex
 from .rebuild_category_tree import RebuildCategoryTreeAPIView
 from .address_autocomplete import AddressAutocompleate
+from .productfile import ProductFileViewSet

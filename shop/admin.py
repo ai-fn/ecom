@@ -12,6 +12,7 @@ from shop.models import (
     Page,
     Price,
     Product,
+    ProductFile,
     ProductGroup,
     ProductImage,
     Promo,
@@ -103,6 +104,21 @@ class ProductAdmin(admin.ModelAdmin):
         "is_new",
     )
     inlines = [PromoInline, CharacteristicValueInline, ProductGroupInline]
+
+
+@admin.register(ProductFile)
+class ProductFileAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'product',
+    )
+    list_filter = (
+        "product",
+    )
+    search_fields = (
+        'name',
+        'product__title',
+    )
 
 
 @admin.register(ProductGroup)
