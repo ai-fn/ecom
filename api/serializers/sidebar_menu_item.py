@@ -4,8 +4,6 @@ from shop.models import SideBarMenuItem
 
 
 class SideBarMenuItemSerializer(ModelSerializer):
-
-    icon = SerializerMethodField()
     
     class Meta:
         model = SideBarMenuItem
