@@ -7,6 +7,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/xuri/excelize/v2 v2.8.1
+	golang.org/x/image v0.14.0
 	models v0.0.0-00010101000000-000000000000
 )
 

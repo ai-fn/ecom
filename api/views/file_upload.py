@@ -42,9 +42,6 @@ class XlsxFileUploadView(APIView):
         if file_obj is None:
             return Response({"error": "File object is requeire"})
 
-        if upload_type is None:
-            return Response({"error": "Type parametr is required"})
-
         try:
             path = reverse("api:upload_products", kwargs={"filename": filename})
         except NoReverseMatch:

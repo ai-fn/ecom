@@ -174,18 +174,21 @@ class Product(ThumbModel):
         verbose_name="Изображение в каталоге",
         blank=True,
         null=True,
+        max_length=255
     )
     search_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение в поиске",
         blank=True,
         null=True,
+        max_length=255
     )
     original_image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Исходное изображение",
         blank=True,
         null=True,
+        max_length=255
     )
     slug = models.SlugField(
         unique=True,
@@ -290,10 +293,11 @@ class ProductImage(ThumbModel):
         related_name="images",
         verbose_name="Товар",
     )
-    name = models.CharField(max_length=128, verbose_name="Название")
+    name = models.CharField(max_length=255, verbose_name="Название")
     image = models.ImageField(
         upload_to="catalog/products/",
         verbose_name="Изображение",
+        max_length=255
     )
 
     class Meta:
@@ -396,8 +400,8 @@ class CharacteristicValue(TimeBasedModel):
         Product, verbose_name=_("Продукт"),  related_name="characteristic_values", on_delete=models.CASCADE
     )
     characteristic = models.ForeignKey(Characteristic, verbose_name=_("Характеристика"),  on_delete=models.CASCADE)
-    value = models.CharField(verbose_name=_("Значение"), max_length=255)
-    slug = models.SlugField(verbose_name=_("Слаг"), null=False, blank=False, max_length=128)
+    value = models.CharField(verbose_name=_("Значение"), max_length=1024)
+    slug = models.SlugField(verbose_name=_("Слаг"), null=False, blank=False, max_length=1024)
 
     def __str__(self):
         return f"{self.characteristic.name}: {self.value}"

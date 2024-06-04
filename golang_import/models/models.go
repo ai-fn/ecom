@@ -113,8 +113,8 @@ type CharacteristicValue struct {
 	CustomModel
 	ProductID        uint   `gorm:"column:product_id"`
 	CharacteristicID uint   `gorm:"column:characteristic_id"`
-	Value            string `gorm:"column:value;type:varchar(255)"`
-	Slug             string `gorm:"column:slug;type:varchar(128)"`
+	Value            string `gorm:"column:value;type:varchar(1024)"`
+	Slug             string `gorm:"column:slug;type:varchar(1024)"`
 }
 
 type Price struct {
