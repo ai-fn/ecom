@@ -237,6 +237,29 @@ class Product(ThumbModel):
         return os.path.join("katalog", self.category.slug, self.slug)
 
 
+class FavoriteProduct(TimeBasedModel):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="favorite_products",
+        verbose_name=_("Пользователь"),
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="favorited_by",
+        verbose_name=_("Товар"),
+    )
+
+    class Meta:
+        unique_together = ("user", "product")
+        verbose_name = _("Избранный товар")
+        verbose_name_plural = _("Избранные товары")
+
+    def __str__(self):
+        return f"Избранный товар({self.user.username} - {self.product.title})"
+
+
 class ProductFrequenlyBoughtTogether(TimeBasedModel):
     product_from = models.ForeignKey(
         Product,

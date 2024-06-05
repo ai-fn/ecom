@@ -7,6 +7,7 @@ from shop.models import (
     CategoryMetaData,
     Characteristic,
     CharacteristicValue,
+    FavoriteProduct,
     ImageMetaData,
     OpenGraphMeta,
     Page,
@@ -104,6 +105,13 @@ class ProductAdmin(admin.ModelAdmin):
         "is_new",
     )
     inlines = [PromoInline, CharacteristicValueInline, ProductGroupInline]
+
+
+@admin.register(FavoriteProduct)
+class FavoriteProductAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "product", "created_at", "updated_at")
+    search_fields = ("user__username", "product__title")
+    list_filter = ("created_at", "updated_at")
 
 
 @admin.register(ProductGroup)
