@@ -26,11 +26,7 @@ class OrderSerializer(ValidateAddressMixin, serializers.ModelSerializer):
             "customer",
             "products",
             "created_at",
-            "region",
-            "district",
-            "city_name",
-            "street",
-            "house",
+            "address",
             "total",
             "status",
         ]

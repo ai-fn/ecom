@@ -163,16 +163,8 @@ class ValidateAddressMixin:
     def validate(self, data):
 
         data = super().validate(data)
-        address_fields = ("region", "district", "city_name", "house", "street")
-
-        if any([field in address_fields for field in data]):
-
-            # Получаем поля адреса из тела запроса, если есть, иначе получаем из объекта пользователя
-            address_values = [
-                data.get(field, getattr(self.context["request"].user, field, "")) or ""
-                for field in address_fields
-            ]
-            address = ", ".join(address_values[::-1])
+        address = data.get("address")
+        if address:
 
             geolocator = Nominatim(user_agent="my_geocoder")
             location = geolocator.geocode(address)

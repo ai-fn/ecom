@@ -91,11 +91,7 @@ class UserDetailInfoSerializer(
             "email",
             "middle_name",
             "phone",
-            "region",
-            "district",
-            "city_name",
-            "street",
-            "house",
+            "address",
             "is_active",
             "email_confirmed"
         )

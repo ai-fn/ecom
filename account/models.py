@@ -111,46 +111,29 @@ class CityGroup(TimeBasedModel):
 
 class CustomUser(AbstractUser):
     first_name = models.CharField(
-        _("first name"), max_length=35, blank=True, null=True
+        _("Имя"), max_length=35, blank=True, null=True
     )
-    last_name = models.CharField(_("last name"), max_length=35, blank=True, null=True)
-    email = models.EmailField(_("email address"), blank=True, null=True)
+    last_name = models.CharField(_("Фамилия "), max_length=35, blank=True, null=True)
+    email = models.EmailField(_("Почта"), help_text=_("Адрес электронной почты"), blank=True, null=True)
     phone = models.CharField(
-        verbose_name="Номер телефона", null=True, blank=True, unique=True, max_length=16
+        verbose_name=_("Номер телефона"), null=True, blank=True, unique=True, max_length=16
     )
-    city = models.ForeignKey(
-        City, on_delete=models.SET_NULL, null=True, related_name="customers"
-    )
-    region = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Область"
-    )
-    district = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Район"
-    )
-    city_name = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Город"
-    )
-    street = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Улица"
-    )
-    house = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Номер дома"
-    )
+    address = models.CharField(_("Адрес"), max_length=1024, null=True, blank=True)
     is_customer = models.BooleanField(
-        verbose_name="Покупатель ли юзер?",
+        verbose_name=_("Покупатель ли юзер?"),
         default=False,
     )
     email_confirmed = models.BooleanField(
-        default=False, verbose_name="Подтверждена ли почта"
+        default=False, verbose_name=_("Подтверждена ли почта")
     )
     middle_name = models.CharField(
-        verbose_name="Отчество", blank=True, null=True, max_length=35
+        verbose_name=_("Отчество"), blank=True, null=True, max_length=35
     )
 
     class Meta:
         indexes = [
             models.Index(fields=["phone"], name="customuser_phone_idx"),
-            models.Index(fields=["city"], name="customuser_city_idx"),
+            models.Index(fields=["address"], name="customuser_address_idx"),
         ]
 
     def delete(self, using: Any = ..., keep_parents: bool = ...):

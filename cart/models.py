@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from account.models import CustomUser, TimeBasedModel
 from shop.models import Product
@@ -29,24 +30,10 @@ class Order(TimeBasedModel):
     products = models.ManyToManyField(
         Product, verbose_name="Товары", blank=True, through="ProductsInOrder"
     )
-    region = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Область"
-    )
-    district = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Район"
-    )
-    city_name = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Город"
-    )
-    street = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Улица"
-    )
-    house = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Номер дома"
-    )
     total = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name="Сумма заказа"
     )
+    address = models.CharField(verbose_name=_("Адрес"), max_length=1024)
     status = models.ForeignKey(
         OrderStatus,
         verbose_name="Статус заказа",
