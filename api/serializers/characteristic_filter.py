@@ -11,4 +11,4 @@ class CharacteristicFilterSerializer(ModelSerializer):
         fields = ["name", "slug", "values"]
     
     def get_values(self, obj):
-        return set(obj.characteristicvalue_set.values_list("value", flat=True))
+        return obj.characteristicvalue_set.values("value", "slug").distinct()

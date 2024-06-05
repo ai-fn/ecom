@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from api.mixins import SerializerGetPricesMixin
 from api.serializers import ProductImageSerializer
-from shop.models import Price, Product
+from shop.models import Product
 
 
 class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerializer):
@@ -48,6 +48,7 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
             "catalog_image",
             "cart_quantity",
             "is_popular",
+            "is_new",
             "thumb_img",
             "description",
         ]

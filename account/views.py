@@ -83,7 +83,7 @@ class AccountInfoViewSet(
         ],
     )
     @action(methods=["get"], detail=False)
-    @method_decorator(cache_page(60 * 2))
+    @method_decorator(cache_page(SendVirifyEmailMixin._EMAIL_CACHE_REMAINING_TIME))
     def resend_verify_email(self, request, *args, **kwargs):
         email = request.user.email
         if not email:

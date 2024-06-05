@@ -7,6 +7,7 @@ from loguru import logger
 from shop.models import (
     Category,
     Brand,
+    CharacteristicValue,
     FooterItem,
     MainPageSliderImage,
     Page,
@@ -17,8 +18,11 @@ from shop.models import (
 )
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, pre_delete
-from django.utils.text import slugify
+from django.utils.text import slugify as django_slugify
 from unidecode import unidecode
+
+
+slugify = lambda x: django_slugify(unidecode(x))
 
 
 @receiver(pre_save)
@@ -31,7 +35,7 @@ def set_instance_order(sender, instance, **kwargs):
 @receiver(post_save, sender=City)
 def set_domain(sender, created, instance, **kwargs):
     if created and not instance.domain:
-        instance.domain = f'{slugify(unidecode(instance.name))}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
+        instance.domain = f'{slugify(instance.name)}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
         instance.save()
 
 
@@ -39,17 +43,29 @@ def set_domain(sender, created, instance, **kwargs):
 def set_instance_slug(sender, created, instance, **kwargs):
     if isinstance(sender, City):
         if created and not instance.domain:
-            instance.domain = f'{slugify(unidecode(instance.name))}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
+            instance.domain = f'{slugify(instance.name)}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
             instance.save()
+            
     elif isinstance(sender, Product):
         if created and not instance.slug:
-            instance.slug = slugify(unidecode(instance.title))
+            instance.slug = slugify(instance.title)
             instance.save()
 
-    elif isinstance(sender, (Category, Characteristic, Brand, Page)):
+    elif isinstance(sender, CharacteristicValue):
         if created and not instance.slug:
-            instance.slug = slugify(unidecode(instance.name)) + f"-{instance.id}"
+            instance.slug = slugify(instance.value)
             instance.save()
+
+    elif isinstance(sender, (Category)):
+        if created and not instance.slug:
+            instance.slug = slugify(instance.name) + f"-{instance.id}"
+            instance.save()
+
+    elif isinstance(sender, (Characteristic, Brand, Page)):
+        if created and not instance.slug:
+            instance.slug = slugify(instance.name)
+            instance.save()
+
 
 
 def get_order(sender):

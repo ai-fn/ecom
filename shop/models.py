@@ -1,8 +1,4 @@
-import base64
-import io
 import os
-from typing import Iterable
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -202,6 +198,7 @@ class Product(ThumbModel):
     )
     in_stock = models.BooleanField(default=True, verbose_name="В наличии ли товар")
     is_popular = models.BooleanField(default=False, verbose_name="Популярен ли товар")
+    is_new = models.BooleanField(default=False, verbose_name=_("Новый ли товар"))
     priority = models.IntegerField(
         default=500,
         verbose_name="Приоритет показа",
@@ -282,11 +279,6 @@ class ProductImage(ThumbModel):
 
     def __str__(self):
         return f"Image for {self.product.title}"
-
-    # def delete(self, using, keep_parents) -> tuple[int, dict[str, int]]:
-    #     if os.path.isfile(path := (self.image.path.removeprefix("/code/"))):
-    #         os.remove(path)
-    #     return super().delete(using, keep_parents)
 
 
 class Promo(ThumbModel):
@@ -375,12 +367,14 @@ class CharacteristicValue(TimeBasedModel):
     class Meta:
         verbose_name = "Значение характеристики для товара"
         verbose_name_plural = "Значение характеристик для товара"
+        unique_together = (("characteristic", "product", "slug"))
 
     product = models.ForeignKey(
-        Product, related_name="characteristic_values", on_delete=models.CASCADE
+        Product, verbose_name=_("Продукт"),  related_name="characteristic_values", on_delete=models.CASCADE
     )
-    characteristic = models.ForeignKey(Characteristic, on_delete=models.CASCADE)
-    value = models.CharField(max_length=255)
+    characteristic = models.ForeignKey(Characteristic, verbose_name=_("Характеристика"),  on_delete=models.CASCADE)
+    value = models.CharField(verbose_name=_("Значение"), max_length=255)
+    slug = models.SlugField(verbose_name=_("Слаг"), null=False, blank=False, max_length=128)
 
     def __str__(self):
         return f"{self.characteristic.name}: {self.value}"
@@ -388,7 +382,7 @@ class CharacteristicValue(TimeBasedModel):
 
 class Price(TimeBasedModel):
     product = models.ForeignKey(
-        Product, related_name="prices", on_delete=models.CASCADE
+        Product, related_name="prices", on_delete=models.CASCADE, verbose_name=_("Продукт")
     )
     city_group = models.ForeignKey(
         CityGroup,
@@ -545,9 +539,9 @@ class MainPageSliderImage(ThumbModel):
 
 class MainPageCategoryBarItem(TimeBasedModel):
 
-    order = models.IntegerField(unique=True)
-    link = models.URLField(blank=True, null=True)
-    text = models.CharField(max_length=100, blank=True, null=True)
+    order = models.IntegerField(verbose_name=_("Порядковый номер"), unique=True)
+    link = models.CharField(verbose_name=_("Ссылка"), max_length=128)
+    text = models.CharField(verbose_name=_("Текст"), max_length=100)
 
     class Meta:
         ordering = ("order",)
@@ -565,11 +559,12 @@ class SideBarMenuItem(TimeBasedModel):
     )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     link = models.CharField(max_length=255, verbose_name="Ссылка")
-    icon = models.ImageField(
-        verbose_name="Изображение",
-        upload_to="sidebar_icons",
+    icon = models.CharField(
+        verbose_name=_("Заголовок иконки"),
         null=True,
         blank=True,
+        max_length=32,
+        help_text=_("delivery, documentation, cart, orders, profile, info"),
     )
 
     class Meta:

@@ -47,9 +47,9 @@ def update_cities():
 
     try:
         subprocess.run(["git", "clone", repo_url, repo_dir], check=True)
-        print("Repository cloned successfully.")
+        logger.debug("Repository cloned successfully.")
     except subprocess.CalledProcessError as e:
-        print("Error:", e)
+        logger.debug("Error:", e)
         return
 
     # Open city.csv and extract city names
@@ -72,15 +72,15 @@ def update_cities():
                     continue
 
     except FileNotFoundError:
-        print("city.csv not found.")
+        logger.debug("city.csv not found.")
     except Exception as e:
-        print("Error occurred while extracting city names:", e)
+        logger.debug("Error occurred while extracting city names:", e)
     finally:
         # Clean up: delete the cloned repository directory
         try:
             subprocess.run(["rm", "-rf", repo_dir], check=True)
         except subprocess.CalledProcessError as e:
-            print("Error cleaning up:", e)
+            logger.debug("Error cleaning up:", e)
 
     current_cities = City.objects.values_list("name")
     diff = set(city_names.keys()).difference(set(current_cities))
@@ -94,7 +94,7 @@ def update_cities():
                     c.population = p
                     c.save()
 
-        print("Cities successfully created")
+        logger.debug("Cities successfully created")
 
 
 def set_opacity(image: Image, opacity: float):

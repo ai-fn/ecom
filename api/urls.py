@@ -27,6 +27,8 @@ from api.views import (
     MetadataViewSet,
     UpdateIndex,
     SearchHistoryViewSet,
+    RebuildCategoryTreeAPIView,
+    AddressAutocompleate,
 )
 from api.views import (
     SendSMSView,
@@ -78,4 +80,6 @@ urlpatterns = [
     path("search/", GeneralSearchView.as_view(), name="general-search"),
     path("products_by_id_list/", ProductsById.as_view(), name="products_bu_id_list"),
     path("update_index/", UpdateIndex.as_view(), name="update_index"),
+    path("rebuild_category_tree/", RebuildCategoryTreeAPIView.as_view(), name="rebuild_category_tree"),
+    path("address_autocomplete/", AddressAutocompleate.as_view(), name="address_autocomplete")
 ]
