@@ -58,4 +58,5 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
             "thumb_img",
             "description",
             "in_promo",
+            "priority",
         ]
