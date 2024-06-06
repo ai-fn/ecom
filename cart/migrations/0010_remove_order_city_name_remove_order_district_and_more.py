@@ -4,6 +4,8 @@ from django.db import connection, migrations, models
 
 
 def remove_orders(apps, schema_editor):
+    with connection.cursor() as cursor:
+        cursor.execute('ROLLBACK;')
     Order = apps.get_model("cart", "Order")
     Order.objects.all().delete()    
 
