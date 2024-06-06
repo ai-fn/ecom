@@ -1,14 +1,12 @@
-import os
 import time
 import phonenumbers
 
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.exceptions import ValidationError 
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
@@ -22,8 +20,7 @@ from typing import Any, Dict, Iterable
 from django.conf import settings
 
 from geopy.geocoders import Nominatim
-
-from rest_framework import serializers
+from geopy.exc import GeocoderServiceError
 
 from account.models import City
 
@@ -44,9 +41,9 @@ class ValidatePhoneNumberMixin:
         try:
             parsed_number = phonenumbers.parse(phone_number, None)
             if not phonenumbers.is_valid_number(parsed_number):
-                raise serializers.ValidationError("Invalid phone number.")
+                raise ValidationError("Invalid phone number.")
         except phonenumbers.phonenumberutil.NumberParseException:
-            raise serializers.ValidationError("Invalid phone number.")
+            raise ValidationError("Invalid phone number.")
 
         return value
 
@@ -158,21 +155,50 @@ class GeneralSearchMixin:
         serializer = ReviewDocumentSerializer(hit)
         categorized_results["reviews"].append(serializer.data)
 
+
 class ValidateAddressMixin:
 
     def validate(self, data):
 
+        def split_address(address):
+            parts = set()
+            for part in address.split(','):
+                parts.update(part.strip().split())
+            return parts
+
+
         data = super().validate(data)
         address = data.get("address")
-        if address:
+        if not address:
+            return ValidationError()
+        
+        try:
 
             geolocator = Nominatim(user_agent="my_geocoder")
-            location = geolocator.geocode(address)
+            locations = geolocator.geocode(address, exactly_one=False)
+            if not locations:
+                raise ValidationError("Указан несуществующий адрес")
+            
+            user_address_parts = split_address(address.lower())
+            matches = {}
 
-            if not location:
-                raise serializers.ValidationError("Указан несуществующий адрес")
+            for location in locations:
+                found_address_parts = split_address(location.address.lower())
+                common_parts = user_address_parts.intersection(found_address_parts)
+                match_score = len(common_parts) / len(user_address_parts)
+                matches[location.address] = match_score
+            
+            max_match_address = max(matches, key=matches.get)
+            max_match_score = matches[max_match_address]
 
-            logger.info(f"Найден адрес: {location.address}")
+            if max_match_score < 0.8:
+                raise ValidationError("Адрес найден, но значительно отличается от введенного.")
+
+            data['address'] = max_match_address
+
+            logger.info(f"Найден адрес: {max_match_address}")
+        except GeocoderServiceError as e:
+            raise ValidationError(f"{str(e)}\nОшибка службы геокодирования. Пожалуйста, повторите попытку позже.")
         return data
 
 

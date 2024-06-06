@@ -324,7 +324,7 @@ class OrderViewSet(ModelViewSet):
                     )
                 except Exception as err:
                     logger.error(err)
-                    return Response(str(err), status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"error": str(err)}, status=status.HTTP_400_BAD_REQUEST)
 
                 item.delete()
                 total += prod.price
