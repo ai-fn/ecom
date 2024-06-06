@@ -20,6 +20,7 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
     catalog_image = serializers.SerializerMethodField()
     search_image = serializers.SerializerMethodField()
     cart_quantity = serializers.IntegerField(min_value=1, read_only=True)
+    in_promo = serializers.SerializerMethodField()
 
     def get_category_slug(self, obj) -> str:
         return obj.category.slug if obj.category else None
@@ -29,6 +30,11 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
 
     def get_search_image(self, obj) -> str:
         return obj.search_image.url if obj.search_image else None
+    
+    def get_in_promo(self, obj):
+        if (price := self.get_city_price(obj)) and (old_price := self.get_old_price(obj)):
+            return price < old_price
+        return False
 
     class Meta:
         model = Product
@@ -51,4 +57,5 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
             "is_new",
             "thumb_img",
             "description",
+            "in_promo",
         ]
