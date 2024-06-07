@@ -6,51 +6,30 @@ from shop.models import MainPageSliderImage
 from api.serializers import MainPageSliderImageSerializer
 
 
-@extend_schema(
-    tags=["Settings"]
-)
+@extend_schema(tags=["Settings"])
 class MainPageSliderImageViewSet(ModelViewSet):
     queryset = MainPageSliderImage.objects.all()
     serializer_class = MainPageSliderImageSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 
     @extend_schema(
-        description="Этот эндпоинт получает список всех изображений слайдера на главной странице.",
+        description="Получить список всех изображений слайдера на главной странице.",
         summary="Получить список всех изображений слайдера на главной странице",
         responses={200: MainPageSliderImageSerializer(many=True)},
         examples=[
             OpenApiExample(
                 name="List MainPageSliderImages Example",
                 summary="Example of listing all main page slider images",
-                value=[
-                    {
-                        "id": 1,
-                        "order": 1,
-                        "link": "http://example.com",
-                        "title": "dummy title",
-                        "description": "dummy description",
-                        "button_text": "Button 1",
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
-                    },
-                    {
-                        "id": 2,
-                        "order": 2,
-                        "link": "http://example.com",
-                        "title": "dummy title",
-                        "description": "dummy description",
-                        "button_text": "Button 2",
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
-                    },
-                    {
-                        "id": 3,
-                        "order": 3,
-                        "link": "http://example.com",
-                        "title": "dummy title",
-                        "description": "dummy description",
-                        "button_text": "Button 3",
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
-                    },
-                ],
+                value={
+                    "id": 1,
+                    "order": 1,
+                    "link": "https://alta-profil.net",
+                    "title": "test",
+                    "description": "test",
+                    "button_text": "test",
+                    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+                    "thumb_img": "base64string",
+                },
             )
         ],
     )
@@ -58,7 +37,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
-        description="Этот эндпоинт извлекает конкретное изображение слайдера главной страницы по его идентификатору.",
+        description="Получить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Получение конкретного изображения слайдера главной страницы",
         responses={200: MainPageSliderImageSerializer()},
         examples=[
@@ -68,11 +47,12 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "order": 1,
-                    "link": "http://example.com",
-                    "title": "dummy title",
-                    "description": "dummy description",
-                    "button_text": "Button 1",
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "link": "https://alta-profil.net",
+                    "title": "test",
+                    "description": "test",
+                    "button_text": "test",
+                    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+                    "thumb_img": "base64string",
                 },
                 response_only=True,
             )
@@ -82,7 +62,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     @extend_schema(
-        description="Этот эндпоинт создаёт новое изображение слайдера главной страницы.",
+        description="Создать новое изображение слайдера главной страницы.",
         summary="Создание нового изображения слайдера главной страницы",
         responses={201: MainPageSliderImageSerializer()},
         examples=[
@@ -90,12 +70,13 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 name="Create MainPageSliderImage Example",
                 summary="Пример создания нового изображения слайдера главной страницы",
                 value={
-                    "order": 4,
-                    "link": "http://example.com",
-                    "title": "dummy title",
-                    "description": "dummy description",
-                    "button_text": "Button 4",
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "order": 1,
+                    "link": "https://alta-profil.net",
+                    "title": "test",
+                    "description": "test",
+                    "button_text": "test",
+                    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+                    "thumb_img": "base64string",
                 },
                 request_only=True,
             ),
@@ -103,13 +84,14 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 name="Create MainPageSliderImage Response Example",
                 summary="Пример ответа после создания нового изображения слайдера главной страницы",
                 value={
-                    "id": 4,
-                    "order": 4,
-                    "link": "http://example.com",
-                    "title": "dummy title",
-                    "description": "dummy description",
-                    "button_text": "Button 4",
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "id": 1,
+                    "order": 1,
+                    "link": "https://alta-profil.net",
+                    "title": "test",
+                    "description": "test",
+                    "button_text": "test",
+                    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+                    "thumb_img": "base64string",
                 },
             ),
         ],
@@ -118,7 +100,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     @extend_schema(
-        description="Этот эндпоинт обновляет конкретное изображение слайдера главной страницы по его идентификатору.",
+        description="Обновить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Обновление конкретного изображения слайдера главной страницы",
         request=MainPageSliderImageSerializer,
         responses={200: MainPageSliderImageSerializer()},
@@ -127,13 +109,13 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 name="Update MainPageSliderImage Example",
                 summary="Пример обновления конкретного изображения слайдера главной страницы",
                 value={
-                    "id": 1,
                     "order": 1,
-                    "link": "http://example.com",
-                    "title": "dummy title",
-                    "description": "dummy description",
-                    "button_text": "Updated Button 1",
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "link": "https://alta-profil.net",
+                    "title": "test",
+                    "description": "test",
+                    "button_text": "test",
+                    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+                    "thumb_img": "base64string",
                 },
                 request_only=True,
             ),
@@ -143,11 +125,12 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "order": 1,
-                    "link": "http://example.com",
-                    "title": "dummy title",
-                    "description": "dummy description",
-                    "button_text": "Updated Button 1",
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "link": "https://alta-profil.net",
+                    "title": "test",
+                    "description": "test",
+                    "button_text": "test",
+                    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+                    "thumb_img": "base64string",
                 },
             ),
         ],
@@ -156,7 +139,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     @extend_schema(
-        description="Этот эндпоинт частично обновляет конкретное изображение слайдера главной страницы по его идентификатору.",
+        description="Частично обновить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Частичное обновление конкретного изображения слайдера главной страницы",
         request=MainPageSliderImageSerializer,
         responses={200: MainPageSliderImageSerializer()},
@@ -171,14 +154,14 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 name="Partial Update MainPageSliderImage Response Example",
                 summary="Пример ответа после частичного обновления конкретного изображения слайдера главной страницы",
                 value={
-                    "id": "1",
-                    "name": 1,
+                    "id": 1,
                     "order": 1,
-                    "link": "http://example.com",
-                    "title": "Updated Title 1",
-                    "description": "dummy description",
-                    "button_text": "Button 1",
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp"
+                    "link": "https://alta-profil.net",
+                    "title": "test",
+                    "description": "test",
+                    "button_text": "test",
+                    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+                    "thumb_img": "base64string",
                 },
             ),
         ],
@@ -187,7 +170,7 @@ class MainPageSliderImageViewSet(ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
 
     @extend_schema(
-        description="Этот эндпоинт удаляет конкретное изображение слайдера главной страницы по его идентификатору.",
+        description="Удалить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Удаление конкретного изображения слайдера главной страницы",
         responses={204: None},
         examples=[

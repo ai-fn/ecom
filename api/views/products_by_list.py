@@ -41,48 +41,44 @@ class ProductsById(CityPricesMixin, GenericAPIView):
             ),
             OpenApiExample(
                 name="Domain Provided Example",
-                value=[
-                    {
-                        "id": 5572,
-                        "title": "Чердачная лестница Standard Metal",
-                        "brand": 1,
-                        "image": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...",
-                        "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
-                        "city_price": "6865",
-                        "old_price": "3865",
-                        "images": [
-                            {
-                                "image_url": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...;",
-                            }
-                        ],
-                        "category_slug": "deke",
-                        "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    },
-                ],
+                value={
+                    "id": 5572,
+                    "title": "Чердачная лестница Standard Metal",
+                    "brand": 1,
+                    "image": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...",
+                    "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
+                    "city_price": "6865",
+                    "old_price": "3865",
+                    "images": [
+                        {
+                            "image_url": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...;",
+                        }
+                    ],
+                    "category_slug": "deke",
+                    "in_stock": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                },
                 response_only=True,
             ),
             OpenApiExample(
                 name="Domain Not Provided Example",
-                value=[
-                    {
-                        "id": 5572,
-                        "title": "Чердачная лестница Standard Metal",
-                        "brand": 1,
-                        "image": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...",
-                        "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
-                        "images": [
-                            {
-                                "image_url": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...;",
-                            }
-                        ],
-                        "category_slug": "deke",
-                        "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    },
-                ],
+                value={
+                    "id": 5572,
+                    "title": "Чердачная лестница Standard Metal",
+                    "brand": 1,
+                    "image": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...",
+                    "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
+                    "images": [
+                        {
+                            "image_url": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...;",
+                        }
+                    ],
+                    "category_slug": "deke",
+                    "in_stock": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                },
                 response_only=True,
             ),
         ],

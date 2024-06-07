@@ -6,11 +6,34 @@ from rest_framework.permissions import AllowAny
 
 from api.decorators import closed_view
 from shop.models import Category
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
 
 class RebuildCategoryTreeAPIView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        summary="Восстановление дерева категорий",
+        description="Перестроить дерево категорий в базе данных.",
+        examples=[
+            OpenApiExample(
+                name="Success Response",
+                value={
+                    "message": "Category tree has been rebuilt successfully"
+                },
+                response_only=True,
+                status_codes=[HTTP_200_OK],
+            ),
+            OpenApiExample(
+                name="Error Response",
+                value={
+                    "error": "Описание ошибки"
+                },
+                response_only=True,
+                status_codes=[HTTP_400_BAD_REQUEST],
+            ),
+        ],
+    )
     @closed_view
     def post(self, request) -> Response:
         try:

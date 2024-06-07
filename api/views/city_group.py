@@ -7,9 +7,7 @@ from api.serializers.city_group import CityGroupSerializer
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 
-@extend_schema(
-    tags=['City']
-)
+@extend_schema(tags=["City"])
 class CityGroupViewSet(ModelViewSet):
     """Возвращает группы городов
 
@@ -27,11 +25,22 @@ class CityGroupViewSet(ModelViewSet):
         examples=[
             OpenApiExample(
                 name="List City Groups Example",
-                value=[
-                    {
+                value={
+                    "id": 1,
+                    "name": "Group A",
+                    "main_city": {
                         "id": 1,
-                        "name": "Group A",
-                        "main_city": {
+                        "name": "Воронеж",
+                        "domain": "example.com",
+                        "nominative_case": "Воронеж",
+                        "genitive_case": "Воронежа",
+                        "dative_case": "Воронежу",
+                        "accusative_case": "Воронежем",
+                        "instrumental_case": "Воронежем",
+                        "prepositional_case": "Воронеже",
+                    },
+                    "cities": [
+                        {
                             "id": 1,
                             "name": "Воронеж",
                             "domain": "example.com",
@@ -42,21 +51,8 @@ class CityGroupViewSet(ModelViewSet):
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
                         },
-                        "cities": [
-                            {
-                                "id": 1,
-                                "name": "Воронеж",
-                                "domain": "example.com",
-                                "nominative_case": "Воронеж",
-                                "genitive_case": "Воронежа",
-                                "dative_case": "Воронежу",
-                                "accusative_case": "Воронежем",
-                                "instrumental_case": "Воронежем",
-                                "prepositional_case": "Воронеже",
-                            },
-                        ]
-                    }
-                ],
+                    ],
+                },
                 description="Пример ответа при запросе списка групп городов в Swagger UI",
                 response_only=True,
                 media_type="application/json",
@@ -65,7 +61,7 @@ class CityGroupViewSet(ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Получить информацию о конкретной группе городов.",
         summary="Информация о группе городов",
@@ -98,7 +94,7 @@ class CityGroupViewSet(ModelViewSet):
                             "instrumental_case": "City A",
                             "prepositional_case": "City A",
                         },
-                    ]
+                    ],
                 },
                 description="Пример ответа при запросе информации о группе городов в Swagger UI",
                 response_only=True,
@@ -143,7 +139,7 @@ class CityGroupViewSet(ModelViewSet):
                             "instrumental_case": "City A",
                             "prepositional_case": "City A",
                         },
-                    ]
+                    ],
                 },
                 description="Пример запроса для создания новой группы городов в Swagger UI",
                 media_type="application/json",
@@ -176,7 +172,7 @@ class CityGroupViewSet(ModelViewSet):
                             "instrumental_case": "City A",
                             "prepositional_case": "City A",
                         },
-                    ]
+                    ],
                 },
                 description="Пример ответа для создания новой группы городов в Swagger UI",
                 response_only=True,
@@ -221,7 +217,7 @@ class CityGroupViewSet(ModelViewSet):
                             "instrumental_case": "City A",
                             "prepositional_case": "City A",
                         },
-                    ]
+                    ],
                 },
                 description="Пример запроса для обновления информации о группе городов в Swagger UI",
                 media_type="application/json",
@@ -254,7 +250,7 @@ class CityGroupViewSet(ModelViewSet):
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
                         },
-                    ]
+                    ],
                 },
                 description="Пример ответа для обновления информации о группе городов в Swagger UI",
                 response_only=True,
@@ -309,7 +305,7 @@ class CityGroupViewSet(ModelViewSet):
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
                         },
-                    ]
+                    ],
                 },
                 description="Пример запроса для частичного обновления информации о группе городов в Swagger UI",
                 media_type="application/json",

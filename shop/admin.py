@@ -118,6 +118,7 @@ class FavoriteProductAdmin(admin.ModelAdmin):
 @admin.register(ProductFile)
 class ProductFileAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'name',
         'product',
     )

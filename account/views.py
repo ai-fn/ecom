@@ -42,7 +42,7 @@ class AccountInfoViewSet(
                 value={"code": "9999"},
                 request_only=True,
             ),
-        ]
+        ],
     )
     @action(methods=["post"], detail=False)
     def verify_email(self, request, *args, **kwargs):
@@ -73,12 +73,12 @@ class AccountInfoViewSet(
         summary="Отправить заново код подтверждения почты",
         examples=[
             OpenApiExample(
-                name="Request Example",
-                value={},
-                request_only=True,
-            ),
-            OpenApiExample(
-                name="Response Example", value={"code": "9999", "expiration_time": 1714730191.0360472}, response_only=True
+                name="Response Example",
+                value={
+                    "message": "Message sent successfully",
+                    "expiration_time": 1717680326.8678553,
+                },
+                response_only=True,
             ),
         ],
     )
@@ -99,17 +99,14 @@ class AccountInfoViewSet(
                 name="Пример ответа на получение информации",
                 response_only=True,
                 value={
-                    "first_name": "John",
-                    "last_name": "Conors",
-                    "middle_name": "James",
-                    "email": "dummy_user@gmail.com",
-                    "phone": "+79933519856",
-                    "region": "Воронежская область",
-                    "district": "Лискинский район",
-                    "city_name": "Воронеж",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
+                    "first_name": "Админ",
+                    "last_name": "Админов",
+                    "email": "parovozikdima@gmail.com",
+                    "middle_name": None,
+                    "phone": "+7(993)6746657",
+                    "address": None,
                     "is_active": True,
+                    "email_confirmed": True,
                 },
             )
         ],
@@ -136,15 +133,12 @@ class AccountInfoViewSet(
                 value={
                     "first_name": "John",
                     "last_name": "Conors",
-                    "middle_name": "James",
-                    "email": "dummy_user@gmail.com",
-                    "phone": "+79933519856",
-                    "region": "Воронежская область",
-                    "district": "Лискинский район",
-                    "city_name": "Воронеж",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
+                    "email": "parovozikdima@gmail.com",
+                    "middle_name": None,
+                    "phone": "+7(993)6746657",
+                    "address": None,
                     "is_active": True,
+                    "email_confirmed": True,
                 },
             ),
         ],

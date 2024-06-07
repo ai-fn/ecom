@@ -13,8 +13,15 @@ from drf_spectacular.types import OpenApiTypes
 
 @extend_schema(
     tags=["Shop"],
-    responses={200: PromoSerializer(many=True)},
-    description="Retrieves promotions filtered by the domain of the city.",
+    parameters=[
+        OpenApiParameter(
+            name="domain",
+            description="Домен города",
+            required=True,
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+        )
+    ],
 )
 class PromoViewSet(CityPricesMixin, ModelViewSet):
 
@@ -29,12 +36,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
-        # Получаем домен из параметров запроса
         self.domain = self.request.query_params.get("domain")
-        if not self.domain:
-            return Response([])
-
-        # Возвращаем промоакции, связанные с найденными городами
         return self.queryset.filter(cities__domain=self.domain).distinct()
 
     @extend_schema(
@@ -46,160 +48,126 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                 name="Response Example",
                 description="Пример ответа на получение списка активных промо акций",
                 response_only=True,
-                value=[
-                    {
-                        "id": 1,
-                        "name": "Promo 1",
-                        "categories": [
-                            {
-                                "id": 1,
-                                "name": "Category A",
-                                "slug": "category-a",
-                                "order": 1,
-                                "parent": 1,
-                                "children": 2,
-                                "parents": ["Деке", "deke-1"],
-                                "category_meta": [
-                                    {
-                                        "title": "dummy-title",
-                                        "description": "dummy-description",
-                                    }
-                                ],
-                                "category_meta_id": None,
-                                "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                                "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                                "is_visible": True,
-                                "is_popular": True,
-                            },
-                        ],
-                        "products": [
-                            {
-                                "title": "Product A",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                "slug": "product-a",
-                                "city_price": 100.0,
-                                "old_price": 120.0,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    },
-                                    {
-                                        "id": 2,
-                                        "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    },
-                                ],
-                                "category_slug": "category-a",
-                            }
-                        ],
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "cities": [
-                            {
-                                "name": "Воронеж",
-                                "domain": "example.com",
-                                "nominative_case": "Воронеж",
-                                "genitive_case": "Воронежа",
-                                "dative_case": "Воронежу",
-                                "accusative_case": "Воронежем",
-                                "instrumental_case": "Воронежем",
-                                "prepositional_case": "Воронеже",
-                            }
-                        ],
-                        "active_to": "2024-04-30",
-                        "is_active": True,
-                    },
-                ],
+                value={
+                    "count": 1,
+                    "next": None,
+                    "previous": None,
+                    "results": [
+                        {
+                            "id": 1,
+                            "name": "Test",
+                            "categories": [],
+                            "products": [],
+                            "image": "/media/promo/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "cities": [
+                                {
+                                    "id": 46,
+                                    "name": "Воронеж",
+                                    "domain": "voronezh",
+                                    "nominative_case": "Воронеж",
+                                    "genitive_case": "Воронежа",
+                                    "dative_case": "Воронежу",
+                                    "accusative_case": "Воронеж",
+                                    "instrumental_case": "Воронежем",
+                                    "prepositional_case": "Воронеже",
+                                },
+                                {
+                                    "id": 45,
+                                    "name": "Москва",
+                                    "domain": "moskva",
+                                    "nominative_case": "Москва",
+                                    "genitive_case": "Москвы",
+                                    "dative_case": "Москве",
+                                    "accusative_case": "Москву",
+                                    "instrumental_case": "Москвой",
+                                    "prepositional_case": "Москве",
+                                },
+                            ],
+                            "active_to": "2024-04-05",
+                            "is_active": True,
+                            "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
+                        }
+                    ],
+                },
             ),
         ],
     )
     @action(methods=["get"], detail=False)
     def active_promos(self, request, *args, **kwargs):
-        self.queryset = self.get_queryset().filter(is_active=True)
+        self.queryset = self.queryset.filter(is_active=True)
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
         description="Получение списка промо акций",
         summary="Получение списка промо акций",
-        parameters=[
-            OpenApiParameter(
-                name="domain",
-                description="Домен города",
-                required=True,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
         operation_id="api_promos_list",
         examples=[
             OpenApiExample(
                 name="Response Example",
                 description="Пример ответа на получение списка всех промо акций",
                 response_only=True,
-                value=[
-                    {
-                        "id": 1,
-                        "name": "Promo 1",
-                        "categories": [
-                            {
-                                "id": 1,
-                                "name": "Category A",
-                                "slug": "category-a",
-                                "order": 1,
-                                "parent": 1,
-                                "children": 2,
-                                "parents": ["Деке", "deke-1"],
-                                "category_meta": [
-                                    {
-                                        "title": "dummy-title",
-                                        "description": "dummy-description",
-                                    }
-                                ],
-                                "category_meta_id": None,
-                                "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                                "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                                "is_visible": True,
-                                "is_popular": True,
-                            },
-                        ],
-                        "products": [
-                            {
-                                "title": "Product A",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                "slug": "product-a",
-                                "city_price": 100.0,
-                                "old_price": 120.0,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    },
-                                    {
-                                        "id": 2,
-                                        "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    },
-                                ],
-                                "category_slug": "category-a",
-                            }
-                        ],
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "cities": [
-                            {
-                                "name": "Воронеж",
-                                "domain": "example.com",
-                                "nominative_case": "Воронеж",
-                                "genitive_case": "Воронежа",
-                                "dative_case": "Воронежу",
-                                "accusative_case": "Воронежем",
-                                "instrumental_case": "Воронежем",
-                                "prepositional_case": "Воронеже",
-                            }
-                        ],
-                        "active_to": "2024-04-30",
-                        "is_active": True,
-                    },
-                ],
+                value={
+                    "id": 1,
+                    "name": "Promo 1",
+                    "categories": [
+                        {
+                            "id": 1,
+                            "name": "Category A",
+                            "slug": "category-a",
+                            "order": 1,
+                            "parent": 1,
+                            "children": 2,
+                            "parents": ["Деке", "deke-1"],
+                            "category_meta": [
+                                {
+                                    "title": "dummy-title",
+                                    "description": "dummy-description",
+                                }
+                            ],
+                            "category_meta_id": None,
+                            "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                            "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
+                            "is_visible": True,
+                            "is_popular": True,
+                        },
+                    ],
+                    "products": [
+                        {
+                            "title": "Product A",
+                            "brand": 1,
+                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "slug": "product-a",
+                            "city_price": 100.0,
+                            "old_price": 120.0,
+                            "images": [
+                                {
+                                    "id": 1,
+                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                },
+                                {
+                                    "id": 2,
+                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                },
+                            ],
+                            "category_slug": "category-a",
+                        }
+                    ],
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "cities": [
+                        {
+                            "name": "Воронеж",
+                            "domain": "example.com",
+                            "nominative_case": "Воронеж",
+                            "genitive_case": "Воронежа",
+                            "dative_case": "Воронежу",
+                            "accusative_case": "Воронежем",
+                            "instrumental_case": "Воронежем",
+                            "prepositional_case": "Воронеже",
+                        }
+                    ],
+                    "active_to": "2024-04-30",
+                    "is_active": True,
+                },
             )
         ],
     )
@@ -209,15 +177,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
     @extend_schema(
         description="Получение промо акции по уникальному идентификатору",
         summary="Получение промо акции по уникальному идентификатору",
-        parameters=[
-            OpenApiParameter(
-                name="domain",
-                description="Домен города",
-                required=True,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
         operation_id="api_promos_retrieve",
         examples=[
             OpenApiExample(
@@ -295,15 +254,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
     @extend_schema(
         description="Создание промо акции",
         summary="Создание промо акции",
-        parameters=[
-            OpenApiParameter(
-                name="domain",
-                description="Домен города",
-                required=True,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
         examples=[
             OpenApiExample(
                 name="Response Example",
@@ -394,15 +344,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
     @extend_schema(
         description="Обновление промо акции",
         summary="Обновление промо акции",
-        parameters=[
-            OpenApiParameter(
-                name="domain",
-                description="Домен города",
-                required=True,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
         examples=[
             OpenApiExample(
                 name="Response Example",
@@ -493,15 +434,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
     @extend_schema(
         description="Частичное обновление промо акции",
         summary="Частичное обновление промо акции",
-        parameters=[
-            OpenApiParameter(
-                name="domain",
-                description="Домен города",
-                required=True,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
         examples=[
             OpenApiExample(
                 name="Response Example",
@@ -574,9 +506,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                 name="Request Example",
                 description="Пример запроса на частичное обновление промо акции",
                 response_only=True,
-                value={
-                    "name": "Partial Updated Name for Promo 1"
-                },
+                value={"name": "Partial Updated Name for Promo 1"},
             ),
         ],
     )

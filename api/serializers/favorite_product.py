@@ -1,16 +1,19 @@
-from rest_framework.serializers import ModelSerializer
+from account.models import CustomUser
 from api.serializers import ProductCatalogSerializer
-from shop.models import FavoriteProduct
+from shop.models import FavoriteProduct, Product
+from rest_framework import serializers
 
 
-class FavoriteProductSerializer(ModelSerializer):
-
-    product = ProductCatalogSerializer()
+class FavoriteProductSerializer(serializers.ModelSerializer):
+    product = ProductCatalogSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), source='product', write_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), source="user")
 
     class Meta:
         model = FavoriteProduct
-        exclude = [
-            "created_at",
-            "updated_at",
-            "user",
+        fields = [
+            "id",
+            "user_id",
+            "product",
+            "product_id"
         ]

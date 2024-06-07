@@ -51,84 +51,82 @@ class OrderViewSet(ModelViewSet):
             OpenApiExample(
                 name="List Response Example",
                 response_only=True,
-                value=[
-                    {
-                        "id": 5,
-                        "customer": 1,
-                        "products": [
-                            {
-                                "id": 2,
-                                "order": 1,
-                                "product": {
-                                    "id": 11,
-                                    "title": "Желоб водосточный 3 м Premium, шоколад",
-                                    "brand": 1,
-                                    "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                    "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                    "city_price": 74.87,
-                                    "old_price": 74.87,
-                                    "images": [
-                                        {
-                                            "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
-                                        },
-                                        {
-                                            "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
-                                        },
-                                        {
-                                            "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
-                                        },
-                                    ],
-                                    "in_stock": True,
-                                    "category_slug": "seriia-premium-3",
-                                    "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                    "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                    "is_popular": False,
-                                },
-                                "quantity": 15,
-                                "price": "2.23",
+                value={
+                    "id": 5,
+                    "customer": 1,
+                    "products": [
+                        {
+                            "id": 2,
+                            "order": 1,
+                            "product": {
+                                "id": 11,
+                                "title": "Желоб водосточный 3 м Premium, шоколад",
+                                "brand": 1,
+                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                                "city_price": 74.87,
+                                "old_price": 74.87,
+                                "images": [
+                                    {
+                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                    },
+                                    {
+                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                    },
+                                    {
+                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                    },
+                                ],
+                                "in_stock": True,
+                                "category_slug": "seriia-premium-3",
+                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "is_popular": False,
                             },
-                            {
-                                "id": 2,
-                                "order": 1,
-                                "product": {
-                                    "id": 11,
-                                    "title": "Желоб водосточный 3 м Premium, шоколад",
-                                    "brand": 1,
-                                    "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                    "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                    "city_price": 74.87,
-                                    "old_price": 74.87,
-                                    "images": [
-                                        {
-                                            "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
-                                        },
-                                        {
-                                            "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
-                                        },
-                                        {
-                                            "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
-                                        },
-                                    ],
-                                    "in_stock": True,
-                                    "category_slug": "seriia-premium-3",
-                                    "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                    "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                    "is_popular": False,
-                                },
-                                "quantity": 15,
-                                "price": "2.23",
+                            "quantity": 15,
+                            "price": "2.23",
+                        },
+                        {
+                            "id": 2,
+                            "order": 1,
+                            "product": {
+                                "id": 11,
+                                "title": "Желоб водосточный 3 м Premium, шоколад",
+                                "brand": 1,
+                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                                "city_price": 74.87,
+                                "old_price": 74.87,
+                                "images": [
+                                    {
+                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                    },
+                                    {
+                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                    },
+                                    {
+                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                    },
+                                ],
+                                "in_stock": True,
+                                "category_slug": "seriia-premium-3",
+                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "is_popular": False,
                             },
-                        ],
-                        "created_at": "2024-03-28T15:08:57.462177+03:00",
-                        "region": "Воронежская область",
-                        "district": "",
-                        "city_name": "Воронеж",
-                        "street": "улица 20-летия Октября",
-                        "house": "84",
-                        "total": "137.66",
-                        "status": {"name": "Создан"},
-                    }
-                ],
+                            "quantity": 15,
+                            "price": "2.23",
+                        },
+                    ],
+                    "created_at": "2024-03-28T15:08:57.462177+03:00",
+                    "region": "Воронежская область",
+                    "district": "",
+                    "city_name": "Воронеж",
+                    "street": "улица 20-летия Октября",
+                    "house": "84",
+                    "total": "137.66",
+                    "status": {"name": "Создан"},
+                },
                 description="Пример ответа для получения списка всех заказов в Swagger UI",
                 summary="Пример ответа для получения списка всех заказов",
                 media_type="application/json",
@@ -324,10 +322,12 @@ class OrderViewSet(ModelViewSet):
                     )
                 except Exception as err:
                     logger.error(err)
-                    return Response({"error": str(err)}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"error": str(err)}, status=status.HTTP_400_BAD_REQUEST
+                    )
 
                 item.delete()
-                total += prod.price
+                total += prod.price * prod.quantity
                 del prod
                 del price
 
@@ -563,60 +563,33 @@ class CartItemViewSet(ModelViewSet):
             OpenApiExample(
                 name="List Response Example",
                 response_only=True,
-                value=[
-                    {
+                value={
+                    "id": 1,
+                    "product": {
                         "id": 1,
-                        "product": {
+                        "title": "Чердачная лестница Standard Termo",
+                        "brand": {
                             "id": 1,
-                            "title": "Чердачная лестница Standard Termo",
-                            "brand": {
-                                "id": 1,
-                                "name": "Deke",
-                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                                "order": 1,
-                            },
-                            "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
-                            "city_price": "4865",
-                            "old_price": "3465",
-                            "images": [
-                                {
-                                    "image_url": "/media/catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"
-                                }
-                            ],
-                            "category_slug": "deke",
-                            "brand_slug": "test_brand-1",
-                            "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                            "name": "Deke",
+                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
+                            "order": 1,
                         },
-                        "quantity": 15,
+                        "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
+                        "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
+                        "city_price": "4865",
+                        "old_price": "3465",
+                        "images": [
+                            {
+                                "image_url": "/media/catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"
+                            }
+                        ],
+                        "category_slug": "deke",
+                        "brand_slug": "test_brand-1",
+                        "search_image": "/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
-                    {
-                        "id": 2,
-                        "product": {
-                            "id": 2,
-                            "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                            "brand": {
-                                "id": 1,
-                                "name": "Deke",
-                                "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                                "order": 1,
-                            },
-                            "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                            "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                            "images": [
-                                {
-                                    "image_url": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
-                                }
-                            ],
-                            "category_slug": "deke",
-                            "brand_slug": "test_brand-1",
-                            "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                            "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        },
-                        "quantity": 12,
-                    },
-                ],
+                    "quantity": 15,
+                },
                 description="Пример ответа для получения списка элементов корзины в Swagger UI",
                 summary="Пример ответа для получения списка элементов корзины",
                 media_type="application/json",
@@ -630,12 +603,12 @@ class CartItemViewSet(ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
-        description="Удалить несколько товаров из корзины",
+        description="Удалить несколько товаров из корзины (необходимо передавать id товаров)",
         summary="Удалить несколько товаров из корзины",
         examples=[
             OpenApiExample(
                 name="Delete Some Example",
-                value={"ids": [46, 47, 48]},
+                value={"products_id": [46, 47, 48]},
                 request_only=True,
             ),
             OpenApiExample(
@@ -654,7 +627,7 @@ class CartItemViewSet(ModelViewSet):
     )
     @action(methods=["post"], detail=False)
     def delete_some(self, request, *args, **kwargs):
-        ids_list = request.data.get("ids", [])
+        ids_list = request.data.get("products_id", [])
         if not ids_list:
             return Response(
                 {"message": "IDs is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -762,30 +735,25 @@ class CartItemViewSet(ModelViewSet):
         ],
     )
     def create(self, request, *args, **kwargs):
-        # Get current user's cart items
         existing_cart_items = CartItem.objects.filter(customer=request.user)
 
-        # Transform existing cart items into a dictionary using product_id for easier processing
         existing_cart_dict = {item.product.id: item for item in existing_cart_items}
 
-        # Process incoming data
         for incoming_item in request.data:
-            product_id = incoming_item.get("product_id")
-            new_quantity = incoming_item.get("quantity", 0)
+            serializer = SimplifiedCartItemSerializer(data=incoming_item)
+            serializer.is_valid(raise_exception=True)
+            product_id = serializer.data.get("product_id")
+            new_quantity = serializer.data.get("quantity")
 
-            # Update existing item or create a new one
             if product_id in existing_cart_dict:
-                # Update quantity of existing item
                 existing_item = existing_cart_dict[product_id]
-                existing_item.quantity = new_quantity  # Add to the existing quantity
+                existing_item.quantity = new_quantity
                 existing_item.save()
             else:
-                # Create a new cart item for this user
                 CartItem.objects.create(
                     customer=request.user, product_id=product_id, quantity=new_quantity
                 )
 
-        # After updating the cart, return the updated cart items for the user
         updated_cart_items = CartItem.objects.filter(customer=request.user)
         response_serializer = SimplifiedCartItemSerializer(
             updated_cart_items, many=True
@@ -811,20 +779,20 @@ class CartItemViewSet(ModelViewSet):
                             "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                             "order": 1,
                         },
-                        "image": "http://127.0.0.1:8000catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
+                        "image": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
                         "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
                         "images": [
                             {
-                                "image_url": "http://127.0.0.1:8000catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
+                                "image_url": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
                             },
                             {
-                                "image_url": "http://127.0.0.1:8000catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
+                                "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
                             },
                         ],
                         "category_slug": "seriya-premium",
                         "brand_slug": "test_brand-1",
-                        "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "search_image": "/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                         "is_stock": True,
                     },
                     "quantity": 100,
@@ -846,118 +814,63 @@ class CartItemViewSet(ModelViewSet):
             OpenApiExample(
                 name="Get Detail Info Request Example",
                 response_only=True,
-                value=[
-                    {
-                        "id": 3732,
-                        "category": {
-                            "id": 1,
-                            "name": "Category A",
-                            "slug": "category-a",
-                            "order": 1,
-                            "parent": 2,
-                            "children": 2,
-                            "parents": ["Деке", "deke-1"],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
-                            "category_meta_id": 1,
-                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "is_visible": True,
-                            "is_popular": False,
-                        },
-                        "title": "Желоб водосточный 3 м Premium, пломбир",
-                        "brand": {
-                            "id": 1,
-                            "name": "Deke",
-                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                            "order": 1,
-                        },
-                        "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
-                        "created_at": "2024-03-11T13:45:13.024897+03:00",
-                        "characteristic_values": [
-                            {
-                                "id": 89965,
-                                "characteristic_name": "Выбранный цвет",
-                                "value": "Пломбир (RAL 9003)",
-                            },
-                            {
-                                "id": 89966,
-                                "characteristic_name": "Вес брутто",
-                                "value": "18.3 кг",
-                            },
+                value={
+                    "id": 5138,
+                    "category": {
+                        "id": 2350,
+                        "name": "Ветро-влагозащита А (1,6 х 43,75 м)",
+                        "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m",
+                        "order": 2350,
+                        "parent": 2333,
+                        "children": None,
+                        "parents": [
+                            [
+                                "Гидро-ветрозащита и пароизоляция",
+                                "gidro-vetrozashchita-i-paroizoliatsiia",
+                            ]
                         ],
-                        "images": [
-                            {
-                                "image_url": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
-                            },
-                            {
-                                "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
-                            },
-                        ],
-                        "in_stock": True,
+                        "category_meta": [],
+                        "icon": None,
+                        "image_url": None,
+                        "is_visible": True,
+                        "is_popular": False,
+                        "thumb_img": None,
                     },
-                    {
-                        "id": 3733,
-                        "category": {
-                            "id": 1,
-                            "name": "Category A",
-                            "slug": "category-a",
-                            "order": 1,
-                            "parent": 2,
-                            "children": 2,
-                            "parents": ["Деке", "deke-1"],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
-                            "category_meta_id": 1,
-                            "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                            "is_visible": True,
-                            "is_popular": False,
-                        },
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": {
-                            "id": 1,
-                            "name": "Deke",
-                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                            "order": 1,
-                        },
-                        "description": "Желоб водосточный 3 м Premium, пломбир",
-                        "image": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-3733",
-                        "created_at": "2024-03-11T13:45:20.574851+03:00",
-                        "characteristic_values": [
-                            {
-                                "id": 89977,
-                                "characteristic_name": "Выбранный цвет",
-                                "value": "Шоколад (RAL 8019)",
-                            },
-                            {
-                                "id": 89978,
-                                "characteristic_name": "Вес брутто",
-                                "value": "18.3 кг",
-                            },
-                        ],
-                        "images": [
-                            {
-                                "image_url": "http://127.0.0.1:8000catalog/products/f09e1871-915e-4653-9a0d-68415f4eccec.webp"
-                            },
-                            {
-                                "image_url": "http://127.0.0.1:8000catalog/products/bd312a69-ed3b-4f43-b4bb-45456ef1b48e.webp"
-                            },
-                        ],
-                        "in_stock": True,
+                    "title": "Ветро-влагозащита А (1,6 х 43,75 м)",
+                    "brand": {
+                        "id": 6,
+                        "name": "ISOBOX",
+                        "icon": None,
+                        "order": 0,
+                        "slug": "isobox",
                     },
-                ],
+                    "article": "620223",
+                    "description": "Ветро-влагозащитная пленка А – паропроницаемый материал, состоящий из полипропиленового нетканого полотна. Сохраняет теплозащитные характеристики утеплителя и продлевает срок службы всей конструкции.",
+                    "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m-5138",
+                    "created_at": "2024-06-04T16:57:46.221822+03:00",
+                    "city_price": None,
+                    "old_price": None,
+                    "characteristic_values": [
+                        {
+                            "id": 67720,
+                            "characteristic_name": "Применение",
+                            "value": "Применяется для защиты теплоизоляционного слоя и внутренних элементов конструкции стен от ветра, атмосферной влаги и не препятствует выходу водяных паров из утеплителя.",
+                            "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-i-vnutrennikh-elementov-konstruktsii-sten-ot-vetra-atmosfernoi-vlagi-i-ne-prepiatstvuet-vykhodu-vodianykh-parov-iz-uteplitelia",
+                        },
+                        {
+                            "id": 67721,
+                            "characteristic_name": "Страна происхождения",
+                            "value": "Россия",
+                            "slug": "rossiia",
+                        },
+                    ],
+                    "images": [],
+                    "in_stock": True,
+                    "is_popular": False,
+                    "priority": 500,
+                    "thumb_img": "",
+                    "files": [],
+                },
                 description="Пример ответа подробной информации о товарах в корзине в Swagger UI",
                 summary="Пример подробной информации о товарах в корзине",
                 media_type="application/json",
@@ -965,24 +878,14 @@ class CartItemViewSet(ModelViewSet):
         ],
     )
     @action(detail=False, methods=["get"])
-    def cartitems_detail(self, request):
+    def cartitems_detail(self, request, *args, **kwargs):
         id_lists = list(
             CartItem.objects.filter(customer=request.user).values_list(
                 "product", flat=True
             )
         )
-        queryset = Product.objects.filter(id__in=id_lists)
-
-        if queryset.exists():
-
-            serialized_data = self.get_serializer(queryset, many=True).data
-
-            return Response(serialized_data, status=status.HTTP_200_OK)
-
-        return Response(
-            {"message": f"Cart items for user with pk {request.user.pk} not found"},
-            status=status.HTTP_404_NOT_FOUND,
-        )
+        self.queryset = Product.objects.filter(id__in=id_lists)
+        return super().list(request, *args, **kwargs)
 
     @extend_schema(
         description="Обновить информацию о конкретном элементе корзины",
@@ -1022,8 +925,8 @@ class CartItemViewSet(ModelViewSet):
                         ],
                         "category_slug": "deke",
                         "brand_slug": "test_brand-1",
-                        "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "search_image": "/media/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
                     "quantity": 20,
                 },
@@ -1073,8 +976,8 @@ class CartItemViewSet(ModelViewSet):
                         ],
                         "category_slug": "deke",
                         "brand_slug": "test_brand-1",
-                        "search_image": "http://127.0.0.1:8000catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "http://127.0.0.1:8000catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "search_image": "/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
                     },
                     "quantity": 20,
                 },
@@ -1085,13 +988,9 @@ class CartItemViewSet(ModelViewSet):
         ],
     )
     def partial_update(self, request, *args, **kwargs):
-        # Получаем product_id из URL-шаблона
         product_id = kwargs.get("pk")
-        # Получаем объект Product или возвращаем 404, если он не найден
         product = get_object_or_404(Product, id=product_id)
-        # Получаем объект CartItem, связанный с этим Product, или создаем новый
         cart_item = get_object_or_404(CartItem, product=product, customer=request.user)
-        # Передаем управление стандартному методу partial_update, передавая cart_item вместо kwargs['pk']
         kwargs["pk"], self.kwargs["pk"] = cart_item.pk, cart_item.pk
         return super().partial_update(request, *args, **kwargs)
 
@@ -1131,11 +1030,12 @@ class CartItemViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     def get_queryset(self):
-        # Returns only the cart items that belong to the current user.
+        if self.action == "cartitems_detail":
+            return self.queryset
+
         return self.queryset.filter(customer=self.request.user)
 
     def perform_create(self, serializer):
-        # Associates the new cart item with the current user.
         serializer.save(customer=self.request.user)
 
 

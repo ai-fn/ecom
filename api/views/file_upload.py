@@ -22,14 +22,6 @@ class XlsxFileUploadView(APIView):
         description="Импорт товаров",
         summary="Импорт товаров",
         responses={200: None},
-        parameters=[
-            OpenApiParameter(
-                name="type",
-                type=str,
-                location=OpenApiParameter.QUERY,
-                description="Тип данных для импорта (PRODUCTS, BRANDS)",
-            ),
-        ],
         tags=["Settings"],
     )
     def put(self, request, filename, format=None):

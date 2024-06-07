@@ -24,6 +24,7 @@ class PromoSerializer(serializers.ModelSerializer):
     cities_id = serializers.PrimaryKeyRelatedField(
         many=True, queryset=City.objects.all(), write_only=True
     )
+    image = serializers.SerializerMethodField()
     is_active = serializers.BooleanField(read_only=True)
 
     class Meta:
@@ -45,9 +46,14 @@ class PromoSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         products_data = validated_data.pop("products_id", [])
+        cities_data = validated_data.pop("cities_id", [])
         promo = super().create(validated_data)
         promo.products.set(products_data)
+        promo.cities.set(cities_data)
         return promo
+
+    def get_image(self, obj) -> str | None:
+        return obj.image.url if obj.image else None
 
     def update(self, instance, validated_data):
         products_data = validated_data.pop("products_id", [])

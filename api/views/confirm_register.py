@@ -20,8 +20,8 @@ from ..serializers.confirm_code import ConfirmCodeSerializer
 from account.models import CustomUser
 from drf_spectacular.utils import extend_schema
 
-code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60*30))
-remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60*2))
+code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60 * 30))
+remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
 
 
 @extend_schema(
@@ -29,7 +29,8 @@ remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60*2))
     description=f"Отпарвка СМС сообщения. Кэширование запроса на {code_lifetime} секунд.",
     summary="Отпарвка СМС сообщения",
     examples=[
-        OpenApiExample(name="Request Example", value={"phone_number": "+79889889898"})
+        OpenApiExample(name="Request Example", value={"phone_number": "+79889889898"}),
+        OpenApiExample(name="Response Example", value={"success": True}),
     ],
 )
 class SendSMSView(GenericAPIView):
@@ -137,7 +138,19 @@ class SendSMSView(GenericAPIView):
         OpenApiExample(
             name="Request Example",
             value={"phone_number": "+79889889898", "code": "4378"},
-        )
+            request_only=True
+        ),
+        OpenApiExample(
+            name="Response Example",
+            value={
+                "message": "User successfully activated",
+                "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxODk3NjU4NCwiaWF0IjoxNzE3NjgwNTg0LCJqdGkiOiIxMWU1NjFhMDU1NGY0ZTYyYWYwODdlZjI1ODdiYTBlOCIsInVzZXJfaWQiOjcsInVzZXJuYW1lIjoiKzc5ODg5ODg5ODk4In0.XaVP2bCuzRW2hk_zcZbdObIUHpi6ynu4uDsT66A1OLY",
+                "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzE3NjgwODg0LCJpYXQiOjE3MTc2ODA1ODQsImp0aSI6IjE4NzRmZDliMzdmNTRiOWZiY2YxNzI3ZGE1OGNhN2E5IiwidXNlcl9pZCI6NywidXNlcm5hbWUiOiIrNzk4ODk4ODk4OTgifQ.4y5LOdHwHtfrspvzbAWH9DUwqhJxUZBuByv3rmQaFZ4",
+                "access_expired_at": 1717680884.4001374,
+                "refresh_expired_at": 1718976584.4001443,
+            },
+            response_only=True
+        ),
     ],
 )
 class VerifyConfirmCode(GenericAPIView):

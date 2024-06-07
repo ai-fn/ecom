@@ -54,6 +54,8 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class SimplifiedCartItemSerializer(serializers.ModelSerializer):
+
+    product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), source="product")
     class Meta:
         model = CartItem
         fields = ['product_id', 'quantity']

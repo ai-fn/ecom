@@ -28,19 +28,17 @@ class CityViewSet(ModelViewSet):
         examples=[
             OpenApiExample(
                 name="List Cities Example",
-                value=[
-                    {
-                        "id": 1,
-                        "name": "Воронеж",
-                        "domain": "example.com",
-                        "nominative_case": "Воронеж",
-                        "genitive_case": "Воронежа",
-                        "dative_case": "Воронежу",
-                        "accusative_case": "Воронежем",
-                        "instrumental_case": "Воронежем",
-                        "prepositional_case": "Воронеже",
-                    }
-                ],
+                value={
+                    "id": 1,
+                    "name": "Воронеж",
+                    "domain": "example.com",
+                    "nominative_case": "Воронеж",
+                    "genitive_case": "Воронежа",
+                    "dative_case": "Воронежу",
+                    "accusative_case": "Воронежем",
+                    "instrumental_case": "Воронежем",
+                    "prepositional_case": "Воронеже",
+                },
                 description="Пример ответа при запросе списка городов в Swagger UI",
                 response_only=True,
                 media_type="application/json",
@@ -49,16 +47,17 @@ class CityViewSet(ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Получение списка всех городов",
         summary="Получение списка всех городов",
-        responses={200: CitySerializer(many=True)}
+        responses={200: CitySerializer(many=True)},
     )
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def all_cities(self, request, *args, **kwargs):
         return Response(
-            {"results": CitySerializer(self.queryset, many=True).data}, status=status.HTTP_200_OK
+            {"results": CitySerializer(self.queryset, many=True).data},
+            status=status.HTTP_200_OK,
         )
 
     @extend_schema(
@@ -242,30 +241,17 @@ class CityViewSet(ModelViewSet):
             OpenApiExample(
                 name="Response Example",
                 response_only=True,
-                value=[
-                    {
-                        "id": 11,
-                        "name": "Новосибирск",
-                        "domain": "Новосибирск.ru",
-                        "nominative_case": "Новосибирск",
-                        "genitive_case": "Новосибирска",
-                        "dative_case": "Новосибирску",
-                        "accusative_case": "Новосибирск",
-                        "instrumental_case": "Новосибирском",
-                        "prepositional_case": "Новосибирске",
-                    },
-                    {
-                        "id": 13,
-                        "name": "Нижний Новгород",
-                        "domain": "НижнийНовгород.ru",
-                        "nominative_case": "Нижний Новгород",
-                        "genitive_case": "Нижний Новгорода",
-                        "dative_case": "Нижний Новгороду",
-                        "accusative_case": "Нижний Новгород",
-                        "instrumental_case": "Нижний Новгородом",
-                        "prepositional_case": "Нижний Новгороде",
-                    },
-                ],
+                value={
+                    "id": 11,
+                    "name": "Новосибирск",
+                    "domain": "Новосибирск.ru",
+                    "nominative_case": "Новосибирск",
+                    "genitive_case": "Новосибирска",
+                    "dative_case": "Новосибирску",
+                    "accusative_case": "Новосибирск",
+                    "instrumental_case": "Новосибирском",
+                    "prepositional_case": "Новосибирске",
+                },
             )
         ],
     )

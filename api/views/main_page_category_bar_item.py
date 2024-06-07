@@ -24,18 +24,11 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
                 name="Список элементов главного меню категорий",
                 description="Пример успешного запроса",
                 response_only=True,
-                value=[
-                    {
-                        "order": 1,
-                        "link": "https://example.com/category1",
-                        "text": "Категория 1",
-                    },
-                    {
-                        "order": 2,
-                        "link": "https://example.com/category2",
-                        "text": "Категория 2",
-                    },
-                ],
+                value={
+                    "order": 1,
+                    "link": "https://example.com/category1",
+                    "text": "Категория 1",
+                },
             )
         ],
     )

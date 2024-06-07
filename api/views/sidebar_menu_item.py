@@ -25,14 +25,13 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 name="Пример ответа",
                 description="Пример ответа",
                 response_only=True,
-                value=[
-                    {
+                value={
                         "id": 1,
                         "order": 1,
                         "title": "Dummy title",
-                        "link": "/katalog/"
+                        "icon": "delivery",
+                        "link": "/katalog/",
                     }
-                ]
             )
         ],
     )
@@ -51,6 +50,7 @@ class SideBarMenuItemViewSet(ModelViewSet):
                         "id": 1,
                         "order": 1,
                         "title": "Dummy title",
+                        "icon": "delivery",
                         "link": "/katalog/"
                     }
             )
@@ -70,6 +70,7 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 value={
                         "order": 1,
                         "title": "Dummy title",
+                        "icon": "delivery",
                         "link": "/katalog/"
                     }
             ),
@@ -81,6 +82,7 @@ class SideBarMenuItemViewSet(ModelViewSet):
                         "id": 1,
                         "order": 1,
                         "title": "Dummy title",
+                        "icon": "delivery",
                         "link": "/katalog/"
                     }
             )
@@ -100,6 +102,7 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 value={
                         "order": 1,
                         "title": "Dummy title",
+                        "icon": "delivery",
                         "link": "/katalog/"
                     }
             ),
@@ -111,6 +114,7 @@ class SideBarMenuItemViewSet(ModelViewSet):
                         "id": 1,
                         "order": 1,
                         "title": "Dummy title",
+                        "icon": "delivery",
                         "link": "/katalog/"
                     }
             )
@@ -139,6 +143,7 @@ class SideBarMenuItemViewSet(ModelViewSet):
                         "id": 1,
                         "order": 1,
                         "title": "Updated Dummy title",
+                        "icon": "delivery",
                         "link": "/katalog/"
                     }
             )

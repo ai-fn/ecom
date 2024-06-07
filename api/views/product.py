@@ -30,11 +30,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
     filterset_class = ProductFilter
 
     def get_serializer_class(self):
-        if (
-            self.action == "list"
-            or self.action == "frequenly_bought"
-            or self.action == "popular_products"
-        ):
+        if self.action in ("list", "frequenly_bought", "popular_products"):
             return ProductCatalogSerializer
         elif self.action == "productdetail":
             return ProductDetailSerializer
@@ -74,93 +70,57 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
             OpenApiExample(
                 name="Unauthorized Response Example",
                 response_only=True,
-                value=[
-                    {
-                        "id": 1,
-                        "title": "Product A",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
-                        "slug": "product-a",
-                        "city_price": 100.0,
-                        "old_price": 120.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-a",
-                        "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
-                        "in_stock": True,
-                    },
-                    {
-                        "id": 2,
-                        "title": "Product B",
-                        "brand": 2,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
-                        "slug": "product-b",
-                        "city_price": 150.0,
-                        "old_price": 110.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-b",
-                        "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
-                        "in_stock": True,
-                    },
-                ],
+                value={
+                    "id": 1,
+                    "title": "Product A",
+                    "brand": 1,
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
+                    "slug": "product-a",
+                    "city_price": 100.0,
+                    "old_price": 120.0,
+                    "images": [
+                        {
+                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                        }
+                    ],
+                    "category_slug": "category-a",
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
+                },
             ),
             OpenApiExample(
                 name="Authorized Response Example",
                 response_only=True,
-                value=[
-                    {
-                        "id": 1,
-                        "title": "Product A",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
-                        "slug": "product-a",
-                        "city_price": 100.0,
-                        "old_price": 120.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-a",
-                        "in_stock": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
-                        "in_stock": True,
-                        "cart_quantity": 10,
-                    },
-                ],
+                value={
+                    "id": 1,
+                    "title": "Product A",
+                    "brand": 1,
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
+                    "slug": "product-a",
+                    "city_price": 100.0,
+                    "old_price": 120.0,
+                    "images": [
+                        {
+                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                        }
+                    ],
+                    "category_slug": "category-a",
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
+                    "cart_quantity": 10,
+                },
             ),
         ],
     )
@@ -202,71 +162,29 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
             OpenApiExample(
                 name="Unauthorized Response Example",
                 response_only=True,
-                value=[
-                    {
-                        "id": 1,
-                        "title": "Product A",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
-                        "slug": "product-a",
-                        "city_price": 100.0,
-                        "old_price": 120.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-a",
-                        "brand_slug": "brand-a",
-                        "in_stock": True,
-                        "is_popular": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
-                        "in_stock": True,
-                    },
-                ],
-            ),
-            OpenApiExample(
-                name="Authorized Response Example",
-                response_only=True,
-                value=[
-                    {
-                        "id": 1,
-                        "title": "Product A",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
-                        "slug": "product-a",
-                        "city_price": 100.0,
-                        "old_price": 120.0,
-                        "images": [
-                            {
-                                "id": 1,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                            {
-                                "id": 2,
-                                "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            },
-                        ],
-                        "category_slug": "category-a",
-                        "brand_slug": "brand-a",
-                        "in_stock": True,
-                        "is_popular": True,
-                        "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
-                        "in_stock": True,
-                        "cart_quantity": 10,
-                    },
-                ],
+                value={
+                    "id": 1,
+                    "title": "Product A",
+                    "brand": 1,
+                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
+                    "slug": "product-a",
+                    "city_price": 100.0,
+                    "old_price": 120.0,
+                    "images": [
+                        {
+                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                        }
+                    ],
+                    "category_slug": "category-a",
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "in_stock": True,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
+                },
             ),
         ],
         parameters=[
@@ -310,9 +228,13 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        
-        characteristics_queryset = Characteristic.objects.filter(characteristicvalue__product__in=queryset, for_filtering=True).distinct()
-        categories_queryset = Category.objects.filter(products__in=queryset, is_visible=True).distinct()
+
+        characteristics_queryset = Characteristic.objects.filter(
+            characteristicvalue__product__in=queryset, for_filtering=True
+        ).distinct()
+        categories_queryset = Category.objects.filter(
+            products__in=queryset, is_visible=True
+        ).distinct()
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -324,8 +246,12 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         characteristics_queryset, many=True
                     ).data,
                     "categories": categories_queryset.values("name", "slug"),
-                    "smallest_price": queryset.aggregate(min_price=Min("prices__price"))["min_price"],
-                    "greatest_price": queryset.aggregate(max_price=Max("prices__price"))["max_price"],
+                    "smallest_price": queryset.aggregate(
+                        min_price=Min("prices__price")
+                    )["min_price"],
+                    "greatest_price": queryset.aggregate(
+                        max_price=Max("prices__price")
+                    )["max_price"],
                 }
             )
 
@@ -348,60 +274,104 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 name="Retrieve Response Example",
                 response_only=True,
                 value={
-                    "id": 1,
+                    "id": 5138,
                     "category": {
-                        "id": 1,
-                        "name": "New Name For Category A",
-                        "slug": "new-name-for-category-a",
-                        "order": 1,
-                        "parent": 0,
-                        "children": ["Водосточные системы", "vodostochnye-sistemy-2"],
-                        "parents": ["Деке", "deke-1"],
-                        "category_meta": [],
-                        "category_meta_id": 0,
-                        "icon": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "id": 2350,
+                        "name": "Ветро-влагозащита А (1,6 х 43,75 м)",
+                        "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m",
+                        "order": 2350,
+                        "parent": 2333,
+                        "children": [
+                            {
+                                "id": 2348,
+                                "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
+                                "slug": "armiruiushchaia-tkan-al-fa-peist",
+                                "order": 2348,
+                                "parent": 2333,
+                                "children": [],
+                                "parents": [
+                                    [
+                                        "Гидро-ветрозащита и пароизоляция",
+                                        "gidro-vetrozashchita-i-paroizoliatsiia",
+                                    ]
+                                ],
+                                "category_meta": [
+                                    {
+                                        "title": "dummy-title",
+                                        "description": "dummy-description",
+                                    }
+                                ],
+                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "is_visible": True,
+                                "is_popular": False,
+                                "thumb_img": "base64string",
+                            }
+                        ],
+                        "parents": [
+                            [
+                                "Гидро-ветрозащита и пароизоляция",
+                                "gidro-vetrozashchita-i-paroizoliatsiia",
+                            ]
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description",
+                            }
+                        ],
+                        "icon": None,
+                        "image_url": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "is_visible": True,
+                        "is_popular": False,
+                        "thumb_img": "base64string",
                     },
-                    "category_id": 1,
-                    "title": "Product A",
+                    "title": "Ветро-влагозащита А (1,6 х 43,75 м)",
                     "brand": {
-                        "id": 1,
-                        "name": "Deke",
-                        "icon": "/media/category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                        "order": 1,
+                        "id": 6,
+                        "name": "ISOBOX",
+                        "icon": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "order": 0,
+                        "slug": "isobox",
                     },
-                    "brand_id": 1,
-                    "description": "Product description",
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
-                    "slug": "product-a",
-                    "created_at": "2024-03-14T10:00:00Z",
-                    "city_price": 100.0,
-                    "old_price": 120.0,
+                    "article": "620223",
+                    "description": "Ветро-влагозащитная пленка А – паропроницаемый материал, состоящий из полипропиленового нетканого полотна. Сохраняет теплозащитные характеристики утеплителя и продлевает срок службы всей конструкции.",
+                    "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m-5138",
+                    "created_at": "2024-06-04T16:57:46.221822+03:00",
+                    "city_price": 120.00,
+                    "old_price": 130.00,
                     "characteristic_values": [
                         {
-                            "id": 1663,
-                            "characteristic_name": "Выбранный цвет",
-                            "value": "Шоколад (RAL 8019)",
+                            "id": 67720,
+                            "characteristic_name": "Применение",
+                            "value": "Применяется для защиты теплоизоляционного слоя и внутренних элементов конструкции стен от ветра, атмосферной влаги и не препятствует выходу водяных паров из утеплителя.",
+                            "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-i-vnutrennikh-elementov-konstruktsii-sten-ot-vetra-atmosfernoi-vlagi-i-ne-prepiatstvuet-vykhodu-vodianykh-parov-iz-uteplitelia",
                         },
                         {
-                            "id": 1664,
-                            "characteristic_name": "Вес брутто",
-                            "value": "18.3 кг",
+                            "id": 67721,
+                            "characteristic_name": "Страна происхождения",
+                            "value": "Россия",
+                            "slug": "rossiia",
                         },
                     ],
                     "images": [
                         {
-                            "id": 1,
-                            "image_url": "/media/category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                        },
-                        {
-                            "id": 2,
-                            "image_url": "/media/category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                        },
+                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "thumb_img": "base64string",
+                        }
                     ],
                     "in_stock": True,
+                    "is_popular": False,
+                    "priority": 500,
+                    "thumb_img": "base64string",
+                    "files": [
+                        {
+                            "id": 5,
+                            "file": "/media/catalog/products/documents/20240301_142235.heic",
+                            "name": "Test",
+                            "product": 5138,
+                        },
+                    ],
                 },
                 description="Пример ответа для получения подробой информации о конкретном продукте в Swagger UI",
                 summary="Пример ответа для получения подробой информации о конкретном продукте",
@@ -447,28 +417,19 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 request_only=True,
                 value={
                     "title": "Product A",
-                    "brand": 1,
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
+                    "brand_id": 1,
+                    "article": "620223",
                     "slug": "product-a",
                     "city_price": 100.0,
                     "old_price": 120.0,
-                    "images": [
-                        {
-                            "id": 1,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
-                        {
-                            "id": 2,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
-                    ],
-                    "category_slug": "category-a",
-                    "brand_slug": "brand-a",
-                    "in_stock": True,
-                    "is_popular": True,
+                    "category_id": 2,
                     "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
+                    "in_stock": True,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
                 },
                 description="Пример запроса на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример запроса на создание нового продукта в каталоге",
@@ -478,30 +439,104 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 name="Create Response Example",
                 response_only=True,
                 value={
-                    "id": 1,
-                    "title": "Product A",
-                    "brand": 1,
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
-                    "slug": "product-a",
-                    "city_price": 100.0,
-                    "old_price": 120.0,
-                    "images": [
+                    "id": 5138,
+                    "category": {
+                        "id": 2350,
+                        "name": "Ветро-влагозащита А (1,6 х 43,75 м)",
+                        "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m",
+                        "order": 2350,
+                        "parent": 2333,
+                        "children": [
+                            {
+                                "id": 2348,
+                                "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
+                                "slug": "armiruiushchaia-tkan-al-fa-peist",
+                                "order": 2348,
+                                "parent": 2333,
+                                "children": [],
+                                "parents": [
+                                    [
+                                        "Гидро-ветрозащита и пароизоляция",
+                                        "gidro-vetrozashchita-i-paroizoliatsiia",
+                                    ]
+                                ],
+                                "category_meta": [
+                                    {
+                                        "title": "dummy-title",
+                                        "description": "dummy-description",
+                                    }
+                                ],
+                                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "is_visible": True,
+                                "is_popular": False,
+                                "thumb_img": "base64string",
+                            }
+                        ],
+                        "parents": [
+                            [
+                                "Гидро-ветрозащита и пароизоляция",
+                                "gidro-vetrozashchita-i-paroizoliatsiia",
+                            ]
+                        ],
+                        "category_meta": [
+                            {
+                                "title": "dummy-title",
+                                "description": "dummy-description",
+                            }
+                        ],
+                        "icon": None,
+                        "image_url": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "is_visible": True,
+                        "is_popular": False,
+                        "thumb_img": "base64string",
+                    },
+                    "title": "Ветро-влагозащита А (1,6 х 43,75 м)",
+                    "brand": {
+                        "id": 6,
+                        "name": "ISOBOX",
+                        "icon": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "order": 0,
+                        "slug": "isobox",
+                    },
+                    "article": "620223",
+                    "description": "Ветро-влагозащитная пленка А – паропроницаемый материал, состоящий из полипропиленового нетканого полотна. Сохраняет теплозащитные характеристики утеплителя и продлевает срок службы всей конструкции.",
+                    "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m-5138",
+                    "created_at": "2024-06-04T16:57:46.221822+03:00",
+                    "city_price": 120.00,
+                    "old_price": 130.00,
+                    "characteristic_values": [
                         {
-                            "id": 1,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "id": 67720,
+                            "characteristic_name": "Применение",
+                            "value": "Применяется для защиты теплоизоляционного слоя и внутренних элементов конструкции стен от ветра, атмосферной влаги и не препятствует выходу водяных паров из утеплителя.",
+                            "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-i-vnutrennikh-elementov-konstruktsii-sten-ot-vetra-atmosfernoi-vlagi-i-ne-prepiatstvuet-vykhodu-vodianykh-parov-iz-uteplitelia",
                         },
                         {
-                            "id": 2,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "id": 67721,
+                            "characteristic_name": "Страна происхождения",
+                            "value": "Россия",
+                            "slug": "rossiia",
                         },
                     ],
-                    "category_slug": "category-a",
-                    "brand_slug": "brand-a",
+                    "images": [
+                        {
+                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "thumb_img": "base64string",
+                        }
+                    ],
                     "in_stock": True,
-                    "is_popular": True,
-                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "is_popular": False,
+                    "priority": 500,
+                    "thumb_img": "base64string",
+                    "files": [
+                        {
+                            "id": 5,
+                            "file": "/media/catalog/products/documents/20240301_142235.heic",
+                            "name": "Test",
+                            "product": 5138,
+                        },
+                    ],
                 },
                 description="Пример ответа на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример ответа на создание нового продукта в каталоге",
@@ -524,6 +559,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "id": 1,
                     "title": "Product A",
                     "brand": 1,
+                    "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
@@ -531,17 +567,17 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
-                        {
-                            "id": 2,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
+                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                        }
                     ],
                     "category_slug": "category-a",
-                    "is_popular": True,
+                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "in_stock": True,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
                 },
                 description="Пример ответа для получения информации о конкретном продукте в каталоге в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном продукте в каталоге отзыве",
@@ -562,8 +598,9 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 name="Update Request Example",
                 request_only=True,
                 value={
-                    "title": "Updated Product A",
+                    "title": "Product A",
                     "brand": 1,
+                    "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
@@ -571,22 +608,17 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
-                        {
-                            "id": 2,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
+                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                        }
                     ],
                     "category_slug": "category-a",
-                    "brand_slug": "brand-a",
-                    "in_stock": True,
-                    "is_popular": True,
                     "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
                     "in_stock": True,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
                 },
                 description="Пример запроса на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример запроса на обновление информации о продукте в каталоге",
@@ -599,6 +631,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "id": 1,
                     "title": "Product A",
                     "brand": 1,
+                    "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
@@ -606,22 +639,17 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
-                        {
-                            "id": 2,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
+                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                        }
                     ],
                     "category_slug": "category-a",
-                    "brand_slug": "brand-a",
-                    "in_stock": True,
-                    "is_popular": True,
                     "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
                     "in_stock": True,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
                 },
                 description="Пример ответа на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на обновление информации о продукте в каталоге",
@@ -642,8 +670,8 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 name="Partial Update Request Example",
                 request_only=True,
                 value={
-                    "title": "Updated Product A",
-                    "brand": 2,
+                    "title": "Product A",
+                    "brand": 1,
                 },
                 description="Пример запроса на частичное обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример запроса на частичное обновление информации о продукте в каталоге",
@@ -654,8 +682,9 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                 response_only=True,
                 value={
                     "id": 1,
-                    "title": "Updated Product A",
+                    "title": "Product A",
                     "brand": 1,
+                    "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
                     "slug": "product-a",
@@ -663,23 +692,17 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
-                            "id": 1,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
-                        {
-                            "id": 2,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                        },
+                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                        }
                     ],
                     "category_slug": "category-a",
-                    "brand_slug": "brand-a",
-                    "in_stock": True,
-                    "is_popular": True,
                     "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
                     "in_stock": True,
-                    "cart_quantity": 10,
+                    "in_promo": True,
+                    "is_new": True,
+                    "priority": 500,
                 },
                 description="Пример ответа на частичное обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о продукте в каталоге",

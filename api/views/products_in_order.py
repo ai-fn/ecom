@@ -18,40 +18,37 @@ class ProductsInOrderViewSet(ModelViewSet):
         examples=[
             OpenApiExample(
                 name="List Products in Order Example",
-                value=[
-                    {
-                        "id": 2,
-                        "order": 1,
-                        "product": {
-                            "id": 11,
-                            "title": "Желоб водосточный 3 м Premium, шоколад",
-                            "brand": 1,
-                            "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                            "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                            "city_price": 74.87,
-                            "old_price": 74.87,
-                            "images": [
-                                {
-                                    "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
-                                },
-                                {
-                                    "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
-                                },
-                                {
-                                    "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
-                                },
-                            ],
-                            "in_stock": True,
-                            "category_slug": "seriia-premium-3",
-                            "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                            "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                            "is_popular": False,
-                        },
-                        "quantity": 15,
-                        "price": "2.23",
+                value={
+                    "id": 2,
+                    "order": 1,
+                    "product": {
+                        "id": 11,
+                        "title": "Желоб водосточный 3 м Premium, шоколад",
+                        "brand": 1,
+                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                        "city_price": 74.87,
+                        "old_price": 74.87,
+                        "images": [
+                            {
+                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                            },
+                            {
+                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                            },
+                        ],
+                        "in_stock": True,
+                        "category_slug": "seriia-premium-3",
+                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                        "is_popular": False,
                     },
-                    # Добавьте другие продукты, если есть
-                ],
+                    "quantity": 15,
+                    "price": "2.23",
+                },
                 description="Пример ответа при запросе списка продуктов в заказе в Swagger UI",
                 response_only=True,
                 media_type="application/json",
