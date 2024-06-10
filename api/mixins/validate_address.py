@@ -6,7 +6,7 @@ from geopy.geocoders import Nominatim
 
 class ValidateAddressMixin:
 
-    def validate(self, data):
+    def validate_address(self, address):
 
         def split_address(address):
             parts = set()
@@ -14,14 +14,10 @@ class ValidateAddressMixin:
                 parts.update(part.strip().split())
             return parts
 
-
-        data = super().validate(data)
-        address = data.get("address")
         if not address:
-            return ValidationError()
+            return ValidationError("Адрес не может быть пустым.")
         
         try:
-
             geolocator = Nominatim(user_agent="my_geocoder")
             locations = geolocator.geocode(address, exactly_one=False)
             if not locations:
@@ -42,10 +38,8 @@ class ValidateAddressMixin:
             if max_match_score < 0.8:
                 raise ValidationError("Адрес найден, но значительно отличается от введенного.")
 
-            data['address'] = max_match_address
-
             logger.info(f"Найден адрес: {max_match_address}")
+            return max_match_address
+        
         except GeocoderServiceError as e:
             raise ValidationError(f"{str(e)}\nОшибка службы геокодирования. Пожалуйста, повторите попытку позже.")
-        return data
-
