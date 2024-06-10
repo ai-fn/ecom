@@ -116,7 +116,7 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(_("Фамилия "), max_length=35, blank=True, null=True)
     email = models.EmailField(_("Почта"), help_text=_("Адрес электронной почты"), blank=True, null=True)
     phone = models.CharField(
-        verbose_name=_("Номер телефона"), null=True, blank=True, unique=True, max_length=16
+        verbose_name=_("Номер телефона"), null=True, blank=True, unique=True, max_length=16, help_text=_("In format +7xxxxxxxxxx")
     )
     address = models.CharField(_("Адрес"), max_length=1024, null=True, blank=True)
     is_customer = models.BooleanField(
@@ -135,13 +135,16 @@ class CustomUser(AbstractUser):
             models.Index(fields=["phone"], name="customuser_phone_idx"),
             models.Index(fields=["address"], name="customuser_address_idx"),
         ]
+    
+    def __str__(self) -> str:
+        return f"CustomUser({self.phone})"
 
-    def delete(self, using: Any = ..., keep_parents: bool = ...):
+    def delete(self, *args):
 
         if not self.is_active:
             pass
         else:
-            self.is_active = True
+            self.is_active = False
             self.first_name = (
                 f"Удаленный пользователь ({self.first_name} {self.last_name})"
             )
