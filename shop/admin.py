@@ -95,6 +95,7 @@ class ProductAdmin(admin.ModelAdmin):
         "category",
         "is_popular",
         "is_new",
+        'priority',
     )
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ("title",)
