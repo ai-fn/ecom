@@ -1,17 +1,58 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from account.models import City, CityGroup, CustomUser
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.core.signals import setting_changed
 from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import ValidationError
+
+from account.models import City, CityGroup, CustomUser
+from api.mixins import ValidatePhoneNumberMixin
 
 from .signals import set_cases
 
-# Register your models here.
+
+class CustomUserValidation(ValidatePhoneNumberMixin):
+
+    def clean_phone(self):
+        try:
+            return self.validate_phone_number(self.cleaned_data.get('phone'))
+        except ValidationError as e:
+            self.add_error("phone", _(str(e.detail[0])))
 
 
-class UserAdmin(UserAdmin):
+class CustomUserChangeForm(CustomUserValidation, UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = "__all__"
+
+
+class CustomUserCreationForm(CustomUserValidation, UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = "__all__"
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = self.cleaned_data.get('phone')
+        if commit:
+            user.save()
+
+        return user
+
+
+class CustomUserAdmin(UserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    list_display = (
+        "phone",
+        "email",
+        "last_name",
+        "first_name",
+        "is_staff",
+    )
     fieldsets = (
-        *UserAdmin.fieldsets[:2],
+        *UserAdmin.fieldsets[:1],
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'phone', 'address')}),
         (
             _("Permissions"),
             {
@@ -27,8 +68,16 @@ class UserAdmin(UserAdmin):
         ),
         *UserAdmin.fieldsets[3:]
     )
+    add_fieldsets = (
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'phone', 'address')}),
+        (None, {
+            'classes': ('wide',),
+            'fields': ('password1', 'password2'),
+        }),
+    )
 
-admin.site.register(CustomUser, UserAdmin)
+
+admin.site.register(CustomUser, CustomUserAdmin)
 
 
 @admin.register(City)
