@@ -209,4 +209,4 @@ def send_email_with_attachment(email_to, file_path):
     email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, [email_to])
     email.attach_file(file_path)
     result = email.send(fail_silently=True)
-    logger.debug(f"CSV file of products was mailed with status: {("failed", "success")[result == 1]}")
+    logger.debug(f"CSV file of products was mailed with status: {result}")
