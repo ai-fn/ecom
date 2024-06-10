@@ -1,5 +1,6 @@
 import phonenumbers
 from rest_framework.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 class ValidatePhoneNumberMixin:
@@ -9,8 +10,8 @@ class ValidatePhoneNumberMixin:
         try:
             parsed_number = phonenumbers.parse(phone_number, None)
             if not phonenumbers.is_valid_number(parsed_number):
-                raise ValidationError("Invalid phone number.")
+                raise ValidationError(_("Invalid phone number."))
         except phonenumbers.phonenumberutil.NumberParseException:
-            raise ValidationError("Invalid phone number.")
+            raise ValidationError(_("Invalid phone number."))
 
         return value
