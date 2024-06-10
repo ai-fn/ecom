@@ -51,7 +51,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
             )
 
         # Order the queryset by priority
-        self.queryset = self.queryset.order_by("priority")
+        self.queryset = self.queryset.order_by("-priority")
 
         return self.queryset
 
