@@ -26,5 +26,4 @@ deploy:
         git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
         docker compose -f docker-compose-traefik.yml build &&
         docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
-        docker compose exec web python manage.py migrate --settings=megashop.settings.local &&
-        docker system prune"
+        docker compose exec web python manage.py migrate --settings=megashop.settings.local"
