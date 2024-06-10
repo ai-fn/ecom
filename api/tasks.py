@@ -149,20 +149,24 @@ def export_products_to_csv(email_to=None):
             ]
         )
 
-        current_prices = {price.product_id: {} for price in prices}
+        current_prices = {}
         for price in prices:
+            current_prices.setdefault(price.product_id, {})
             current_prices[price.product_id][price.city_group.name] = price.price
 
-        current_characteristics = {cv.product_id: {} for cv in characteristic_values}
+        current_characteristics = {}
         for cv in characteristic_values:
+            current_characteristics.setdefault(cv.product_id, {})
             current_characteristics[cv.product_id][cv.characteristic.name] = cv.value
 
-        current_files = {pf.product_id: [] for pf in product_files}
+        current_files = {}
         for pf in product_files:
+            current_files.setdefault(pf.product_id, [])
             current_files[pf.product_id].append((os.path.basename(pf.file.name), pf.name))
 
-        current_images = {pi.product_id: [] for pi in product_images}
+        current_images = {}
         for pi in product_images:
+            current_images.setdefault(pi.product_id, [])
             current_images[pi.product_id].append(os.path.basename(pi.image.url))
 
         for product in serializer.data:
