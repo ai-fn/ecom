@@ -2,8 +2,11 @@ import csv
 import os
 import subprocess
 from celery import shared_task
+
 from django.conf import settings
 from django.db import transaction
+from django.core.mail import EmailMessage
+
 from loguru import logger
 
 from PIL import Image
@@ -18,6 +21,8 @@ from shop.models import (
     Product,
     Price,
     City,
+    ProductFile,
+    ProductImage,
     Promo,
 )
 from unidecode import unidecode
@@ -109,19 +114,19 @@ def set_opacity(image: Image, opacity: float):
     return image
 
 
-# TODO add "SKU" processing
+
 @shared_task
 def export_products_to_csv(email_to=None):
     # Экспорт данных в CSV
-    products = Product.objects.all()
-    prices = Price.objects.all()
-    city_group_names = prices.values_list("city_group__name", flat=True)
-    characteristic_names = Characteristic.objects.values_list("name", flat=True)
-    characteristic_values = (
-        CharacteristicValue.objects.values_list("value", "characteristic", "product")
-        .order_by("characteristic__name")
-        .distinct("characteristic__name")
-    )
+    products = Product.objects.all().order_by('id')
+    prices = Price.objects.all().order_by('product_id', 'city_group__name')
+    product_files = ProductFile.objects.all().order_by('product_id')
+    product_images = ProductImage.objects.all().order_by('product_id')
+    characteristics = Characteristic.objects.all().order_by('name')
+    characteristic_values = CharacteristicValue.objects.all().order_by('product_id', 'characteristic__name')
+
+    city_group_names = set(prices.values_list("city_group__name", flat=True))
+    characteristic_names = characteristics.values_list("name", flat=True)
 
     serializer = ProductDetailSerializer(products, many=True)
     file_path = os.path.join(settings.MEDIA_ROOT, "products.csv")
@@ -130,55 +135,78 @@ def export_products_to_csv(email_to=None):
         writer = csv.writer(file)
         writer.writerow(
             [
-                "TITLE",
-                "CATEGORIES",
-                "SKU",
-                "DESCRIPTION",
+                "Заголовок",
+                "Описание",
+                "Категории",
+                "Артикул",
+                "Бренд",
                 *characteristic_names,
                 *city_group_names,
-                "PRIORITY",
+                "Приоритет",
+                "Сертификаты URL",
+                "Сертификаты Названия",
+                "Изображения",
             ]
         )
+
+        current_prices = {price.product_id: {} for price in prices}
+        for price in prices:
+            current_prices[price.product_id][price.city_group.name] = price.price
+
+        current_characteristics = {cv.product_id: {} for cv in characteristic_values}
+        for cv in characteristic_values:
+            current_characteristics[cv.product_id][cv.characteristic.name] = cv.value
+
+        current_files = {pf.product_id: [] for pf in product_files}
+        for pf in product_files:
+            current_files[pf.product_id].append((os.path.basename(pf.file.name), pf.name))
+
+        current_images = {pi.product_id: [] for pi in product_images}
+        for pi in product_images:
+            current_images[pi.product_id].append(os.path.basename(pi.image.url))
+
         for product in serializer.data:
+            product_id = product["id"]
 
-            # Select product prices by city name
-            price_cells = []
-            for name in city_group_names:
-                try:
-                    val = prices.get(product=product["id"], city_group__name=name).price
-                except (Price.DoesNotExist, AttributeError):
-                    val = ""
-                price_cells.append(val)
+            price_cells = [current_prices.get(product_id, {}).get(name, "") for name in city_group_names]
 
-            categories_names = " | ".join(
-                [item[0] for item in product["category"].get("parents")]
-                + [
-                    product["category"]["name"],
-                    product["title"].split(", ")[-1].capitalize(),
-                ]
+            categories_names = " || ".join(
+                [item[0] for item in product["category"].get("parents", [])] + [product["category"]["name"]]
             )
 
-            # Select product characteristics by characterictic name
-            characteristic_values_cells = []
-            for item in characteristic_names:
-                try:
-                    value = characteristic_values.get(
-                        product=product["id"], characteristic__name=item
-                    )[0]
-                except CharacteristicValue.DoesNotExist:
-                    value = ""
-                characteristic_values_cells.append(value)
+            characteristic_values_cells = [current_characteristics.get(product_id, {}).get(name, "") for name in characteristic_names]
+
+            product_file_urls = " || ".join([file[0] for file in current_files.get(product_id, [])])
+            product_file_names = " || ".join([file[1] for file in current_files.get(product_id, [])])
+
+            product_image_urls = " || ".join(current_images.get(product_id, []))
 
             writer.writerow(
                 [
-                    product["title"],
+                    product.get("title", ""),
+                    product.get("description", ""),
                     categories_names,
-                    product["article"],
-                    product["description"],
+                    product.get("article", ""),
+                    product["brand"].get("name", "") if product.get("brand") else "",
                     *characteristic_values_cells,
                     *price_cells,
-                    product["priority"],
+                    product.get("priority", ""),
+                    product_file_urls,
+                    product_file_names,
+                    product_image_urls,
                 ]
             )
 
+    if email_to:
+        send_email_with_attachment(email_to, file_path)
+
     return file_path
+
+
+def send_email_with_attachment(email_to, file_path):
+    subject = "Экспортированные продукты CSV"
+    body = "Пожалуйста, найдите приложенный CSV-файл с экспортированными продуктами."
+    email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, [email_to])
+    email.attach_file(file_path)
+    result = email.send(fail_silently=True)
+    logger.debug(f"CSV file of products was mailed with status: {("failed", "success")[result == 1]}")
