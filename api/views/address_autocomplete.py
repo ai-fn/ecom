@@ -10,6 +10,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 
 class AddressAutocompleate(APIView):
     permission_classes = [AllowAny]
+    serializer_class = None
 
     @extend_schema(
         tags=["api"],

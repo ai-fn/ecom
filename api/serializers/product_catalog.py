@@ -31,7 +31,7 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
     def get_search_image(self, obj) -> str:
         return obj.search_image.url if obj.search_image else None
     
-    def get_in_promo(self, obj):
+    def get_in_promo(self, obj) -> bool:
         if (price := self.get_city_price(obj)) and (old_price := self.get_old_price(obj)):
             return price < old_price
         return False

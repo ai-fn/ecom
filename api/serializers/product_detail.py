@@ -1,4 +1,6 @@
+from typing import Any
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 
 from api.mixins import SerializerGetPricesMixin
 from api.serializers import (
@@ -52,7 +54,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
             "files",
         ]
 
-    def get_files(self, obj):
+    def get_files(self, obj) -> ReturnList | Any | ReturnDict:
         return ProductFileSerializer(obj.files, many=True).data
 
 
@@ -67,5 +69,5 @@ class ProductFileSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def get_file(self, obj):
+    def get_file(self, obj) -> str | None:
         return obj.file.url if obj.file else None

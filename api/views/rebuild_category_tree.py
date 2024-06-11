@@ -11,6 +11,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 
 class RebuildCategoryTreeAPIView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = None
 
     @extend_schema(
         summary="Восстановление дерева категорий",
