@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
 
+from loguru import logger
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 
@@ -18,7 +19,7 @@ class GenerateCodeMixin:
         return "".join(choices(digits, k=length))
 
 
-class SendVirifyEmailMixin(GenerateCodeMixin):
+class SendVerifyEmailMixin(GenerateCodeMixin):
 
     _EMAIL_CACHE_PREFIX = getattr(settings, "EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")
     _EMAIL_CACHE_LIFE_TIME = getattr(settings, "EMAIL_CACHE_LIFE_TIME", 60 * 60)

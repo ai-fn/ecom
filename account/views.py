@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
-from api.mixins import SendVirifyEmailMixin
+from api.mixins import SendVerifyEmailMixin
 from api.serializers.user import UserDetailInfoSerializer
 from api.permissions import OwnerOrIsAdmin
 
@@ -22,7 +22,7 @@ class AccountInfoViewSet(
     viewsets.GenericViewSet,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
-    SendVirifyEmailMixin,
+    SendVerifyEmailMixin,
 ):
     serializer_class = UserDetailInfoSerializer
     permission_classes = [OwnerOrIsAdmin, IsAuthenticated]
@@ -83,11 +83,11 @@ class AccountInfoViewSet(
         ],
     )
     @action(methods=["get"], detail=False)
-    @method_decorator(cache_page(SendVirifyEmailMixin._EMAIL_CACHE_REMAINING_TIME))
+    @method_decorator(cache_page(SendVerifyEmailMixin._EMAIL_CACHE_REMAINING_TIME))
     def resend_verify_email(self, request, *args, **kwargs):
         email = request.user.email
         if not email:
-            return Response({"email is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         return self._send_confirm_email(request, request.user, email)
 
@@ -155,7 +155,7 @@ class AccountInfoViewSet(
 
             if address == user.email and user.email_confirmed:
                 return Response(
-                    {"message": _("prodided email address already confirmed")}
+                    {"message": _("provided email address already confirmed")}, status=status.HTTP_200_OK
                 )
 
             user.email = address

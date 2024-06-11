@@ -1,6 +1,5 @@
 import pymorphy2
 
-from functools import wraps
 from django.db.models.signals import (
     pre_save,
 )

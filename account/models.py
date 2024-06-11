@@ -147,7 +147,4 @@ class CustomUser(AbstractUser):
             pass
         else:
             self.is_active = False
-            self.first_name = (
-                f"Удаленный пользователь ({self.first_name} {self.last_name})"
-            )
             self.save(update_fields=["is_active", "first_name"])
