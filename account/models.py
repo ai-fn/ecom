@@ -131,6 +131,8 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
+        verbose_name = _("Пользователь")
+        verbose_name_plural = _("Пользователи")
         indexes = [
             models.Index(fields=["phone"], name="customuser_phone_idx"),
             models.Index(fields=["address"], name="customuser_address_idx"),
