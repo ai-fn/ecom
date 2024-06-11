@@ -96,7 +96,6 @@ def delete_image_file(sender, instance, **kwargs):
 @receiver(pre_save)
 def set_thumb(sender, instance, **kwargs):
     if issubclass(sender, ThumbModel) and not instance.thumb_img:
-        print("yappp")
         image_path = None
         if hasattr(instance, "image") and instance.image:
             image_path = instance.image.file.name

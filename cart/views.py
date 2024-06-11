@@ -275,8 +275,8 @@ class OrderViewSet(ModelViewSet):
                     "total": "137.66",
                     "status": {"name": "Создан"},
                 },
-                description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
-                summary="Пример ответа для получения информации о конкретном заказе",
+                description="Пример ответа на создание нового заказа в Swagger UI",
+                summary="Пример ответа ответа на создание нового заказа",
                 media_type="application/json",
             ),
         ],
@@ -322,6 +322,7 @@ class OrderViewSet(ModelViewSet):
                     )
                 except Exception as err:
                     logger.error(err)
+                    order.delete()
                     return Response(
                         {"error": str(err)}, status=status.HTTP_400_BAD_REQUEST
                     )
