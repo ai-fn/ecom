@@ -139,13 +139,14 @@ func processProductFile(tx *gorm.DB, prod *models.Product, row []string, colNms 
 
 	urlSplt := strings.Split(urls, " || ")
 	nmsSplt := strings.Split(nms, " || ")
-	mdPth := "/media/catalog/"
+	mdPth := "media/"
+	ctgPth := "/catalog/"
 
 	var flPth string
 	for i := 0; i < min(len(urlSplt), len(nmsSplt)); i++ {
 		if tx.Where(&models.ProductFile{Name: nmsSplt[i], ProductID: prod.ID}).First(&models.ProductFile{}).RecordNotFound() {
-			flPth = filepath.Join(mdPth, "products/documents", urlSplt[i])
-			if _, err := os.Stat(".." + flPth); err == nil {
+			flPth = filepath.Join(ctgPth, "products/documents", urlSplt[i])
+			if _, err := os.Stat(filepath.Join("..", mdPth, flPth)); err == nil {
 				if err := tx.Create(&models.ProductFile{Name: nmsSplt[i], File: flPth, ProductID: prod.ID}).Error; err != nil {
 					log.Printf("ProductFile creation failed: %v\n", err)
 					return err
@@ -282,7 +283,7 @@ func processProduct(prodCtgs []models.Category, tx *gorm.DB, row []string, prod 
 
 	idx, ok := colNms["Артикул"]
 	if !ok {
-		return fmt.Errorf("Артикул column is required")
+		return fmt.Errorf("артикул column is required")
 	}
 	cellVal, err := utils.GetFromSlice(row, idx)
 	if err != nil {
