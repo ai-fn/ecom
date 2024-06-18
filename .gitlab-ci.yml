@@ -14,8 +14,8 @@ deploy:
       chmod 600 ~/.ssh/gitlab
       cat >>~/.ssh/config << END
       Host target-shop
-        HostName $SSH_HOST
-        User $SSH_USER
+        HostName ${SSH_HOST}
+        User ${SSH_USER}
         IdentityFile ~/.ssh/gitlab
         LogLevel ERROR
         StrictHostKeyChecking no
