@@ -538,7 +538,7 @@ class FooterItem(TimeBasedModel):
     column = models.PositiveSmallIntegerField(_("Номер колонки"))
     order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер")
     title = models.CharField(max_length=100, verbose_name="Наименование")
-    link = models.CharField(verbose_name="Ссылка", blank=True, null=True)
+    link = models.CharField(verbose_name="Ссылка", blank=False, null=False, default="#")
 
     class Meta:
         ordering = ["order"]
