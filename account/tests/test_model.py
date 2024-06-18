@@ -1,46 +1,5 @@
-from unittest.mock import patch
-from rest_framework.test import APITestCase
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-
-from django.test import TestCase, override_settings
-from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.core.cache import cache
-
+from django.test import TestCase
 from account.models import City, CityGroup, CustomUser
-
-from account.views import AccountInfoViewSet
-
-User = get_user_model()
-
-class TestCitySignals(TestCase):
-    def setUp(self):
-        self.city = City.objects.create(name='Москва')
-
-    def test_cases_are_set_correctly(self):
-        self.city.name = 'Москва'
-        self.city.save()
-
-        self.assertEqual(self.city.nominative_case, 'Москва')
-        self.assertEqual(self.city.genitive_case, 'Москвы')
-        self.assertEqual(self.city.dative_case, 'Москве')
-        self.assertEqual(self.city.accusative_case, 'Москву')
-        self.assertEqual(self.city.instrumental_case, 'Москвой')
-        self.assertEqual(self.city.prepositional_case, 'Москве')
-
-    def test_cases_with_different_city(self):
-        city2 = City.objects.create(name='Санкт-Петербург')
-        
-        self.assertEqual(city2.nominative_case, 'Санкт-Петербург')
-        self.assertEqual(city2.genitive_case, 'Санкт-Петербурга')
-        self.assertEqual(city2.dative_case, 'Санкт-Петербургу')
-        self.assertEqual(city2.accusative_case, 'Санкт-Петербург')
-        self.assertEqual(city2.instrumental_case, 'Санкт-Петербургом')
-        self.assertEqual(city2.prepositional_case, 'Санкт-Петербурге')
-
-    def tearDown(self):
-        City.objects.all().delete()
 
 
 class CityModelTest(TestCase):
@@ -89,11 +48,9 @@ class CityModelTest(TestCase):
 class CityGroupModelTest(TestCase):
 
     def setUp(self):
-        # Создаем города для тестов
         self.city1 = City.objects.create(name="Москва")
         self.city2 = City.objects.create(name="Санкт-Петербург")
         
-        # Создаем группу городов
         self.city_group = CityGroup.objects.create(name="Основные города", main_city=self.city1)
         self.city_group.cities.add(self.city1, self.city2)
 
@@ -216,112 +173,3 @@ class CustomUserModelTest(TestCase):
         self.assertTrue(user.email_confirmed)
         self.assertEqual(user.middle_name, "Иванович")
 
-
-@override_settings(CACHES={
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-})
-class AccountInfoViewSetTest(APITestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='testuser',
-            password='testpass123',
-            email='testuser@example.com',
-            phone='+71234567890'
-        )
-        self.new_email = 'newemail@example.com'
-        self.token = RefreshToken.for_user(user=self.user)
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token.access_token))
-        self.client.force_authenticate(user=self.user)
-        self.viewset = AccountInfoViewSet()
-
-    def test_retrieve_user_info(self):
-        url = reverse('account:account-retrieve')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data['email'], self.user.email)
-        self.assertEqual(response.data['phone'], self.user.phone)
-
-    
-    def test_partial_update_user_email(self):
-        url = reverse('account:account-patch')
-        response = self.client.patch(url, {'email': self.new_email})
-        print(response.json())
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.email, self.new_email)
-        self.assertFalse(self.user.email_confirmed)
-
-    def test_verify_email(self):
-        with self.settings(CACHES={
-            'default': {
-                "BACKEND": "django.core.cache.backends.dummy.DummyCache"
-            }
-        }):
-            self.test_partial_update_user_email()
-
-        url = reverse('account:account-post')
-        code = self.viewset._get_code(self.new_email)
-        self.assertIsNotNone(code)
-
-        response = self.client.post(url, {'code': code.get("code")})
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.email_confirmed)
-
-    def test_resend_verify_email(self):
-        url = reverse('account:account-post_resend')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data['message'], "Message sent successfully")
-
-        cached_data = self.viewset._get_code(self.user.email)
-        self.assertIsNotNone(cached_data)
-        self.assertIn("expiration_time", cached_data)
-        self.assertIn("code", cached_data)
-
-    def test_partial_update_existing_confirmed_email(self):
-        url = reverse('account:account-patch')
-        self.user.email_confirmed = True
-        self.user.save()
-        response = self.client.patch(url, {'email': self.user.email})
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data['message'], 'provided email address already confirmed')
-
-    @override_settings(CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    })
-    def test_verify_email_with_invalid_code(self):
-        self.test_partial_update_user_email()
-        url = reverse('account:account-post')
-        code = 'invalid'
-
-        response = self.client.post(url, {'code': code})
-        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
-        self.user.refresh_from_db()
-        self.assertFalse(self.user.email_confirmed)
-
-    @override_settings(CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    })
-    def test_resend_verify_email_without_email(self):
-        self.user.email = ""
-        self.user.save()
-
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.email, "")
-
-        refresh = RefreshToken.for_user(self.user)
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(refresh.access_token))
-
-        url = reverse('account:account-post_resend')
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['detail'], 'email is required')

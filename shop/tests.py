@@ -1,26 +1,28 @@
 import unittest
+from django.test import TestCase
 from rest_framework import test
 from shop.models import Product, Category, Brand
 from django.urls import reverse
 
 
-class TestProductModel(test.APITestCase):
+class TestProductModel(TestCase):
 
-    def setUp(self):
-        self.brand = Brand.objects.create(name="dummy brand", order=1)
-        self.category = Category.objects.create(name="dummy category", order=1)
-        self.prod = Product.objects.create(
+    @classmethod
+    def setUpTestData(cls):
+        cls.brand = Brand.objects.create(name="dummy brand", order=1)
+        cls.category = Category.objects.create(name="dummy category", order=1)
+        cls.prod = Product.objects.create(
             title="dummy-product",
-            category=self.category,
+            category=cls.category,
             article="dummy-article",
-            brand=self.brand,
+            brand=cls.brand,
             slug="dummy-product",
         )
-        self.prod1 = Product.objects.create(
+        cls.prod1 = Product.objects.create(
             title="dummy-product1",
-            category=self.category,
+            category=cls.category,
             article="dummy-article1",
-            brand=self.brand,
+            brand=cls.brand,
             slug="dummy-product1",
         )
 

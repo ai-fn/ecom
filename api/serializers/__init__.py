@@ -1,6 +1,7 @@
 from ._document import CategoryDocumentSerializer
 from ._document import ProductDocumentSerializer
 from ._document import ReviewDocumentSerializer
+from ._document import ImageSerializer
 from .price import PriceSerializer
 from ._jwt import (
     MyTokenObtainPairSerializer,

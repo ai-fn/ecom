@@ -1,8 +1,7 @@
 from api.serializers.price import PriceSerializer
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
-from api.serializers.product_image import ProductImageSerializer
 
-from shop.documents import CategoryDocument, ProductDocument, ReviewDocument
+from shop.documents import CategoryDocument, ReviewDocument
 from rest_framework import serializers
 
 from shop.models import Product
