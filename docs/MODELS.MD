@@ -1,4 +1,3 @@
-```md
 # Shop App Models
 
 ## 1. Модель `Category`
