@@ -8,8 +8,11 @@ from api.serializers import (
     CharacteristicValueSerializer,
     ProductImageSerializer,
 )
-from api.serializers import BrandSerializer
-from shop.models import Brand, Category, Product, ProductFile
+from api.serializers import (
+    BrandSerializer,
+    ProductGroupSerializer,
+)
+from shop.models import Brand, Category, Product, ProductFile, ProductGroup
 
 
 class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSerializer):
@@ -29,6 +32,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
     )
     files = serializers.SerializerMethodField()
     priority = serializers.IntegerField(read_only=True)
+    groups = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -52,14 +56,28 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
             "priority",
             "thumb_img",
             "files",
+            "groups",
         ]
+    
+    def get_groups(self, obj) -> None | ReturnDict:
+        context = {"current_product": obj.id}
+        groups = ProductGroup.objects.filter(products=obj)
+        visual_groups = groups.filter(characteristic__name__iexact="цвет")
+        return {
+            "visual_groups": ProductGroupSerializer(
+                visual_groups, many=True, context={"visual_groups": True, **context}
+            ).data,
+            "non_visual_group": ProductGroupSerializer(
+                groups.exclude(id__in=visual_groups), many=True, context=context
+            ).data,
+        }
 
     def get_files(self, obj) -> ReturnList | Any | ReturnDict:
         return ProductFileSerializer(obj.files, many=True).data
 
 
 class ProductFileSerializer(serializers.ModelSerializer):
-    
+
     file = serializers.SerializerMethodField()
 
     class Meta:

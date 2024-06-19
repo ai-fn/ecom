@@ -6,7 +6,7 @@ from .price import PriceSerializer
 from ._jwt import (
     MyTokenObtainPairSerializer,
     MyTokenRefreshSerializer,
-) 
+)
 from .category_meta_data import CategoryMetaDataSerializer
 from .user import UserCreateSerializer
 from .user import UserSerializer
@@ -22,8 +22,15 @@ from .category import CategorySerializer
 from .product_image import ProductImageSerializer
 from .brand import BrandSerializer
 from .product_catalog import ProductCatalogSerializer
-from .product_detail import ProductDetailSerializer
-from .product_detail import ProductFileSerializer
+from .product_group import (
+    ProductForGroupNonImageSerializer,
+    ProductForGroupImageSerializer,
+    ProductGroupSerializer,
+)
+from .product_detail import (
+    ProductDetailSerializer,
+    ProductFileSerializer,
+)
 from .products_in_order import ProductsInOrderSerializer
 from .order import OrderSerializer, OrderStatusSerializer
 from .setting import SettingSerializer
