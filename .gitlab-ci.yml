@@ -21,7 +21,7 @@ deploy:
         StrictHostKeyChecking no
       END
       echo "Running deploy..."
-      ssh -f ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
+      ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
         docker compose -f docker-compose-traefik.yml down --timeout 30 &&
         git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
         docker compose -f docker-compose-traefik.yml build &&
