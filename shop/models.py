@@ -330,10 +330,10 @@ class Promo(ThumbModel):
         max_length=64,
     )
     categories = models.ManyToManyField(
-        Category, verbose_name="Категории в акции", related_name="promos"
+        Category, verbose_name="Категории в акции", related_name="promos", blank=True
     )
     products = models.ManyToManyField(
-        Product, verbose_name="Товары в акции", related_name="promos"
+        Product, verbose_name="Товары в акции", related_name="promos", blank=True
     )
     image = models.ImageField(
         upload_to="promo/",

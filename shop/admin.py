@@ -107,6 +107,7 @@ class ProductAdmin(admin.ModelAdmin):
         "is_new",
     )
     inlines = [PromoInline, CharacteristicValueInline, ProductGroupInline]
+    filter_horizontal = ("additional_categories", "similar_products",)
 
 
 @admin.register(FavoriteProduct)
@@ -139,6 +140,7 @@ class ProductGroupAdmin(admin.ModelAdmin):
         "characteristic",
     )
     search_fields = ("name", "products__title")
+    filter_horizontal = ("products",)
 
 
 @admin.register(ProductFrequenlyBoughtTogether)
@@ -294,6 +296,9 @@ class PromoAdmin(admin.ModelAdmin):
         "cities__name",
         "categories__name",
         "categories__slug",
+    )
+    filter_horizontal = (
+        "categories", "products", "cities",
     )
 
 

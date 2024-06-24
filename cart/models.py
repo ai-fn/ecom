@@ -19,6 +19,10 @@ class OrderStatus(TimeBasedModel):
     def get_created_pk(*args, **kwargs) -> int:
         return OrderStatus.get_created_status().pk
 
+    class Meta:
+        verbose_name = _("Статус заказа")
+        verbose_name_plural = _("Статусы заказа")
+
 
 class Order(TimeBasedModel):
     customer = models.ForeignKey(
