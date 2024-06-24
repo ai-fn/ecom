@@ -53,9 +53,8 @@ class CartItemSerializerTestCase(TestCase):
         self.assertIsNone(serializer.data["product"].get("city_price"))
         
         Price.objects.create(product=self.product, city_group=self.city_group, price=100.99)
-        serializer = CartItemSerializer(data=data, context={"request": request})
+        serializer = CartItemSerializer(data=data, context={"request": request, "city_domain": request.query_params.get("city_domain")})
         serializer.is_valid()
-
         self.assertIsNotNone(serializer.data["product"].get("city_price"))
 
     def test_cart_item_serializer_update(self):
