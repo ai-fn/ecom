@@ -21,7 +21,7 @@ services:
 
   web:
     build: .
-    command: [ "./wait-for-it.sh", "db:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=0.0.0.0:8000", "megashop.wsgi:application"]
+    command: [ "./wait-for-it.sh", "db:${POSTGRES_PORT}", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=0.0.0.0:${DJANGO_PORT}", "megashop.wsgi:application"]
     restart: always
     volumes:
       - .:/code
@@ -34,7 +34,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
-      - "traefik.http.services.megashop.loadbalancer.server.port=8000"
+      - "traefik.http.services.megashop.loadbalancer.server.port=${DJANGO_PORT}"
       - "traefik.http.routers.megashop.rule=Host(`dev-api-shop.altawest.ru`)"
       - "traefik.http.routers.megashop.entrypoints=http"
       - "traefik.http.routers.megashop-secure.rule=Host(`dev-api-shop.altawest.ru`)"
@@ -107,7 +107,7 @@ services:
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT}:9090"
     depends_on:
       - web
       - db
@@ -123,8 +123,8 @@ services:
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "${ELASTICSEARCH_HTTP_PORT}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT}:9300"
     restart: always
 
     mem_limit: 2g  # Установите лимит памяти, например, в 2 гигабайта

@@ -19,7 +19,7 @@ services:
 
   web:
     build: .
-    command: [ "./wait-for-it.sh", "db:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=unix:/code/gunicorn.sock", "megashop.wsgi:application" ]
+    command: [ "./wait-for-it.sh", "db:${POSTGRES_PORT}", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=unix:/code/gunicorn.sock", "megashop.wsgi:application" ]
     restart: always
     volumes:
       - .:/code
@@ -107,7 +107,7 @@ services:
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT}:9090"
     depends_on:
       - web
       - db
@@ -125,7 +125,7 @@ services:
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"  # Обратите внимание на безопасность сети в продакшене
+      - "${ELASTICSEARCH_HTTP_PORT}:9200"  # Обратите внимание на безопасность сети в продакшене
     ulimits:
       memlock:
         soft: -1

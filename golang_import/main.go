@@ -32,9 +32,10 @@ func init() {
 		dbName     = os.Getenv("POSTGRES_DB")
 		dbUser     = os.Getenv("POSTGRES_USER")
 		dbPassword = os.Getenv("POSTGRES_PASSWORD")
+		dbPort     = os.Getenv("POSTGRES_PORT")
 	)
 
-	db, err = gorm.Open("postgres", fmt.Sprintf("host=%s port=5432 user=%s dbname=%s password=%s sslmode=disable", dbHost, dbUser, dbName, dbPassword))
+	db, err = gorm.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", dbHost, dbPort, dbUser, dbName, dbPassword))
 	if err != nil {
 		log.Fatal("Failed to connect to database: " + err.Error())
 	}
@@ -564,7 +565,12 @@ func sendReqToPyServ(method, viewName string, body *bytes.Buffer) error {
 	}
 
 	client := &http.Client{}
-	url := fmt.Sprintf("http://web:8000/%s/", viewName)
+	pyPort := os.Getenv("DJANGO_PORT")
+	if pyPort == "" {
+		pyPort = "8000"
+	}
+
+	url := fmt.Sprintf("http://web:%s/%s/", pyPort, viewName)
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return err

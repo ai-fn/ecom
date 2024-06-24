@@ -115,28 +115,41 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 DB_NAMES = ("test", "default")
 USE_TEST_DB = os.environ.get("USE_TEST_DB", "0") == "1"
 
+# PORTS SETTINGS
+
+GO_PORT = os.getenv("GO_PORT", "8080")
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+DJANGO_PORT = os.getenv("DJANGO_PORT", "8000")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
+PROMETHEUS_PORT = os.getenv("PROMETHEUS_PORT", "9090")
+ELASTICSEARCH_HTTP_PORT = os.getenv("ELASTICSEARCH_HTTP_PORT", "9200")
+ELASTICSEARCH_TRANSPORT_PORT = os.getenv("ELASTICSEARCH_TRANSPORT_PORT", "9300")
+
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")
+
 DATABASES = {
     DB_NAMES[not USE_TEST_DB]: {
         "ENGINE": "django_prometheus.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "default_db_name"),
         "USER": os.environ.get("POSTGRES_USER", "default_user"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
-        "HOST": "db",  # Или другой хост, если он определён
-        "PORT": "5432",  # Стандартный порт для PostgreSQL
+        "HOST": POSTGRES_HOST,
+        "PORT": POSTGRES_PORT,
     },
     DB_NAMES[USE_TEST_DB]: {
         "ENGINE": "django_prometheus.db.backends.postgresql",
         "NAME": "test_" + os.environ.get("POSTGRES_DB", "default_db_name"),
         "USER": os.environ.get("POSTGRES_USER", "default_user"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
-        "HOST": "db",  # Или другой хост, если он определён
-        "PORT": "5432",  # Стандартный порт для PostgreSQL
-    }
+        "HOST": "db",
+        "PORT": POSTGRES_PORT,
+    },
 }
 
 # Pagination settings
-PAGINATE_BY = os.getenv('PAGINATE_BY') or 9
-PAGE_SIZE = os.getenv('PAGE_SIZE') or 32
+PAGINATE_BY = os.getenv("PAGINATE_BY") or 9
+PAGE_SIZE = os.getenv("PAGE_SIZE") or 32
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -223,7 +236,7 @@ SPECTACULAR_SETTINGS = {
 }
 ELASTICSEARCH_DSL = {
     "default": {
-        "hosts": "http://elasticsearch:9200",
+        "hosts": f"http://elasticsearch:{ELASTICSEARCH_HTTP_PORT}",
         # "http_auth": ("elastic", "k1fjic392h9io"),
     }
 }
@@ -255,7 +268,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = "redis://cache:6379/0"
+CELERY_BROKER_URL = f"redis://cache:{REDIS_PORT}/0"
 CELERY_RESULT_BACKEND = f"db+postgresql://{os.environ.get('POSTGRES_USER', 'default_user')}:{os.environ.get('POSTGRES_PASSWORD', 'default_password')}@db/{os.environ.get('POSTGRES_DB', 'default_db_name')}"
 
 # Default token generator setting
@@ -263,12 +276,12 @@ DEFAULT_TOKEN_GENERATOR = PasswordResetTokenGenerator()
 
 # Email settings
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', "True") == "True"
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', "False") == "True"
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False") == "True"
+EMAIL_PORT = os.getenv("EMAIL_PORT", "2525")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # SMS settings
 # SMS_LOGIN = os.environ.get("SMS_LOGIN", "DEFAULT")
@@ -279,7 +292,7 @@ CONFIRM_CODE_LIFE_TIME = os.environ.get("CONFIRM_CODE_LIFE_TIME", 60)
 SMS_CACHE_PREFIX = os.environ.get("SMS_CACHE_PREFIX", "SMS_CACHE")
 CACHE_PREFIX = os.environ.get("CACHE_PREFIX", "CACHE_PREFIX")
 
-BASE_DOMAIN = os.environ.get('BASE_DOMAIN', 'krov.market')
+BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "krov.market")
 
 # TG SETTINGS
 TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "DEFAULT")
@@ -289,18 +302,16 @@ SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM") == "True"
 CHAT_ID = os.environ.get("CHAT_ID", "DEFAULT")
 
 # CACHE SETTINGS
-CACHE_LOCATION = os.environ.get("CACHE_LOCATION", "redis://cache:6379/0")
+CACHE_LOCATION = os.environ.get("CACHE_LOCATION", f"redis://cache:{REDIS_PORT}/0")
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": CACHE_LOCATION,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient"
-        },
-        "KEY_PREFIX": CACHE_PREFIX
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        "KEY_PREFIX": CACHE_PREFIX,
     }
 }
-CACHE_BACKEND = 'default'
+CACHE_BACKEND = "default"
 
 # VERIFY EMAIL SETTINGS
 EMAIL_CACHE_PREFIX = os.getenv("EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")

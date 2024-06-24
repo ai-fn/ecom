@@ -30,18 +30,18 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:8080"
+      - "${GO_PORT}:8080"
   
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:${DJANGO_PORT}
     restart: always
     volumes:
       - .:/code
     depends_on:
       - db
     ports:
-      - "8000:8000"
+      - "${DJANGO_PORT}:8000"
     env_file:
       - .env
       
@@ -77,8 +77,8 @@ services:
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "${ELASTICSEARCH_HTTP_PORT}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT}:9300"
     restart: always
 
     mem_limit: 2g  # Установите лимит памяти, например, в 2 гигабайта
