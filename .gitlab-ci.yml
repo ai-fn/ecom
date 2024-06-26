@@ -3,6 +3,8 @@ stages:
 
 deploy:
   stage: deploy
+  tags:
+    - backend
   only:
     - main
   script:
