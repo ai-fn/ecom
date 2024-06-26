@@ -556,8 +556,8 @@ class MainPageSliderImage(ThumbModel):
     title = models.CharField(
         max_length=255, blank=True, null=True, verbose_name="Заголовок"
     )
-    description = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Описание"
+    description = models.TextField(
+        max_length=1024, blank=True, null=True, verbose_name="Описание"
     )
     button_text = models.CharField(
         max_length=100, blank=True, null=True, verbose_name="Текст на кнопке"
