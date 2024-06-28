@@ -81,6 +81,9 @@ def delete_image_file(sender, instance, **kwargs):
         if hasattr(instance, "image") and instance.image:
             paths.append(instance.image.path)
 
+        if hasattr(instance, "tiny_image") and instance.tiny_image:
+            paths.append(instance.tiny_image.path)
+
         if hasattr(instance, "catalog_image") and instance.catalog_image:
             paths.append(instance.catalog_image.path)
 

@@ -6,11 +6,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 
-from loguru import logger
-
 from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
-
 
 
 class ThumbModel(TimeBasedModel):
@@ -565,6 +562,11 @@ class MainPageSliderImage(ThumbModel):
     image = models.ImageField(
         upload_to="main/sliders/",
         verbose_name="Изображение",
+    )
+    tiny_image = models.ImageField(
+        upload_to="main/sliders/tiny",
+        verbose_name="Изображение",
+        null=True
     )
 
     class Meta:
