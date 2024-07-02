@@ -1,7 +1,3 @@
-from ._document import CategoryDocumentSerializer
-from ._document import ProductDocumentSerializer
-from ._document import ReviewDocumentSerializer
-from ._document import ImageSerializer
 from .price import PriceSerializer
 from ._jwt import (
     MyTokenObtainPairSerializer,
@@ -46,3 +42,8 @@ from .sidebar_menu_item import SideBarMenuItemSerializer
 from .metadata import ImageMetaDataSerializer, OpenGraphMetaSerializer
 from .search_history import SearchHistorySerializer
 from .favorite_product import FavoriteProductSerializer
+from ._document import CategoryDocumentSerializer
+from ._document import ProductDocumentSerializer
+from ._document import ReviewDocumentSerializer
+from ._document import ImageSerializer
+from ._document import BrandDocumentSerializer

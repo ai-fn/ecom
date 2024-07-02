@@ -1,7 +1,8 @@
 from api.serializers.price import PriceSerializer
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
-from shop.documents import CategoryDocument, ReviewDocument
+from api.serializers import ProductCatalogSerializer, UserSerializer
+from shop.documents import BrandDocument, CategoryDocument, ReviewDocument
 from rest_framework import serializers
 
 from shop.models import Product
@@ -16,6 +17,13 @@ class CategoryDocumentSerializer(DocumentSerializer):
 
     class Meta:
         document = CategoryDocument
+        fields = "__all__"
+
+
+class BrandDocumentSerializer(DocumentSerializer):
+
+    class Meta:
+        document = BrandDocument
         fields = "__all__"
 
 

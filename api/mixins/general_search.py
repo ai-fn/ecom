@@ -3,17 +3,26 @@ from elasticsearch_dsl import Q, Search, connections
 from loguru import logger
 
 from account.models import City
-from shop.documents import BrandDocument, CategoryDocument, ProductDocument, ReviewDocument
+from shop.documents import (
+    BrandDocument,
+    CategoryDocument,
+    ProductDocument,
+    ReviewDocument,
+)
 from shop.models import Category, Price, Product, SearchHistory
 from api.serializers import (
-    PriceSerializer, ReviewDocumentSerializer, ProductDocumentSerializer, CategoryDocumentSerializer
+    PriceSerializer,
+    ReviewDocumentSerializer,
+    ProductDocumentSerializer,
+    CategoryDocumentSerializer,
+    BrandDocumentSerializer,
 )
 
 
 class GeneralSearchMixin:
 
     def g_search(self, query: str, domain: str, exclude_: Iterable = None):
-        
+
         if self.request.user.is_authenticated:
             SearchHistory.objects.get_or_create(title=query, user=self.request.user)
 
@@ -56,13 +65,16 @@ class GeneralSearchMixin:
         search = Search(using=client, index=indexes)
 
         if exclude_:
-            search = search.extra(size=sum(
-                [
-                    globals()[classname.capitalize()].objects.count()
-                    for classname in default
-                    if classname not in exclude_ and classname.capitalize() in globals()
-                ]
-            ))
+            search = search.extra(
+                size=sum(
+                    [
+                        globals()[classname.capitalize()].objects.count()
+                        for classname in default
+                        if classname not in exclude_
+                        and classname.capitalize() in globals()
+                    ]
+                )
+            )
 
         if query:
             search = search.query(
@@ -78,7 +90,12 @@ class GeneralSearchMixin:
         response = search.execute()
 
         city = City.objects.filter(domain=domain).first() if domain else None
-        categorized_results = {"categories": [], "products": [], "reviews": []}
+        categorized_results = {
+            "categories": [],
+            "products": [],
+            "reviews": [],
+            "brands": [],
+        }
 
         for hit in response:
             if hit.meta.index == ProductDocument._index._name:
@@ -87,6 +104,8 @@ class GeneralSearchMixin:
                 self.process_category(hit, categorized_results)
             elif hit.meta.index == ReviewDocument._index._name:
                 self.process_review(hit, categorized_results)
+            elif hit.meta.index == BrandDocument._index._name:
+                self.process_brand(hit, categorized_results)
 
         return categorized_results
 
@@ -99,7 +118,9 @@ class GeneralSearchMixin:
 
         product_data = ProductDocumentSerializer(product).data
         if city:
-            price = Price.objects.filter(product=product, city_group__cities=city).first()
+            price = Price.objects.filter(
+                product=product, city_group__cities=city
+            ).first()
             if price:
                 product_data["price"] = PriceSerializer(price).data
         categorized_results["products"].append(product_data)
@@ -115,6 +136,9 @@ class GeneralSearchMixin:
         categorized_results["categories"].append(serializer.data)
 
     def process_review(self, hit, categorized_results):
-        serializer = ReviewDocumentSerializer(hit)
-        categorized_results["reviews"].append(serializer.data)
+        serializer = ReviewDocumentSerializer(hit).data
+        categorized_results["reviews"].append(serializer)
 
+    def process_brand(self, hit, categorized_results):
+        serializer = BrandDocumentSerializer(hit).data
+        categorized_results["brands"].append(serializer)
