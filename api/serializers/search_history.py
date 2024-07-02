@@ -12,4 +12,4 @@ class SearchHistorySerializer(ModelSerializer):
 
     class Meta:
         model = SearchHistory
-        fields = ["title", "user_id"]
+        fields = ["id", "title", "user_id"]

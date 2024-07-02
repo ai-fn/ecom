@@ -87,4 +87,16 @@ class ReviewDocument(Document):
         ]
 
 
-# You can add more Document classes for other models in a similar fashion.
+@registry.register_document
+class BrandDocument(Document):
+
+    class Index:
+        name = "brands"
+        settings = {"number_of_shards": 1, "number_of_replicas": 1, "refresh_interval": "1s"}
+
+    class Django:
+        model = Brand
+        fields = [
+            "name",
+            "slug",
+        ]

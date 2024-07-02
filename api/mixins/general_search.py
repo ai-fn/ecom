@@ -3,7 +3,7 @@ from elasticsearch_dsl import Q, Search, connections
 from loguru import logger
 
 from account.models import City
-from shop.documents import CategoryDocument, ProductDocument, ReviewDocument
+from shop.documents import BrandDocument, CategoryDocument, ProductDocument, ReviewDocument
 from shop.models import Category, Price, Product, SearchHistory
 from api.serializers import (
     PriceSerializer, ReviewDocumentSerializer, ProductDocumentSerializer, CategoryDocumentSerializer
@@ -35,7 +35,7 @@ class GeneralSearchMixin:
             "brand": {
                 "queries": (Q("wildcard", brand__name={"value": f"*{query}*"}),),
                 "fields": ("brand__name",),
-                "index": 1,
+                "indexes": (BrandDocument._index._name,),
             },
             "review": {
                 "queries": (Q("wildcard", review={"value": f"*{query}*"}),),
