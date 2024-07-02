@@ -260,6 +260,18 @@ class FavoriteProduct(TimeBasedModel):
         return f"Избранный товар({self.user.username} - {self.product.title})"
 
 
+class ProductFile(TimeBasedModel):
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_("Продукт"), related_name="files")
+    name = models.CharField(verbose_name=_("Наименование"), max_length=512)
+    file = models.FileField(verbose_name=_("Файл"), max_length=512, upload_to="catalog/products/documents/")
+    
+    class Meta:
+        verbose_name = _("Документация")
+        verbose_name_plural = _("Документация")
+        unique_together = (("product", "name"),)
+
+
 class ProductFrequenlyBoughtTogether(TimeBasedModel):
     product_from = models.ForeignKey(
         Product,
@@ -281,6 +293,28 @@ class ProductFrequenlyBoughtTogether(TimeBasedModel):
         verbose_name = "Часто покупают вместе"
         verbose_name_plural = "Часто покупают вместе"
         unique_together = (("product_from", "product_to"),)
+
+
+class ProductImage(ThumbModel):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="images",
+        verbose_name="Товар",
+    )
+    name = models.CharField(max_length=255, verbose_name="Название")
+    image = models.ImageField(
+        upload_to="catalog/products/images/",
+        verbose_name="Изображение",
+        max_length=255
+    )
+
+    class Meta:
+        verbose_name = "Изображение товара"
+        verbose_name_plural = "Изображения товаров"
+
+    def __str__(self):
+        return f"Image for {self.product.title}"
 
 
 class Promo(ThumbModel):
@@ -311,6 +345,48 @@ class Promo(ThumbModel):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class Characteristic(TimeBasedModel):
+    class Meta:
+        verbose_name = "Характеристика"
+        verbose_name_plural = "Характеристики"
+
+    name = models.CharField(max_length=255, verbose_name=_("Наименование"))
+    slug = models.SlugField(_("Слаг"), unique=True, max_length=256)
+    category = models.ForeignKey(
+        Category,
+        related_name="characteristics",
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name=_("Категория")
+    )
+    for_filtering = models.BooleanField(
+        _("Для фильтрации"),
+        default=False,
+        help_text=_("Будет ли эта характеристика отображаться в фильтрах товаров"),
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class CharacteristicValue(TimeBasedModel):
+    class Meta:
+        verbose_name = "Значение характеристики для товара"
+        verbose_name_plural = "Значение характеристик для товара"
+        unique_together = (("characteristic", "product", "slug"))
+
+    product = models.ForeignKey(
+        Product, verbose_name=_("Продукт"),  related_name="characteristic_values", on_delete=models.CASCADE
+    )
+    characteristic = models.ForeignKey(Characteristic, verbose_name=_("Характеристика"),  on_delete=models.CASCADE)
+    value = models.CharField(verbose_name=_("Значение"), max_length=1024)
+    slug = models.SlugField(verbose_name=_("Слаг"), null=False, blank=False, max_length=1024)
+
+    def __str__(self):
+        return f"{self.characteristic.name}: {self.value}"
 
 
 class Review(TimeBasedModel):
