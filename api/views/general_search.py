@@ -21,7 +21,7 @@ from drf_spectacular.types import OpenApiTypes
             type=OpenApiTypes.STR,
         ),
         OpenApiParameter(
-            name="domain",
+            name="city_domain",
             description="Domain to filter prices by city or region",
             required=False,
             type=OpenApiTypes.STR,
