@@ -1,5 +1,8 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.decorators import action
 
 from api.serializers import SearchHistorySerializer
 from api.permissions import IsOwner
@@ -112,10 +115,30 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
 @extend_schema(tags=["Shop"])
 class SearchHistoryViewSet(ModelViewSet):
 
-    queryset = SearchHistory.objects.all()
+    queryset = SearchHistory.objects.all().order_by("-created_at")
     serializer_class = SearchHistorySerializer
     permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(user=self.request.user)
+        queryset = super().get_queryset().filter(user=self.request.user)
+        if self.action == "list":
+            return queryset[:10]
+
+        return queryset
+    
+    @extend_schema(
+        description="Очистка истории поиска",
+        summary="Очистка истории поиска",
+        responses={204: None},
+        examples=[
+            OpenApiExample(
+                name="Request Example",
+                value={},
+            ),
+        ]
+    )
+    @action(detail=False, methods=['post'])
+    def clear_history(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        queryset.delete()
+        return Response([], status=HTTP_204_NO_CONTENT)
