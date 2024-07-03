@@ -137,7 +137,7 @@ class SearchHistoryViewSet(ModelViewSet):
             ),
         ]
     )
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['delete'])
     def clear_history(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         queryset.delete()
