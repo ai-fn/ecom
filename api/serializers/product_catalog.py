@@ -17,19 +17,28 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
         source="brand.slug",
         read_only=True
     )
-    catalog_image = serializers.SerializerMethodField()
-    search_image = serializers.SerializerMethodField()
+
+    catalog_image_url = serializers.SerializerMethodField(read_only=True)
+    search_image_url = serializers.SerializerMethodField(read_only=True)
+    original_image_url = serializers.SerializerMethodField(read_only=True)
+    catalog_image = serializers.ImageField(write_only=True)
+    search_image = serializers.ImageField(write_only=True)
+    original_image = serializers.ImageField(write_only=True)
+
     cart_quantity = serializers.IntegerField(min_value=1, read_only=True)
     in_promo = serializers.SerializerMethodField()
 
     def get_category_slug(self, obj) -> str:
         return obj.category.slug if obj.category else None
 
-    def get_catalog_image(self, obj) -> str:
+    def get_catalog_image_url(self, obj) -> str:
         return obj.catalog_image.url if obj.catalog_image else None
 
-    def get_search_image(self, obj) -> str:
+    def get_search_image_url(self, obj) -> str:
         return obj.search_image.url if obj.search_image else None
+
+    def get_original_image_url(self, obj) -> str:
+        return obj.original_image.url if obj.original_image else None
     
     def get_in_promo(self, obj) -> bool:
         if (price := self.get_city_price(obj)) and (old_price := self.get_old_price(obj)):
@@ -52,6 +61,10 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
             "brand_slug",
             "search_image",
             "catalog_image",
+            "search_image_url",
+            "original_image_url",           
+            "catalog_image_url",
+            "original_image",
             "cart_quantity",
             "is_popular",
             "is_new",

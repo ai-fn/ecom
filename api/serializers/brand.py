@@ -4,7 +4,8 @@ from shop.models import Brand
 
 
 class BrandSerializer(serializers.ModelSerializer):
-    icon = serializers.SerializerMethodField()
+    icon = serializers.ImageField(write_only=True)
+    icon_url = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Brand
@@ -12,9 +13,10 @@ class BrandSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "icon",
+            "icon_url",
             "order",
             "slug",
         ]
     
-    def get_icon(self, obj) -> str | None:
+    def get_icon_url(self, obj) -> str | None:
         return obj.icon.url if obj.icon else None

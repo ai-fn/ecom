@@ -11,11 +11,12 @@ class CategorySerializer(serializers.ModelSerializer):
     category_meta_id = serializers.PrimaryKeyRelatedField(
         queryset=CategoryMetaData.objects.all(), write_only=True, many=True, source="category_meta"
     )
-    image_url = (
-        serializers.SerializerMethodField()
-    )  # Добавляем поле для URL изображения
-    icon = serializers.SerializerMethodField()
-    parents = serializers.SerializerMethodField()  # Добавляем новое поле для родителей
+    image = serializers.ImageField(write_only=True)
+    icon = serializers.FileField(write_only=True)
+    icon_url = serializers.SerializerMethodField(read_only=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
+
+    parents = serializers.SerializerMethodField()
     is_popular = serializers.BooleanField(read_only=True)
     is_visible = serializers.BooleanField(read_only=True)
 
@@ -32,15 +33,16 @@ class CategorySerializer(serializers.ModelSerializer):
             "category_meta",
             "category_meta_id",
             "icon",
+            "image",
+            "icon_url",
             "image_url",
             "is_visible",
             "is_popular",
             "thumb_img",
         ]
     
-    def get_icon(self, obj) -> str | None:
+    def get_icon_url(self, obj) -> str | None:
         return obj.icon.url if obj.icon else None
-
 
     def get_children(self, obj) -> None | OrderedDict:
         if obj.is_leaf_node():
@@ -48,9 +50,7 @@ class CategorySerializer(serializers.ModelSerializer):
         return CategorySerializer(obj.get_children(), many=True).data
 
     def get_image_url(self, obj) -> None | str:
-        if obj.image:  # Проверяем, есть ли у категории изображение
-            return obj.image.url  # Возвращаем URL изображения
-        return None  # Если изображения нет, возвращаем None
+        return obj.image.url if obj.image else None
 
     def get_parents(self, obj) -> list:
         """

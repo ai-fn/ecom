@@ -1,18 +1,25 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, ImageField
 
 from shop.models import ImageMetaData, OpenGraphMeta
 
 
 class ImageMetaDataSerializer(ModelSerializer):
 
-    image = SerializerMethodField()
+    image = ImageField(write_only=True)
+    image_url = SerializerMethodField(read_only=True)
 
-    def get_image(self, obj) -> str:
+    def get_image_url(self, obj) -> str:
         return obj.image.url if obj.image else None
 
     class Meta:
         model = ImageMetaData
-        exclude = ["open_graph_meta", "created_at", "updated_at", "id"]
+        fields = [
+            "id",
+            "image",
+            "image_url",
+            "width",
+            "height",
+        ]
 
 
 class OpenGraphMetaSerializer(ModelSerializer):
