@@ -33,3 +33,4 @@ from .rebuild_category_tree import RebuildCategoryTreeAPIView
 from .address_autocomplete import AddressAutocompleate
 from .favorite_product import FavoriteProductViewSet
 from .productfile import ProductFileViewSet
+from .productimage import ProductImageViewSet
