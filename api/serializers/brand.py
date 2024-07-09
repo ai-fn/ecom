@@ -18,3 +18,4 @@ class BrandSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['icon'] = instance.icon.url if instance.icon else None
+        return data
