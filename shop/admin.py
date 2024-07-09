@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.core.signals import setting_changed
+from django.contrib.contenttypes.admin import GenericTabularInline
 
 from shop.models import (
     Brand,
@@ -8,6 +9,7 @@ from shop.models import (
     Characteristic,
     CharacteristicValue,
     FavoriteProduct,
+    HTMLMetaTags,
     ImageMetaData,
     OpenGraphMeta,
     Page,
@@ -54,8 +56,17 @@ class ProductGroupInline(admin.TabularInline):
     extra = 1
 
 
+class HTMLMetaTagsInline(GenericTabularInline):
+    model = HTMLMetaTags
+    extra = 1
+
+
 class CustomMPTTModelAdmin(DraggableMPTTAdmin):
-    inlines = [CategoryMetaDataInline, CharacteristicInline]
+    inlines = [
+        CategoryMetaDataInline,
+        CharacteristicInline,
+        HTMLMetaTagsInline,
+    ]
     prepopulated_fields = {"slug": ("name",)}
     mptt_level_indent = 30
 
@@ -84,6 +95,9 @@ class BrandAdmin(admin.ModelAdmin):
         "order",
     )
     prepopulated_fields = {"slug": ("name",)}
+    inlines = [
+        HTMLMetaTagsInline,
+    ]
 
 
 @admin.register(Product)
@@ -106,7 +120,12 @@ class ProductAdmin(admin.ModelAdmin):
         "in_stock",
         "is_new",
     )
-    inlines = [PromoInline, CharacteristicValueInline, ProductGroupInline]
+    inlines = [
+        PromoInline,
+        CharacteristicValueInline,
+        ProductGroupInline,
+        HTMLMetaTagsInline,
+    ]
     filter_horizontal = ("additional_categories", "similar_products",)
 
 
@@ -412,3 +431,23 @@ class SearchHistoryAdmin(admin.ModelAdmin):
     )
     ordering = ("created_at", "title")
     list_filter = ("user",)
+
+
+@admin.register(HTMLMetaTags)
+class MetaDataAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'content_type',
+        'object_id',
+    )
+    search_fields = (
+        'id',
+        'title',
+        'description',
+        'keywords'
+    )
+    list_filter = (
+        'content_type',
+        'object_id',
+    )

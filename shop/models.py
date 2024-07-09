@@ -18,6 +18,7 @@ class ThumbModel(TimeBasedModel):
         verbose_name="Миниатюра", null=True, blank=True, max_length=1024
     )
 
+
 class Category(ThumbModel, MPTTModel):
     name = models.CharField(
         max_length=255,
@@ -25,7 +26,6 @@ class Category(ThumbModel, MPTTModel):
     )
 
     slug = models.SlugField(unique=True, max_length=256)
-
     parent = TreeForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -84,6 +84,41 @@ class Category(ThumbModel, MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ["name"]
+
+
+class HTMLMetaTags(TimeBasedModel):
+
+    class Meta:
+        verbose_name = _("Тег метаданных")
+        verbose_name_plural = _("Теги метаданных")
+        ordering = ("-created_at", "id",)
+
+    title = models.CharField(
+        _("Заголовок"),
+        max_length=1024,
+        help_text="Шаблон заголовка объекта с подстановкой названия города в разных падежах:"
+        " 'Купить {object_name} в {prepositional_case}'\nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        " (Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
+    )
+    description = models.TextField(
+        _("Описание"),
+        max_length=4096,
+        help_text="Шаблон описания с подстановкой названия объекта и названия города в разных падежах ()"
+        "'Купить {object_name} в {city_group}'\nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        "(Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
+    )
+    keywords = models.TextField(
+        _("Ключевые слова"),
+        max_length=4096,
+        help_text="Ключевые слова: 'keyword1, keyword2, keyword3'",
+    )
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, verbose_name=_("Тип объекта")
+    )
+    object_id = models.PositiveIntegerField(
+        verbose_name=_("Уникальный идентификатор объекта")
+    )
+    content_object = GenericForeignKey("content_type", "object_id")
 
 
 class CategoryMetaData(TimeBasedModel):
@@ -171,21 +206,21 @@ class Product(ThumbModel):
         verbose_name="Изображение в каталоге",
         blank=True,
         null=True,
-        max_length=255
+        max_length=255,
     )
     search_image = models.ImageField(
         upload_to="catalog/products/images/",
         verbose_name="Изображение в поиске",
         blank=True,
         null=True,
-        max_length=255
+        max_length=255,
     )
     original_image = models.ImageField(
         upload_to="catalog/products/images/",
         verbose_name="Исходное изображение",
         blank=True,
         null=True,
-        max_length=255
+        max_length=255,
     )
     slug = models.SlugField(
         unique=True,
@@ -262,10 +297,17 @@ class FavoriteProduct(TimeBasedModel):
 
 class ProductFile(TimeBasedModel):
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_("Продукт"), related_name="files")
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name=_("Продукт"),
+        related_name="files",
+    )
     name = models.CharField(verbose_name=_("Наименование"), max_length=512)
-    file = models.FileField(verbose_name=_("Файл"), max_length=512, upload_to="catalog/products/documents/")
-    
+    file = models.FileField(
+        verbose_name=_("Файл"), max_length=512, upload_to="catalog/products/documents/"
+    )
+
     class Meta:
         verbose_name = _("Документация")
         verbose_name_plural = _("Документация")
@@ -304,9 +346,7 @@ class ProductImage(ThumbModel):
     )
     name = models.CharField(max_length=255, verbose_name="Название")
     image = models.ImageField(
-        upload_to="catalog/products/images/",
-        verbose_name="Изображение",
-        max_length=255
+        upload_to="catalog/products/images/", verbose_name="Изображение", max_length=255
     )
 
     class Meta:
@@ -359,7 +399,7 @@ class Characteristic(TimeBasedModel):
         related_name="characteristics",
         on_delete=models.CASCADE,
         null=True,
-        verbose_name=_("Категория")
+        verbose_name=_("Категория"),
     )
     for_filtering = models.BooleanField(
         _("Для фильтрации"),
@@ -376,14 +416,21 @@ class CharacteristicValue(TimeBasedModel):
     class Meta:
         verbose_name = "Значение характеристики для товара"
         verbose_name_plural = "Значение характеристик для товара"
-        unique_together = (("characteristic", "product", "slug"))
+        unique_together = ("characteristic", "product", "slug")
 
     product = models.ForeignKey(
-        Product, verbose_name=_("Продукт"),  related_name="characteristic_values", on_delete=models.CASCADE
+        Product,
+        verbose_name=_("Продукт"),
+        related_name="characteristic_values",
+        on_delete=models.CASCADE,
     )
-    characteristic = models.ForeignKey(Characteristic, verbose_name=_("Характеристика"),  on_delete=models.CASCADE)
+    characteristic = models.ForeignKey(
+        Characteristic, verbose_name=_("Характеристика"), on_delete=models.CASCADE
+    )
     value = models.CharField(verbose_name=_("Значение"), max_length=1024)
-    slug = models.SlugField(verbose_name=_("Слаг"), null=False, blank=False, max_length=1024)
+    slug = models.SlugField(
+        verbose_name=_("Слаг"), null=False, blank=False, max_length=1024
+    )
 
     def __str__(self):
         return f"{self.characteristic.name}: {self.value}"
@@ -416,13 +463,12 @@ class Review(TimeBasedModel):
         return f"Комментарий {self.user.last_name} {self.user.first_name}"
 
 
-
-
-
-
 class Price(TimeBasedModel):
     product = models.ForeignKey(
-        Product, related_name="prices", on_delete=models.CASCADE, verbose_name=_("Продукт")
+        Product,
+        related_name="prices",
+        on_delete=models.CASCADE,
+        verbose_name=_("Продукт"),
     )
     city_group = models.ForeignKey(
         CityGroup,
@@ -721,15 +767,17 @@ class Page(TimeBasedModel):
 
     def get_absolute_url(self):
         return f"{self.slug}"
-    
+
 
 class SearchHistory(TimeBasedModel):
 
     title = models.CharField(verbose_name=_("Заголовок поиска"), max_length=128)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Пользователь"))
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, verbose_name=_("Пользователь")
+    )
 
     class Meta:
         verbose_name = _("История поиска")
         verbose_name_plural = _("Истории поиска")
-        ordering = ("-created_at", )
+        ordering = ("-created_at",)
         unique_together = (("title", "user"),)
