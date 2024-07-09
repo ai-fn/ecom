@@ -2,7 +2,6 @@ from django.urls import include, path, re_path
 from rest_framework import routers
 from api.views import (
     BrandView,
-    CategoryMetaDataViewSet,
     CategoryViewSet,
     CharacteristicValueViewSet,
     CharacteristicViewSet,
@@ -53,7 +52,6 @@ router.register(r"settings", SettingViewSet)
 router.register(r"cities", CityViewSet)
 router.register(r"cities-groups", CityGroupViewSet)
 router.register(r"categories", CategoryViewSet)
-router.register(r"categories-metadata", CategoryMetaDataViewSet)
 router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 router.register(r"footer-items", FooterItemViewSet)

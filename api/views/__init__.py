@@ -2,7 +2,6 @@ from ._jwt import MyTokenObtainPairView
 from ._jwt import MyTokenRefreshView
 from .brand import BrandView
 from .category import CategoryViewSet
-from .category_metadata import CategoryMetaDataViewSet
 from .characteristic_value import CharacteristicValueViewSet
 from .characteristic import CharacteristicViewSet
 from .city_group import CityGroupViewSet

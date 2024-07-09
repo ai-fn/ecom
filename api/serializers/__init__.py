@@ -3,7 +3,6 @@ from ._jwt import (
     MyTokenObtainPairSerializer,
     MyTokenRefreshSerializer,
 )
-from .category_meta_data import CategoryMetaDataSerializer
 from .user import UserCreateSerializer
 from .user import UserSerializer
 from .user import UserRegistrationSerializer

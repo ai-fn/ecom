@@ -18,16 +18,6 @@
 | thumb_img          | Миниатюра                                                                                | TextField       | 1024                  |
 | opengraph_metadata | Метаданные OpenGraph                                                                     | GenericRelation | -                     |
 
-## 2. Модель `CategoryMetaData`
-
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| category      | Категория        | ForeignKey    | -                     |
-| title         | Title            | CharField     | 128                   |
-| description   | Описание         | CharField     | 128                   |
 
 ## 3. Модель `Brand`
 

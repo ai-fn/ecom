@@ -1,16 +1,11 @@
 from typing import OrderedDict
 from rest_framework import serializers
 
-from api.serializers import CategoryMetaDataSerializer
-from shop.models import Category, CategoryMetaData
+from shop.models import Category
 
 
 class CategorySerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
-    category_meta = CategoryMetaDataSerializer(many=True, read_only=True)
-    category_meta_id = serializers.PrimaryKeyRelatedField(
-        queryset=CategoryMetaData.objects.all(), write_only=True, many=True, source="category_meta"
-    )
     image = serializers.ImageField(write_only=True)
     icon = serializers.FileField(write_only=True)
     icon_url = serializers.SerializerMethodField(read_only=True)
@@ -30,8 +25,6 @@ class CategorySerializer(serializers.ModelSerializer):
             "parent",
             "children",
             "parents",
-            "category_meta",
-            "category_meta_id",
             "icon",
             "image",
             "icon_url",

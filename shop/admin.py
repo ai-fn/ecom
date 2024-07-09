@@ -5,7 +5,6 @@ from django.contrib.contenttypes.admin import GenericTabularInline
 from shop.models import (
     Brand,
     Category,
-    CategoryMetaData,
     Characteristic,
     CharacteristicValue,
     FavoriteProduct,
@@ -29,11 +28,6 @@ from shop.models import (
     SideBarMenuItem,
 )
 from mptt.admin import DraggableMPTTAdmin
-
-
-class CategoryMetaDataInline(admin.TabularInline):
-    model = CategoryMetaData
-    extra = 1  # Количество пустых форм для новых записей
 
 
 class CharacteristicInline(admin.TabularInline):
@@ -63,7 +57,6 @@ class HTMLMetaTagsInline(GenericTabularInline):
 
 class CustomMPTTModelAdmin(DraggableMPTTAdmin):
     inlines = [
-        CategoryMetaDataInline,
         CharacteristicInline,
         HTMLMetaTagsInline,
     ]
