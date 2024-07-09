@@ -1,3 +1,5 @@
+import os
+
 from typing import Any
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -79,6 +81,12 @@ class City(TimeBasedModel):
 
     def __str__(self):
         return self.name
+    
+    @staticmethod
+    def get_default_city() -> "City":
+        default_name = os.getenv("DEFAULT_CITY_NAME", "москва")
+        city, _ = City.objects.get_or_create(name__iexact=default_name)
+        return city
 
 
 class CityGroup(TimeBasedModel):

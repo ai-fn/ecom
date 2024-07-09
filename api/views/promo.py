@@ -118,13 +118,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "parent": 1,
                             "children": 2,
                             "parents": ["Деке", "deke-1"],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
-                            "category_meta_id": None,
                             "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "is_visible": True,
@@ -195,13 +188,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "parent": 1,
                             "children": 2,
                             "parents": ["Деке", "deke-1"],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
-                            "category_meta_id": None,
                             "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "is_visible": True,
@@ -271,13 +257,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "parent": 1,
                             "children": 2,
                             "parents": ["Деке", "deke-1"],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
-                            "category_meta_id": None,
                             "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "is_visible": True,
@@ -361,13 +340,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "parent": 1,
                             "children": 2,
                             "parents": ["Деке", "deke-1"],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
-                            "category_meta_id": None,
                             "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "is_visible": True,
@@ -451,13 +423,6 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "parent": 1,
                             "children": 2,
                             "parents": ["Деке", "deke-1"],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
-                            "category_meta_id": None,
                             "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
                             "is_visible": True,

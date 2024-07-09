@@ -830,7 +830,6 @@ class CartItemViewSet(ModelViewSet):
                                 "gidro-vetrozashchita-i-paroizoliatsiia",
                             ]
                         ],
-                        "category_meta": [],
                         "icon": None,
                         "image_url": None,
                         "is_visible": True,

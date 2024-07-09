@@ -295,12 +295,6 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                         "gidro-vetrozashchita-i-paroizoliatsiia",
                                     ]
                                 ],
-                                "category_meta": [
-                                    {
-                                        "title": "dummy-title",
-                                        "description": "dummy-description",
-                                    }
-                                ],
                                 "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "is_visible": True,
@@ -313,12 +307,6 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                 "Гидро-ветрозащита и пароизоляция",
                                 "gidro-vetrozashchita-i-paroizoliatsiia",
                             ]
-                        ],
-                        "category_meta": [
-                            {
-                                "title": "dummy-title",
-                                "description": "dummy-description",
-                            }
                         ],
                         "icon": None,
                         "image_url": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -460,12 +448,6 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                         "gidro-vetrozashchita-i-paroizoliatsiia",
                                     ]
                                 ],
-                                "category_meta": [
-                                    {
-                                        "title": "dummy-title",
-                                        "description": "dummy-description",
-                                    }
-                                ],
                                 "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "is_visible": True,
@@ -478,12 +460,6 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                 "Гидро-ветрозащита и пароизоляция",
                                 "gidro-vetrozashchita-i-paroizoliatsiia",
                             ]
-                        ],
-                        "category_meta": [
-                            {
-                                "title": "dummy-title",
-                                "description": "dummy-description",
-                            }
                         ],
                         "icon": None,
                         "image_url": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",

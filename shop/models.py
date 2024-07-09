@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -110,7 +111,8 @@ class HTMLMetaTags(TimeBasedModel):
     keywords = models.TextField(
         _("Ключевые слова"),
         max_length=4096,
-        help_text="Ключевые слова: 'keyword1, keyword2, keyword3'",
+        help_text="Ключевые слова: 'купить в {prepositional_case}, сайдинг в {city_group}, {object_name} в городе {nominative_case}'. nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        " (Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
     )
     content_type = models.ForeignKey(
         ContentType, on_delete=models.CASCADE, verbose_name=_("Тип объекта")
@@ -119,6 +121,26 @@ class HTMLMetaTags(TimeBasedModel):
         verbose_name=_("Уникальный идентификатор объекта")
     )
     content_object = GenericForeignKey("content_type", "object_id")
+
+    def get_formatted_meta_tag(self, field: Literal["title", "description", "keywords"], city_domain: str = None):
+        if not city_domain:
+            city = City.get_default_city()
+        else:
+            city = City.objects.get(domain__iexact=city_domain)
+
+        city_group_name = CityGroup.objects.get(cities=city).name
+        value: str = getattr(self, field)
+        object_name = getattr(self.content_object, "title", None) or getattr(self.content_object, "name", None)
+        return value.format(
+            object_name=object_name,
+            city_group=city_group_name,
+            nominative_case=city.nominative_case,
+            genitive_case=city.genitive_case,
+            dative_case=city.dative_case,
+            accusative_case=city.accusative_case,
+            instrumental_case=city.instrumental_case,
+            prepositional_case=city.prepositional_case
+        )
 
 
 class Brand(TimeBasedModel):

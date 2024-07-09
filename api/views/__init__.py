@@ -33,3 +33,4 @@ from .address_autocomplete import AddressAutocompleate
 from .favorite_product import FavoriteProductViewSet
 from .productfile import ProductFileViewSet
 from .productimage import ProductImageViewSet
+from .html_meta_tags import HTMLMetaTagsViewSet

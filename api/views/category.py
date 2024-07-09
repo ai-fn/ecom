@@ -56,12 +56,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -70,7 +64,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -113,12 +106,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -127,7 +114,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -171,12 +157,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -185,7 +165,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -229,12 +208,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -243,7 +216,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -277,12 +249,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -291,7 +257,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -332,12 +297,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -346,7 +305,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -380,12 +338,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -394,7 +346,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -447,12 +398,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -461,7 +406,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,
@@ -511,12 +455,6 @@ class CategoryViewSet(ModelViewSet):
                                     "gidro-vetrozashchita-i-paroizoliatsiia",
                                 ]
                             ],
-                            "category_meta": [
-                                {
-                                    "title": "dummy-title",
-                                    "description": "dummy-description",
-                                }
-                            ],
                             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                             "is_visible": True,
@@ -525,7 +463,6 @@ class CategoryViewSet(ModelViewSet):
                         },
                     ],
                     "parents": [],
-                    "category_meta": [],
                     "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                     "is_visible": True,

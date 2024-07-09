@@ -16,7 +16,6 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
             "name",
             "slug",
             "parent",
-            "category_meta",
             "is_popular",
             "is_visible",
             "icon",
