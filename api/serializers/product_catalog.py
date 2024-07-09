@@ -33,7 +33,7 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
         data = super().to_representation(instance)
         for attr in ("catalog_image", "search_image", "original_image"):
             val = getattr(instance, attr, None)
-            data[attr] = getattr(val, "url", None)
+            data[attr] = val.url if val and hasattr(val, "url") else None
 
         return data
 
