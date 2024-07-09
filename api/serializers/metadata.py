@@ -5,18 +5,16 @@ from shop.models import ImageMetaData, OpenGraphMeta
 
 class ImageMetaDataSerializer(ModelSerializer):
 
-    image = ImageField(write_only=True)
-    image_url = SerializerMethodField(read_only=True)
-
-    def get_image_url(self, obj) -> str:
-        return obj.image.url if obj.image else None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['image'] = instance.image.url if instance.image else None
+        return data
 
     class Meta:
         model = ImageMetaData
         fields = [
             "id",
             "image",
-            "image_url",
             "width",
             "height",
         ]

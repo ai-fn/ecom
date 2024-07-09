@@ -4,10 +4,6 @@ from shop.models import Category
 
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField(read_only=True)
-    icon_url = serializers.SerializerMethodField(read_only=True)
-    image = serializers.ImageField(write_only=True)
-    icon = serializers.FileField(write_only=True)
 
     class Meta:
         model = Category
@@ -20,14 +16,12 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
             "is_visible",
             "icon",
             "image",
-            "icon_url",
-            "image_url",
             "order",
             "thumb_img",
         ]
-
-    def get_icon_url(self, obj) -> str:
-        return obj.icon.url if obj.icon else None
-
-    def get_image_url(self, obj) -> str:
-        return obj.image.url if obj.image else None
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['icon'] = instance.icon.url if instance.icon else None
+        data['image'] = instance.image.url if instance.image else None
+        return data

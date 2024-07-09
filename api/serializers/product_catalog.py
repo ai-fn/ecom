@@ -18,32 +18,24 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
         read_only=True
     )
 
-    catalog_image_url = serializers.SerializerMethodField(read_only=True)
-    search_image_url = serializers.SerializerMethodField(read_only=True)
-    original_image_url = serializers.SerializerMethodField(read_only=True)
-    catalog_image = serializers.ImageField(write_only=True)
-    search_image = serializers.ImageField(write_only=True)
-    original_image = serializers.ImageField(write_only=True)
-
     cart_quantity = serializers.IntegerField(min_value=1, read_only=True)
     in_promo = serializers.SerializerMethodField()
 
     def get_category_slug(self, obj) -> str:
         return obj.category.slug if obj.category else None
-
-    def get_catalog_image_url(self, obj) -> str:
-        return obj.catalog_image.url if obj.catalog_image else None
-
-    def get_search_image_url(self, obj) -> str:
-        return obj.search_image.url if obj.search_image else None
-
-    def get_original_image_url(self, obj) -> str:
-        return obj.original_image.url if obj.original_image else None
     
     def get_in_promo(self, obj) -> bool:
         if (price := self.get_city_price(obj)) and (old_price := self.get_old_price(obj)):
             return price < old_price
         return False
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for attr in ("catalog_image", "search_image", "original_image"):
+            val = getattr(instance, attr, None)
+            data[attr] = getattr(val, "url", None)
+
+        return data
 
     class Meta:
         model = Product
@@ -61,9 +53,6 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerial
             "brand_slug",
             "search_image",
             "catalog_image",
-            "search_image_url",
-            "original_image_url",           
-            "catalog_image_url",
             "original_image",
             "cart_quantity",
             "is_popular",

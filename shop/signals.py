@@ -96,14 +96,17 @@ def delete_image_file(sender, instance, **kwargs):
                 os.remove(path)
 
 
-@receiver(pre_save)
-def set_thumb(sender, instance, **kwargs):
+@receiver(post_save)
+def set_thumb(sender, instance, created, **kwargs):
+    if not created:
+        return
+
     if issubclass(sender, ThumbModel) and not instance.thumb_img:
         image_path = None
         if hasattr(instance, "image") and instance.image:
-            image_path = instance.image.file.name
+            image_path = instance.image.path
         elif hasattr(instance, "catalog_image") and instance.catalog_image:
-            image_path = instance.catalog_image.file.name
+            image_path = instance.catalog_image.path
 
         if image_path and os.path.isfile(image_path):
             try:
@@ -116,6 +119,7 @@ def set_thumb(sender, instance, **kwargs):
                     with io.BytesIO() as buffer:
                         thumb_image.save(buffer, format="PNG")
                         instance.thumb_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
+                        instance.save()
             except Exception as err:
                 logger.error(
                     f"Error while creating thumbnail image for {instance.__class__.__name__} object with pk {instance.pk}: {err}"

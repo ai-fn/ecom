@@ -6,10 +6,6 @@ from shop.models import Category
 
 class CategorySerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
-    image = serializers.ImageField(write_only=True)
-    icon = serializers.FileField(write_only=True)
-    icon_url = serializers.SerializerMethodField(read_only=True)
-    image_url = serializers.SerializerMethodField(read_only=True)
 
     parents = serializers.SerializerMethodField()
     is_popular = serializers.BooleanField(read_only=True)
@@ -27,12 +23,16 @@ class CategorySerializer(serializers.ModelSerializer):
             "parents",
             "icon",
             "image",
-            "icon_url",
-            "image_url",
             "is_visible",
             "is_popular",
             "thumb_img",
         ]
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['icon'] = instance.icon.url if instance.icon else None
+        data['image'] = instance.image.url if instance.image else None
+        return data
     
     def get_icon_url(self, obj) -> str | None:
         return obj.icon.url if obj.icon else None
