@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_200_OK
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiParameter
 
 from shop.models import HTMLMetaTags
@@ -193,3 +194,33 @@ class HTMLMetaTagsViewSet(ModelViewSet):
             "object_id": obj.object_id,
             "content_type": obj.content_type.id,
         })
+    
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="object_id",
+                type=int,
+                description="Идентификатор объекта",
+                required=True,
+            ),
+            OpenApiParameter(
+                name="object_type",
+                type=str,
+                description="Тип объекта",
+                required=True,
+            ),
+        ],
+    )
+    @action(methods=["get"], detail=False)
+    def get_for_object(self, reqest, *args, **kwargs):
+        content_type = self.request.query_params.get("object_type")
+        object_id = self.request.query_params.get("object_id")
+        if not all((content_type, object_id)):
+            return Response("parametrs 'object_type', 'object_id' both is required", status=HTTP_404_NOT_FOUND)
+
+        queryset = self.queryset.filter(object_id=object_id, content_type__model__iexact=content_type)
+        if not queryset.exists():
+            return Response({"detail": f"Object '{content_type}' with id '{object_id}' not found."}, status=HTTP_404_NOT_FOUND)
+            
+        object = queryset.first()
+        return Response(self.get_serializer(object).data, status=HTTP_200_OK)
