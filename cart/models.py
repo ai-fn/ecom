@@ -91,3 +91,4 @@ class CartItem(TimeBasedModel):
     class Meta:
         verbose_name = "Продукт в корзине пользователя"
         verbose_name_plural = "Продукт в корзине пользователя"
+        unique_together = (("customer", "product"), )
