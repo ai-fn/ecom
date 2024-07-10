@@ -111,7 +111,7 @@ class GeneralSearchMixin:
 
     def process_product(self, hit, city, categorized_results):
         try:
-            product = Product.objects.get(id=hit.id)
+            product = Product.objects.exclude(unavailable_in=city).get(id=hit.id)
         except Product.DoesNotExist:
             logger.info(f"Product with hit {hit.id} not found")
             return

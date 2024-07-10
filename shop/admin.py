@@ -118,8 +118,12 @@ class ProductAdmin(admin.ModelAdmin):
         CharacteristicValueInline,
         ProductGroupInline,
         HTMLMetaTagsInline,
-    ]
-    filter_horizontal = ("additional_categories", "similar_products",)
+    ] 
+    filter_horizontal = (
+        "additional_categories",
+        "similar_products",
+        "unavailable_in", 
+    ) 
 
 
 @admin.register(FavoriteProduct)

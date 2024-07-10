@@ -1,3 +1,5 @@
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import ListModelMixin
 from rest_framework import generics, permissions, response, status
 from api.mixins import CityPricesMixin
 from api.serializers import ProductCatalogSerializer
@@ -6,7 +8,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParamete
 
 
 @extend_schema(tags=["Shop"])
-class SimilarProducts(CityPricesMixin, generics.GenericAPIView):
+class SimilarProducts(CityPricesMixin, ListModelMixin, GenericViewSet):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
@@ -51,7 +53,7 @@ class SimilarProducts(CityPricesMixin, generics.GenericAPIView):
             )
         ],
     )
-    def get(self, request, product_id):
+    def get(self, request, product_id, **kwargs):
         try:
             product = Product.objects.get(pk=product_id)
         except Product.DoesNotExist as err:
@@ -60,13 +62,6 @@ class SimilarProducts(CityPricesMixin, generics.GenericAPIView):
             )
 
         self.domain = request.query_params.get("city_domain")
-        queryset = product.similar_products.all()
+        self.queryset = product.similar_products.exclude(unavailable_in__domain=self.domain)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return response.Response(serializer.data, status=status.HTTP_200_OK)
+        return super().list(request, **kwargs)

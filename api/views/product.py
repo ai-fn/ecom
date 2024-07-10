@@ -38,12 +38,12 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
         return ProductDetailSerializer
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         self.domain = self.request.query_params.get("city_domain")
+        self.queryset = super().get_queryset().exclude(unavailable_in__domain=self.domain)
 
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
-            self.queryset = queryset.annotate(
+            self.queryset = self.queryset.annotate(
                 cart_quantity=Sum(
                     "cart_items__quantity",
                     filter=F("cart_items__customer_id") == self.request.user.id,
@@ -51,7 +51,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
             )
 
         # Order the queryset by priority
-        self.queryset = self.queryset.order_by("-priority")
+        self.queryset = self.queryset.order_by("-priority",)
 
         return self.queryset
 
@@ -151,7 +151,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
     )
     @action(methods=["get"], detail=False)
     def popular_products(self, request, *args, **kwargs):
-        self.queryset = self.get_queryset().filter(is_popular=True)
+        self.queryset = self.filter_queryset(self.get_queryset()).filter(is_popular=True)
         return super().list(request, *args, **kwargs)
 
     @extend_schema(

@@ -289,10 +289,18 @@ class OrderViewSet(ModelViewSet):
 
         cart_items = CartItem.objects.filter(customer=request.user.pk)
 
+
         if not cart_items.exists():
             return Response(
                 {"error": "Корзина пуста."}, status=status.HTTP_404_NOT_FOUND
             )
+        
+        unavailable_products = cart_items.prefetch_related("product").filter(product__unavailable_in__domain=city_domain).values_list("id", flat=True)
+        if unavailable_products.exists():
+            return Response(
+                {"detail": "Товары недоступны для заказа", "cart_items": unavailable_products}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         with transaction.atomic():
