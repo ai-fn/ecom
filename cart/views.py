@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db import transaction
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404
@@ -748,11 +750,16 @@ class CartItemViewSet(ModelViewSet):
 
         existing_cart_dict = {item.product.id: item for item in existing_cart_items}
 
-        for incoming_item in request.data:
-            serializer = SimplifiedCartItemSerializer(data=incoming_item)
+        quantity_dict = defaultdict(int)
+        for el in request.data:
+            serializer = SimplifiedCartItemSerializer(data=el)
             serializer.is_valid(raise_exception=True)
-            product_id = serializer.data.get("product_id")
-            new_quantity = serializer.data.get("quantity")
+            quantity_dict[serializer.data["product_id"]] += serializer.data["quantity"]
+
+        unique_dict = [{"product_id": k, "quantity": v} for k, v in quantity_dict.items()]
+        for incoming_item in unique_dict:
+            product_id = incoming_item["product_id"]
+            new_quantity = incoming_item["quantity"]
 
             if product_id in existing_cart_dict:
                 existing_item = existing_cart_dict[product_id]

@@ -33,9 +33,10 @@ class AddressAutocompleate(APIView):
     )
     def get(self, request):
         query = request.GET.get("q", "")
+        result = []
         if query:
             headers = {
-                "User-Agent": request.META.get('HTTP_USER_AGENT', 'Mozilla/5.0')
+                "User-Agent": "{}/1.0 ({})".format(settings.ROOT_URLCONF.split(".")[0], settings.EMAIL_HOST_USER)
             }
 
             response = requests.get(
@@ -43,10 +44,10 @@ class AddressAutocompleate(APIView):
                 params={"q": query, "format": "json", "addressdetails": 1, "limit": 5, "countrycodes": "ru"},
                 headers=headers,
             )
-            if response.status_code >= 200 and 400 > response.status_code:
+            if 200 <= response.status_code < 400:
                 suggestions = response.json()
                 result = [
                     {"value": suggestion["display_name"]} for suggestion in suggestions
                 ]
-                return Response(result, status=HTTP_200_OK)
-        return Response([], status=HTTP_200_OK)
+
+        return Response(result, status=HTTP_200_OK)
