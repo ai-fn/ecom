@@ -30,7 +30,6 @@ from drf_spectacular.views import (
 )
 
 from api.views.feeds import AllFeedsXMLAPIView, CategoriesFeed, ProductsFeed
-from search import views as search_views
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 
@@ -57,7 +56,6 @@ urlpatterns = (
     [
         path("account/", include("account.urls", namespace="account")),
         path("admin/", admin.site.urls),
-        path("search/", view=search_views.search_view, name="search"),
         path("feeds/products/feeds.xml", ProductsFeed(), name='prods-feeds'),
         path("feeds/categories/feeds.xml", CategoriesFeed(), name='catg-feeds'),
         path("feeds.xml/", AllFeedsXMLAPIView.as_view(), name="all-feeds"),

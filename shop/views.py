@@ -59,24 +59,3 @@ class CustomSitemap(APIView):
         domain = request.query_params.get("domain")
 
         return sitemap(request, sitemaps={k: v(domain) for k, v in sitemaps.items()})
-
-
-class ProductListView(ListView):
-    paginate_by = settings.PAGINATE_BY
-    context_object_name = "products_list"
-
-    def get_queryset(self):
-        self.category = get_object_or_404(Category, slug=self.kwargs["category_slug"])
-
-        # Получаем все подкатегории для выбранной категории
-        categories = self.category.get_descendants(include_self=True)
-
-        # Фильтруем продукты по выбранной категории и всем её подкатегориям
-        return Product.objects.filter(Q(category__in=categories)).select_related(
-            "category"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["category"] = self.category
-        return context
