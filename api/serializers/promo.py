@@ -1,11 +1,12 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from account.models import City
 from shop.models import Category, Product, Promo
 from api.serializers import CategoryDetailSerializer, CitySerializer, ProductCatalogSerializer
+from rest_framework import serializers
 
 
-class PromoSerializer(serializers.ModelSerializer):
+class PromoSerializer(ActiveModelSerializer):
     products = ProductCatalogSerializer(many=True, read_only=True)
     products_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(),

@@ -1,8 +1,8 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Price
 
-class PriceSerializer(serializers.ModelSerializer):
+class PriceSerializer(ActiveModelSerializer):
     class Meta:
         model = Price
         fields = [

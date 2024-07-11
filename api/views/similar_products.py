@@ -41,11 +41,17 @@ class SimilarProducts(CityPricesMixin, ListModelMixin, GenericViewSet):
                     "images": [
                         {
                             "id": 1,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "name": "updated_example",
+                            "thumb_img": "thumb_example_updated.png",
+                            "image": "/media/catalog/products/images/example_updated.png",
+                            "is_active": True,
                         },
                         {
-                            "id": 2,
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "id": 1,
+                            "name": "updated_example",
+                            "thumb_img": "thumb_example_updated.png",
+                            "image": "/media/catalog/products/images/example_updated.png",
+                            "is_active": True,
                         },
                     ],
                     "category_slug": "category-a",
@@ -62,6 +68,8 @@ class SimilarProducts(CityPricesMixin, ListModelMixin, GenericViewSet):
             )
 
         self.domain = request.query_params.get("city_domain")
-        self.queryset = product.similar_products.exclude(unavailable_in__domain=self.domain)
+        self.queryset = product.similar_products.exclude(
+            unavailable_in__domain=self.domain
+        )
 
         return super().list(request, **kwargs)

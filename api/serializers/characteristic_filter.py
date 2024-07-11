@@ -1,8 +1,9 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from api.serializers import ActiveModelSerializer
 from shop.models import Characteristic
+from rest_framework.serializers import SerializerMethodField
 
 
-class CharacteristicFilterSerializer(ModelSerializer):
+class CharacteristicFilterSerializer(ActiveModelSerializer):
     
     values = SerializerMethodField()
 

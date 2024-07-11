@@ -27,7 +27,12 @@ class CharacteristicViewSet(ModelViewSet):
             OpenApiExample(
                 name="List Response Example",
                 response_only=True,
-                value={"id": 1, "name": "Characteristic A", "category": 1},
+                value={
+                    "id": 1,
+                    "name": "Characteristic A",
+                    "category": 1,
+                    "is_active": True,
+                },
                 description="Пример ответа для получения списка всех характеристик в Swagger UI",
                 summary="Пример ответа для получения списка всех характеристик",
                 media_type="application/json",
@@ -45,7 +50,12 @@ class CharacteristicViewSet(ModelViewSet):
             OpenApiExample(
                 name="Retrieve Response Example",
                 response_only=True,
-                value={"id": 1, "name": "Characteristic A", "category": 1},
+                value={
+                    "id": 1,
+                    "name": "Characteristic A",
+                    "category": 1,
+                    "is_active": True,
+                },
                 description="Пример ответа для получения информации о конкретной характеристике в Swagger UI",
                 summary="Пример ответа для получения информации о конкретной характеристике",
                 media_type="application/json",
@@ -64,7 +74,11 @@ class CharacteristicViewSet(ModelViewSet):
             OpenApiExample(
                 name="Create Request Example",
                 request_only=True,
-                value={"name": "New Characteristic", "category": 1},
+                value={
+                    "name": "New Characteristic",
+                    "category": 1,
+                    "is_active": True,
+                },
                 description="Пример запроса на создание новой характеристики в Swagger UI",
                 summary="Пример запроса на создание новой характеристики",
                 media_type="application/json",
@@ -72,7 +86,12 @@ class CharacteristicViewSet(ModelViewSet):
             OpenApiExample(
                 name="Create Response Example",
                 response_only=True,
-                value={"id": 3, "name": "New Characteristic", "category": 1},
+                value={
+                    "id": 3,
+                    "name": "New Characteristic",
+                    "category": 1,
+                    "is_active": True,
+                },
                 description="Пример ответа на создание новой характеристики в Swagger UI",
                 summary="Пример ответа на создание новой характеристики",
                 media_type="application/json",

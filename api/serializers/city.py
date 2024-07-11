@@ -1,10 +1,10 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from account.models import City
 from api.serializers import SimpleCityGroupSerializer
 
 
-class CitySerializer(serializers.ModelSerializer):
+class CitySerializer(ActiveModelSerializer):
 
     class Meta:
         model = City

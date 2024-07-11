@@ -20,7 +20,11 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример успешного ответа",
                 summary="Пример списка поисковых запросов",
                 description="Пример ответа, содержащего список поисковых запросов.",
-                value={"title": "Пример запроса 1"},
+                value={
+                    "id": 1,
+                    "title": "Новый запрос",
+                    "is_active": True,
+                },
                 response_only=True,
             )
         ],
@@ -31,16 +35,32 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
         examples=[
             OpenApiExample(
                 "Пример запроса",
-                summary="Пример запроса на добавление поискового запроса",
+                summary="Пример запроса на добавление поискового запроса (с указанием user_id)",
                 description="Пример тела запроса для добавления нового поискового запроса.",
-                value={"title": "Новый запрос", "user_id": 1},
+                value={
+                    "title": "Новый запрос",
+                    "user_id": 1,
+                },
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Пример запроса",
+                summary="Пример запроса на добавление поискового запроса (без указания user_id)",
+                description="Пример тела запроса для добавления нового поискового запроса.",
+                value={
+                    "title": "Новый запрос",
+                },
                 request_only=True,
             ),
             OpenApiExample(
                 "Пример успешного ответа",
                 summary="Пример успешного ответа при добавлении поискового запроса",
                 description="Пример успешного ответа, содержащего добавленный поисковый запрос.",
-                value={"title": "Новый запрос"},
+                value={
+                    "id": 1,
+                    "title": "Новый запрос",
+                    "is_active": True,
+                },
                 response_only=True,
             ),
         ],
@@ -53,7 +73,11 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример успешного ответа",
                 summary="Пример ответа для одного поискового запроса",
                 description="Пример ответа, содержащего данные одного поискового запроса.",
-                value={"title": "Пример запроса"},
+                value={
+                    "id": 1,
+                    "title": "Пример запроса",
+                    "is_active": True,
+                },
                 response_only=True,
             )
         ],
@@ -66,14 +90,20 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример запроса",
                 summary="Пример запроса на обновление поискового запроса",
                 description="Пример тела запроса для обновления существующего поискового запроса.",
-                value={"title": "Обновленный запрос", "user_id": 1},
+                value={
+                    "title": "Обновленный запрос",
+                },
                 request_only=True,
             ),
             OpenApiExample(
                 "Пример успешного ответа",
                 summary="Пример успешного ответа при обновлении поискового запроса",
                 description="Пример успешного ответа, содержащего обновленный поисковый запрос.",
-                value={"title": "Обновленный запрос"},
+                value={
+                    "id": 1,
+                    "title": "Обновленный запрос",
+                    "is_active": True,
+                },
                 response_only=True,
             ),
         ],
@@ -86,14 +116,20 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример запроса",
                 summary="Пример запроса на частичное обновление поискового запроса",
                 description="Пример тела запроса для частичного обновления существующего поискового запроса.",
-                value={"title": "Частично обновленный запрос", "user_id": 1},
+                value={
+                    "title": "Частично обновленный запрос",
+                },
                 request_only=True,
             ),
             OpenApiExample(
                 "Пример успешного ответа",
                 summary="Пример успешного ответа при частичном обновлении поискового запроса",
                 description="Пример успешного ответа, содержащего частично обновленный поисковый запрос.",
-                value={"title": "Частично обновленный запрос"},
+                value={
+                    "id": 1,
+                    "title": "Частично обновленный запрос",
+                    "is_active": True,
+                },
                 response_only=True,
             ),
         ],
@@ -106,7 +142,6 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример успешного ответа",
                 summary="Пример успешного ответа при удалении поискового запроса",
                 description="Пример успешного ответа после удаления поискового запроса.",
-                value={"detail": "Поисковый запрос успешно удален."},
                 response_only=True,
             )
         ],
@@ -125,7 +160,13 @@ class SearchHistoryViewSet(ModelViewSet):
             return queryset[:10]
 
         return queryset
-    
+
+    def create(self, request, *args, **kwargs):
+        if not request.data.get("user_id"):
+            request.data["user_id"] = self.request.user.pk
+
+        return super().create(request, *args, **kwargs)
+
     @extend_schema(
         description="Очистка истории поиска",
         summary="Очистка истории поиска",
@@ -135,9 +176,9 @@ class SearchHistoryViewSet(ModelViewSet):
                 name="Request Example",
                 value={},
             ),
-        ]
+        ],
     )
-    @action(detail=False, methods=['delete'])
+    @action(detail=False, methods=["delete"])
     def clear_history(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         queryset.delete()

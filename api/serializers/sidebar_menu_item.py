@@ -1,9 +1,9 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from api.serializers import ActiveModelSerializer
 
 from shop.models import SideBarMenuItem
 
 
-class SideBarMenuItemSerializer(ModelSerializer):
+class SideBarMenuItemSerializer(ActiveModelSerializer):
     
     class Meta:
         model = SideBarMenuItem

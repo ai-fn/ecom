@@ -1,8 +1,9 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 from api.models import ProductFile, Product
+from rest_framework import serializers
 
 
-class ProductFileSerializer(serializers.ModelSerializer):
+class ProductFileSerializer(ActiveModelSerializer):
 
     product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), source="product")
 

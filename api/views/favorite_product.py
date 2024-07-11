@@ -27,8 +27,11 @@ from rest_framework.permissions import IsAuthenticated
                         "old_price": 99.00,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/images/dummy-image.png",
-                                "thumb_img": "base64string",
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             }
                         ],
                         "in_stock": True,
@@ -39,6 +42,7 @@ from rest_framework.permissions import IsAuthenticated
                         "is_popular": False,
                         "is_new": False,
                         "thumb_img": "base64string",
+                        "is_acitve": True,
                         "description": "Уплотнительная манжета из EPDM-каучука и нетканого полипропиленового полотна с растягивающимся эластичным отверстием предназначена для быстрой и долговечной изоляции мест вывода кабеля, гофры/трубы через воздухонепроницаемую оболочку здания",
                     },
                 },
@@ -50,10 +54,22 @@ from rest_framework.permissions import IsAuthenticated
         description="Добавляет новый избранный продукт.",
         examples=[
             OpenApiExample(
-                "Пример запроса",
-                summary="Пример запроса на добавление избранного продукта",
+                "Пример запроса (с указанием user_id)",
+                summary="Пример запроса на добавление избранного продукта (с указанием user_id)",
                 description="Пример тела запроса для добавления нового избранного продукта.",
-                value={"user_id": 2, "product_id": 5118},
+                value={
+                    "user_id": 2,
+                    "product_id": 5118,
+                },
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Пример запроса (без указания user_id)",
+                summary="Пример запроса на добавление избранного продукта (без указания user_id)",
+                description="Пример тела запроса для добавления нового избранного продукта.",
+                value={
+                    "product_id": 5118,
+                },
                 request_only=True,
             ),
             OpenApiExample(
@@ -74,8 +90,11 @@ from rest_framework.permissions import IsAuthenticated
                         "old_price": 99.00,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/images/dummy-image.png",
-                                "thumb_img": "base64string",
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             }
                         ],
                         "in_stock": True,
@@ -86,6 +105,7 @@ from rest_framework.permissions import IsAuthenticated
                         "is_popular": False,
                         "is_new": False,
                         "thumb_img": "base64string",
+                        "is_acitve": True,
                         "description": "Уплотнительная манжета из EPDM-каучука и нетканого полипропиленового полотна с растягивающимся эластичным отверстием предназначена для быстрой и долговечной изоляции мест вывода кабеля, гофры/трубы через воздухонепроницаемую оболочку здания",
                     },
                 },
@@ -113,8 +133,11 @@ from rest_framework.permissions import IsAuthenticated
                         "old_price": 99.00,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/images/dummy-image.png",
-                                "thumb_img": "base64string",
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             }
                         ],
                         "in_stock": True,
@@ -125,6 +148,7 @@ from rest_framework.permissions import IsAuthenticated
                         "is_popular": False,
                         "is_new": False,
                         "thumb_img": "base64string",
+                        "is_acitve": True,
                         "description": "Уплотнительная манжета из EPDM-каучука и нетканого полипропиленового полотна с растягивающимся эластичным отверстием предназначена для быстрой и долговечной изоляции мест вывода кабеля, гофры/трубы через воздухонепроницаемую оболочку здания",
                     },
                 },
@@ -159,8 +183,11 @@ from rest_framework.permissions import IsAuthenticated
                         "old_price": 99.00,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/images/dummy-image.png",
-                                "thumb_img": "base64string",
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             }
                         ],
                         "in_stock": True,
@@ -171,6 +198,7 @@ from rest_framework.permissions import IsAuthenticated
                         "is_popular": False,
                         "is_new": False,
                         "thumb_img": "base64string",
+                        "is_acitve": True,
                         "description": "Уплотнительная манжета из EPDM-каучука и нетканого полипропиленового полотна с растягивающимся эластичным отверстием предназначена для быстрой и долговечной изоляции мест вывода кабеля, гофры/трубы через воздухонепроницаемую оболочку здания",
                     },
                 },
@@ -206,8 +234,11 @@ from rest_framework.permissions import IsAuthenticated
                         "old_price": 99.00,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/images/dummy-image.png",
-                                "thumb_img": "base64string",
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             }
                         ],
                         "in_stock": True,
@@ -218,6 +249,7 @@ from rest_framework.permissions import IsAuthenticated
                         "is_popular": False,
                         "is_new": False,
                         "thumb_img": "base64string",
+                        "is_acitve": True,
                         "description": "Уплотнительная манжета из EPDM-каучука и нетканого полипропиленового полотна с растягивающимся эластичным отверстием предназначена для быстрой и долговечной изоляции мест вывода кабеля, гофры/трубы через воздухонепроницаемую оболочку здания",
                     },
                 },
@@ -235,3 +267,9 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        if not request.data.get("user_id"):
+            request.data["user_id"] = self.request.user.pk
+
+        return super().create(request, *args, **kwargs)

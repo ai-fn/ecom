@@ -1,12 +1,14 @@
 from typing import OrderedDict
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from cart.models import Order, OrderStatus, ProductsInOrder
 from api.serializers import ProductsInOrderSerializer
 from api.mixins import ValidateAddressMixin
 
+from rest_framework import serializers
 
-class OrderStatusSerializer(serializers.ModelSerializer):
+
+class OrderStatusSerializer(ActiveModelSerializer):
     
     class Meta:
         model = OrderStatus
@@ -15,7 +17,7 @@ class OrderStatusSerializer(serializers.ModelSerializer):
         ]
 
 # TODO create ProductOrderSerializer
-class OrderSerializer(ValidateAddressMixin, serializers.ModelSerializer):
+class OrderSerializer(ValidateAddressMixin, ActiveModelSerializer):
     products = serializers.SerializerMethodField()
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     status = OrderStatusSerializer(read_only=True)

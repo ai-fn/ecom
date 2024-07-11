@@ -56,6 +56,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": 1,
                             "name": "Test",
+                            "is_active": True,
                             "categories": [],
                             "products": [],
                             "image": "/media/promo/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
@@ -70,6 +71,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                                     "accusative_case": "Воронеж",
                                     "instrumental_case": "Воронежем",
                                     "prepositional_case": "Воронеже",
+                                    "is_active": True,
                                 },
                                 {
                                     "id": 45,
@@ -156,6 +158,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         }
                     ],
                     "active_to": "2024-04-30",
@@ -226,6 +229,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         }
                     ],
                     "active_to": "2024-04-30",
@@ -295,6 +299,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         }
                     ],
                     "active_to": "2024-04-30",
@@ -378,6 +383,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         }
                     ],
                     "active_to": "2024-04-30",
@@ -461,6 +467,7 @@ class PromoViewSet(CityPricesMixin, ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         }
                     ],
                     "active_to": "2024-04-30",

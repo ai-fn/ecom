@@ -36,6 +36,7 @@ class FooterItemViewSet(ModelViewSet):
                             "title": "Элемент footer 1",
                             "link": "http://example.com",
                             "column": 1,
+                            "is_acitve": True,
                         },
                         {
                             "id": 2,
@@ -43,6 +44,7 @@ class FooterItemViewSet(ModelViewSet):
                             "title": "Элемент footer 2",
                             "link": "http://example.com",
                             "column": 1,
+                            "is_acitve": True,
                         },
                         {
                             "id": 3,
@@ -50,6 +52,7 @@ class FooterItemViewSet(ModelViewSet):
                             "title": "Элемент footer 3",
                             "link": "http://example.com",
                             "column": 1,
+                            "is_acitve": True,
                         },
                     ],
                     [

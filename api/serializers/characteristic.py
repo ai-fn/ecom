@@ -1,9 +1,9 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Characteristic
 
 
-class CharacteristicSerializer(serializers.ModelSerializer):
+class CharacteristicSerializer(ActiveModelSerializer):
     class Meta:
         model = Characteristic
         fields = [

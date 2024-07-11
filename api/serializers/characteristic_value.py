@@ -1,9 +1,9 @@
+from api.serializers import ActiveModelSerializer
 from rest_framework import serializers
-
 from shop.models import CharacteristicValue
 
 
-class CharacteristicValueSerializer(serializers.ModelSerializer):
+class CharacteristicValueSerializer(ActiveModelSerializer):
     characteristic_name = serializers.CharField(source="characteristic.name", read_only=True)
     characteristic_id = serializers.IntegerField(write_only=True)
     product_id = serializers.IntegerField(write_only=True)

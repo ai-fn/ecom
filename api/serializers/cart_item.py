@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from cart.models import CartItem, Product
-from api.serializers import ProductCatalogSerializer
+from api.serializers import ProductCatalogSerializer, ActiveModelSerializer
 
 
-class CartItemSerializer(serializers.ModelSerializer):
+class CartItemSerializer(ActiveModelSerializer):
     product = ProductCatalogSerializer(read_only=True)
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), write_only=True, source="product"
@@ -41,7 +41,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         return instance
 
 
-class SimplifiedCartItemSerializer(serializers.ModelSerializer):
+class SimplifiedCartItemSerializer(ActiveModelSerializer):
 
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), source="product"

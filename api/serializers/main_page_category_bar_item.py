@@ -1,8 +1,8 @@
 from shop.models import MainPageCategoryBarItem
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 
-class MainPageCategoryBarItemSerializer(serializers.ModelSerializer):
+class MainPageCategoryBarItemSerializer(ActiveModelSerializer):
     
     class Meta:
         model = MainPageCategoryBarItem

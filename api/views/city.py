@@ -38,10 +38,11 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "is_active": True,
                     "city_group": {
                         "id": 1,
                         "name": "Dummy name",
-                    }
+                    },
                 },
                 description="Пример ответа при запросе списка городов в Swagger UI",
                 response_only=True,
@@ -80,10 +81,11 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "is_active": True,
                     "city_group": {
                         "id": 1,
                         "name": "Dummy name",
-                    }
+                    },
                 },
                 description="Пример ответа при запросе информации о городе в Swagger UI",
                 response_only=True,
@@ -112,6 +114,7 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "is_active": True,
                     "city_group": 1,
                 },
                 description="Пример запроса для создания нового города в Swagger UI",
@@ -130,10 +133,11 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "is_active": True,
                     "city_group": {
                         "id": 1,
                         "name": "Dummy name",
-                    }
+                    },
                 },
                 description="Пример ответа для создания нового города в Swagger UI",
                 media_type="application/json",
@@ -182,7 +186,7 @@ class CityViewSet(ModelViewSet):
                     "city_group": {
                         "id": 1,
                         "name": "Dummy name",
-                    }
+                    },
                 },
                 description="Пример ответа для обновления информации о городе в Swagger UI",
                 media_type="application/json",
@@ -222,7 +226,7 @@ class CityViewSet(ModelViewSet):
                     "city_group": {
                         "id": 1,
                         "name": "Dummy name",
-                    }
+                    },
                 },
                 description="Пример запроса для частичного обновления информации о городе в Swagger UI",
                 media_type="application/json",
@@ -276,7 +280,7 @@ class CityViewSet(ModelViewSet):
                     "city_group": {
                         "id": 1,
                         "name": "Dummy name",
-                    }
+                    },
                 },
             )
         ],

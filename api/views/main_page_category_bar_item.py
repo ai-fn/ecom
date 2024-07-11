@@ -28,7 +28,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
                     "order": 1,
                     "link": "https://example.com/category1",
                     "text": "Категория 1",
-                },
+                    "is_active": True,                },
             )
         ],
     )
@@ -52,7 +52,7 @@ class MainPageCategoryBarItemViewSet(ModelViewSet):
                     "order": 1,
                     "link": "https://example.com/category1",
                     "text": "Категория 1",
-                },
+                    "is_active": True,                },
             )
         ],
     )

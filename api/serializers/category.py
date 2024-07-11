@@ -1,10 +1,10 @@
 from typing import OrderedDict
+from api.serializers import ActiveModelSerializer
 from rest_framework import serializers
-
 from shop.models import Category
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(ActiveModelSerializer):
     children = serializers.SerializerMethodField()
 
     parents = serializers.SerializerMethodField()

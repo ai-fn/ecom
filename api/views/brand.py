@@ -23,6 +23,7 @@ class BrandView(ModelViewSet):
                     "name": "Deke",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
+                    "is_acitve": True,
                 },
             ),
         ],
@@ -41,6 +42,7 @@ class BrandView(ModelViewSet):
                     "name": "Deke",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
+                    "is_acitve": True,
                 },
             ),
             OpenApiExample(
@@ -50,6 +52,9 @@ class BrandView(ModelViewSet):
                     "name": "Deke",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
+                    "is_acitve": True,
+                    "is_acitve": True,
+                    "is_acitve": True,
                 },
             ),
         ],
@@ -69,6 +74,7 @@ class BrandView(ModelViewSet):
                     "name": "Deke",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
+                    "is_acitve": True,
                 },
             )
         ],

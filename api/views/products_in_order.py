@@ -31,13 +31,25 @@ class ProductsInOrderViewSet(ModelViewSet):
                         "old_price": 74.87,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                         ],
                         "in_stock": True,
@@ -48,6 +60,7 @@ class ProductsInOrderViewSet(ModelViewSet):
                     },
                     "quantity": 15,
                     "price": "2.23",
+                    "is_active": True,
                 },
                 description="Пример ответа при запросе списка продуктов в заказе в Swagger UI",
                 response_only=True,
@@ -77,13 +90,25 @@ class ProductsInOrderViewSet(ModelViewSet):
                         "old_price": 74.87,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                         ],
                         "in_stock": True,
@@ -94,6 +119,7 @@ class ProductsInOrderViewSet(ModelViewSet):
                     },
                     "quantity": 15,
                     "price": "2.23",
+                    "is_active": True,
                 },
                 description="Пример ответа при запросе информации о продукте в заказе в Swagger UI",
                 response_only=True,
@@ -119,6 +145,7 @@ class ProductsInOrderViewSet(ModelViewSet):
                     "product_id": 1,
                     "quantity": 15,
                     "price": "2.23",
+                    "is_active": True,
                 },
                 description="Пример запроса для добавления нового продукта в заказ в Swagger UI",
                 media_type="application/json",
@@ -139,13 +166,25 @@ class ProductsInOrderViewSet(ModelViewSet):
                         "old_price": 74.87,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                         ],
                         "in_stock": True,
@@ -156,6 +195,7 @@ class ProductsInOrderViewSet(ModelViewSet):
                     },
                     "quantity": 15,
                     "price": "2.23",
+                    "is_active": True,
                 },
                 description="Пример ответа на добавление нового продукта в заказ в Swagger UI",
                 media_type="application/json",
@@ -198,13 +238,25 @@ class ProductsInOrderViewSet(ModelViewSet):
                         "old_price": 74.87,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                         ],
                         "in_stock": True,
@@ -215,6 +267,7 @@ class ProductsInOrderViewSet(ModelViewSet):
                     },
                     "quantity": 15,
                     "price": "2.23",
+                    "is_active": True,
                 },
                 description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
@@ -255,13 +308,25 @@ class ProductsInOrderViewSet(ModelViewSet):
                         "old_price": 74.87,
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                         ],
                         "in_stock": True,
@@ -272,6 +337,7 @@ class ProductsInOrderViewSet(ModelViewSet):
                     },
                     "quantity": 3,
                     "price": "2.23",
+                    "is_active": True,
                 },
                 description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",

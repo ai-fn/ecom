@@ -1,8 +1,11 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Setting
+from api.serializers import ActiveModelSerializer
+from rest_framework import serializers
 
-class SettingSerializer(serializers.ModelSerializer):
+
+class SettingSerializer(ActiveModelSerializer):
     class Meta:
         model = Setting
         fields = [

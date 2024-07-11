@@ -1,5 +1,7 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 from api.mixins import ValidatePhoneNumberMixin
+from rest_framework import serializers
+
 
 class PhoneSerializer(serializers.Serializer, ValidatePhoneNumberMixin):
     

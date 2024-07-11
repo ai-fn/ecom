@@ -1,9 +1,9 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Category
 
 
-class CategoryDetailSerializer(serializers.ModelSerializer):
+class CategoryDetailSerializer(ActiveModelSerializer):
 
     class Meta:
         model = Category

@@ -28,7 +28,7 @@ from api.permissions import ReadOnlyOrAdminPermission
                             "keywords": "ноутбук, купить, Москва",
                             "object_id": 1,
                             "content_type": "product",
-                        }
+                            "is_active": True,                    }
                     ]
                 },
                 "request_only": True,

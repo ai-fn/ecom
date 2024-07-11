@@ -1,10 +1,10 @@
-from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
+from api.serializers import ActiveModelSerializer
 from account.models import CustomUser
 from shop.models import SearchHistory
+from rest_framework import serializers
 
 
-class SearchHistorySerializer(ModelSerializer):
+class SearchHistorySerializer(ActiveModelSerializer):
 
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), source="user", write_only=True
@@ -12,4 +12,8 @@ class SearchHistorySerializer(ModelSerializer):
 
     class Meta:
         model = SearchHistory
-        fields = ["id", "title", "user_id"]
+        fields = [
+            "id",
+            "title",
+            "user_id",
+        ]

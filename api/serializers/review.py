@@ -1,10 +1,10 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Review
 from api.serializers import UserReviewSerializer
 
 
-class ReviewSerializer(serializers.ModelSerializer):
+class ReviewSerializer(ActiveModelSerializer):
     user = UserReviewSerializer()
     class Meta:
         model = Review

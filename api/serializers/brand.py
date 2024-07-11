@@ -1,9 +1,10 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Brand
+from api.serializers import ActiveModelSerializer
 
 
-class BrandSerializer(serializers.ModelSerializer):
+class BrandSerializer(ActiveModelSerializer):
     
     class Meta:
         model = Brand

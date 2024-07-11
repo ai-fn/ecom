@@ -1,11 +1,12 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from api.serializers import ProductCatalogSerializer
 from cart.models import Order, ProductsInOrder
 from shop.models import Product
+from rest_framework import serializers
 
 
-class ProductsInOrderSerializer(serializers.ModelSerializer):
+class ProductsInOrderSerializer(ActiveModelSerializer):
 
     product = ProductCatalogSerializer(read_only=True)
     product_id = serializers.PrimaryKeyRelatedField(

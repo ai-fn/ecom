@@ -28,6 +28,7 @@ class CityGroupViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Group A",
+                    "is_active": True,
                     "main_city": {
                         "id": 1,
                         "name": "Воронеж",
@@ -38,6 +39,7 @@ class CityGroupViewSet(ModelViewSet):
                         "accusative_case": "Воронежем",
                         "instrumental_case": "Воронежем",
                         "prepositional_case": "Воронеже",
+                        "is_active": True,
                     },
                     "cities": [
                         {
@@ -50,6 +52,7 @@ class CityGroupViewSet(ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         },
                     ],
                 },
@@ -71,6 +74,7 @@ class CityGroupViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Group A",
+                    "is_active": True,
                     "main_city": {
                         "id": 1,
                         "name": "City A",
@@ -81,6 +85,7 @@ class CityGroupViewSet(ModelViewSet):
                         "accusative_case": "City A",
                         "instrumental_case": "City A",
                         "prepositional_case": "City A",
+                        "is_active": True,
                     },
                     "cities": [
                         {
@@ -93,6 +98,7 @@ class CityGroupViewSet(ModelViewSet):
                             "accusative_case": "City A",
                             "instrumental_case": "City A",
                             "prepositional_case": "City A",
+                            "is_active": True,
                         },
                     ],
                 },
@@ -117,9 +123,7 @@ class CityGroupViewSet(ModelViewSet):
                 value={
                     "name": "New Group",
                     "main_city": 1,
-                    "cities": [
-                        1
-                    ],
+                    "cities": [1],
                 },
                 description="Пример запроса для создания новой группы городов в Swagger UI",
                 media_type="application/json",
@@ -129,6 +133,7 @@ class CityGroupViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Group A",
+                    "is_active": True,
                     "main_city": {
                         "id": 1,
                         "name": "City A",
@@ -139,6 +144,7 @@ class CityGroupViewSet(ModelViewSet):
                         "accusative_case": "City A",
                         "instrumental_case": "City A",
                         "prepositional_case": "City A",
+                        "is_active": True,
                     },
                     "cities": [
                         {
@@ -151,6 +157,7 @@ class CityGroupViewSet(ModelViewSet):
                             "accusative_case": "City A",
                             "instrumental_case": "City A",
                             "prepositional_case": "City A",
+                            "is_active": True,
                         },
                     ],
                 },
@@ -197,6 +204,7 @@ class CityGroupViewSet(ModelViewSet):
                         "accusative_case": "Воронежем",
                         "instrumental_case": "Воронежем",
                         "prepositional_case": "Воронеже",
+                        "is_active": True,
                     },
                     "cities": [
                         {
@@ -209,6 +217,7 @@ class CityGroupViewSet(ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         },
                     ],
                 },
@@ -252,6 +261,7 @@ class CityGroupViewSet(ModelViewSet):
                         "accusative_case": "Воронежем",
                         "instrumental_case": "Воронежем",
                         "prepositional_case": "Воронеже",
+                        "is_active": True,
                     },
                     "cities": [
                         {
@@ -264,6 +274,7 @@ class CityGroupViewSet(ModelViewSet):
                             "accusative_case": "Воронежем",
                             "instrumental_case": "Воронежем",
                             "prepositional_case": "Воронеже",
+                            "is_active": True,
                         },
                     ],
                 },

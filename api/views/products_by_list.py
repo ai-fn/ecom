@@ -51,7 +51,11 @@ class ProductsById(CityPricesMixin, GenericAPIView):
                     "old_price": "3865",
                     "images": [
                         {
-                            "image_url": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...;",
+                            "id": 1,
+                            "name": "updated_example",
+                            "thumb_img": "thumb_example_updated.png",
+                            "image": "/media/catalog/products/images/example_updated.png",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "deke",
@@ -71,7 +75,11 @@ class ProductsById(CityPricesMixin, GenericAPIView):
                     "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
                     "images": [
                         {
-                            "image_url": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...;",
+                            "id": 1,
+                            "name": "updated_example",
+                            "thumb_img": "thumb_example_updated.png",
+                            "image": "/media/catalog/products/images/example_updated.png",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "deke",

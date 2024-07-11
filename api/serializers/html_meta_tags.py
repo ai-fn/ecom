@@ -1,9 +1,10 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 from shop.models import HTMLMetaTags
 from django.contrib.contenttypes.models import ContentType
+from rest_framework import serializers
 
 
-class HTMLMetaTagSerializer(serializers.ModelSerializer):
+class HTMLMetaTagSerializer(ActiveModelSerializer):
     content_type = serializers.SlugRelatedField(
         queryset=ContentType.objects.all(),
         slug_field='model'

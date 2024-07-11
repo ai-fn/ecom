@@ -1,5 +1,5 @@
 from typing import Any
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 
 from api.mixins import SerializerGetPricesMixin
@@ -13,9 +13,10 @@ from api.serializers import (
     ProductGroupSerializer,
 )
 from shop.models import Brand, Category, Product, ProductFile, ProductGroup
+from rest_framework import serializers
 
 
-class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSerializer):
+class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
@@ -76,7 +77,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, serializers.ModelSeriali
         return ProductFileSerializer(obj.files, many=True).data
 
 
-class ProductFileSerializer(serializers.ModelSerializer):
+class ProductFileSerializer(ActiveModelSerializer):
 
     file = serializers.SerializerMethodField()
 

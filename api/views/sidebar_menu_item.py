@@ -8,14 +8,12 @@ from shop.models import SideBarMenuItem
 from api.permissions import ReadOnlyOrAdminPermission
 
 
-@extend_schema(
-    tags=["Shop"]
-)
+@extend_schema(tags=["Shop"])
 class SideBarMenuItemViewSet(ModelViewSet):
 
     queryset = SideBarMenuItem.objects.all()
     serializer_class = SideBarMenuItemSerializer
-    permission_classes = (ReadOnlyOrAdminPermission, )
+    permission_classes = (ReadOnlyOrAdminPermission,)
 
     @extend_schema(
         description="Получение списка элементов бокового меню",
@@ -26,18 +24,18 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 description="Пример ответа",
                 response_only=True,
                 value={
-                        "id": 1,
-                        "order": 1,
-                        "title": "Dummy title",
-                        "icon": "delivery",
-                        "link": "/katalog/",
-                    }
+                    "id": 1,
+                    "order": 1,
+                    "title": "Dummy title",
+                    "icon": "delivery",
+                    "link": "/katalog/",
+                },
             )
         ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Получение элемента бокового меню по уникальному идентификатору",
         summary="Получение элемента бокового меню по уникальному идентификатору",
@@ -47,18 +45,19 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 description="Пример ответа",
                 response_only=True,
                 value={
-                        "id": 1,
-                        "order": 1,
-                        "title": "Dummy title",
-                        "icon": "delivery",
-                        "link": "/katalog/"
-                    }
+                    "id": 1,
+                    "order": 1,
+                    "title": "Dummy title",
+                    "icon": "delivery",
+                    "link": "/katalog/",
+                    "is_active": True,
+                },
             )
         ],
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Создание элемента бокового меню",
         summary="Создание элемента бокового меню",
@@ -68,29 +67,31 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 description="Пример запроса",
                 request_only=True,
                 value={
-                        "order": 1,
-                        "title": "Dummy title",
-                        "icon": "delivery",
-                        "link": "/katalog/"
-                    }
+                    "order": 1,
+                    "title": "Dummy title",
+                    "icon": "delivery",
+                    "link": "/katalog/",
+                    "is_active": True,
+                },
             ),
             OpenApiExample(
                 name="Пример ответа",
                 description="Пример ответа",
                 response_only=True,
                 value={
-                        "id": 1,
-                        "order": 1,
-                        "title": "Dummy title",
-                        "icon": "delivery",
-                        "link": "/katalog/"
-                    }
-            )
+                    "id": 1,
+                    "order": 1,
+                    "title": "Dummy title",
+                    "icon": "delivery",
+                    "link": "/katalog/",
+                    "is_active": True,
+                },
+            ),
         ],
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Обновление элемента бокового меню",
         summary="Обновление элемента бокового меню",
@@ -100,29 +101,31 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 description="Пример запроса",
                 request_only=True,
                 value={
-                        "order": 1,
-                        "title": "Dummy title",
-                        "icon": "delivery",
-                        "link": "/katalog/"
-                    }
+                    "order": 1,
+                    "title": "Dummy title",
+                    "icon": "delivery",
+                    "link": "/katalog/",
+                    "is_active": True,
+                },
             ),
             OpenApiExample(
                 name="Пример ответа",
                 description="Пример ответа",
                 response_only=True,
                 value={
-                        "id": 1,
-                        "order": 1,
-                        "title": "Dummy title",
-                        "icon": "delivery",
-                        "link": "/katalog/"
-                    }
-            )
+                    "id": 1,
+                    "order": 1,
+                    "title": "Dummy title",
+                    "icon": "delivery",
+                    "link": "/katalog/",
+                    "is_active": True,
+                },
+            ),
         ],
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Частичное обновление элемента бокового меню",
         summary="Частичное обновление элемента бокового меню",
@@ -132,26 +135,27 @@ class SideBarMenuItemViewSet(ModelViewSet):
                 description="Пример запроса",
                 request_only=True,
                 value={
-                        "title": "Updated Dummy title",
-                    }
+                    "title": "Updated Dummy title",
+                },
             ),
             OpenApiExample(
                 name="Пример ответа",
                 description="Пример ответа",
                 response_only=True,
                 value={
-                        "id": 1,
-                        "order": 1,
-                        "title": "Updated Dummy title",
-                        "icon": "delivery",
-                        "link": "/katalog/"
-                    }
-            )
+                    "id": 1,
+                    "order": 1,
+                    "title": "Updated Dummy title",
+                    "icon": "delivery",
+                    "link": "/katalog/",
+                    "is_active": True,
+                },
+            ),
         ],
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
-    
+
     @extend_schema(
         description="Удаление элемента бокового меню",
         summary="Удаление элемента бокового меню",

@@ -81,8 +81,11 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
+                            "id": "1",
+                            "name": "dummy-name",
                             "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "category-a",
@@ -92,6 +95,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                 },
             ),
             OpenApiExample(
@@ -108,8 +112,11 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
+                            "id": "1",
+                            "name": "dummy-name",
                             "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "category-a",
@@ -119,6 +126,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                     "cart_quantity": 10,
                 },
             ),
@@ -173,8 +181,11 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
+                            "id": "1",
+                            "name": "dummy-name",
                             "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "category-a",
@@ -184,6 +195,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                 },
             ),
         ],
@@ -300,6 +312,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                 "is_visible": True,
                                 "is_popular": False,
                                 "thumb_img": "base64string",
+                    "is_acitve": True,
                             }
                         ],
                         "parents": [
@@ -313,6 +326,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         "is_visible": True,
                         "is_popular": False,
                         "thumb_img": "base64string",
+                    "is_acitve": True,
                     },
                     "title": "Ветро-влагозащита А (1,6 х 43,75 м)",
                     "brand": {
@@ -346,17 +360,21 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             "thumb_img": "base64string",
+                    "is_acitve": True,
                         }
                     ],
                     "in_stock": True,
                     "is_popular": False,
                     "priority": 500,
+                    "is_acitve": True,
                     "thumb_img": "base64string",
+                    "is_acitve": True,
                     "files": [
                         {
                             "id": 5,
                             "file": "/media/catalog/products/documents/20240301_142235.heic",
                             "name": "Test",
+                            "is_active": True,
                             "product": 5138,
                         },
                     ],
@@ -418,6 +436,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                 },
                 description="Пример запроса на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример запроса на создание нового продукта в каталоге",
@@ -453,6 +472,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                 "is_visible": True,
                                 "is_popular": False,
                                 "thumb_img": "base64string",
+                    "is_acitve": True,
                             }
                         ],
                         "parents": [
@@ -466,6 +486,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         "is_visible": True,
                         "is_popular": False,
                         "thumb_img": "base64string",
+                    "is_acitve": True,
                     },
                     "title": "Ветро-влагозащита А (1,6 х 43,75 м)",
                     "brand": {
@@ -499,17 +520,21 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             "thumb_img": "base64string",
+                    "is_acitve": True,
                         }
                     ],
                     "in_stock": True,
                     "is_popular": False,
                     "priority": 500,
+                    "is_acitve": True,
                     "thumb_img": "base64string",
+                    "is_acitve": True,
                     "files": [
                         {
                             "id": 5,
                             "file": "/media/catalog/products/documents/20240301_142235.heic",
                             "name": "Test",
+                            "is_active": True,
                             "product": 5138,
                         },
                     ],
@@ -543,8 +568,11 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
+                            "id": "1",
+                            "name": "dummy-name",
                             "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "category-a",
@@ -554,6 +582,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                 },
                 description="Пример ответа для получения информации о конкретном продукте в каталоге в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном продукте в каталоге отзыве",
@@ -584,8 +613,11 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
+                            "id": "1",
+                            "name": "dummy-name",
                             "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "category-a",
@@ -595,6 +627,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                 },
                 description="Пример запроса на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример запроса на обновление информации о продукте в каталоге",
@@ -615,8 +648,11 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
+                            "id": "1",
+                            "name": "dummy-name",
                             "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "category-a",
@@ -626,6 +662,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                 },
                 description="Пример ответа на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на обновление информации о продукте в каталоге",
@@ -668,8 +705,11 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "old_price": 120.0,
                     "images": [
                         {
+                            "id": "1",
+                            "name": "dummy-name",
                             "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
+                            "is_active": True,
                         }
                     ],
                     "category_slug": "category-a",
@@ -679,6 +719,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     "in_promo": True,
                     "is_new": True,
                     "priority": 500,
+                    "is_acitve": True,
                 },
                 description="Пример ответа на частичное обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о продукте в каталоге",

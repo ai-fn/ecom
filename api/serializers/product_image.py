@@ -1,9 +1,10 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Product, ProductImage
+from rest_framework import serializers
 
 
-class ProductImageSerializer(serializers.ModelSerializer):
+class ProductImageSerializer(ActiveModelSerializer):
     product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), source="product", write_only=True)
 
     class Meta:

@@ -1,11 +1,12 @@
 from typing import Any
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from api.serializers import ActiveModelSerializer
 
 from django.db.models import QuerySet
 from shop.models import CharacteristicValue, Product, ProductGroup
+from rest_framework.serializers import SerializerMethodField
 
 
-class ProductForGroupNonImageSerializer(ModelSerializer):
+class ProductForGroupNonImageSerializer(ActiveModelSerializer):
     characteristics = SerializerMethodField()
     is_selected = SerializerMethodField()
     category_slug = SerializerMethodField()
@@ -41,7 +42,7 @@ class ProductForGroupImageSerializer(ProductForGroupNonImageSerializer):
         fields = ProductForGroupNonImageSerializer.Meta.fields + ["catalog_image"]
 
 
-class ProductGroupSerializer(ModelSerializer):
+class ProductGroupSerializer(ActiveModelSerializer):
 
     products = SerializerMethodField()
     characteristic = SerializerMethodField()

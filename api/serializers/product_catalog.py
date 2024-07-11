@@ -1,11 +1,12 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from api.mixins import SerializerGetPricesMixin
 from api.serializers import ProductImageSerializer
 from shop.models import Product
+from rest_framework import serializers
 
 
-class ProductCatalogSerializer(SerializerGetPricesMixin, serializers.ModelSerializer):
+class ProductCatalogSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
     images = ProductImageSerializer(
         many=True,
         read_only=True,

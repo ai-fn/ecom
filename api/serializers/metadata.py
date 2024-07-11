@@ -1,9 +1,10 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, ImageField
+from api.serializers import ActiveModelSerializer
+from rest_framework.serializers import ImageField
 
 from shop.models import ImageMetaData, OpenGraphMeta
 
 
-class ImageMetaDataSerializer(ModelSerializer):
+class ImageMetaDataSerializer(ActiveModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -20,10 +21,19 @@ class ImageMetaDataSerializer(ModelSerializer):
         ]
 
 
-class OpenGraphMetaSerializer(ModelSerializer):
+class OpenGraphMetaSerializer(ActiveModelSerializer):
 
     images = ImageMetaDataSerializer(many=True, read_only=True, source="imagemetadata_set")
     
+    class Meta:
+        model = OpenGraphMeta
+        fields = [
+            "title",
+            "description",
+            "images",
+            "locale",
+        ]
+
     def to_representation(self, instance: OpenGraphMeta):
         data = super().to_representation(instance)
         return {
@@ -37,7 +47,3 @@ class OpenGraphMetaSerializer(ModelSerializer):
                 'type': "website",
             },
         }
-    
-    class Meta:
-        model = OpenGraphMeta
-        exclude = []

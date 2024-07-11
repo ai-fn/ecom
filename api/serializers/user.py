@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 from account.models import CustomUser
 from api.mixins import ValidateAddressMixin, ValidatePhoneNumberMixin
@@ -6,8 +6,11 @@ from api.mixins import ValidateAddressMixin, ValidatePhoneNumberMixin
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 
+from api.serializers import ActiveModelSerializer
+from rest_framework import serializers
 
-class UserReviewSerializer(serializers.ModelSerializer):
+
+class UserReviewSerializer(ActiveModelSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
     middle_name = serializers.CharField(read_only=True)
@@ -22,13 +25,13 @@ class UserReviewSerializer(serializers.ModelSerializer):
         ]
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(ActiveModelSerializer):
     class Meta:
         model = CustomUser
         fields = "__all__"
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(ActiveModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["username", "password"]
@@ -55,7 +58,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer, ValidatePhoneNumberMixin):
+class UserRegistrationSerializer(ActiveModelSerializer, ValidatePhoneNumberMixin):
     password = serializers.CharField(
         write_only=True, required=True, style={"input_type": "password"}
     )
@@ -78,7 +81,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer, ValidatePhoneNumbe
 
 
 class UserDetailInfoSerializer(
-    ValidateAddressMixin, ValidatePhoneNumberMixin, serializers.ModelSerializer
+    ValidateAddressMixin, ValidatePhoneNumberMixin, ActiveModelSerializer
 ):
     phone = serializers.CharField(max_length=16, read_only=True)
     is_active = serializers.BooleanField(read_only=True)

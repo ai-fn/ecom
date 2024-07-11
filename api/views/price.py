@@ -26,7 +26,7 @@ class PriceViewSet(ModelViewSet):
             OpenApiExample(
                 name="List Response Example",
                 response_only=True,
-                value={"id": 1, "product": 1, "city_group": 1, "price": 100.0},
+                value={"id": 1, "product": 1, "city_group": 1, "price": 100.0, "is_active": True,},
                 description="Пример ответа для получения списка всех цен на продукты в Swagger UI",
                 summary="Пример ответа для получения списка всех цен на продукты",
                 media_type="application/json",
@@ -44,7 +44,7 @@ class PriceViewSet(ModelViewSet):
             OpenApiExample(
                 name="Retrieve Response Example",
                 response_only=True,
-                value={"id": 1, "product": 1, "city_group": 1, "price": 100.0},
+                value={"id": 1, "product": 1, "city_group": 1, "price": 100.0, "is_active": True,},
                 description="Пример ответа для получения информации о конкретной цене на продукт в Swagger UI",
                 summary="Пример ответа для получения информации о конкретной цене на продукт",
                 media_type="application/json",
@@ -63,7 +63,7 @@ class PriceViewSet(ModelViewSet):
             OpenApiExample(
                 name="Create Request Example",
                 request_only=True,
-                value={"product": 1, "city_group": 1, "price": 100.0},
+                value={"product": 1, "city_group": 1, "price": 100.0, "is_active": True,},
                 description="Пример запроса на создание новой цены на продукт в Swagger UI",
                 summary="Пример запроса на создание новой цены на продукт",
                 media_type="application/json",
@@ -71,7 +71,7 @@ class PriceViewSet(ModelViewSet):
             OpenApiExample(
                 name="Create Response Example",
                 response_only=True,
-                value={"id": 3, "product": 1, "city_group": 1, "price": 100.0},
+                value={"id": 3, "product": 1, "city_group": 1, "price": 100.0, "is_active": True,},
                 description="Пример ответа на создание новой цены на продукт в Swagger UI",
                 summary="Пример ответа на создание новой цены на продукт",
                 media_type="application/json",

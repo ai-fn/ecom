@@ -11,7 +11,9 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 )
 class ProductImageViewSet(ModelViewSet):
     queryset = ProductImage.objects.all()
-    permission_classes = [ReadOnlyOrAdminPermission,]
+    permission_classes = [
+        ReadOnlyOrAdminPermission,
+    ]
     serializer_class = ProductImageSerializer
 
     @extend_schema(
@@ -23,9 +25,9 @@ class ProductImageViewSet(ModelViewSet):
                 value={
                     "product_id": 1,
                     "name": "example",
-                    "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA"
+                    "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA",
                 },
-                request_only=True,  # Пример для запроса
+                request_only=True,
             ),
             OpenApiExample(
                 "Пример ответа",
@@ -34,9 +36,9 @@ class ProductImageViewSet(ModelViewSet):
                     "name": "example",
                     "thumb_img": "thumb_example.png",
                     "image_url": "/media/catalog/products/images/example.png",
-                    "product_id": 1
+                    "is_active": True,
                 },
-                response_only=True,  # Пример для ответа
+                response_only=True,
             ),
         ],
     )
@@ -52,18 +54,18 @@ class ProductImageViewSet(ModelViewSet):
                 value=[
                     {
                         "id": 1,
-                        "name": "example",
-                        "thumb_img": "thumb_example.png",
-                        "image_url": "/media/catalog/products/images/example.png",
-                        "product_id": 1
+                        "name": "Test",
+                        "thumb_img": "фываыфафыв",
+                        "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                        "is_active": True,
                     },
                     {
-                        "id": 2,
-                        "name": "example2",
-                        "thumb_img": "thumb_example2.png",
-                        "image_url": "/media/catalog/products/images/example2.png",
-                        "product_id": 2
-                    }
+                        "id": 1,
+                        "name": "Test",
+                        "thumb_img": "фываыфафыв",
+                        "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                        "is_active": True,
+                    },
                 ],
                 response_only=True,
             ),
@@ -83,7 +85,7 @@ class ProductImageViewSet(ModelViewSet):
                     "name": "example",
                     "thumb_img": "thumb_example.png",
                     "image_url": "/media/catalog/products/images/example.png",
-                    "product_id": 1
+                    "is_active": True,
                 },
                 response_only=True,
             ),
@@ -101,7 +103,7 @@ class ProductImageViewSet(ModelViewSet):
                 value={
                     "product_id": 1,
                     "name": "updated_example",
-                    "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA"
+                    "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA",
                 },
                 request_only=True,
             ),
@@ -111,8 +113,8 @@ class ProductImageViewSet(ModelViewSet):
                     "id": 1,
                     "name": "updated_example",
                     "thumb_img": "thumb_example_updated.png",
-                    "image_url": "/media/catalog/products/images/example_updated.png",
-                    "product_id": 1
+                    "image": "/media/catalog/products/images/example_updated.png",
+                    "is_active": True,
                 },
                 response_only=True,
             ),
@@ -127,9 +129,7 @@ class ProductImageViewSet(ModelViewSet):
         examples=[
             OpenApiExample(
                 "Пример ответа",
-                value={
-                    "detail": "Изображение продукта успешно удалено."
-                },
+                value={"detail": "Изображение продукта успешно удалено."},
                 response_only=True,
             ),
         ],

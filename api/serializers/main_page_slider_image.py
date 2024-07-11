@@ -1,8 +1,9 @@
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 from shop.models import MainPageSliderImage
+from rest_framework import serializers
 
 
-class MainPageSliderImageSerializer(serializers.ModelSerializer):
+class MainPageSliderImageSerializer(ActiveModelSerializer):
 
     image = serializers.SerializerMethodField()
     tiny_image = serializers.SerializerMethodField()

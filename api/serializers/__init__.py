@@ -1,3 +1,4 @@
+from .active_model import ActiveModelSerializer
 from .price import PriceSerializer
 from ._jwt import (
     MyTokenObtainPairSerializer,

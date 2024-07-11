@@ -883,6 +883,7 @@ class CartItemViewSet(ModelViewSet):
                     "in_stock": True,
                     "is_popular": False,
                     "priority": 500,
+                    "is_acitve": True,
                     "thumb_img": "",
                     "files": [],
                 },
