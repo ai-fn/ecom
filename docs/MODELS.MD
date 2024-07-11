@@ -1,389 +1,841 @@
 # Shop App Models
 
-## 1. Модель `Category`
+# Models Documentation
 
-| Имя параметра      | Описание                                                                                 | Тип данных      | Максимальное значение |
-| ------------------ | ---------------------------------------------------------------------------------------- | --------------- | --------------------- |
-| id                 | Идентификатор                                                                            | AutoField       | -                     |
-| created_at         | Время создания                                                                           | DateTimeField   | -                     |
-| updated_at         | Время обновления                                                                         | DateTimeField   | -                     |
-| name               | Категория                                                                                | CharField       | 255                   |
-| slug               | Слаг ЧПУ (человекопонятный)                                                              | SlugField       | 256                   |
-| parent             | Родительская категория по MPTT                                                           | TreeForeignKey  | -                     |
-| icon               | Иконка категории для вывода в небольших местах. Хранится category_icons/                 | FileField       | -                     |
-| image              | Картинка категории для вывода в списке категорий или где потребуется. Хранится category/ | ImageField      | -                     |
-| is_visible         | Доступна ли категория напрямую или видна ли                                              | BooleanField    | по умолчанию true     |
-| is_popular         | Популярна ли категория                                                                   | BooleanField    | по умолчанию false    |
-| order              | Ручной ввод порядка вывода категорий                                                     | BigIntegerField | -                     |
-| thumb_img          | Миниатюра                                                                                | TextField       | 1024                  |
-| opengraph_metadata | Метаданные OpenGraph                                                                     | GenericRelation | -                     |
+## ThumbModel
+
+| Field      | Type          | Options                                | Description |
+| ---------- | ------------- | -------------------------------------- | ----------- |
+| id         | AutoField     | primary_key=True                       | Primary Key |
+| created_at | DateTimeField | auto_now_add=True                      | Created At  |
+| updated_at | DateTimeField | auto_now=True                          | Updated At  |
+| thumb_img  | TextField     | null=True, blank=True, max_length=1024 | Миниатюра   |
+
+## Category
+
+| Field              | Type            | Options                                                                          | Description                |
+| ------------------ | --------------- | -------------------------------------------------------------------------------- | -------------------------- |
+| id                 | AutoField       | primary_key=True                                                                 | Primary Key                |
+| created_at         | DateTimeField   | auto_now_add=True                                                                | Created At                 |
+| updated_at         | DateTimeField   | auto_now=True                                                                    | Updated At                 |
+| name               | CharField       | max_length=255                                                                   | Категория                  |
+| slug               | SlugField       | unique=True, max_length=256                                                      |                            |
+| parent             | TreeForeignKey  | "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children" | Каталог                    |
+| icon               | FileField       | upload_to="category_icons/", null=True, blank=True                               | Иконка                     |
+| image              | ImageField      | upload_to="category/", null=True, blank=True                                     | Изображение                |
+| is_visible         | BooleanField    | default=True                                                                     | Видна ли категория (ВЕЗДЕ) |
+| is_popular         | BooleanField    | default=False                                                                    | Популярна ли категория     |
+| order              | BigIntegerField | blank=True                                                                       | Порядковый номер категории |
+| opengraph_metadata | GenericRelation | "OpenGraphMeta", related_query_name="category"                                   |                            |
+| thumb_img          | TextField       | null=True, blank=True, max_length=1024                                           | Миниатюра                  |
+
+**Methods**
+
+| Method           | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| get_absolute_url | Returns the absolute URL of the category.                      |
+| __str__          | Returns the name of the category as its string representation. |
+| clean            | Validates that only root categories can have images.           |
+
+**Meta Options**
+
+| Option              | Value                      |
+| ------------------- | -------------------------- |
+| verbose_name        | Категория                  |
+| verbose_name_plural | Категории                  |
+| ordering            | ("-id",)                   |
+| indexes             | ["name", "slug", "parent"] |
+
+**MPTTMeta Options**
+
+| Option             | Value    |
+| ------------------ | -------- |
+| order_insertion_by | ["name"] |
+
+## HTMLMetaTags
+
+| Field          | Type                 | Options                                                 | Description                      |
+| -------------- | -------------------- | ------------------------------------------------------- | -------------------------------- |
+| id             | AutoField            | primary_key=True                                        | Primary Key                      |
+| created_at     | DateTimeField        | auto_now_add=True                                       | Created At                       |
+| updated_at     | DateTimeField        | auto_now=True                                           | Updated At                       |
+| title          | CharField            | max_length=1024                                         | Заголовок                        |
+| description    | TextField            | max_length=4096                                         | Описание                         |
+| keywords       | TextField            | max_length=4096                                         | Ключевые слова                   |
+| content_type   | ForeignKey           | on_delete=models.CASCADE, verbose_name=_("Тип объекта") | Тип объекта                      |
+| object_id      | PositiveIntegerField | verbose_name=_("Уникальный идентификатор объекта")      | Уникальный идентификатор объекта |
+| content_object | GenericForeignKey    | "content_type", "object_id"                             |                                  |
+| thumb_img      | TextField            | null=True, blank=True, max_length=1024                  | Миниатюра                        |
+
+**Methods**
+
+| Method                 | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| get_formatted_meta_tag | Returns formatted meta tag based on city domain. |
+
+**Meta Options**
+
+| Option              | Value                 |
+| ------------------- | --------------------- |
+| verbose_name        | Тег метаданных        |
+| verbose_name_plural | Теги метаданных       |
+| ordering            | ("-created_at", "id") |
+
+## Brand
+
+| Field      | Type            | Options                                            | Description             |
+| ---------- | --------------- | -------------------------------------------------- | ----------------------- |
+| id         | AutoField       | primary_key=True                                   | Primary Key             |
+| created_at | DateTimeField   | auto_now_add=True                                  | Created At              |
+| updated_at | DateTimeField   | auto_now=True                                      | Updated At              |
+| name       | CharField       | max_length=128, default="Нет имени"                | Имя бренда              |
+| icon       | FileField       | upload_to="category_icons/", null=True, blank=True | Иконка                  |
+| slug       | SlugField       | unique=True, max_length=256                        |                         |
+| order      | BigIntegerField | blank=True                                         | Порядковый номер бренда |
+
+**Methods**
+
+| Method  | Description                                                 |
+| ------- | ----------------------------------------------------------- |
+| __str__ | Returns the name of the brand as its string representation. |
+
+**Meta Options**
+
+| Option              | Value    |
+| ------------------- | -------- |
+| verbose_name        | Бренд    |
+| verbose_name_plural | Бренды   |
+| indexes             | ["name"] |
+
+## Product
+
+| Field                     | Type            | Options                                                                         | Description              |
+| ------------------------- | --------------- | ------------------------------------------------------------------------------- | ------------------------ |
+| id                        | AutoField       | primary_key=True                                                                | Primary Key              |
+| created_at                | DateTimeField   | auto_now_add=True                                                               | Created At               |
+| updated_at                | DateTimeField   | auto_now=True                                                                   | Updated At               |
+| category                  | ForeignKey      | Category, on_delete=models.PROTECT, related_name="products"                     | Каноническая категория   |
+| additional_categories     | ManyToManyField | Category, related_name="additional_products", blank=True                        | Дополнительные категории |
+| brand                     | ForeignKey      | Brand, on_delete=models.PROTECT, related_name="products", null=True, blank=True | Бренд                    |
+| title                     | CharField       | max_length=255                                                                  | Наименование             |
+| description               | TextField       | null=True, blank=True                                                           | Описание                 |
+| catalog_image             | ImageField      | upload_to="catalog/products/images/", null=True, blank=True, max_length=255     | Изображение в каталоге   |
+| search_image              | ImageField      | upload_to="catalog/products/images/", null=True, blank=True, max_length=255     | Изображение в поиске     |
+| original_image            | ImageField      | upload_to="catalog/products/images/", null=True, blank=True, max_length=255     | Исходное изображение     |
+| slug                      | SlugField       | unique=True, max_length=256                                                     |                          |
+| similar_products          | ManyToManyField | "self", blank=True                                                              | Похожие продукты         |
+| in_stock                  | BooleanField    | default=True                                                                    | В наличии ли товар       |
+| is_popular                | BooleanField    | default=False                                                                   | Популярен ли товар       |
+| is_new                    | BooleanField    | default=False, verbose_name=_("Новый ли товар")                                 | Новый ли товар           |
+| priority                  | IntegerField    | default=500, validators=[MaxValueValidator(10**6), MinValueValidator(1)]        | Приоритет показа         |
+| frequenly_bought_together | ManyToManyField | "self", through="ProductFrequenlyBoughtTogether", blank=True                    | Часто покупают вместе с  |
+| article                   | CharField       | max_length=128, unique=True                                                     | Артикул                  |
+| unavailable_in            | ManyToManyField | City, related_query_name="product", blank=True                                  | Недоступен в городах     |
+| opengraph_metadata        | GenericRelation | "OpenGraphMeta", related_query_name="product"                                   |                          |
+| thumb_img                 | TextField       | null=True, blank=True, max_length=1024                                          | Миниатюра                |
+
+**Methods**
+
+| Method           | Description                                                   |
+| ---------------- | ------------------------------------------------------------- |
+| get_absolute_url | Returns the absolute URL of the product.                      |
+| __str__          | Returns the name of the product as its string representation. |
+
+**Meta Options**
+
+| Option              | Value                                    |
+| ------------------- | ---------------------------------------- |
+| verbose_name        | Товар                                    |
+| verbose_name_plural | Товары                                   |
+| indexes             | ["title", "slug", "category", "article"] |
+
+## FavoriteProduct
+
+| Field      | Type          | Options                                                                | Description  |
+| ---------- | ------------- | ---------------------------------------------------------------------- | ------------ |
+| id         | AutoField     | primary_key=True                                                       | Primary Key  |
+| created_at | DateTimeField | auto_now_add=True                                                      | Created At   |
+| updated_at | DateTimeField | auto_now=True                                                          | Updated At   |
+| user       | ForeignKey    | CustomUser, on_delete=models.CASCADE, related_name="favorite_products" | Пользователь |
+| product    | ForeignKey    | Product, on_delete=models.CASCADE, related_name="favorited_by"         | Товар        |
+
+**Methods**
+
+| Method  | Description                                              |
+| ------- | -------------------------------------------------------- |
+| __str__ | Returns a string representation of the favorite product. |
+
+**Meta Options**
+
+| Option              | Value               |
+| ------------------- | ------------------- |
+| unique_together     | ("user", "product") |
+| verbose_name        | Избранный товар     |
+| verbose_name_plural | Избранные товары    |
+
+## ProductFile
+
+| Field      | Type          | Options                                                 | Description  |
+| ---------- | ------------- | ------------------------------------------------------- | ------------ |
+| id         | AutoField     | primary_key=True                                        | Primary Key  |
+| created_at | DateTimeField | auto_now_add=True                                       | Created At   |
+| updated_at | DateTimeField | auto_now=True                                           | Updated At   |
+| product    | ForeignKey    | Product, on_delete=models.CASCADE, related_name="files" | Продукт      |
+| name       | CharField     | max_length=512                                          | Наименование |
+| file       | FileField     | max_length=512, upload_to="catalog/products/documents/" | Файл         |
+
+**Meta Options**
+
+| Option              | Value               |
+| ------------------- | ------------------- |
+| unique_together     | ("product", "name") |
+| verbose_name        | Документация        |
+| verbose_name_plural | Документация        |
+
+## ProductFrequenlyBoughtTogether
+
+| Field          | Type                    | Options                                                        | Description            |
+| -------------- | ----------------------- | -------------------------------------------------------------- | ---------------------- |
+| id             | AutoField               | primary_key=True                                               | Primary Key            |
+| created_at     | DateTimeField           | auto_now_add=True                                              | Created At             |
+| updated_at     | DateTimeField           | auto_now=True                                                  | Updated At             |
+| product_from   | ForeignKey              | Product, on_delete=models.PROTECT, related_name="product_from" | Какой товар            |
+| product_to     | ForeignKey              | Product, on_delete=models.PROTECT, related_name="product_to"   | Вместе с каким товаром |
+| purchase_count | PositiveBigIntegerField | default=0                                                      | Количество покупок     |
+
+**Meta Options**
+
+| Option              | Value                          |
+| ------------------- | ------------------------------ |
+| unique_together     | ("product_from", "product_to") |
+| verbose_name        | Часто покупают вместе          |
+| verbose_name_plural | Часто покупают вместе          |
+
+## ProductImage
+
+| Field      | Type          | Options                                                  | Description |
+| ---------- | ------------- | -------------------------------------------------------- | ----------- |
+| id         | AutoField     | primary_key=True                                         | Primary Key |
+| created_at | DateTimeField | auto_now_add=True                                        | Created At  |
+| updated_at | DateTimeField | auto_now=True                                            | Updated At  |
+| product    | ForeignKey    | Product, on_delete=models.CASCADE, related_name="images" | Товар       |
+| name       | CharField     | max_length=255                                           | Название    |
+| image      | ImageField    | upload_to="catalog/products/images/", max_length=255     | Изображение |
+
+**Methods**
+
+| Method  | Description                                           |
+| ------- | ----------------------------------------------------- |
+| __str__ | Returns a string representation of the product image. |
+
+**Meta Options**
+
+| Option              | Value               |
+| ------------------- | ------------------- |
+| verbose_name        | Изображение товара  |
+| verbose_name_plural | Изображения товаров |
+
+## Promo
+
+| Field      | Type            | Options                                     | Description                      |
+| ---------- | --------------- | ------------------------------------------- | -------------------------------- |
+| id         | AutoField       | primary_key=True                            | Primary Key                      |
+| created_at | DateTimeField   | auto_now_add=True                           | Created At                       |
+| updated_at | DateTimeField   | auto_now=True                               | Updated At                       |
+| name       | CharField       | max_length=64                               | Название акции                   |
+| categories | ManyToManyField | Category, related_name="promos", blank=True | Категории в акции                |
+| products   | ManyToManyField | Product, related_name="promos", blank=True  | Товары в акции                   |
+| image      | ImageField      | upload_to="promo/"                          | Изображение                      |
+| cities     | ManyToManyField | City, related_name="promos"                 |                                  |
+| is_active  | BooleanField    | default=False                               | Активна ли акция                 |
+| active_to  | DateField       |                                             | До какого времени акция активна? |
+| thumb_img  | TextField       | null=True, blank=True, max_length=1024      | Миниатюра                        |
+
+**Methods**
+
+| Method  | Description                                                 |
+| ------- | ----------------------------------------------------------- |
+| __str__ | Returns the name of the promo as its string representation. |
+
+**Meta Options**
+
+| Option              | Value |
+| ------------------- | ----- |
+| verbose_name        | Акция |
+| verbose_name_plural | Акции |
 
 
-## 3. Модель `Brand`
+## Characteristic
 
-| Имя параметра | Описание                | Тип данных      | Максимальное значение |
-| ------------- | ----------------------- | --------------- | --------------------- |
-| id            | Идентификатор           | AutoField       | -                     |
-| created_at    | Время создания          | DateTimeField   | -                     |
-| updated_at    | Время обновления        | DateTimeField   | -                     |
-| name          | Имя бренда              | CharField       | 128                   |
-| icon          | Иконка                  | FileField       | -                     |
-| slug          | Слаг ЧПУ                | SlugField       | 256                   |
-| order         | Порядковый номер бренда | BigIntegerField | -                     |
+| Field         | Type          | Options                                                                                                    | Description    |
+| ------------- | ------------- | ---------------------------------------------------------------------------------------------------------- | -------------- |
+| id            | AutoField     | primary_key=True                                                                                           | Primary Key    |
+| created_at    | DateTimeField | auto_now_add=True                                                                                          | Created At     |
+| updated_at    | DateTimeField | auto_now=True                                                                                              | Updated At     |
+| name          | CharField     | max_length=255                                                                                             | Наименование   |
+| slug          | SlugField     | unique=True, max_length=256                                                                                | Слаг           |
+| category      | ForeignKey    | Category, related_name="characteristics", on_delete=models.CASCADE, null=True, verbose_name=_("Категория") | Категория      |
+| for_filtering | BooleanField  | default=False, blank=True, help_text=_("Будет ли эта характеристика отображаться в фильтрах товаров")      | Для фильтрации |
 
-## 4. Модель `Product`
+**Methods**
 
-| Имя параметра             | Описание                 | Тип данных      | Максимальное значение |
-| ------------------------- | ------------------------ | --------------- | --------------------- |
-| id                        | Идентификатор            | AutoField       | -                     |
-| created_at                | Время создания           | DateTimeField   | -                     |
-| updated_at                | Время обновления         | DateTimeField   | -                     |
-| category                  | Каноническая категория   | ForeignKey      | -                     |
-| additional_categories     | Дополнительные категории | ManyToManyField | -                     |
-| brand                     | Бренд                    | ForeignKey      | -                     |
-| title                     | Наименование             | CharField       | 255                   |
-| description               | Описание                 | TextField       | -                     |
-| catalog_image             | Изображение в каталоге   | ImageField      | 255                   |
-| search_image              | Изображение в поиске     | ImageField      | 255                   |
-| original_image            | Исходное изображение     | ImageField      | 255                   |
-| slug                      | Слаг ЧПУ                 | SlugField       | 256                   |
-| similar_products          | Похожие продукты         | ManyToManyField | -                     |
-| in_stock                  | В наличии ли товар       | BooleanField    | -                     |
-| is_popular                | Популярен ли товар       | BooleanField    | -                     |
-| is_new                    | Новый ли товар           | BooleanField    | -                     |
-| priority                  | Приоритет показа         | IntegerField    | 1 - 1,000,000         |
-| frequenly_bought_together | Часто покупают вместе с  | ManyToManyField | -                     |
-| article                   | Артикул                  | CharField       | 128, уникальный       |
-| opengraph_metadata        | Метаданные OpenGraph     | GenericRelation | -                     |
+| Method  | Description                             |
+| ------- | --------------------------------------- |
+| __str__ | Returns the name of the characteristic. |
 
-## 5. Модель `FavoriteProduct`
+**Meta Options**
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| user          | Пользователь     | ForeignKey    | -                     |
-| product       | Товар            | ForeignKey    | -                     |
+| Option              | Value          |
+| ------------------- | -------------- |
+| verbose_name        | Характеристика |
+| verbose_name_plural | Характеристики |
 
-## 6. Модель `ProductFile`
+## CharacteristicValue
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| product       | Продукт          | ForeignKey    | -                     |
-| name          | Наименование     | CharField     | 512                   |
-| file          | Файл             | FileField     | 512                   |
+| Field          | Type          | Options                                                                 | Description    |
+| -------------- | ------------- | ----------------------------------------------------------------------- | -------------- |
+| id             | AutoField     | primary_key=True                                                        | Primary Key    |
+| created_at     | DateTimeField | auto_now_add=True                                                       | Created At     |
+| updated_at     | DateTimeField | auto_now=True                                                           | Updated At     |
+| product        | ForeignKey    | Product, related_name="characteristic_values", on_delete=models.CASCADE | Продукт        |
+| characteristic | ForeignKey    | Characteristic, on_delete=models.CASCADE                                | Характеристика |
+| value          | CharField     | max_length=1024                                                         | Значение       |
+| slug           | SlugField     | max_length=1024                                                         | Слаг           |
 
-## 7. Модель `ProductFrequenlyBoughtTogether`
+**Methods**
 
-| Имя параметра  | Описание               | Тип данных              | Максимальное значение         |
-| -------------- | ---------------------- | ----------------------- | ----------------------------- |
-| id             | Идентификатор          | AutoField               | -                             |
-| created_at     | Время создания         | DateTimeField           | -                             |
-| updated_at     | Время обновления       | DateTimeField           | -                             |
-| product_from   | Какой товар            | ForeignKey              | -                             |
-| product_to     | Вместе с каким товаром | ForeignKey              | -                             |
-| purchase_count | Количество покупок     | PositiveBigIntegerField | 0 - 9,223,372,036,854,775,807 |
+| Method  | Description                                                    |
+| ------- | -------------------------------------------------------------- |
+| __str__ | Returns a formatted string with characteristic name and value. |
 
-## 8. Модель `ProductImage`
+**Meta Options**
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| product       | Товар            | ForeignKey    | -                     |
-| name          | Название         | CharField     | 255                   |
-| image         | Изображение      | ImageField    | 255                   |
-| thumb_img     | Миниатюра        | TextField     | 1024                  |
+| Option              | Value                                 |
+| ------------------- | ------------------------------------- |
+| verbose_name        | Значение характеристики для товара    |
+| verbose_name_plural | Значение характеристик для товара     |
+| unique_together     | ("characteristic", "product", "slug") |
 
-## 9. Модель `Promo`
+## Review
 
-| Имя параметра | Описание                         | Тип данных      | Максимальное значение |
-| ------------- | -------------------------------- | --------------- | --------------------- |
-| id            | Идентификатор                    | AutoField       | -                     |
-| created_at    | Время создания                   | DateTimeField   | -                     |
-| updated_at    | Время обновления                 | DateTimeField   | -                     |
-| name          | Название акции                   | CharField       | До 64 символов        |
-| categories    | Категории в акции                | ManyToManyField | -                     |
-| products      | Товары в акции                   | ManyToManyField | -                     |
-| image         | Изображение                      | ImageField      | -                     |
-| cities        | Города                           | ManyToManyField | -                     |
-| is_active     | Активна ли акция                 | BooleanField    | True/False            |
-| active_to     | До какого времени акция активна? | DateField       | -                     |
+| Field      | Type                      | Options                                                       | Description |
+| ---------- | ------------------------- | ------------------------------------------------------------- | ----------- |
+| id         | AutoField                 | primary_key=True                                              | Primary Key |
+| created_at | DateTimeField             | auto_now_add=True                                             | Created At  |
+| updated_at | DateTimeField             | auto_now=True                                                 | Updated At  |
+| product    | ForeignKey                | Product, related_name="reviews", on_delete=models.PROTECT     | Товар       |
+| user       | ForeignKey                | CustomUser, related_name="comments", on_delete=models.PROTECT | Комментатор |
+| rating     | PositiveSmallIntegerField | validators=[MaxValueValidator(5)]                             | Рейтинг     |
+| review     | TextField                 | max_length=255                                                | Отзыв       |
 
-## 10. Модель `Review`
+**Methods**
 
-| Имя параметра | Описание         | Тип данных           | Максимальное значение |
-| ------------- | ---------------- | -------------------- | --------------------- |
-| id            | Идентификатор    | AutoField            | -                     |
-| created_at    | Время создания   | DateTimeField        | -                     |
-| updated_at    | Время обновления | DateTimeField        | -                     |
-| product       | Товар            | ForeignKey           | -                     |
-| user          | Комментатор      | ForeignKey           | -                     |
-| rating        | Рейтинг          | PositiveSmallInteger | 0 - 5                 |
-| review        | Отзыв            | TextField            | До 255 символов       |
+| Method  | Description                                                 |
+| ------- | ----------------------------------------------------------- |
+| __str__ | Returns a formatted string with user's last and first name. |
 
-## 11. Модель `Characteristic`
+**Meta Options**
 
-| Имя
+| Option              | Value                 |
+| ------------------- | --------------------- |
+| verbose_name        | Отзыв                 |
+| verbose_name_plural | Отзывы                |
+| indexes             | ["product", "rating"] |
 
- | параметра     | Описание         | Тип данных    | Максимальное значение |
- | ------------- | ---------------- | ------------- | --------------------- |
- | id            | Идентификатор    | AutoField     | -                     |
- | created_at    | Время создания   | DateTimeField | -                     |
- | updated_at    | Время обновления | DateTimeField | -                     |
- | name          | Наименование     | CharField     | До 255 символов       |
- | slug          | Слаг             | SlugField     | До 256 символов       |
- | category      | Категория        | ForeignKey    | -                     |
- | for_filtering | Для фильтрации   | BooleanField  | -                     |
+## Price
 
-## 12. Модель `CharacteristicValue`
+| Field      | Type          | Options                                                    | Description              |
+| ---------- | ------------- | ---------------------------------------------------------- | ------------------------ |
+| id         | AutoField     | primary_key=True                                           | Primary Key              |
+| created_at | DateTimeField | auto_now_add=True                                          | Created At               |
+| updated_at | DateTimeField | auto_now=True                                              | Updated At               |
+| product    | ForeignKey    | Product, related_name="prices", on_delete=models.CASCADE   | Продукт                  |
+| city_group | ForeignKey    | CityGroup, related_name="prices", on_delete=models.CASCADE | Группа городов           |
+| price      | DecimalField  | max_digits=10, decimal_places=2                            | Цена                     |
+| old_price  | DecimalField  | max_digits=10, decimal_places=2, null=True                 | Старая цена (для скидки) |
 
-| Имя параметра  | Описание         | Тип данных    | Максимальное значение |
-| -------------- | ---------------- | ------------- | --------------------- |
-| id             | Идентификатор    | AutoField     | -                     |
-| created_at     | Время создания   | DateTimeField | -                     |
-| updated_at     | Время обновления | DateTimeField | -                     |
-| product        | Продукт          | ForeignKey    | -                     |
-| characteristic | Характеристика   | ForeignKey    | -                     |
-| value          | Значение         | CharField     | До 1024 символов      |
-| slug           | Слаг             | SlugField     | До 1024 символов      |
+**Methods**
 
-## 13. Модель `Price`
+| Method  | Description                                                                |
+| ------- | -------------------------------------------------------------------------- |
+| __str__ | Returns a formatted string with product title, city group name, and price. |
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| product       | Продукт          | ForeignKey    | -                     |
-| city_group    | Группа городов   | ForeignKey    | -                     |
-| price         | Цена             | DecimalField  | 10, 2                 |
-| old_price     | Старая цена      | DecimalField  | 10, 2                 |
+**Meta Options**
 
-## 14. Модель `Setting`
+| Option              | Value                     |
+| ------------------- | ------------------------- |
+| verbose_name        | Цена                      |
+| verbose_name_plural | Цены                      |
+| unique_together     | ("product", "city_group") |
+| indexes             | ["product", "city_group"] |
 
-| Имя параметра  | Описание              | Тип данных    | Максимальное значение       |
-| -------------- | --------------------- | ------------- | --------------------------- |
-| id             | Идентификатор         | AutoField     | -                           |
-| created_at     | Время создания        | DateTimeField | -                           |
-| updated_at     | Время обновления      | DateTimeField | -                           |
-| type           | Тип                   | CharField     | До 50 символов              |
-| value_string   | Строковое значение    | CharField     | До 255 символов             |
-| value_boolean  | Логическое значение   | BooleanField  | True/False                  |
-| value_number   | Числовое значение     | IntegerField  | -                           |
-| predefined_key | Предопределенный ключ | CharField     | До 255 символов             |
-| custom_key     | Пользовательский ключ | CharField     | До 255 символов, уникальное |
+## Setting
 
-## 15. Модель `FooterItem`
+| Field          | Type          | Options                                                               | Description           |
+| -------------- | ------------- | --------------------------------------------------------------------- | --------------------- |
+| id             | AutoField     | primary_key=True                                                      | Primary Key           |
+| created_at     | DateTimeField | auto_now_add=True                                                     | Created At            |
+| updated_at     | DateTimeField | auto_now=True                                                         | Updated At            |
+| type           | CharField     | max_length=50, default=SettingsTypeChoices.BOOLEAN                    | Тип                   |
+| value_string   | CharField     | max_length=255, null=True, blank=True                                 | Строковое значение    |
+| value_boolean  | BooleanField  | null=True, blank=True                                                 | Логическое значение   |
+| value_number   | IntegerField  | null=True, blank=True                                                 | Числовое значение     |
+| predefined_key | CharField     | max_length=255, null=True, blank=True, choices=SettingChoices.choices | Предопределенный ключ |
+| custom_key     | CharField     | max_length=255, null=True, blank=True, unique=True                    | Пользовательский ключ |
 
-| Имя параметра | Описание         | Тип данных           | Максимальное значение |
-| ------------- | ---------------- | -------------------- | --------------------- |
-| id            | Идентификатор    | AutoField            | -                     |
-| created_at    | Время создания   | DateTimeField        | -                     |
-| updated_at    | Время обновления | DateTimeField        | -                     |
-| column        | Номер колонки    | PositiveSmallInteger | -                     |
-| order         | Порядковый номер | PositiveIntegerField | -                     |
-| title         | Наименование     | CharField            | До 100 символов       |
-| link          | Ссылка           | CharField            | -                     |
+**Methods**
 
-## 16. Модель `MainPageSliderImage`
+| Method    | Description                                                    |
+| --------- | -------------------------------------------------------------- |
+| clean     | Validates the presence of either predefined_key or custom_key. |
+| get_value | Returns the value based on the type.                           |
+| save      | Cleans and saves the setting.                                  |
+| get_key   | Returns the predefined_key or custom_key.                      |
+| __str__   | Returns a formatted string with key and value.                 |
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| order         | Порядковый номер | IntegerField  | -                     |
-| link          | Ссылка           | URLField      | -                     |
-| title         | Заголовок        | CharField     | До 255 символов       |
-| description   | Описание         | CharField     | До 255 символов       |
-| button_text   | Текст на кнопке  | CharField     | До 100 символов       |
-| image         | Изображение      | ImageField    | -                     |
+**Meta Options**
 
-## 17. Модель `MainPageCategoryBarItem`
+| Option              | Value     |
+| ------------------- | --------- |
+| verbose_name        | Настройка |
+| verbose_name_plural | Настройки |
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| order         | Порядковый номер | IntegerField  | -                     |
-| link          | Ссылка           | URLField      | -                     |
-| text          | Текст            | CharField     | До 100 символов       |
+## FooterItem
 
-## 18. Модель `SideBarMenuItem`
+| Field      | Type                      | Options                              | Description      |
+| ---------- | ------------------------- | ------------------------------------ | ---------------- |
+| id         | AutoField                 | primary_key=True                     | Primary Key      |
+| created_at | DateTimeField             | auto_now_add=True                    | Created At       |
+| updated_at | DateTimeField             | auto_now=True                        | Updated At       |
+| column     | PositiveSmallIntegerField |                                      | Номер колонки    |
+| order      | PositiveIntegerField      | default=0                            | Порядковый номер |
+| title      | CharField                 | max_length=100                       | Наименование     |
+| link       | CharField                 | default="#", blank=False, null=False | Ссылка           |
 
-| Имя параметра | Описание         | Тип данных           | Максимальное значение |
-| ------------- | ---------------- | -------------------- | --------------------- |
-| id            | Идентификатор    | AutoField            | -                     |
-| created_at    | Время создания   | DateTimeField        | -                     |
-| updated_at    | Время обновления | DateTimeField        | -                     |
-| order         | Порядковый номер | PositiveSmallInteger | Уникальное            |
-| title         | Заголовок        | CharField            | До 100 символов       |
-| link          | Ссылка           | CharField            | До 255 символов       |
-| icon          | Иконка           | ImageField           | -                     |
+**Methods**
 
-## 19. Модель `ProductGroup`
+| Method  | Description                                   |
+| ------- | --------------------------------------------- |
+| __str__ | Returns a formatted string with title and id. |
 
-| Имя параметра  | Описание         | Тип данных      | Максимальное значение       |
-| -------------- | ---------------- | --------------- | --------------------------- |
-| id             | Идентификатор    | AutoField       | -                           |
-| created_at     | Время создания   | DateTimeField   | -                           |
-| updated_at     | Время обновления | DateTimeField   | -                           |
-| name           | Наименование     | CharField       | До 255 символов, уникальное |
-| products       | Продукты         | ManyToManyField | -                           |
-| characteristic | Характеристика   | ForeignKey      | -                           |
+**Meta Options**
 
-## 20. Модель `OpenGraphMeta`
+| Option              | Value               |
+| ------------------- | ------------------- |
+| verbose_name        | Элемент Footer      |
+| verbose_name_plural | Элементы Footer     |
+| ordering            | ["order"]           |
+| unique_together     | ("column", "order") |
 
-| Имя параметра | Описание           | Тип данных           | Максимальное значение                       |
-| ------------- | ------------------ | -------------------- | ------------------------------------------- |
-| id            | Идентификатор      | AutoField            | -                                           |
-| created_at    | Время создания     | DateTimeField        | -                                           |
-| updated_at    | Время обновления   | DateTimeField        | -                                           |
-| title         | Заголовок          | CharField            | До 255 символов                             |
-| description   | Описание           | TextField            | До 1024 символов                            |
-| url           | Ссылка             | CharField            | До 255 символов                             |
-| site_name     | Наименование сайта | CharField            | До 255 символов, по умолчанию "Кров маркет" |
-| locale        | Языковой код       | CharField            | До 10 символов, формат "ru_RU"              |
-| content_type  | Тип объекта        | ForeignKey           | -                                           |
-| object_id     | ID объекта         | PositiveIntegerField | -                                           |
 
-## 21. Модель `ImageMetaData`
+## MainPageSliderImage
 
-| Имя параметра   | Описание         | Тип данных                | Максимальное значение |
-| --------------- | ---------------- | ------------------------- | --------------------- |
-| id              | Идентификатор    | AutoField                 | -                     |
-| created_at      | Время создания   | DateTimeField             | -                     |
-| updated_at      | Время обновления | DateTimeField             | -                     |
-| image           | Изображение      | ImageField                | -                     |
-| width           | Ширина           | PositiveSmallIntegerField | -                     |
-| height          | Высота           | PositiveSmallIntegerField | -                     |
-| open_graph_meta | Метаданные       | ForeignKey                | -                     |
+| Field       | Type          | Options                                  | Description           |
+| ----------- | ------------- | ---------------------------------------- | --------------------- |
+| id          | AutoField     | primary_key=True                         | Primary Key           |
+| created_at  | DateTimeField | auto_now_add=True                        | Created At            |
+| updated_at  | DateTimeField | auto_now=True                            | Updated At            |
+| order       | IntegerField  | unique=True                              | Порядковый номер      |
+| link        | URLField      | blank=True, null=True                    | Ссылка                |
+| title       | CharField     | max_length=255, blank=True, null=True    | Заголовок             |
+| description | TextField     | max_length=1024, blank=True, null=True   | Описание              |
+| button_text | CharField     | max_length=100, blank=True, null=True    | Текст на кнопке       |
+| image       | ImageField    | upload_to="main/sliders/"                | Изображение           |
+| tiny_image  | ImageField    | upload_to="main/sliders/tiny", null=True | Маленькое изображение |
+| thumb_img   | TextField     | null=True, blank=True, max_length=1024   | Миниатюра             |
 
-## 22. Модель `Page`
+**Methods**
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| title         | Наименование     | CharField     | До 255 символов       |
-| description   | Описание         | TextField     | До 1024 символов      |
-| slug          | Слаг страницы    | SlugField     | Уникальное            |
+| Method  | Description                         |
+| ------- | ----------------------------------- |
+| __str__ | Returns a formatted string with id. |
 
-            |
-| image         | Изображение   | ImageField | -                     |
+**Meta Options**
 
-## 23. Модель `SearchHistory`
+| Option              | Value                        |
+| ------------------- | ---------------------------- |
+| verbose_name        | Изображение главной страницы |
+| verbose_name_plural | Изображения главной страницы |
+| ordering            | ["order"]                    |
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| title         | Заголовок поиска | CharField     | До 128 символов       |
-| user          | Пользователь     | ForeignKey    | -                     |
-```
+## MainPageCategoryBarItem
+
+| Field      | Type          | Options           | Description      |
+| ---------- | ------------- | ----------------- | ---------------- |
+| id         | AutoField     | primary_key=True  | Primary Key      |
+| created_at | DateTimeField | auto_now_add=True | Created At       |
+| updated_at | DateTimeField | auto_now=True     | Updated At       |
+| order      | IntegerField  | unique=True       | Порядковый номер |
+| link       | CharField     | max_length=128    | Ссылка           |
+| text       | CharField     | max_length=100    | Текст            |
+
+**Methods**
+
+| Method  | Description                         |
+| ------- | ----------------------------------- |
+| __str__ | Returns a formatted string with id. |
+
+**Meta Options**
+
+| Option              | Value                                    |
+| ------------------- | ---------------------------------------- |
+| verbose_name        | Категория для панели на главной странице |
+| verbose_name_plural | Категории для панели на главной странице |
+| ordering            | ["order"]                                |
+
+## SideBarMenuItem
+
+| Field      | Type                      | Options                                                                                                   | Description      |
+| ---------- | ------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------- |
+| id         | AutoField                 | primary_key=True                                                                                          | Primary Key      |
+| created_at | DateTimeField             | auto_now_add=True                                                                                         | Created At       |
+| updated_at | DateTimeField             | auto_now=True                                                                                             | Updated At       |
+| order      | PositiveSmallIntegerField | default=0, unique=True                                                                                    | Порядковый номер |
+| title      | CharField                 | max_length=100                                                                                            | Заголовок        |
+| link       | CharField                 | max_length=255                                                                                            | Ссылка           |
+| icon       | CharField                 | max_length=32, null=True, blank=True, help_text=_("delivery, documentation, cart, orders, profile, info") | Заголовок иконки |
+
+**Methods**
+
+| Method  | Description                         |
+| ------- | ----------------------------------- |
+| __str__ | Returns a formatted string with id. |
+
+**Meta Options**
+
+| Option              | Value                  |
+| ------------------- | ---------------------- |
+| verbose_name        | Элемент бокового меню  |
+| verbose_name_plural | Элементы бокового меню |
+| ordering            | ["order"]              |
+
+## ProductGroup
+
+| Field          | Type            | Options                                                          | Description    |
+| -------------- | --------------- | ---------------------------------------------------------------- | -------------- |
+| id             | AutoField       | primary_key=True                                                 | Primary Key    |
+| created_at     | DateTimeField   | auto_now_add=True                                                | Created At     |
+| updated_at     | DateTimeField   | auto_now=True                                                    | Updated At     |
+| name           | CharField       | max_length=255, unique=True                                      | Наименование   |
+| products       | ManyToManyField | Product, blank=True                                              | Продукты       |
+| characteristic | ForeignKey      | Characteristic, null=True, blank=True, on_delete=models.SET_NULL | Характеристика |
+
+**Methods**
+
+| Method  | Description                            |
+| ------- | -------------------------------------- |
+| __str__ | Returns the name of the product group. |
+
+**Meta Options**
+
+| Option              | Value            |
+| ------------------- | ---------------- |
+| verbose_name        | Грпппа продуктов |
+| verbose_name_plural | Грпппы продуктов |
+| ordering            | ["name"]         |
+
+## OpenGraphMeta
+
+| Field          | Type                 | Options                                                                               | Description        |
+| -------------- | -------------------- | ------------------------------------------------------------------------------------- | ------------------ |
+| id             | AutoField            | primary_key=True                                                                      | Primary Key        |
+| created_at     | DateTimeField        | auto_now_add=True                                                                     | Created At         |
+| updated_at     | DateTimeField        | auto_now=True                                                                         | Updated At         |
+| title          | CharField            | max_length=255                                                                        | Заголовок          |
+| description    | TextField            | max_length=1024                                                                       | Описание           |
+| url            | CharField            | max_length=255                                                                        | Ссылка             |
+| site_name      | CharField            | max_length=255, default="Кров маркет"                                                 | Наименование сайта |
+| locale         | CharField            | max_length=10, default="ru_RU", null=True, blank=True, help_text=_("В формате ru_Ru") | Языковой код       |
+| content_type   | ForeignKey           | ContentType, on_delete=models.CASCADE                                                 | Тип объекта        |
+| object_id      | PositiveIntegerField |                                                                                       | ID объекта         |
+| content_object | GenericForeignKey    | "content_type", "object_id"                                                           |                    |
+
+**Methods**
+
+| Method  | Description                                     |
+| ------- | ----------------------------------------------- |
+| __str__ | Returns a formatted string with content object. |
+
+**Meta Options**
+
+| Option              | Value      |
+| ------------------- | ---------- |
+| verbose_name        | Метаданные |
+| verbose_name_plural | Метаданные |
+
+## ImageMetaData
+
+| Field           | Type                      | Options                                 | Description |
+| --------------- | ------------------------- | --------------------------------------- | ----------- |
+| id              | AutoField                 | primary_key=True                        | Primary Key |
+| created_at      | DateTimeField             | auto_now_add=True                       | Created At  |
+| updated_at      | DateTimeField             | auto_now=True                           | Updated At  |
+| image           | ImageField                | upload_to="pages/"                      | Изображение |
+| width           | PositiveSmallIntegerField |                                         | Ширина      |
+| height          | PositiveSmallIntegerField |                                         | Высота      |
+| open_graph_meta | ForeignKey                | OpenGraphMeta, on_delete=models.CASCADE | Метаданные  |
+
+**Methods**
+
+| Method  | Description                         |
+| ------- | ----------------------------------- |
+| __str__ | Returns a formatted string with id. |
+
+**Meta Options**
+
+| Option              | Value                  |
+| ------------------- | ---------------------- |
+| verbose_name        | Изображение метаданных |
+| verbose_name_plural | Изображения метаданных |
+
+## Page
+
+| Field              | Type            | Options                                   | Description   |
+| ------------------ | --------------- | ----------------------------------------- | ------------- |
+| id                 | AutoField       | primary_key=True                          | Primary Key   |
+| created_at         | DateTimeField   | auto_now_add=True                         | Created At    |
+| updated_at         | DateTimeField   | auto_now=True                             | Updated At    |
+| title              | CharField       | max_length=255                            | Наименование  |
+| description        | TextField       | max_length=1024                           | Описание      |
+| slug               | SlugField       | unique=True                               | Слаг страницы |
+| image              | ImageField      | upload_to="pages/", blank=True, null=True | Изображение   |
+| opengraph_metadata | GenericRelation | OpenGraphMeta, related_query_name="page"  |               |
+
+**Methods**
+
+| Method           | Description                            |
+| ---------------- | -------------------------------------- |
+| __str__          | Returns a formatted string with title. |
+| get_absolute_url | Returns the slug of the page.          |
+
+**Meta Options**
+
+| Option              | Value    |
+| ------------------- | -------- |
+| verbose_name        | Страница |
+| verbose_name_plural | Страницы |
+
+## SearchHistory
+
+| Field      | Type          | Options                              | Description      |
+| ---------- | ------------- | ------------------------------------ | ---------------- |
+| id         | AutoField     | primary_key=True                     | Primary Key      |
+| created_at | DateTimeField | auto_now_add=True                    | Created At       |
+| updated_at | DateTimeField | auto_now=True                        | Updated At       |
+| title      | CharField     | max_length=128                       | Заголовок поиска |
+| user       | ForeignKey    | CustomUser, on_delete=models.CASCADE | Пользователь     |
+
+**Methods**
+
+| Method  | Description                                     |
+| ------- | ----------------------------------------------- |
+| __str__ | Returns a formatted string with title and user. |
+
+**Meta Options**
+
+| Option              | Value             |
+| ------------------- | ----------------- |
+| verbose_name        | История поиска    |
+| verbose_name_plural | Истории поиска    |
+| ordering            | ["-created_at"]   |
+| unique_together     | ("title", "user") |
 
 # Cart App Models
 
-## 1. Модель `OrderStatus`
+## OrderStatus
 
-| Имя параметра | Описание         | Тип данных    | Максимальное значение |
-| ------------- | ---------------- | ------------- | --------------------- |
-| id            | Идентификатор    | AutoField     | -                     |
-| created_at    | Время создания   | DateTimeField | -                     |
-| updated_at    | Время обновления | DateTimeField | -                     |
-| name          | Название статуса | CharField     | До 128 символов       |
+| Field      | Type          | Options           | Description      |
+| ---------- | ------------- | ----------------- | ---------------- |
+| id         | AutoField     | primary_key=True  | Primary Key      |
+| created_at | DateTimeField | auto_now_add=True | Created At       |
+| updated_at | DateTimeField | auto_now=True     | Updated At       |
+| name       | CharField     | max_length=128    | Название статуса |
 
-## 2. Модель `Order`
+**Methods**
 
-| Имя параметра | Описание         | Тип данных      | Максимальное значение |
-| ------------- | ---------------- | --------------- | --------------------- |
-| id            | Идентификатор    | AutoField       | -                     |
-| created_at    | Время создания   | DateTimeField   | -                     |
-| updated_at    | Время обновления | DateTimeField   | -                     |
-| customer      | Покупатель       | ForeignKey      | -                     |
-| products      | Товары           | ManyToManyField | -                     |
-| total         | Сумма заказа     | DecimalField    | 10, 2                 |
-| address       | Адрес            | CharField       | До 1024 символов      |
-| status        | Статус заказа    | ForeignKey      | -                     |
+| Method             | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| __str__            | Returns a formatted string with the name of the status. |
+| get_created_status | Returns the "Создан" status, creating it if necessary.  |
+| get_created_pk     | Returns the primary key of the "Создан" status.         |
 
-## 3. Модель `ProductsInOrder`
+**Meta Options**
 
-| Имя параметра | Описание                     | Тип данных                | Максимальное значение |
-| ------------- | ---------------------------- | ------------------------- | --------------------- |
-| id            | Идентификатор                | AutoField                 | -                     |
-| created_at    | Время создания               | DateTimeField             | -                     |
-| updated_at    | Время обновления             | DateTimeField             | -                     |
-| order         | Заказ                        | ForeignKey                | -                     |
-| product       | Товар                        | ForeignKey                | -                     |
-| quantity      | Количество товара в заказе   | PositiveSmallIntegerField | -                     |
-| price         | Цена товара на момент заказа | DecimalField              | 10, 2                 |
+| Option              | Value          |
+| ------------------- | -------------- |
+| verbose_name        | Статус заказа  |
+| verbose_name_plural | Статусы заказа |
 
-## 4. Модель `CartItem`
+## Order
 
-| Имя параметра | Описание         | Тип данных      | Максимальное значение |
-| ------------- | ---------------- | --------------- | --------------------- |
-| id            | Идентификатор    | AutoField       | -                     |
-| created_at    | Время создания   | DateTimeField   | -                     |
-| updated_at    | Время обновления | DateTimeField   | -                     |
-| customer      | Покупатель       | ForeignKey      | -                     |
-| product       | Товар            | ForeignKey      | -                     |
-| quantity      | Количество       | PositiveInteger | -                     |
+| Field      | Type            | Options                                                                                          | Description   |
+| ---------- | --------------- | ------------------------------------------------------------------------------------------------ | ------------- |
+| id         | AutoField       | primary_key=True                                                                                 | Primary Key   |
+| created_at | DateTimeField   | auto_now_add=True                                                                                | Created At    |
+| updated_at | DateTimeField   | auto_now=True                                                                                    | Updated At    |
+| customer   | ForeignKey      | CustomUser, related_name="customer", on_delete=models.PROTECT                                    | Покупатель    |
+| products   | ManyToManyField | Product, verbose_name="Товары", blank=True, through="ProductsInOrder"                            | Товары        |
+| total      | DecimalField    | max_digits=10, decimal_places=2                                                                  | Сумма заказа  |
+| address    | CharField       | max_length=1024                                                                                  | Адрес         |
+| status     | ForeignKey      | OrderStatus, related_name="status", on_delete=models.PROTECT, default=OrderStatus.get_created_pk | Статус заказа |
+
+**Methods**
+
+| Method  | Description                                                  |
+| ------- | ------------------------------------------------------------ |
+| __str__ | Returns a formatted string with the customer and created_at. |
+
+**Meta Options**
+
+| Option              | Value  |
+| ------------------- | ------ |
+| verbose_name        | Заказ  |
+| verbose_name_plural | Заказы |
+
+## ProductsInOrder
+
+| Field      | Type                      | Options                                                          | Description                  |
+| ---------- | ------------------------- | ---------------------------------------------------------------- | ---------------------------- |
+| id         | AutoField                 | primary_key=True                                                 | Primary Key                  |
+| created_at | DateTimeField             | auto_now_add=True                                                | Created At                   |
+| updated_at | DateTimeField             | auto_now=True                                                    | Updated At                   |
+| order      | ForeignKey                | Order, on_delete=models.CASCADE                                  | Заказ                        |
+| product    | ForeignKey                | Product, on_delete=models.PROTECT, related_name="count_in_order" | Товар                        |
+| quantity   | PositiveSmallIntegerField |                                                                  | Количество товара в заказе   |
+| price      | DecimalField              | max_digits=10, decimal_places=2                                  | Цена товара на момент заказа |
+
+**Methods**
+
+| Method  | Description                                    |
+| ------- | ---------------------------------------------- |
+| __str__ | Returns a formatted string with the basket id. |
+
+**Meta Options**
+
+| Option              | Value             |
+| ------------------- | ----------------- |
+| verbose_name        | Продукт в заказе  |
+| verbose_name_plural | Продукты в заказе |
+
+## CartItem
+
+| Field      | Type                 | Options                                                      | Description |
+| ---------- | -------------------- | ------------------------------------------------------------ | ----------- |
+| id         | AutoField            | primary_key=True                                             | Primary Key |
+| created_at | DateTimeField        | auto_now_add=True                                            | Created At  |
+| updated_at | DateTimeField        | auto_now=True                                                | Updated At  |
+| customer   | ForeignKey           | CustomUser, related_name="cart", on_delete=models.CASCADE    | Покупатель  |
+| product    | ForeignKey           | Product, on_delete=models.CASCADE, related_name="cart_items" | Товар       |
+| quantity   | PositiveIntegerField |                                                              | Количество  |
+
+**Methods**
+
+| Method  | Description                                                      |
+| ------- | ---------------------------------------------------------------- |
+| __str__ | Returns a formatted string with the customer's name and product. |
+
+**Meta Options**
+
+| Option              | Value                           |
+| ------------------- | ------------------------------- |
+| verbose_name        | Продукт в корзине пользователя  |
+| verbose_name_plural | Продукты в корзине пользователя |
+| unique_together     | ("customer", "product")         |
 
 # Account App Models
 
-## 1. Модель `City`
+## City
 
-| Имя параметра      | Описание               | Тип данных              | Максимальное значение      |
-| ------------------ | ---------------------- | ----------------------- | -------------------------- |
-| id                 | Идентификатор          | AutoField               | -                          |
-| created_at         | Время создания         | DateTimeField           | -                          |
-| updated_at         | Время обновления       | DateTimeField           | -                          |
-| name               | Город                  | CharField               | До 255 символов, null      |
-| domain             | Домен                  | CharField               | До 255 символов, null      |
-| address            | Адрес                  | CharField               | До 256 символов, null      |
-| number             | Номер телефона         | BigIntegerField         | По умолчанию 0             |
-| how_to_get_office  | Как добраться до офиса | CharField               | До 512 символов, null      |
-| schedule           | График работы          | TextField               | По умолчанию "Отсутствует" |
-| nominative_case    | Именительный падеж     | CharField               | До 128 символов, null      |
-| genitive_case      | Родительный падеж      | CharField               | До 128 символов, null      |
-| dative_case        | Дательный падеж        | CharField               | До 128 символов, null      |
-| accusative_case    | Винительный падеж      | CharField               | До 128 символов, null      |
-| instrumental_case  | Творительный падеж     | CharField               | До 128 символов, null      |
-| prepositional_case | Предложный падеж       | CharField               | До 128 символов, null      |
-| population         | Численность населения  | PositiveBigIntegerField | По умолчанию 0             |
+| Field              | Type                    | Options                                                                           | Description            |
+| ------------------ | ----------------------- | --------------------------------------------------------------------------------- | ---------------------- |
+| id                 | AutoField               | primary_key=True                                                                  | Primary Key            |
+| created_at         | DateTimeField           | auto_now_add=True                                                                 | Created At             |
+| updated_at         | DateTimeField           | auto_now=True                                                                     | Updated At             |
+| is_active          | BooleanField            | default=True                                                                      | Активность             |
+| name               | CharField               | max_length=255, unique=True, null=True                                            | Город                  |
+| domain             | CharField               | max_length=255, unique=True, null=True                                            | Домен                  |
+| address            | CharField               | max_length=256, null=True, blank=True                                             | Адрес                  |
+| number             | BigIntegerField         | default=0                                                                         | Номер телефона         |
+| how_to_get_office  | CharField               | max_length=512, null=True, blank=True                                             | Как добраться до офиса |
+| schedule           | TextField               | default="Отсутствует"                                                             | График работы          |
+| nominative_case    | CharField               | max_length=128, null=True, blank=True                                             | Именительный падеж     |
+| genitive_case      | CharField               | max_length=128, null=True, blank=True                                             | Родительный падеж      |
+| dative_case        | CharField               | max_length=128, null=True, blank=True                                             | Дательный падеж        |
+| accusative_case    | CharField               | max_length=128, null=True, blank=True                                             | Винительный падеж      |
+| instrumental_case  | CharField               | max_length=128, null=True, blank=True                                             | Творительный падеж     |
+| prepositional_case | CharField               | max_length=128, null=True                                                         | Предложный падеж       |
+| population         | PositiveBigIntegerField | default=0                                                                         | Численность населения  |
+| city_group         | ForeignKey              | CityGroup, on_delete=models.PROTECT, related_name="cities", null=True, blank=True | Группа городов         |
 
-## 2. Модель `CityGroup`
+**Methods**
 
-| Имя параметра | Описание         | Тип данных      | Максимальное значение       |
-| ------------- | ---------------- | --------------- | --------------------------- |
-| id            | Идентификатор    | AutoField       | -                           |
-| created_at    | Время создания   | DateTimeField   | -                           |
-| updated_at    | Время обновления | DateTimeField   | -                           |
-| name          | Название группы  | CharField       | До 255 символов, уникальное |
-| main_city     | Главный город    | ForeignKey      | -                           |
-| cities        | Города           | ManyToManyField | -                           |
+| Method           | Description                                           |
+| ---------------- | ----------------------------------------------------- |
+| __str__          | Returns the name of the city.                         |
+| get_default_city | Returns the default city or creates it if not exists. |
 
-## 3. Модель `CustomUser`
+**Meta Options**
 
-| Имя параметра   | Описание            | Тип данных    | Максимальное значение            |
-| --------------- | ------------------- | ------------- | -------------------------------- |
-| id              | Идентификатор       | AutoField     | -                                |
-| created_at      | Время создания      | DateTimeField | -                                |
-| updated_at      | Время обновления    | DateTimeField | -                                |
-| first_name      | Имя                 | CharField     | До 35 символов, null             |
-| last_name       | Фамилия             | CharField     | До 35 символов, null             |
-| email           | Почта               | EmailField    | -                                |
-| phone           | Номер телефона      | CharField     | До 16 символов, уникальное, null |
-| address         | Адрес               | CharField     | До 1024 символов, null           |
-| is_customer     | Покупатель          | BooleanField  | True/False                       |
-| email_confirmed | Подтверждение email | BooleanField  | True/False                       |
-| middle_name     | Отчество            | CharField     | До 35 символов, null             |
+| Option              | Value                         |
+| ------------------- | ----------------------------- |
+| verbose_name        | Город                         |
+| verbose_name_plural | Города                        |
+| ordering            | ["name"]                      |
+| indexes             | ["name", "domain", "address"] |
+
+## CityGroup
+
+| Field      | Type          | Options                                                                              | Description     |
+| ---------- | ------------- | ------------------------------------------------------------------------------------ | --------------- |
+| id         | AutoField     | primary_key=True                                                                     | Primary Key     |
+| created_at | DateTimeField | auto_now_add=True                                                                    | Created At      |
+| updated_at | DateTimeField | auto_now=True                                                                        | Updated At      |
+| is_active  | BooleanField  | default=True                                                                         | Активность      |
+| name       | CharField     | max_length=255, unique=True                                                          | Название группы |
+| main_city  | OneToOneField | City, on_delete=models.SET_NULL, related_name="main_in_group", null=True, blank=True | Главный город   |
+
+**Methods**
+
+| Method  | Description                         |
+| ------- | ----------------------------------- |
+| __str__ | Returns the name of the city group. |
+
+**Meta Options**
+
+| Option              | Value                 |
+| ------------------- | --------------------- |
+| verbose_name        | Группа городов        |
+| verbose_name_plural | Группы городов        |
+| indexes             | ["name", "main_city"] |
+
+## CustomUser
+
+| Field           | Type          | Options                                                                                  | Description           |
+| --------------- | ------------- | ---------------------------------------------------------------------------------------- | --------------------- |
+| id              | AutoField     | primary_key=True                                                                         | Primary Key           |
+| created_at      | DateTimeField | auto_now_add=True                                                                        | Created At            |
+| updated_at      | DateTimeField | auto_now=True                                                                            | Updated At            |
+| is_active       | BooleanField  | default=True                                                                             | Активность            |
+| first_name      | CharField     | max_length=35, blank=True, null=True                                                     | Имя                   |
+| last_name       | CharField     | max_length=35, blank=True, null=True                                                     | Фамилия               |
+| email           | EmailField    | blank=True, null=True                                                                    | Почта                 |
+| phone           | CharField     | max_length=16, unique=True, blank=True, null=True, help_text=_("In format +7xxxxxxxxxx") | Номер телефона        |
+| address         | CharField     | max_length=1024, blank=True, null=True                                                   | Адрес                 |
+| is_customer     | BooleanField  | default=False                                                                            | Покупатель ли юзер?   |
+| email_confirmed | BooleanField  | default=False                                                                            | Подтверждена ли почта |
+| middle_name     | CharField     | max_length=35, blank=True, null=True                                                     | Отчество              |
+
+**Methods**
+
+| Method  | Description                                         |
+| ------- | --------------------------------------------------- |
+| __str__ | Returns a formatted string with phone.              |
+| delete  | Soft delete the user by setting is_active to False. |
+
+**Meta Options**
+
+| Option              | Value                |
+| ------------------- | -------------------- |
+| verbose_name        | Пользователь         |
+| verbose_name_plural | Пользователи         |
+| indexes             | ["phone", "address"] |
