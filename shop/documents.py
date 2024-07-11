@@ -45,6 +45,7 @@ class ProductDocument(Document):
             "name": fields.TextField(),
         }
     )
+    article = fields.TextField()
 
     class Index:
         name = "products"

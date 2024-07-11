@@ -34,7 +34,7 @@ class ProductDocumentSerializer(DocumentSerializer):
     price = PriceSerializer(many=True, read_only=True)
 
     class Meta:
-        model = ProductDocument
+        document = ProductDocument
         fields = [
             "id",
             "title",
