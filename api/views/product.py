@@ -39,7 +39,10 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
 
     def get_queryset(self):
         self.domain = self.request.query_params.get("city_domain")
-        self.queryset = super().get_queryset().exclude(unavailable_in__domain=self.domain)
+        self.queryset = super().get_queryset()
+        
+        if self.domain:
+            self.queryset = self.queryset.exclude(unavailable_in__domain=self.domain)
 
         # Annotate cart_quantity for products in the user's cart
         if self.request.user.is_authenticated:
