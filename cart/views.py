@@ -70,13 +70,25 @@ class OrderViewSet(ModelViewSet):
                                 "old_price": 74.87,
                                 "images": [
                                     {
-                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                 ],
                                 "in_stock": True,
@@ -101,13 +113,25 @@ class OrderViewSet(ModelViewSet):
                                 "old_price": 74.87,
                                 "images": [
                                     {
-                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                 ],
                                 "in_stock": True,
@@ -163,13 +187,25 @@ class OrderViewSet(ModelViewSet):
                                 "old_price": 74.87,
                                 "images": [
                                     {
-                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                 ],
                                 "in_stock": True,
@@ -249,13 +285,25 @@ class OrderViewSet(ModelViewSet):
                                 "old_price": 74.87,
                                 "images": [
                                     {
-                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                 ],
                                 "in_stock": True,
@@ -291,16 +339,23 @@ class OrderViewSet(ModelViewSet):
 
         cart_items = CartItem.objects.filter(customer=request.user.pk)
 
-
         if not cart_items.exists():
             return Response(
                 {"error": "Корзина пуста."}, status=status.HTTP_404_NOT_FOUND
             )
-        
-        unavailable_products = cart_items.prefetch_related("product").filter(product__unavailable_in__domain=city_domain).values_list("id", flat=True)
+
+        unavailable_products = (
+            cart_items.prefetch_related("product")
+            .filter(product__unavailable_in__domain=city_domain)
+            .values_list("id", flat=True)
+        )
         if unavailable_products.exists():
             return Response(
-                {"detail": "Товары недоступны для заказа", "cart_items": unavailable_products}, status=status.HTTP_400_BAD_REQUEST
+                {
+                    "detail": "Товары недоступны для заказа",
+                    "cart_items": unavailable_products,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         serializer = self.get_serializer(data=data)
@@ -374,13 +429,25 @@ class OrderViewSet(ModelViewSet):
                                     "old_price": 74.87,
                                     "images": [
                                         {
-                                            "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                            "id": 1,
+                                            "name": "updated_example",
+                                            "thumb_img": "thumb_example_updated.png",
+                                            "image": "/media/catalog/products/images/example_updated.png",
+                                            "is_active": True,
                                         },
                                         {
-                                            "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                            "id": 1,
+                                            "name": "updated_example",
+                                            "thumb_img": "thumb_example_updated.png",
+                                            "image": "/media/catalog/products/images/example_updated.png",
+                                            "is_active": True,
                                         },
                                         {
-                                            "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                            "id": 1,
+                                            "name": "updated_example",
+                                            "thumb_img": "thumb_example_updated.png",
+                                            "image": "/media/catalog/products/images/example_updated.png",
+                                            "is_active": True,
                                         },
                                     ],
                                     "in_stock": True,
@@ -429,13 +496,25 @@ class OrderViewSet(ModelViewSet):
                                 "old_price": 74.87,
                                 "images": [
                                     {
-                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                 ],
                                 "in_stock": True,
@@ -500,13 +579,25 @@ class OrderViewSet(ModelViewSet):
                                 "old_price": 74.87,
                                 "images": [
                                     {
-                                        "image_url": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-4b7bec97-73e4-43ab-ae1e-17612fb6d2e8.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                     {
-                                        "image_url": "/media/catalog/products/image-288c5a83-dde5-4475-a059-3365811cce9e.webp"
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
                                     },
                                 ],
                                 "in_stock": True,
@@ -756,7 +847,9 @@ class CartItemViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             quantity_dict[serializer.data["product_id"]] += serializer.data["quantity"]
 
-        unique_dict = [{"product_id": k, "quantity": v} for k, v in quantity_dict.items()]
+        unique_dict = [
+            {"product_id": k, "quantity": v} for k, v in quantity_dict.items()
+        ]
         for incoming_item in unique_dict:
             product_id = incoming_item["product_id"]
             new_quantity = incoming_item["quantity"]
@@ -799,10 +892,18 @@ class CartItemViewSet(ModelViewSet):
                         "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                             {
-                                "image_url": "/media/catalog/products/35533f8a-48bb-462a-b1d9-1e57b6ca10e7.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             },
                         ],
                         "category_slug": "seriya-premium",
@@ -879,13 +980,29 @@ class CartItemViewSet(ModelViewSet):
                             "slug": "rossiia",
                         },
                     ],
-                    "images": [],
+                    "images": [
+                        {
+                            "id": 1,
+                            "name": "updated_example",
+                            "thumb_img": "thumb_example_updated.png",
+                            "image": "/media/catalog/products/images/example_updated.png",
+                            "is_active": True,
+                        }
+                    ],
                     "in_stock": True,
                     "is_popular": False,
                     "priority": 500,
                     "is_acitve": True,
-                    "thumb_img": "",
-                    "files": [],
+                    "thumb_img": "base64img",
+                    "files": [
+                        {
+                            "id": 5,
+                            "file": "/media/catalog/products/documents/20240301_142235.heic",
+                            "name": "Test",
+                            "is_active": True,
+                            "product": 5138,
+                        }
+                    ],
                 },
                 description="Пример ответа подробной информации о товарах в корзине в Swagger UI",
                 summary="Пример подробной информации о товарах в корзине",
@@ -936,7 +1053,11 @@ class CartItemViewSet(ModelViewSet):
                         "old_price": "3865",
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             }
                         ],
                         "category_slug": "deke",
@@ -987,7 +1108,11 @@ class CartItemViewSet(ModelViewSet):
                         "old_price": "3865",
                         "images": [
                             {
-                                "image_url": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp"
+                                "id": 1,
+                                "name": "updated_example",
+                                "thumb_img": "thumb_example_updated.png",
+                                "image": "/media/catalog/products/images/example_updated.png",
+                                "is_active": True,
                             }
                         ],
                         "category_slug": "deke",
@@ -1068,7 +1193,9 @@ class CartCountView(APIView):
             OpenApiExample(
                 name="Get Count Response Example",
                 response_only=True,
-                value={"count": 100},
+                value={
+                    "count": 100,
+                },
                 description="Получение количества товаров в корзине для текущего пользователя",
             )
         ],

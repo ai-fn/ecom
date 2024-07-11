@@ -86,7 +86,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": "1",
                             "name": "dummy-name",
-                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
                             "is_active": True,
                         }
@@ -117,7 +117,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": "1",
                             "name": "dummy-name",
-                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
                             "is_active": True,
                         }
@@ -186,7 +186,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": "1",
                             "name": "dummy-name",
-                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
                             "is_active": True,
                         }
@@ -311,7 +311,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                     ]
                                 ],
                                 "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "is_visible": True,
                                 "is_popular": False,
                                 "thumb_img": "base64string",
@@ -325,7 +325,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                             ]
                         ],
                         "icon": None,
-                        "image_url": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "image": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "is_visible": True,
                         "is_popular": False,
                         "thumb_img": "base64string",
@@ -361,7 +361,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     ],
                     "images": [
                         {
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             "thumb_img": "base64string",
                     "is_acitve": True,
                         }
@@ -471,7 +471,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                                     ]
                                 ],
                                 "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                                "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+                                "image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
                                 "is_visible": True,
                                 "is_popular": False,
                                 "thumb_img": "base64string",
@@ -485,7 +485,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                             ]
                         ],
                         "icon": None,
-                        "image_url": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                        "image": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "is_visible": True,
                         "is_popular": False,
                         "thumb_img": "base64string",
@@ -521,7 +521,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                     ],
                     "images": [
                         {
-                            "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             "thumb_img": "base64string",
                     "is_acitve": True,
                         }
@@ -573,7 +573,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": "1",
                             "name": "dummy-name",
-                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
                             "is_active": True,
                         }
@@ -618,7 +618,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": "1",
                             "name": "dummy-name",
-                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
                             "is_active": True,
                         }
@@ -653,7 +653,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": "1",
                             "name": "dummy-name",
-                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
                             "is_active": True,
                         }
@@ -710,7 +710,7 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
                         {
                             "id": "1",
                             "name": "dummy-name",
-                            "image_url": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+                            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
                             "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
                             "is_active": True,
                         }
