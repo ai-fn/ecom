@@ -46,6 +46,124 @@ class OrderViewSet(ModelViewSet):
         return super().get_queryset()
 
     @extend_schema(
+        summary="Получение активных заказов пользователя",
+        description="Получение активных заказов пользователя",
+        examples=[
+            OpenApiExample(
+                name="List Response Example",
+                response_only=True,
+                value={
+                    "id": 5,
+                    "customer": 1,
+                    "products": [
+                        {
+                            "id": 2,
+                            "order": 1,
+                            "product": {
+                                "id": 11,
+                                "title": "Желоб водосточный 3 м Premium, шоколад",
+                                "brand": 1,
+                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                                "city_price": 74.87,
+                                "old_price": 74.87,
+                                "images": [
+                                    {
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
+                                    },
+                                    {
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
+                                    },
+                                    {
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
+                                    },
+                                ],
+                                "in_stock": True,
+                                "category_slug": "seriia-premium-3",
+                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "is_popular": False,
+                            },
+                            "quantity": 15,
+                            "price": "2.23",
+                        },
+                        {
+                            "id": 2,
+                            "order": 1,
+                            "product": {
+                                "id": 11,
+                                "title": "Желоб водосточный 3 м Premium, шоколад",
+                                "brand": 1,
+                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
+                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
+                                "city_price": 74.87,
+                                "old_price": 74.87,
+                                "images": [
+                                    {
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
+                                    },
+                                    {
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
+                                    },
+                                    {
+                                        "id": 1,
+                                        "name": "updated_example",
+                                        "thumb_img": "thumb_example_updated.png",
+                                        "image": "/media/catalog/products/images/example_updated.png",
+                                        "is_active": True,
+                                    },
+                                ],
+                                "in_stock": True,
+                                "category_slug": "seriia-premium-3",
+                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
+                                "is_popular": False,
+                            },
+                            "quantity": 15,
+                            "price": "2.23",
+                        },
+                    ],
+                    "created_at": "2024-03-28T15:08:57.462177+03:00",
+                    "region": "Воронежская область",
+                    "district": "",
+                    "city_name": "Воронеж",
+                    "street": "улица 20-летия Октября",
+                    "house": "84",
+                    "total": "137.66",
+                    "status": {"name": "Создан"},
+                },
+                description="Пример ответа для получения списка всех заказов в Swagger UI",
+                summary="Пример ответа для получения списка всех заказов",
+                media_type="application/json",
+            ),
+        ],
+    )
+    @action(detail=False, methods=["get"], url_path="active-orders")
+    def active_orders(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset().filter(is_active=True)
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
         description="Получить список всех заказов",
         summary="Список заказов",
         responses={200: OrderSerializer(many=True)},
