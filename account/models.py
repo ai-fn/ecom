@@ -21,16 +21,19 @@ class City(TimeBasedModel):
         max_length=255,
         verbose_name="Город",
         null=True,
+        unique=True,
     )
     domain = models.CharField(
         max_length=255,
         verbose_name="Домен",
         null=True,
+        unique=True,
     )
     address = models.CharField(
         max_length=256,
         verbose_name="Адрес",
         null=True,
+        blank=True,
     )
     number = models.BigIntegerField(
         verbose_name="Номер телефона",
@@ -39,6 +42,7 @@ class City(TimeBasedModel):
     how_to_get_office = models.CharField(
         verbose_name="Как добраться до офиса",
         null=True,
+        blank=True,
         max_length=512,
     )
     schedule = models.TextField(
@@ -68,6 +72,14 @@ class City(TimeBasedModel):
     population = models.PositiveBigIntegerField(
         verbose_name="Численность населения", default=0
     )
+    city_group = models.ForeignKey(
+        "CityGroup",
+        verbose_name=_("Группа городов"),
+        on_delete=models.PROTECT,
+        related_name="cities",
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Город"
@@ -84,25 +96,20 @@ class City(TimeBasedModel):
     
     @staticmethod
     def get_default_city() -> "City":
-        default_name = os.getenv("DEFAULT_CITY_NAME", "москва")
+        default_name = os.getenv("DEFAULT_CITY_NAME", "Москва")
         city, _ = City.objects.get_or_create(name__iexact=default_name)
         return city
 
 
 class CityGroup(TimeBasedModel):
     name = models.CharField(max_length=255, verbose_name="Название группы", unique=True)
-    main_city = models.ForeignKey(
+    main_city = models.OneToOneField(
         "City",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="main_city_for_group",
+        related_name="main_in_group",
         verbose_name="Главный город",
-    )
-    cities = models.ManyToManyField(
-        City,
-        related_name="city_group",
-        verbose_name="Города",
     )
 
     class Meta:

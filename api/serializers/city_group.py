@@ -5,8 +5,6 @@ from api.serializers import CitySerializer
 
 
 class CityGroupSerializer(serializers.ModelSerializer):
-    main_city = CitySerializer(read_only=True)
-    cities = CitySerializer(many=True, read_only=True)
 
     class Meta:
         model = CityGroup
@@ -16,3 +14,9 @@ class CityGroupSerializer(serializers.ModelSerializer):
             "main_city",
             "cities",
         ]
+    
+    def to_representation(self, instance):
+        data =  super().to_representation(instance)
+        data["cities"] = CitySerializer(instance.cities.all(), many=True).data if instance.cities.exists() else None
+        data["main_city"] = CitySerializer(instance.main_city).data if instance.main_city else None
+        return data

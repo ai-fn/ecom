@@ -8,6 +8,7 @@ from .user import UserSerializer
 from .user import UserRegistrationSerializer
 from .user import UserReviewSerializer
 from .review import ReviewSerializer
+from .simple_city_group import SimpleCityGroupSerializer
 from .city import CitySerializer
 from .city_group import CityGroupSerializer
 from .characteristic import CharacteristicSerializer

@@ -83,7 +83,9 @@ admin.site.register(CustomUser, CustomUserAdmin)
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
+        "city_group",
         "domain",
         "address",
         "population",
@@ -104,7 +106,6 @@ class CityGroupAdmin(admin.ModelAdmin):
     search_fields = (
         "name",
     )
-    filter_horizontal = ("cities",)
 
 def ready():
     setting_changed.connect(set_cases)

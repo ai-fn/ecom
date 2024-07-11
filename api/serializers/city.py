@@ -1,9 +1,11 @@
 from rest_framework import serializers
 
 from account.models import City
+from api.serializers import SimpleCityGroupSerializer
 
 
 class CitySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = City
         fields = [
@@ -16,4 +18,10 @@ class CitySerializer(serializers.ModelSerializer):
             "accusative_case",
             "instrumental_case",
             "prepositional_case",
+            "city_group",
         ]
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["city_group"] = SimpleCityGroupSerializer(instance.city_group).data if instance.city_group else None
+        return data

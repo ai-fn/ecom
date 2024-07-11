@@ -38,6 +38,10 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "city_group": {
+                        "id": 1,
+                        "name": "Dummy name",
+                    }
                 },
                 description="Пример ответа при запросе списка городов в Swagger UI",
                 response_only=True,
@@ -76,6 +80,10 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "city_group": {
+                        "id": 1,
+                        "name": "Dummy name",
+                    }
                 },
                 description="Пример ответа при запросе информации о городе в Swagger UI",
                 response_only=True,
@@ -104,6 +112,7 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "city_group": 1,
                 },
                 description="Пример запроса для создания нового города в Swagger UI",
                 media_type="application/json",
@@ -121,6 +130,10 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Воронежем",
                     "instrumental_case": "Воронежем",
                     "prepositional_case": "Воронеже",
+                    "city_group": {
+                        "id": 1,
+                        "name": "Dummy name",
+                    }
                 },
                 description="Пример ответа для создания нового города в Swagger UI",
                 media_type="application/json",
@@ -148,6 +161,7 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Москвой",
                     "instrumental_case": "Москвой",
                     "prepositional_case": "Москве",
+                    "city_group": 1,
                 },
                 description="Пример запроса для обновления информации о городе в Swagger UI",
                 media_type="application/json",
@@ -165,6 +179,10 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Москвой",
                     "instrumental_case": "Москвой",
                     "prepositional_case": "Москве",
+                    "city_group": {
+                        "id": 1,
+                        "name": "Dummy name",
+                    }
                 },
                 description="Пример ответа для обновления информации о городе в Swagger UI",
                 media_type="application/json",
@@ -201,6 +219,10 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Москвой",
                     "instrumental_case": "Москвой",
                     "prepositional_case": "Москве",
+                    "city_group": {
+                        "id": 1,
+                        "name": "Dummy name",
+                    }
                 },
                 description="Пример запроса для частичного обновления информации о городе в Swagger UI",
                 media_type="application/json",
@@ -251,6 +273,10 @@ class CityViewSet(ModelViewSet):
                     "accusative_case": "Новосибирск",
                     "instrumental_case": "Новосибирском",
                     "prepositional_case": "Новосибирске",
+                    "city_group": {
+                        "id": 1,
+                        "name": "Dummy name",
+                    }
                 },
             )
         ],
