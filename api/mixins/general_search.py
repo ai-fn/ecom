@@ -107,7 +107,11 @@ class GeneralSearchMixin:
 
     def process_product(self, hit, city, categorized_results):
         try:
-            product = Product.objects.select_related('category', 'brand').prefetch_related('additional_categories').exclude(unavailable_in=city).get(id=hit.id)
+            queryset = Product.objects.select_related('category', 'brand').prefetch_related('additional_categories')
+            if city is not None:
+                queryset = queryset.exclude(unavailable_in=city)
+
+            product = queryset.get(id=hit.id)
         except Product.DoesNotExist:
             logger.info(f"Product with hit {hit.id} not found")
             return
