@@ -1,4 +1,8 @@
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import viewsets
+
 from shop.models import FavoriteProduct
 from api.serializers import FavoriteProductSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
@@ -273,3 +277,13 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
             request.data["user_id"] = self.request.user.pk
 
         return super().create(request, *args, **kwargs)
+
+    @action(detail=False, methods=['delete'], url_path='delete-by-product-id/(?P<product_id>\d+)')
+    def delete_by_prod(self, request, product_id=None, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        try:
+            queryset.get(product__id=product_id).delete()
+        except FavoriteProduct.DoesNotExist:
+            return Response({"detail": f"Favorite product with product_id '{product_id}' not found."}, status=HTTP_404_NOT_FOUND)
+
+        return Response(status=HTTP_204_NO_CONTENT)
