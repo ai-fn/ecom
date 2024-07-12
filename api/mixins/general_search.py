@@ -4,24 +4,36 @@ from loguru import logger
 from django.core.cache import cache
 
 from account.models import City
-from shop.documents import BrandDocument, CategoryDocument, ProductDocument, ReviewDocument
+from shop.documents import (
+    BrandDocument,
+    CategoryDocument,
+    ProductDocument,
+    ReviewDocument,
+)
 from shop.models import Category, Price, Product, SearchHistory
-from api.serializers import PriceSerializer, ReviewDocumentSerializer, ProductDocumentSerializer, CategoryDocumentSerializer, BrandDocumentSerializer
+from api.serializers import (
+    PriceSerializer,
+    ReviewDocumentSerializer,
+    ProductDocumentSerializer,
+    CategoryDocumentSerializer,
+    BrandDocumentSerializer,
+)
 
 
 class GeneralSearchMixin:
-    def g_search(self, query: str, domain: str, exclude_: Iterable[str] = None) -> Dict[str, Any]:
+    def g_search(
+        self, query: str, domain: str, exclude_: Iterable[str] = None, damn: bool = True
+    ) -> Dict[str, Any]:
         if self.request.user.is_authenticated:
             SearchHistory.objects.get_or_create(title=query, user=self.request.user)
 
         exclude_ = set(exclude_ or [])
-        search_configs = self.get_search_configs(query)
+        search_configs = self.get_search_configs(query, damn)
 
-        should, fields, indexes = [], [], []
+        should, indexes = [], []
         for key, config in search_configs.items():
             if key not in exclude_:
                 should.extend(config["queries"])
-                fields.extend(config["fields"])
                 indexes.extend(config["indexes"])
 
         client = connections.get_connection()
@@ -34,8 +46,6 @@ class GeneralSearchMixin:
             search = search.query(
                 "bool",
                 should=[
-                    Q("multi_match", query=query, fields=["name^3", *fields]),
-                    Q("wildcard", name={"value": f"*{query}*"}),
                     *should,
                 ],
                 minimum_should_match=1,
@@ -47,35 +57,54 @@ class GeneralSearchMixin:
 
         return categorized_results
 
-    def get_search_configs(self, query: str) -> Dict[str, Dict[str, Any]]:
+    def get_search_configs(self, query: str, damn: bool = True) -> Dict[str, Dict[str, Any]]:
+        query = query.lower()
+        base_query_attrs = {
+            "name_or_query": "multi_match",
+            "query": query,
+            "fields": ["name^2"],
+            "fuzziness": "AUTO",
+        }
+        if len(query) <= 3:
+            product_queries = [
+                Q("wildcard", title={"value": f"*{query}*"}),
+                Q("wildcard", description={"value": f"*{query}*"}),
+                Q("wildcard", article={"value": f"*{query}*"}),
+            ]
+            category_queries = [Q("wildcard", name={"value": f"*{query}*"})]
+            brand_queries = [Q("wildcard", name={"value": f"*{query}*"})]
+            review_queries = [Q("wildcard", review={"value": f"*{query}*"})]
+        else:
+            product_queries = [
+                Q(**{**base_query_attrs, "fields": ["title^2", "description"]}),
+                Q("match_phrase", article={"query": query}),
+            ]
+            category_queries = [Q(**base_query_attrs)]
+            brand_queries = [Q(**base_query_attrs)]
+            review_queries = [Q(**{**base_query_attrs, "fields": ["review"]})]
+
         return {
             "product": {
-                "queries": (
-                    Q("wildcard", title={"value": f"*{query}*"}),
-                    Q("wildcard", description={"value": f"*{query}*"}),
-                    Q("term", article={"value": query}),
-                ),
-                "fields": ("title^2", "description", "article"),
+                "queries": product_queries,
                 "indexes": (ProductDocument._index._name,),
             },
             "category": {
-                "queries": (Q("wildcard", category__name={"value": f"*{query}*"}),),
-                "fields": ("category__name",),
+                "queries": category_queries,
                 "indexes": (CategoryDocument._index._name,),
             },
             "brand": {
-                "queries": (Q("wildcard", brand__name={"value": f"*{query}*"}),),
-                "fields": ("brand__name",),
+                "queries": brand_queries,
                 "indexes": (BrandDocument._index._name,),
             },
             "review": {
-                "queries": (Q("wildcard", review={"value": f"*{query}*"}),),
-                "fields": ("review",),
+                "queries": review_queries,
                 "indexes": (ReviewDocument._index._name,),
             },
         }
 
-    def get_total_size(self, search_configs: Dict[str, Dict[str, Any]], exclude_: Iterable[str]) -> int:
+    def get_total_size(
+        self, search_configs: Dict[str, Dict[str, Any]], exclude_: Iterable[str]
+    ) -> int:
         return sum(
             globals()[classname.capitalize()].objects.count()
             for classname in search_configs
@@ -86,12 +115,19 @@ class GeneralSearchMixin:
         cache_key = f"city_{domain}"
         city = cache.get(cache_key)
         if not city:
-            city = City.objects.filter(domain=domain).select_related('city_group').first()
+            city = (
+                City.objects.filter(domain=domain).select_related("city_group").first()
+            )
             cache.set(cache_key, city, 3600)
         return city
 
     def categorize_results(self, response, city) -> Dict[str, Any]:
-        categorized_results = {"categories": [], "products": [], "reviews": [], "brands": []}
+        categorized_results = {
+            "categories": [],
+            "products": [],
+            "reviews": [],
+            "brands": [],
+        }
 
         for hit in response:
             if hit.meta.index == ProductDocument._index._name:
@@ -107,7 +143,9 @@ class GeneralSearchMixin:
 
     def process_product(self, hit, city, categorized_results):
         try:
-            queryset = Product.objects.select_related('category', 'brand').prefetch_related('additional_categories')
+            queryset = Product.objects.select_related(
+                "category", "brand"
+            ).prefetch_related("additional_categories")
             if city is not None:
                 queryset = queryset.exclude(unavailable_in=city)
 
@@ -118,7 +156,11 @@ class GeneralSearchMixin:
 
         product_data = ProductDocumentSerializer(product).data
         if city:
-            price = Price.objects.filter(product=product, city_group__cities=city).select_related('city_group').first()
+            price = (
+                Price.objects.filter(product=product, city_group__cities=city)
+                .select_related("city_group")
+                .first()
+            )
             if price:
                 product_data["price"] = PriceSerializer(price).data
         categorized_results["products"].append(product_data)
