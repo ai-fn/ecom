@@ -5,7 +5,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.decorators import action
 
 from api.serializers import SearchHistorySerializer
-from api.permissions import IsOwner
+from api.permissions import IsOwnerOrAdminPermission
 from shop.models import SearchHistory
 
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
@@ -152,7 +152,7 @@ class SearchHistoryViewSet(ModelViewSet):
 
     queryset = SearchHistory.objects.all().order_by("-created_at")
     serializer_class = SearchHistorySerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated, IsOwnerOrAdminPermission]
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(user=self.request.user)

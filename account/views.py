@@ -4,7 +4,7 @@ from django.utils.decorators import method_decorator
 
 from api.mixins import SendVerifyEmailMixin
 from api.serializers.user import UserDetailInfoSerializer
-from api.permissions import OwnerOrIsAdmin
+from api.permissions import UserInfoPermission
 
 from account.models import CustomUser
 
@@ -25,7 +25,7 @@ class AccountInfoViewSet(
     SendVerifyEmailMixin,
 ):
     serializer_class = UserDetailInfoSerializer
-    permission_classes = [OwnerOrIsAdmin, IsAuthenticated]
+    permission_classes = [UserInfoPermission, IsAuthenticated]
     queryset = CustomUser.objects.all()
 
     @extend_schema(

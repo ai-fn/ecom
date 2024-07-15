@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404
 from loguru import logger
-from api.permissions import IsOwner
+from api.permissions import IsOwnerOrAdminPermission
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -35,7 +35,7 @@ class OrderViewSet(ModelViewSet):
         if self.action in ("update", "partial_update", "destroy"):
             return [IsAdminUser]
         elif self.action == "retrieve":
-            self.permission_classes.append(IsOwner)
+            self.permission_classes.append(IsOwnerOrAdminPermission)
 
         return super().get_permissions()
 
