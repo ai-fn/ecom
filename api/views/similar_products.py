@@ -68,8 +68,10 @@ class SimilarProducts(CityPricesMixin, ListModelMixin, GenericViewSet):
             )
 
         self.domain = request.query_params.get("city_domain")
-        self.queryset = product.similar_products.exclude(
-            unavailable_in__domain=self.domain
-        )
+        self.queryset = self.filter_queryset(product.similar_products.all())
+        if self.domain:
+            self.queryset = self.queryset.exclude(
+                unavailable_in__domain=self.domain
+            )
 
         return super().list(request, **kwargs)
