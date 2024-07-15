@@ -266,7 +266,16 @@ from rest_framework.permissions import IsAuthenticated
         description="Удаляет избранный продукт.",
     ),
 )
-@extend_schema(tags=["Shop"])
+@extend_schema(
+    tags=["Shop"],
+    parameters=[
+        OpenApiParameter(
+            name="city_domain",
+            description="Домен города, для получения цен",
+            required=False,
+        ),
+    ]
+)
 class FavoriteProductViewSet(viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()
     serializer_class = FavoriteProductSerializer

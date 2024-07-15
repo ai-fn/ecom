@@ -7,11 +7,10 @@ from rest_framework.pagination import PageNumberPagination
 from api.serializers import ProductCatalogSerializer
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 from shop.models import Product
-from api.mixins import CityPricesMixin
 
 
 @extend_schema(tags=["Shop"])
-class ProductsById(CityPricesMixin, GenericAPIView):
+class ProductsById(GenericAPIView):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer

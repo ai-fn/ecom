@@ -1,7 +1,6 @@
 from django.db.models import Max, Min
 from rest_framework.viewsets import ModelViewSet
 from api.filters import ProductFilter
-from api.mixins import CityPricesMixin
 from api.permissions import ReadOnlyOrAdminPermission
 
 from api.serializers.characteristic_filter import CharacteristicFilterSerializer
@@ -18,7 +17,7 @@ from django_filters import rest_framework as filters
 
 
 @extend_schema(tags=["Shop"])
-class ProductViewSet(CityPricesMixin, ModelViewSet):
+class ProductViewSet(ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
@@ -399,18 +398,18 @@ class ProductViewSet(CityPricesMixin, ModelViewSet):
     @action(detail=True, methods=["get"])
     def productdetail(self, request, pk=None):
         product = self.get_object()
-        self.domain = request.query_params.get("city_domain")
-        if self.domain:
-            price_data = (
-                Price.objects.filter(
-                    product=product, city_group__cities__domain=self.domain
-                )
-                .values("price", "old_price")
-                .first()
-            )
-            if price_data:
-                product.city_price = price_data.get("price")
-                product.old_price = price_data.get("old_price")
+        # self.domain = request.query_params.get("city_domain")
+        # if self.domain:
+        #     price_data = (
+        #         Price.objects.filter(
+        #             product=product, city_group__cities__domain=self.domain
+        #         )
+        #         .values("price", "old_price")
+        #         .first()
+        #     )
+        #     if price_data:
+        #         product.city_price = price_data.get("price")
+        #         product.old_price = price_data.get("old_price")
 
         serializer = self.get_serializer(product)
         return Response(serializer.data)

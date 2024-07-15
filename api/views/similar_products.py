@@ -1,14 +1,13 @@
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin
-from rest_framework import generics, permissions, response, status
-from api.mixins import CityPricesMixin
+from rest_framework import permissions, response, status
 from api.serializers import ProductCatalogSerializer
 from shop.models import Product
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
 @extend_schema(tags=["Shop"])
-class SimilarProducts(CityPricesMixin, ListModelMixin, GenericViewSet):
+class SimilarProducts(ListModelMixin, GenericViewSet):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer

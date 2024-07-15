@@ -7,8 +7,13 @@ from shop.models import Price
 
 class SerializerGetPricesMixin:
 
+    def get_request_params(self) -> dict:
+        request = self.context.get("request")
+        return getattr(request, "query_params", {})
+
     def get_city_price(self, obj) -> Decimal | None:
-        city_domain = self.context.get("city_domain")
+        params = self.get_request_params()
+        city_domain = params.get("city_domain") or params.get("domain")
         if city_domain:
             try:
                 c = City.objects.get(domain=city_domain)
@@ -23,7 +28,8 @@ class SerializerGetPricesMixin:
         return None
 
     def get_old_price(self, obj) -> Decimal | None:
-        city_domain = self.context.get("city_domain")
+        params = self.get_request_params()
+        city_domain = params.get("city_domain") or params.get("domain")
         if city_domain:
             try:
                 c = City.objects.get(domain=city_domain)
