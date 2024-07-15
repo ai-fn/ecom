@@ -31,6 +31,7 @@ from api.views import (
     ProductFileViewSet,
     ProductImageViewSet,
     HTMLMetaTagsViewSet,
+    FeedbackViewSet,
 )
 from api.views import (
     SendSMSView,
@@ -70,6 +71,7 @@ urlpatterns = [
     path("", include(router.urls)),
     path("shop/", include(("shop.urls", "shop"), namespace="shop")),
     path("cart/", include("cart.urls", namespace="cart")),
+    path("blog/", include("blog.urls", namespace="blog")),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
     re_path(

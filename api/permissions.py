@@ -13,6 +13,12 @@ class ReadOnlyOrAdminPermission(BasePermission):
         return request.method in SAFE_METHODS
 
 
+class AllowCreateOrAdmin(BasePermission):
+
+    def has_permission(self, request, view):
+        return view.action == "create" or (request.user and request.user.is_staff)
+
+
 class IsOwnerOrAdminPermission(BasePermission):
     """
     Разрешение, которое позволяет взаимодействовать с объектом только если пользователь является его владельцем.

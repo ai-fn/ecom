@@ -839,3 +839,59 @@
 | verbose_name        | Пользователь         |
 | verbose_name_plural | Пользователи         |
 | indexes             | ["phone", "address"] |
+
+
+# Blog App Models
+
+# Models Documentation
+
+## Article
+
+| Field      | Type            | Options                                                             | Description    |
+| ---------- | --------------- | ------------------------------------------------------------------- | -------------- |
+| id         | AutoField       | primary_key=True                                                    | Primary Key    |
+| created_at | DateTimeField   | auto_now_add=True                                                   | Created At     |
+| updated_at | DateTimeField   | auto_now=True                                                       | Updated At     |
+| is_active  | BooleanField    | default=True                                                        | Активность     |
+| created    | DateTimeField   | auto_now_add=True, verbose_name="Дата создания"                     | Дата создания  |
+| name       | CharField       | max_length=128, verbose_name="Заголовок"                            | Заголовок      |
+| text       | TextField       | verbose_name="Основной текст"                                       | Основной текст |
+| products   | ManyToManyField | Product, verbose_name="Товары", blank=True, related_name="articles" | Товары         |
+
+**Methods**
+
+| Method  | Description                      |
+| ------- | -------------------------------- |
+| __str__ | Returns the name of the article. |
+
+**Meta Options**
+
+| Option              | Value  |
+| ------------------- | ------ |
+| verbose_name        | Статья |
+| verbose_name_plural | Статьи |
+
+## Feedback
+
+| Field      | Type          | Options                                              | Description          |
+| ---------- | ------------- | ---------------------------------------------------- | -------------------- |
+| id         | AutoField     | primary_key=True                                     | Primary Key          |
+| created_at | DateTimeField | auto_now_add=True                                    | Created At           |
+| updated_at | DateTimeField | auto_now=True                                        | Updated At           |
+| is_active  | BooleanField  | default=True                                         | Активность           |
+| name       | CharField     | max_length=128, verbose_name="Имя отправителя"       | Имя отправителя      |
+| email      | EmailField    | verbose_name="Электронная почта"                     | Электронная почта    |
+| message    | TextField     | max_length=2048, verbose_name="Текст обратной связи" | Текст обратной связи |
+
+**Methods**
+
+| Method  | Description                                     |
+| ------- | ----------------------------------------------- |
+| __str__ | Returns a formatted string with name and email. |
+
+**Meta Options**
+
+| Option              | Value          |
+| ------------------- | -------------- |
+| verbose_name        | Обратная связь |
+| verbose_name_plural | Обратная связь |
