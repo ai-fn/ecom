@@ -20,14 +20,23 @@ class Article(TimeBasedModel):
 
 
 class Feedback(TimeBasedModel):
+
+    STATUS_CHOICES = [
+        ('pending', _('В ожидании')),
+        ('in_progress', _('В процессе')),
+        ('resolved', _('Решено')),
+    ]
+
     
     name = models.CharField(_("Имя отправителя"), max_length=128)
     email = models.EmailField(_("Электронная почта"))
     message = models.TextField(_("Текст обратной связи"), max_length=2048)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     class Meta:
         verbose_name = _("Обратная связь")
         verbose_name_plural = _("Обратная связь")
 
     def __str__(self) -> str:
-        return f"Feedback from {self.name} ({self.email})"
+        self.get_status_display()
+        return f"Feedback from {self.name} ({self.email}): {self.get_status_display()}"
