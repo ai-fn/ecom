@@ -272,6 +272,9 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
     def create(self, request, *args, **kwargs):
         if not request.data.get("user_id"):
             request.data["user_id"] = self.request.user.pk
