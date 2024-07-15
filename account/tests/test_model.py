@@ -68,6 +68,7 @@ class CityGroupModelTest(TestCase):
 
     def test_citygroup_deletion(self):
         city_group_id = self.city_group.id
+        self.city_group.cities.all().delete()
         self.city_group.delete()
         with self.assertRaises(CityGroup.DoesNotExist):
             CityGroup.objects.get(id=city_group_id)

@@ -101,13 +101,21 @@ class CartCountViewTests(APITestCase):
             slug="dummy-slug1",
             article="2093802",
         )
+        self.prod_2 = Product.objects.create(
+            category=self.category,
+            brand=self.brand,
+            title="dummy title 2",
+            description="dummy description 2",
+            slug="dummy-slug2",
+            article="2093801",
+        )
 
 
         self.cart_url = reverse("api:cart:cart-count")
 
         self.cart_items = [
             CartItem.objects.create(product=self.prod, customer=self.user, quantity=10),
-            CartItem.objects.create(product=self.prod, customer=self.user, quantity=20),
+            CartItem.objects.create(product=self.prod_2, customer=self.user, quantity=20),
         ]
 
     def get_token(self, user):

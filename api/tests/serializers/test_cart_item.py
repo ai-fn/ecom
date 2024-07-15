@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from shop.models import Brand, Product, Price, City, CityGroup, Category
@@ -29,12 +30,22 @@ class CartItemSerializerTestCase(TestCase):
             priority=10,
             article="TEST123"
         )
+        self.product_2 = Product.objects.create(
+            id=2,
+            title="Test Product 2",
+            description="Test Description",
+            slug="test-product-2",
+            category=self.category,
+            brand=self.brand,
+            in_stock=True,
+            is_popular=True,
+            is_new=True,
+            priority=10,
+            article="TEST2"
+        )
         self.city_group = CityGroup.objects.create(name="Воронеж Group")
         self.city = City.objects.create(name="Воронеж", domain="voronezh.krov.market")
         self.city_group.cities.add(self.city)
-        self.cart_item = CartItem.objects.create(
-            customer=self.user, product=self.product, quantity=1
-        )
 
     def test_cart_item_serializer_create(self):
         data = {"product_id": self.product.id, "quantity": 2}
@@ -58,13 +69,17 @@ class CartItemSerializerTestCase(TestCase):
         self.assertIsNotNone(serializer.data["product"].get("city_price"))
 
     def test_cart_item_serializer_update(self):
-        data = {"quantity": 3}
-        serializer = CartItemSerializer(self.cart_item, data=data, partial=True)
+        cart_item = CartItem.objects.create(
+            product=self.product, customer=self.user, quantity=5
+        )
+
+        updated_data = {"quantity": 15}
+        serializer = CartItemSerializer(data=updated_data, partial=True)
 
         self.assertTrue(serializer.is_valid())
-        cart_item = serializer.save()
-
-        self.assertEqual(cart_item.quantity, 3)
+        cart_item = serializer.update(cart_item, serializer.validated_data)
+        
+        self.assertEqual(cart_item.quantity, 15)
 
     def test_cart_item_serializer_duplicate_create(self):
         data = {"product_id": self.product.id, "quantity": 4}
@@ -73,11 +88,13 @@ class CartItemSerializerTestCase(TestCase):
         serializer = CartItemSerializer(data=data, context={"request": request})
 
         self.assertTrue(serializer.is_valid())
+
         cart_item = serializer.save()
 
         self.assertEqual(
             CartItem.objects.count(), 1
         )
+        cart_item = CartItem.objects.get(product__id=data['product_id']) 
         self.assertEqual(cart_item.quantity, 4)
 
     def test_simplified_cart_item_serializer(self):
@@ -85,9 +102,10 @@ class CartItemSerializerTestCase(TestCase):
         serializer = SimplifiedCartItemSerializer(data=data)
 
         self.assertTrue(serializer.is_valid())
-        cart_item = serializer.save(
-            customer=self.user
-        )
+
+        serializer.save(customer=self.user)
+        
+        cart_item = CartItem.objects.get(product__id=data['product_id']) 
 
         self.assertEqual(cart_item.customer, self.user)
         self.assertEqual(cart_item.product, self.product)
