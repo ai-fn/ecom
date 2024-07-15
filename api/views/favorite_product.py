@@ -5,7 +5,7 @@ from rest_framework import viewsets
 
 from shop.models import FavoriteProduct
 from api.serializers import FavoriteProductSerializer
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiParameter, OpenApiResponse
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -278,6 +278,25 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
 
         return super().create(request, *args, **kwargs)
 
+    @extend_schema(
+        operation_id='delete_favorite_by_product_id',
+        summary='Удаление продукта из избранного по ID продукта',
+        description='Удаление продукта из избранного по ID продукта.',
+        parameters=[
+            OpenApiParameter(
+                name='product_id',
+                location=OpenApiParameter.PATH,
+                description='ID продукта для удаления из избранного',
+                required=True,
+                type=int
+            )
+        ],
+        responses={
+            HTTP_204_NO_CONTENT: OpenApiResponse(description='Продукт успешно удален из избранного'),
+            HTTP_404_NOT_FOUND: OpenApiResponse(description='Продукт не найден в избранном')
+        },
+        methods=['DELETE'],
+    )
     @action(detail=False, methods=['delete'], url_path='delete-by-product-id/(?P<product_id>\d+)')
     def delete_by_prod(self, request, product_id=None, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
