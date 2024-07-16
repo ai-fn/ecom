@@ -35,6 +35,22 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
     priority = serializers.IntegerField(read_only=True)
     groups = serializers.SerializerMethodField()
 
+    def update(self, instance, validated_data):
+        product = super().update(instance, validated_data)
+        self.create_images(product, validated_data)
+        return instance
+    
+    def create(self, validated_data):
+        product = super().create(validated_data)
+        self.create_images(product, validated_data)
+        return product
+
+    def create_images(self, product, validated_data):
+        images_data = validated_data.pop("images", [])
+        for image_data in images_data:
+            image = ProductImageSerializer.save(data={**image_data, "product": product})
+            product.images.add(image)
+
     class Meta:
         model = Product
         fields = [
@@ -59,6 +75,13 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
             "files",
             "groups",
         ]
+    
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     if (imgs := instance.images.all()) and imgs.exists():
+    #         data['images'] = ProductImageSerializer(imgs, many=True).data
+
+    #     return data
     
     def get_groups(self, obj) -> None | ReturnDict:
         context = {"current_product": obj.id}
