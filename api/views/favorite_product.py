@@ -1,4 +1,4 @@
-from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import viewsets
@@ -63,7 +63,7 @@ from rest_framework.permissions import IsAuthenticated
                 description="Пример тела запроса для добавления нового избранного продукта.",
                 value={
                     "user_id": 2,
-                    "product_id": 5118,
+                    "products_ids": [1267, 1268, 1269],
                 },
                 request_only=True,
             ),
@@ -72,7 +72,7 @@ from rest_framework.permissions import IsAuthenticated
                 summary="Пример запроса на добавление избранного продукта (без указания user_id)",
                 description="Пример тела запроса для добавления нового избранного продукта.",
                 value={
-                    "product_id": 5118,
+                    "products_ids": [1267, 1268, 1269],
                 },
                 request_only=True,
             ),
@@ -285,10 +285,23 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
         return super().get_queryset().filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        if not request.data.get("user_id"):
-            request.data["user_id"] = self.request.user.pk
+        products_ids: list[int] = request.data.get("products_ids")
+        if not products_ids:
+            return Response({"detail": "products_ids is required"}, status=HTTP_400_BAD_REQUEST)
 
-        return super().create(request, *args, **kwargs)
+        if not (user_id := request.data.get("user_id")):
+            user_id = self.request.user.pk
+        
+        existing_fav_prods = set(self.filter_queryset(self.get_queryset()).values_list("product__id", flat=True))
+        difference = set(products_ids).difference(existing_fav_prods)
+
+        for product_id in difference:
+            serializer = self.get_serializer(data={"product_id": product_id, "user_id": user_id})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        queryset = self.filter_queryset(self.get_queryset())
+        return Response(self.get_serializer(queryset, many=True).data, status=HTTP_200_OK)
 
     @extend_schema(
         operation_id='delete_favorite_by_product_id',
