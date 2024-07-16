@@ -20,20 +20,34 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
     images = ProductImageSerializer(many=True)
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
-    characteristic_values = CharacteristicValueSerializer(many=True, read_only=True)
-    category = CategorySerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), write_only=True, source="category"
-    )
-    brand = BrandSerializer(read_only=True)
-    brand_id = serializers.PrimaryKeyRelatedField(
-        queryset=Brand.objects.all(),
-        write_only=True,
-        source="brand",
-    )
+    characteristic_values = CharacteristicValueSerializer(many=True)
     files = serializers.SerializerMethodField()
     priority = serializers.IntegerField(read_only=True)
     groups = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "category",
+            "title",
+            "brand",
+            "article",
+            "description",
+            "slug",
+            "created_at",
+            "city_price",
+            "old_price",
+            "characteristic_values",
+            "images",
+            "in_stock",
+            "is_popular",
+            "priority",
+            "thumb_img",
+            "files",
+            "groups",
+        ]
+
 
     def create(self, validated_data):
         images_data: list[dict] = validated_data.pop('images', [])
@@ -62,30 +76,14 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
         
         return super().update(instance, validated_data)
 
-    class Meta:
-        model = Product
-        fields = [
-            "id",
-            "category",
-            "category_id",
-            "title",
-            "brand",
-            "article",
-            "brand_id",
-            "description",
-            "slug",
-            "created_at",
-            "city_price",
-            "old_price",
-            "characteristic_values",
-            "images",
-            "in_stock",
-            "is_popular",
-            "priority",
-            "thumb_img",
-            "files",
-            "groups",
-        ]
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.brand:
+            data['brand'] = BrandSerializer(instance.brand).data
+        if instance.category:
+            data['category'] = CategorySerializer(instance.category).data
+
+        return data
     
     def get_groups(self, obj) -> None | ReturnDict:
         context = {"current_product": obj.id}
