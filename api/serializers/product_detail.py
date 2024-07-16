@@ -17,7 +17,7 @@ from rest_framework import serializers
 
 
 class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(many=True)
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
     characteristic_values = CharacteristicValueSerializer(many=True, read_only=True)
