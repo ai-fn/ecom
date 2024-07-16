@@ -19,7 +19,7 @@ from .confirm_register import (
     VerifyConfirmCode
 )
 from .footer_settings import FooterItemViewSet
-from .feeds import CategoriesFeed, ProductsFeed, AllFeedsXMLAPIView
+from .feeds import FeedsView
 from .products_by_list import ProductsById
 from .similar_products import SimilarProducts
 from .main_page_slide_image import MainPageSliderImageViewSet

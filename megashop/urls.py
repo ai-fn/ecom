@@ -29,7 +29,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from api.views.feeds import AllFeedsXMLAPIView, CategoriesFeed, ProductsFeed
+from api.views.feeds import FeedsView
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 
@@ -56,9 +56,7 @@ urlpatterns = (
     [
         path("account/", include("account.urls", namespace="account")),
         path("admin/", admin.site.urls),
-        path("feeds/products/feeds.xml", ProductsFeed(), name='prods-feeds'),
-        path("feeds/categories/feeds.xml", CategoriesFeed(), name='catg-feeds'),
-        path("feeds.xml/", AllFeedsXMLAPIView.as_view(), name="all-feeds"),
+        path("feeds.xml/", FeedsView.as_view(), name="product_feed"),
         path(
             "sitemap.xml",
             sitemap,
