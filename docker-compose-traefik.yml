@@ -40,8 +40,8 @@ services:
       - "traefik.http.routers.megashop-secure.rule=Host(`dev-api-shop.altawest.ru`)"
       - "traefik.http.routers.megashop-secure.entrypoints=https"
       - "traefik.http.routers.megashop-secure.tls.certresolver=traefik-resolver"
-      - "traefik.http.middlewares.megashop-ratelimit.rateLimit.average=10"
-      - "traefik.http.middlewares.megashop-ratelimit.rateLimit.burst=20"
+      - "traefik.http.middlewares.megashop-ratelimit.rateLimit.average=30"
+      - "traefik.http.middlewares.megashop-ratelimit.rateLimit.burst=40"
       - "traefik.http.routers.megashop.middlewares=megashop-ratelimit"
 
     depends_on:
