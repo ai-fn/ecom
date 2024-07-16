@@ -83,7 +83,7 @@ class ProductFeed(Feed):
             "categoryId": item.category.id,
             "picture": (
                 item.catalog_image.url
-                if item.catalog_image and hasattr(item.catalog_imgae, "url")
+                if item.catalog_image and hasattr(item.catalog_image, "url")
                 else "Ссылка на изображение"
             ),
             "vendor": item.brand.name if item.brand else "Бренд",
