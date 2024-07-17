@@ -32,6 +32,7 @@ class ProductDocumentSerializer(DocumentSerializer):
         read_only=True,
     )
     price = PriceSerializer(many=True, read_only=True)
+    search_image = serializers.SerializerMethodField()
 
     class Meta:
         document = ProductDocument
@@ -45,6 +46,9 @@ class ProductDocumentSerializer(DocumentSerializer):
             "slug",
             "price",
         ]
+    
+    def get_search_image(self, obj):
+        return obj.search_image.url if obj.search_image else None
 
 
 class ReviewDocumentSerializer(DocumentSerializer):
