@@ -755,7 +755,17 @@ class OrderViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-@extend_schema(tags=["Cart"])
+@extend_schema(
+    tags=["Cart"],
+    parameters=[
+        OpenApiParameter(
+            name="city_domain",
+            description="Домен города",
+            type=str,
+            location=OpenApiParameter.QUERY,
+        )
+    ],
+)
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
@@ -771,14 +781,6 @@ class CartItemViewSet(ModelViewSet):
         description="Получить список всех элементов корзины",
         summary="Список элементов корзины",
         responses={200: CartItemSerializer(many=True)},
-        parameters=[
-            OpenApiParameter(
-                name="city_domain",
-                description="Домен города",
-                type=str,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
         examples=[
             OpenApiExample(
                 name="List Response Example",
