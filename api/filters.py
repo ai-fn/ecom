@@ -1,13 +1,12 @@
-from django_filters.rest_framework import FilterSet
 from django_filters import rest_framework as filters
 from django.db.models import Q, F
 from loguru import logger
 
 from api.mixins import GeneralSearchMixin
-from shop.models import Category, Price, Product
+from shop.models import Category, CharacteristicValue, Price, Product
 
 
-class PriceFilter(FilterSet):
+class PriceFilter(filters.FilterSet):
     class Meta:
         model = Price
         fields = ["city_group"]
@@ -87,4 +86,19 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
             if price_gte:
                 price_filter &= Q(prices__price__gte=price_gte)
             queryset = queryset.filter(price_filter).annotate(city_price=F("prices__price"), old_price=F("prices__old_price")).distinct()
+        return queryset
+    
+
+class CharacteristicValueFilters(filters.FilterSet):
+
+    unique = filters.BooleanFilter(method="unique_filter")
+
+    class Meta:
+        model = CharacteristicValue
+        fields = ["characteristic", "product", "value", "slug", "created_at", "updated_at", "unique"]
+    
+    def unique_filter(self, queryset, name, value):
+        if value:
+            return queryset.order_by("slug").distinct("slug")
+        
         return queryset

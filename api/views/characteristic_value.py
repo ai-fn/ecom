@@ -1,13 +1,20 @@
 from rest_framework.viewsets import ModelViewSet
-from api.permissions import ReadOnlyOrAdminPermission
-from api.serializers.characteristic_value import CharacteristicValueSerializer
 
-from shop.models import CharacteristicValue
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
+from api.filters import CharacteristicValueFilters
+from api.permissions import ReadOnlyOrAdminPermission
+from api.serializers.characteristic_value import CharacteristicValueSerializer
+from api.mixins import IntegrityErrorHandlingMixin
 
-@extend_schema(tags=["Shop"])
-class CharacteristicValueViewSet(ModelViewSet):
+from shop.models import CharacteristicValue
+
+
+@extend_schema(
+    tags=["Shop"],
+)
+class CharacteristicValueViewSet(IntegrityErrorHandlingMixin, ModelViewSet):
     """Возвращает значение характеристик продукта
 
     Args:
@@ -17,6 +24,8 @@ class CharacteristicValueViewSet(ModelViewSet):
     queryset = CharacteristicValue.objects.all().order_by("-created_at")
     serializer_class = CharacteristicValueSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CharacteristicValueFilters
 
     @extend_schema(
         description="Получить список всех значений характеристик",
@@ -31,6 +40,8 @@ class CharacteristicValueViewSet(ModelViewSet):
                     "characteristic_name": "Применение",
                     "value": "Применяется для защиты теплоизоляционного слоя в системах скатных кровель, стен каркасной конструкции и вентилируемых фасадов от вредного воздействия воды, ветра, пыли. Используется в конструкциях с однослойной вентиляцией, монтируется непосредственно на утеплитель или сплошной настил. Может использоваться в качестве временной кровли до 6 месяцев.",
                     "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-v-sistemakh-skatnykh-krovel-sten-karkasnoi-konstruktsii-i-ventiliruemykh-fasadov-ot-vrednogo-vozdeistviia-vody-vetra-pyli-ispol-zuetsia-v-konstruktsiiakh-s-odnosloinoi-ventiliatsiei-montiruetsia-neposredstvenno-na-uteplitel-ili-sploshnoi-nastil-mozhet-ispol-zovat-sia-v-kachestve-vremennoi-krovli-do-6-mesiatsev",
+                    "characteristic_id": 1,
+                    "product_id": 1,
                     "is_active": True,
                 },
                 description="Пример ответа для получения списка всех значений характеристик в Swagger UI",
@@ -55,6 +66,8 @@ class CharacteristicValueViewSet(ModelViewSet):
                     "characteristic_name": "Применение",
                     "value": "Применяется для защиты теплоизоляционного слоя в системах скатных кровель, стен каркасной конструкции и вентилируемых фасадов от вредного воздействия воды, ветра, пыли. Используется в конструкциях с однослойной вентиляцией, монтируется непосредственно на утеплитель или сплошной настил. Может использоваться в качестве временной кровли до 6 месяцев.",
                     "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-v-sistemakh-skatnykh-krovel-sten-karkasnoi-konstruktsii-i-ventiliruemykh-fasadov-ot-vrednogo-vozdeistviia-vody-vetra-pyli-ispol-zuetsia-v-konstruktsiiakh-s-odnosloinoi-ventiliatsiei-montiruetsia-neposredstvenno-na-uteplitel-ili-sploshnoi-nastil-mozhet-ispol-zovat-sia-v-kachestve-vremennoi-krovli-do-6-mesiatsev",
+                    "characteristic_id": 1,
+                    "product_id": 1,
                     "is_active": True,
                 },
                 description="Пример ответа для получения информации о конкретном значении характеристики в Swagger UI",
@@ -79,6 +92,8 @@ class CharacteristicValueViewSet(ModelViewSet):
                     "characteristic_name": "Применение",
                     "value": "Применяется для защиты теплоизоляционного слоя в системах скатных кровель, стен каркасной конструкции и вентилируемых фасадов от вредного воздействия воды, ветра, пыли. Используется в конструкциях с однослойной вентиляцией, монтируется непосредственно на утеплитель или сплошной настил. Может использоваться в качестве временной кровли до 6 месяцев.",
                     "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-v-sistemakh-skatnykh-krovel-sten-karkasnoi-konstruktsii-i-ventiliruemykh-fasadov-ot-vrednogo-vozdeistviia-vody-vetra-pyli-ispol-zuetsia-v-konstruktsiiakh-s-odnosloinoi-ventiliatsiei-montiruetsia-neposredstvenno-na-uteplitel-ili-sploshnoi-nastil-mozhet-ispol-zovat-sia-v-kachestve-vremennoi-krovli-do-6-mesiatsev",
+                    "characteristic_id": 1,
+                    "product_id": 1,
                     "is_active": True,
                 },
                 description="Пример запроса на создание нового значения характеристики в Swagger UI",
@@ -93,6 +108,8 @@ class CharacteristicValueViewSet(ModelViewSet):
                     "characteristic_name": "Применение",
                     "value": "Применяется для защиты теплоизоляционного слоя в системах скатных кровель, стен каркасной конструкции и вентилируемых фасадов от вредного воздействия воды, ветра, пыли. Используется в конструкциях с однослойной вентиляцией, монтируется непосредственно на утеплитель или сплошной настил. Может использоваться в качестве временной кровли до 6 месяцев.",
                     "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-v-sistemakh-skatnykh-krovel-sten-karkasnoi-konstruktsii-i-ventiliruemykh-fasadov-ot-vrednogo-vozdeistviia-vody-vetra-pyli-ispol-zuetsia-v-konstruktsiiakh-s-odnosloinoi-ventiliatsiei-montiruetsia-neposredstvenno-na-uteplitel-ili-sploshnoi-nastil-mozhet-ispol-zovat-sia-v-kachestve-vremennoi-krovli-do-6-mesiatsev",
+                    "characteristic_id": 1,
+                    "product_id": 1,
                     "is_active": True,
                 },
                 description="Пример ответа на создание нового значения характеристики в Swagger UI",
@@ -117,6 +134,8 @@ class CharacteristicValueViewSet(ModelViewSet):
                     "characteristic_name": "Применение",
                     "value": "Применяется для защиты теплоизоляционного слоя в системах скатных кровель, стен каркасной конструкции и вентилируемых фасадов от вредного воздействия воды, ветра, пыли. Используется в конструкциях с однослойной вентиляцией, монтируется непосредственно на утеплитель или сплошной настил. Может использоваться в качестве временной кровли до 6 месяцев.",
                     "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-v-sistemakh-skatnykh-krovel-sten-karkasnoi-konstruktsii-i-ventiliruemykh-fasadov-ot-vrednogo-vozdeistviia-vody-vetra-pyli-ispol-zuetsia-v-konstruktsiiakh-s-odnosloinoi-ventiliatsiei-montiruetsia-neposredstvenno-na-uteplitel-ili-sploshnoi-nastil-mozhet-ispol-zovat-sia-v-kachestve-vremennoi-krovli-do-6-mesiatsev",
+                    "characteristic_id": 1,
+                    "product_id": 1,
                     "is_active": True,
                 },
                 description="Пример запроса на обновление информации о значении характеристики в Swagger UI",
@@ -131,6 +150,8 @@ class CharacteristicValueViewSet(ModelViewSet):
                     "characteristic_name": "Применение",
                     "value": "Применяется для защиты теплоизоляционного слоя в системах скатных кровель, стен каркасной конструкции и вентилируемых фасадов от вредного воздействия воды, ветра, пыли. Используется в конструкциях с однослойной вентиляцией, монтируется непосредственно на утеплитель или сплошной настил. Может использоваться в качестве временной кровли до 6 месяцев.",
                     "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-v-sistemakh-skatnykh-krovel-sten-karkasnoi-konstruktsii-i-ventiliruemykh-fasadov-ot-vrednogo-vozdeistviia-vody-vetra-pyli-ispol-zuetsia-v-konstruktsiiakh-s-odnosloinoi-ventiliatsiei-montiruetsia-neposredstvenno-na-uteplitel-ili-sploshnoi-nastil-mozhet-ispol-zovat-sia-v-kachestve-vremennoi-krovli-do-6-mesiatsev",
+                    "characteristic_id": 1,
+                    "product_id": 1,
                     "is_active": True,
                 },
                 description="Пример ответа на обновление информации о значении характеристики в Swagger UI",
@@ -164,6 +185,8 @@ class CharacteristicValueViewSet(ModelViewSet):
                     "characteristic_name": "Применение",
                     "value": "Updated Value B",
                     "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-v-sistemakh-skatnykh-krovel-sten-karkasnoi-konstruktsii-i-ventiliruemykh-fasadov-ot-vrednogo-vozdeistviia-vody-vetra-pyli-ispol-zuetsia-v-konstruktsiiakh-s-odnosloinoi-ventiliatsiei-montiruetsia-neposredstvenno-na-uteplitel-ili-sploshnoi-nastil-mozhet-ispol-zovat-sia-v-kachestve-vremennoi-krovli-do-6-mesiatsev",
+                    "characteristic_id": 1,
+                    "product_id": 1,
                     "is_active": True,
                 },
                 description="Пример ответа на частичное обновление информации о значении характеристики в Swagger UI",
