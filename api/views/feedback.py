@@ -20,9 +20,6 @@ from api.permissions import AllowCreateOrAdmin
     retrieve=extend_schema(
         summary='Получение отзыва по ID',
         description='Получение отзыва по ID.',
-        parameters=[
-            OpenApiParameter(name='id', description='ID отзыва', required=True, type=int)
-        ],
         responses={200: FeedbackSerializer}
     ),
     create=extend_schema(
@@ -34,27 +31,18 @@ from api.permissions import AllowCreateOrAdmin
     update=extend_schema(
         summary='Обновление отзыва по ID',
         description='Обновление отзыва по ID.',
-        parameters=[
-            OpenApiParameter(name='id', description='ID отзыва', required=True, type=int)
-        ],
         request=FeedbackSerializer,
         responses={200: FeedbackSerializer}
     ),
     partial_update=extend_schema(
         summary='Частичное обновление отзыва по ID',
         description='Частичное обновление отзыва по ID.',
-        parameters=[
-            OpenApiParameter(name='id', description='ID отзыва', required=True, type=int)
-        ],
         request=FeedbackSerializer,
         responses={200: FeedbackSerializer}
     ),
     destroy=extend_schema(
         summary='Удаление отзыва по ID',
         description='Удаление отзыва по ID.',
-        parameters=[
-            OpenApiParameter(name='id', description='ID отзыва', required=True, type=int)
-        ],
         responses={204: OpenApiResponse(description='Отзыв успешно удален')}
     )
 )
