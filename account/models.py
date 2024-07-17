@@ -98,8 +98,11 @@ class City(TimeBasedModel):
     @staticmethod
     def get_default_city() -> "City":
         default_name = os.getenv("DEFAULT_CITY_NAME", "Москва")
-        city, _ = City.objects.get_or_create(name__iexact=default_name)
-        return city
+        return City.objects.get_or_create(name__iexact=default_name)[0]
+    
+    @staticmethod
+    def get_default_city_pk() -> int:
+        return CityGroup.get_default_city_group().pk
 
 
 class CityGroup(TimeBasedModel):
@@ -123,6 +126,15 @@ class CityGroup(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"Группа {self.name}"
+    
+    @staticmethod
+    def get_default_city_group() -> "CityGroup":
+        default_name = os.getenv("DEFAULT_CITY_GROUP_NAME", "Московская область")
+        return CityGroup.objects.get_or_create(name=default_name)[0]
+    
+    @staticmethod
+    def get_default_city_group_pk() -> int:
+        return CityGroup.get_default_city_group().pk
 
 
 class CustomUser(AbstractUser):

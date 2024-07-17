@@ -93,6 +93,7 @@ class HTMLMetaTags(TimeBasedModel):
         verbose_name = _("Тег метаданных")
         verbose_name_plural = _("Теги метаданных")
         ordering = ("-created_at", "id",)
+        unique_together = (("object_id", "content_type"),)
 
     title = models.CharField(
         _("Заголовок"),
@@ -111,6 +112,7 @@ class HTMLMetaTags(TimeBasedModel):
     keywords = models.TextField(
         _("Ключевые слова"),
         max_length=4096,
+        blank=True, null=True,
         help_text="Ключевые слова: 'купить в {prepositional_case}, сайдинг в {city_group}, {object_name} в городе {nominative_case}'. nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
         " (Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
     )
@@ -123,14 +125,24 @@ class HTMLMetaTags(TimeBasedModel):
     content_object = GenericForeignKey("content_type", "object_id")
 
     def get_formatted_meta_tag(self, field: Literal["title", "description", "keywords"], city_domain: str = None):
-        if not city_domain:
-            city = City.get_default_city()
-        else:
-            city = City.objects.get(domain__iexact=city_domain)
+        return self.get_formatted_meta_tag_by_instance(self.content_object, field, city_domain)
 
-        city_group_name = CityGroup.objects.get(cities=city).name
+    def get_formatted_meta_tag_by_instance(self, instance, field: Literal["title", "description", "keywords"], city_domain: str = None):
+        try:
+            if not city_domain:
+                raise City.DoesNotExist
+            else:
+                city = City.objects.get(domain__iexact=city_domain)
+        except City.DoesNotExist:
+            city = City.get_default_city()
+
+        try:
+            city_group_name = CityGroup.objects.get(cities=city).name
+        except CityGroup.DoesNotExist:
+            city_group_name = CityGroup.get_default_city_group().name
+
         value: str = getattr(self, field)
-        object_name = getattr(self.content_object, "title", None) or getattr(self.content_object, "name", None)
+        object_name = getattr(instance, "title", None) or getattr(instance, "name", None)
         return value.format(
             object_name=object_name,
             city_group=city_group_name,

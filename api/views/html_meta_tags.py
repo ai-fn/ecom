@@ -2,11 +2,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_200_OK
+
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiParameter
 
-from shop.models import HTMLMetaTags
+from shop.models import HTMLMetaTags, Product
 from api.serializers import HTMLMetaTagSerializer
 from api.permissions import ReadOnlyOrAdminPermission
+from api.mixins import IntegrityErrorHandlingMixin
 
 
 @extend_schema_view(
@@ -147,7 +149,7 @@ from api.permissions import ReadOnlyOrAdminPermission
             required=False
     ),]
 )
-class HTMLMetaTagsViewSet(ModelViewSet):
+class HTMLMetaTagsViewSet(IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = HTMLMetaTags.objects.all()
     serializer_class = HTMLMetaTagSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
@@ -212,15 +214,29 @@ class HTMLMetaTagsViewSet(ModelViewSet):
         ],
     )
     @action(methods=["get"], detail=False)
-    def get_for_object(self, reqest, *args, **kwargs):
-        content_type = self.request.query_params.get("object_type")
-        object_id = self.request.query_params.get("object_id")
+    def get_for_object(self, request, *args, **kwargs):
+        content_type: str = self.request.query_params.get("object_type")
+        object_id: int = self.request.query_params.get("object_id")
         if not all((content_type, object_id)):
             return Response("parametrs 'object_type', 'object_id' both is required", status=HTTP_404_NOT_FOUND)
 
-        queryset = self.queryset.filter(object_id=object_id, content_type__model__iexact=content_type)
-        if not queryset.exists():
-            return Response({"detail": f"Object '{content_type}' with id '{object_id}' not found."}, status=HTTP_404_NOT_FOUND)
-            
-        object = queryset.first()
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        if content_type == "product":
+            try:
+                product = Product.objects.get(id=object_id)
+                html_tags = queryset.get(content_type__model="category", object_id=product.category.id)
+            except (Product.DoesNotExist):
+                return Response({"detail": f"'{content_type.title()}' with id '{object_id}' not found."}, status=HTTP_404_NOT_FOUND)
+            except HTMLMetaTags.DoesNotExist:
+                return Response({"detail": f"Html meta tags for products category '{product.category.name}'(pk: {product.category.pk}) does not exist."})
+
+            context = {**self.get_serializer_context(), "instance": product}
+            return Response(self.get_serializer(html_tags, context=context).data, status=HTTP_200_OK)
+
+        try:
+            object = queryset.get(object_id=object_id, content_type__model__iexact=content_type)
+        except HTMLMetaTags.DoesNotExist:
+            return Response({"detail": f"Html meta tags for '{content_type.title()}' with id '{object_id}' not found."}, status=HTTP_404_NOT_FOUND)
+
         return Response(self.get_serializer(object).data, status=HTTP_200_OK)
