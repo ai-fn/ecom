@@ -398,18 +398,6 @@ class ProductViewSet(ModelViewSet):
     @action(detail=True, methods=["get"])
     def productdetail(self, request, pk=None):
         product = self.get_object()
-        # self.domain = request.query_params.get("city_domain")
-        # if self.domain:
-        #     price_data = (
-        #         Price.objects.filter(
-        #             product=product, city_group__cities__domain=self.domain
-        #         )
-        #         .values("price", "old_price")
-        #         .first()
-        #     )
-        #     if price_data:
-        #         product.city_price = price_data.get("price")
-        #         product.old_price = price_data.get("old_price")
 
         serializer = self.get_serializer(product)
         return Response(serializer.data)
