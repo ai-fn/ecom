@@ -895,3 +895,33 @@
 | ------------------- | -------------- |
 | verbose_name        | Обратная связь |
 | verbose_name_plural | Обратная связь |
+
+
+# Bitrix App Models
+
+# Models Documentation
+
+## Lead
+
+| Поле       | Тип данных     | Опции                                      | Описание                  |
+| ---------- | -------------- | ------------------------------------------ | ------------------------- |
+| id         | AutoField      | primary_key=True                           | Уникальный идентификатор  |
+| created_at | DateTimeField  | auto_now_add=True                          | Дата и время создания     |
+| updated_at | DateTimeField  | auto_now=True                              | Дата и время обновления   |
+| is_active  | BooleanField   | default=True                               | Активность                |
+| bitrix_id  | IntegerField   | unique=True                                | Идентификатор Bitrix24    |
+| title      | CharField      | max_length=255                             | Название лида             |
+| status     | CharField      | max_length=50                              | Статус лида               |
+
+**Methods**
+
+| Метод    | Описание                                             |
+| -------- | ---------------------------------------------------- |
+| __str__  | Возвращает форматированную строку с названием лида.  |
+
+**Meta Options**
+
+| Опция               | Значение             |
+| ------------------- | -------------------- |
+| abstract            | True                 |
+

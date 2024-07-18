@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "blog.apps.BlogConfig",
     "shop.apps.ShopConfig",
     "cart.apps.CartConfig",
+    "bitrix_app.apps.BitrixAppConfig",
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
     "api.apps.ApiConfig",

@@ -70,6 +70,7 @@ app_name= "api"
 urlpatterns = [
     path("", include(router.urls)),
     path("shop/", include(("shop.urls", "shop"), namespace="shop")),
+    path("bitrix-app/", include(("bitrix_app.urls", "bitrix"), namespace="bitrix")),
     path("cart/", include("cart.urls", namespace="cart")),
     path("blog/", include("blog.urls", namespace="blog")),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
