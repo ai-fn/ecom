@@ -20,6 +20,14 @@ type CustomModel struct {
 	ID        uint `gorm:"primary_key"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	IsActive  bool `gorm:"column:is_active;default:true;"`
+}
+
+func (obj *CustomModel) BeforeCreate(tx *gorm.DB) (err error) {
+	if !obj.IsActive {
+		obj.IsActive = true
+	}
+	return
 }
 
 type CustomUser struct {

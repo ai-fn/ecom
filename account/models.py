@@ -1,6 +1,7 @@
 import os
 
 from typing import Any
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -76,7 +77,7 @@ class City(TimeBasedModel):
     city_group = models.ForeignKey(
         "CityGroup",
         verbose_name=_("Группа городов"),
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         related_name="cities",
         blank=True,
         null=True,
@@ -97,8 +98,13 @@ class City(TimeBasedModel):
     
     @staticmethod
     def get_default_city() -> "City":
-        default_name = os.getenv("DEFAULT_CITY_NAME", "Москва")
-        return City.objects.get_or_create(name__iexact=default_name)[0]
+        default_name = settings.DEFAULT_CITY_NAME
+        city, created = City.objects.get_or_create(name=default_name)
+        if created:
+            city.city_group = CityGroup.get_default_city_group()
+            city.save()
+
+        return city
     
     @staticmethod
     def get_default_city_pk() -> int:
@@ -126,11 +132,16 @@ class CityGroup(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"Группа {self.name}"
-    
+
     @staticmethod
     def get_default_city_group() -> "CityGroup":
-        default_name = os.getenv("DEFAULT_CITY_GROUP_NAME", "Московская область")
-        return CityGroup.objects.get_or_create(name=default_name)[0]
+        default_name = settings.DEFAULT_CITY_GROUP_NAME
+        cg, created = CityGroup.objects.get_or_create(name=default_name)
+        if created:
+            cg.main_city = City.get_default_city()
+            cg.save()
+
+        return cg
     
     @staticmethod
     def get_default_city_group_pk() -> int:
