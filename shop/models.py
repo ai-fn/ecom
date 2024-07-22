@@ -1,11 +1,15 @@
 import os
+
 from typing import Literal
+
 from django.db import models
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from unidecode import unidecode
 
 from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
@@ -441,6 +445,13 @@ class CharacteristicValue(TimeBasedModel):
     slug = models.SlugField(
         verbose_name=_("Слаг"), null=False, blank=False, max_length=1024
     )
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
+        if "value" in update_fields:
+            self.slug = slugify(unidecode(self.value))
+            update_fields = {*update_fields, "slug"}
+
+        return super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
         return f"{self.characteristic.name}: {self.value}"
