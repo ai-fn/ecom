@@ -133,7 +133,6 @@ class HTMLMetaTags(TimeBasedModel):
                 raise City.DoesNotExist
             else:
                 city = City.objects.get(domain=city_domain)
-                print(city)
         except City.DoesNotExist:
             city = City.get_default_city()
 

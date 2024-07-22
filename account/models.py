@@ -1,6 +1,7 @@
 import os
 
 from typing import Any
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -97,7 +98,7 @@ class City(TimeBasedModel):
     
     @staticmethod
     def get_default_city() -> "City":
-        default_name = os.getenv("DEFAULT_CITY_NAME", "Москва")
+        default_name = settings.DEFAULT_CITY_NAME
         city, created = City.objects.get_or_create(name=default_name)
         if created:
             city.city_group = CityGroup.get_default_city_group()
@@ -134,7 +135,7 @@ class CityGroup(TimeBasedModel):
 
     @staticmethod
     def get_default_city_group() -> "CityGroup":
-        default_name = os.getenv("DEFAULT_CITY_GROUP_NAME", "Московская область")
+        default_name = settings.DEFAULT_CITY_GROUP_NAME
         cg, created = CityGroup.objects.get_or_create(name=default_name)
         if created:
             cg.main_city = City.get_default_city()
