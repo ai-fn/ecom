@@ -1,7 +1,7 @@
 from loguru import logger
 from api.serializers import ActiveModelSerializer
 from rest_framework import serializers
-from shop.models import CharacteristicValue, Product
+from shop.models import Characteristic, CharacteristicValue, Product
 
 
 class CharacteristicValueSerializer(ActiveModelSerializer):
@@ -9,11 +9,12 @@ class CharacteristicValueSerializer(ActiveModelSerializer):
         source="characteristic.name", read_only=True
     )
     characteristic_id = serializers.PrimaryKeyRelatedField(
-        queryset=CharacteristicValue.objects.all(), source="characteristic"
+        queryset=Characteristic.objects.all(), source="characteristic"
     )
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), source="product"
     )
+    slug = serializers.SlugField(required=False)
 
     class Meta:
         model = CharacteristicValue
@@ -25,18 +26,19 @@ class CharacteristicValueSerializer(ActiveModelSerializer):
             "value",
             "slug",
         ]
+        unique_together = ["product_id", "characteristic_id"]
 
-    def update(self, instance: CharacteristicValue, validated_data):
-        product_id = getattr(validated_data.pop("product", None), "id", None)
-        if product_id and instance.product.id != product_id:
-            instance, created = self.Meta.model.objects.get_or_create(
-                product__id=product_id,
-                characteristic=instance.characteristic,
-                defaults={"slug": instance.slug},
-            )
-            if created:
-                logger.info(
-                    f"Created new CharacteristiValue for product with pk {product_id}: {instance}"
-                )
+    def validate(self, data):
+        product_id = data.get('product_id')
+        characteristic_id = data.get('characteristic_id')
 
-        return super().update(instance, validated_data)
+        if (instance := CharacteristicValue.objects.filter(product_id=product_id, characteristic_id=characteristic_id).first()):
+            data['instance'] = instance
+
+        return data
+
+
+class SimplifiedCharacteristicValueSerializer(serializers.Serializer):
+    characteristic_id = serializers.PrimaryKeyRelatedField(queryset=Characteristic.objects.all())
+    product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    value = serializers.CharField()
