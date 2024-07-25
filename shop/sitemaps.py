@@ -68,4 +68,4 @@ class CategorySitemap(CustomSitemap, Sitemap):
         return obj.updated_at
     
     def location(self, obj):
-        return self.get_abs_path(reverse("api:shop:product_list_by_category", args=[obj.slug]))
+        return obj.get_absolute_url()
