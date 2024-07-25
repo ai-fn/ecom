@@ -17,5 +17,5 @@ class FeedbackSerializer(serializers.ModelSerializer):
             "status_display",
         ]
 
-    def get_status_display(self, obj):
+    def get_status_display(self, obj) -> str:
         return obj.get_status_display()
