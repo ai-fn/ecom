@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.http import HttpResponse
 from django.utils import timezone
 from api.serializers.setting import SettingSerializer
-from shop.models import Price, Product
+from shop.models import Category, Price, Product
 from rest_framework.views import APIView
 from django.conf import settings
 from django.utils.decorators import method_decorator
@@ -68,7 +68,8 @@ class FeedsView(APIView):
     )
     def get(self, request, *args, **kwargs):
         products = Product.objects.all()
-        xml_data = ProductFeed().item_xml(products)
+        categories = Category.objects.values("id", "parent", "name")
+        xml_data = ProductFeed().item_xml(products, categories)
         return HttpResponse(xml_data, content_type="application/xml")
 
 
@@ -121,8 +122,8 @@ class ProductFeed(Feed):
             for price in Price.objects.filter(product=item)
         ]
 
-    def item_xml(self, products):
-        yml_catalog = ET.Element("yml_catalog", date=timezone.now().date().isoformat())
+    def item_xml(self, products, categories):
+        yml_catalog = ET.Element("yml_catalog", date=timezone.localtime(timezone.now()).date().isoformat())
         shop = ET.SubElement(yml_catalog, "shop")
 
         name = ET.SubElement(shop, "name")
@@ -135,6 +136,14 @@ class ProductFeed(Feed):
         url.text = f"https://{settings.BASE_DOMAIN}/"
 
         offers = ET.SubElement(shop, "offers")
+        categories_elements = ET.SubElement(shop, "categories")
+
+        for category in categories:
+            ctg_kwargs = {"id": str(category["id"])}
+            if parent := category.get("parent"):
+                ctg_kwargs["parentId"] = str(parent)
+
+            category = ET.SubElement(categories_elements,  "category", **ctg_kwargs).text = category["name"]
 
         for item in products:
 
@@ -149,26 +158,23 @@ class ProductFeed(Feed):
             ET.SubElement(offer, "vendor").text = item_extra_kwargs["vendor"]
             ET.SubElement(offer, "description").text = item.description
 
-            if item_extra_kwargs["sales_notes"]:
-                ET.SubElement(offer, "sales_notes").text = item_extra_kwargs[
-                    "sales_notes"
-                ]
-            if item_extra_kwargs["vendorCode"]:
-                ET.SubElement(offer, "vendorCode").text = item_extra_kwargs[
-                    "vendorCode"
-                ]
-            if item_extra_kwargs["country_of_origin"]:
-                ET.SubElement(offer, "country_of_origin").text = item_extra_kwargs[
-                    "country_of_origin"
-                ]
-            if item_extra_kwargs["barcode"]:
-                ET.SubElement(offer, "barcode").text = item_extra_kwargs["barcode"]
-            if item_extra_kwargs["weight"]:
-                ET.SubElement(offer, "weight").text = str(item_extra_kwargs["weight"])
-            if item_extra_kwargs["dimensions"]:
-                ET.SubElement(offer, "dimensions").text = item_extra_kwargs[
-                    "dimensions"
-                ]
+            if sales_notes := item_extra_kwargs.get("sales_notes"):
+                ET.SubElement(offer, "sales_notes").text = sales_notes
+
+            if vendorCode := item_extra_kwargs.get("vendorCode"):
+                ET.SubElement(offer, "vendorCode").text = vendorCode
+
+            if country_of_origin := item_extra_kwargs.get("country_of_origin"):
+                ET.SubElement(offer, "country_of_origin").text = country_of_origin
+
+            if barcode := item_extra_kwargs.get("barcode"):
+                ET.SubElement(offer, "barcode").text = barcode
+
+            if weight := item_extra_kwargs.get("weight"):
+                ET.SubElement(offer, "weight").text = str(weight)
+
+            if dimensions := item_extra_kwargs.get("dimensions"):
+                ET.SubElement(offer, "dimensions").text = dimensions
 
             ET.SubElement(offer, "cpa").text = str(item_extra_kwargs["cpa"]).lower()
             ET.SubElement(offer, "manufacturer_warranty").text = str(
