@@ -31,7 +31,6 @@ from api.views import (
     ProductFileViewSet,
     ProductImageViewSet,
     HTMLMetaTagsViewSet,
-    FeedbackViewSet,
 )
 from api.views import (
     SendSMSView,
@@ -71,6 +70,7 @@ urlpatterns = [
     path("", include(router.urls)),
     path("shop/", include(("shop.urls", "shop"), namespace="shop")),
     path("bitrix-app/", include(("bitrix_app.urls", "bitrix"), namespace="bitrix")),
+    path("import-app/", include(("import_app.urls", "import_app"), namespace="import_app")),
     path("cart/", include("cart.urls", namespace="cart")),
     path("blog/", include("blog.urls", namespace="blog")),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
