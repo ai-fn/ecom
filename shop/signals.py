@@ -27,7 +27,7 @@ slugify = lambda x: django_slugify(unidecode(x))
 
 @receiver(pre_save)
 def set_instance_order(sender, instance, **kwargs):
-    if isinstance(sender, (Brand, Category, FooterItem, MainPageSliderImage)):
+    if sender in (Brand, Category, FooterItem, MainPageSliderImage):
         if not instance.order:
             instance.order = get_order(sender)
 
