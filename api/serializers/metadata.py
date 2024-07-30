@@ -72,7 +72,7 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
                 'locale': data.get('locale'),
                 'type': "website",
             },
-            'alternatese': {
+            'alternates': {
                 'canonical': url,
             }
         }
