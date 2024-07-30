@@ -31,19 +31,21 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             "title",
             "description",
             "images",
+            "url",
             "locale",
+            "site_name",
         ]
 
     def to_representation(self, instance: OpenGraphMeta):
         data = super().to_representation(instance)
         return {
-            'title': data['title'],
-            'description': data['description'],
+            'title': data.get('title'),
+            'description': data.get('description'),
             'OpenGraph': {
-                'url': data['url'],
-                'siteName': data['site_name'],
-                'images': data['images'],
-                'locale': data['locale'],
+                'url': data.get('url'),
+                'siteName': data.get('site_name'),
+                'images': data.get('images'),
+                'locale': data.get('locale'),
                 'type': "website",
             },
         }
