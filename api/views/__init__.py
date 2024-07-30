@@ -35,3 +35,4 @@ from .productfile import ProductFileViewSet
 from .productimage import ProductImageViewSet
 from .html_meta_tags import HTMLMetaTagsViewSet
 from .feedback import FeedbackViewSet
+from .page import PageViewSet
