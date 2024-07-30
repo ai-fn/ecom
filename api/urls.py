@@ -31,6 +31,7 @@ from api.views import (
     ProductFileViewSet,
     ProductImageViewSet,
     HTMLMetaTagsViewSet,
+    PageViewSet,
 )
 from api.views import (
     SendSMSView,
@@ -63,6 +64,7 @@ router.register(r"sidebar-menu-item", SideBarMenuItemViewSet)
 router.register(r"search-history", SearchHistoryViewSet)
 router.register(r"product-images", ProductImageViewSet)
 router.register(r"html-meta-tags", HTMLMetaTagsViewSet)
+router.register(r"pages", PageViewSet)
 
 app_name= "api"
 
