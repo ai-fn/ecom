@@ -76,6 +76,7 @@ urlpatterns = [
     path("cart/", include("cart.urls", namespace="cart")),
     path("blog/", include("blog.urls", namespace="blog")),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("pages/<slug:slug>/", PageViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name="token_obtain_pair"),
     path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
     re_path(
         r"^upload/(?P<filename>[^/]+)$",

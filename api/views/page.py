@@ -231,3 +231,12 @@ class PageViewSet(ModelViewSet):
     queryset = Page.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = PageSerializer
+
+    def get_object(self) -> Page:
+        loogup_field: str = self.kwargs.get(self.lookup_field)
+
+        if loogup_field and not loogup_field.isdigit():
+            self.lookup_field = self.lookup_url_kwarg = "slug"
+            self.kwargs[self.lookup_field] = loogup_field
+        
+        return super().get_object()
