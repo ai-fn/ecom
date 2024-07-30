@@ -51,6 +51,5 @@ from ._document import ProductDocumentSerializer
 from ._document import ReviewDocumentSerializer
 from ._document import ImageSerializer
 from ._document import BrandDocumentSerializer
-from .html_meta_tags import HTMLMetaTagSerializer
 from .feedback import FeedbackSerializer
 from .page import PageSerializer

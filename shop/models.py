@@ -1,6 +1,6 @@
 import os
 
-from typing import Literal
+from typing import Iterable, Literal
 
 from django.db import models
 from django.utils.text import slugify
@@ -89,74 +89,6 @@ class Category(ThumbModel, MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ["name"]
-
-
-class HTMLMetaTags(TimeBasedModel):
-
-    class Meta:
-        verbose_name = _("Тег метаданных")
-        verbose_name_plural = _("Теги метаданных")
-        ordering = ("-created_at", "id",)
-        unique_together = (("object_id", "content_type"),)
-
-    title = models.CharField(
-        _("Заголовок"),
-        max_length=1024,
-        help_text="Шаблон заголовка объекта с подстановкой названия города в разных падежах:"
-        " 'Купить {object_name} в {prepositional_case}'\nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
-        " (Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
-    )
-    description = models.TextField(
-        _("Описание"),
-        max_length=4096,
-        help_text="Шаблон описания с подстановкой названия объекта и названия города в разных падежах ()"
-        "'Купить {object_name} в {city_group}'\nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
-        "(Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
-    )
-    keywords = models.TextField(
-        _("Ключевые слова"),
-        max_length=4096,
-        blank=True, null=True,
-        help_text="Ключевые слова: 'купить в {prepositional_case}, сайдинг в {city_group}, {object_name} в городе {nominative_case}'. nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
-        " (Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
-    )
-    content_type = models.ForeignKey(
-        ContentType, on_delete=models.CASCADE, verbose_name=_("Тип объекта")
-    )
-    object_id = models.PositiveIntegerField(
-        verbose_name=_("Уникальный идентификатор объекта")
-    )
-    content_object = GenericForeignKey("content_type", "object_id")
-
-    def get_formatted_meta_tag(self, field: Literal["title", "description", "keywords"], city_domain: str = None):
-        return self.get_formatted_meta_tag_by_instance(self.content_object, field, city_domain)
-
-    def get_formatted_meta_tag_by_instance(self, instance, field: Literal["title", "description", "keywords"], city_domain: str = None):
-        try:
-            if not city_domain:
-                raise City.DoesNotExist
-            else:
-                city = City.objects.get(domain=city_domain)
-        except City.DoesNotExist:
-            city = City.get_default_city()
-
-        try:
-            city_group_name = CityGroup.objects.get(cities=city).name
-        except CityGroup.DoesNotExist:
-            city_group_name = CityGroup.get_default_city_group().name
-
-        value: str = getattr(self, field)
-        object_name = getattr(instance, "title", None) or getattr(instance, "name", None)
-        return value.format(
-            object_name=object_name,
-            city_group=city_group_name,
-            nominative_case=city.nominative_case,
-            genitive_case=city.genitive_case,
-            dative_case=city.dative_case,
-            accusative_case=city.accusative_case,
-            instrumental_case=city.instrumental_case,
-            prepositional_case=city.prepositional_case
-        )
 
 
 class Brand(TimeBasedModel):
@@ -712,12 +644,25 @@ class ProductGroup(TimeBasedModel):
 class OpenGraphMeta(TimeBasedModel):
 
     title = models.CharField(
-        verbose_name=_("Заголовок"),
-        max_length=255,
+        _("Заголовок"),
+        max_length=1024,
+        help_text="Шаблон заголовка объекта с подстановкой названия города в разных падежах:"
+        " 'Купить {object_name} в {prepositional_case}'\nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        " (Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
     )
     description = models.TextField(
-        verbose_name=_("Описание"),
-        max_length=1024,
+        _("Описание"),
+        max_length=4096,
+        help_text="Шаблон описания с подстановкой названия объекта и названия города в разных падежах ()"
+        "'Купить {object_name} в {city_group}'\nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        "(Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
+    )
+    keywords = models.TextField(
+        _("Ключевые слова"),
+        max_length=4096,
+        blank=True, null=True,
+        help_text="Ключевые слова: 'купить в {prepositional_case}, сайдинг в {city_group}, {object_name} в городе {nominative_case}'. nВозможные переменные: object_name, city_group, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        " (Наименование объекта, название области, ...название города в падежах, начиная с именитольного)",
     )
     url = models.CharField(
         verbose_name=_("Ссылка"),

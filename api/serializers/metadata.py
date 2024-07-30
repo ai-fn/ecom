@@ -2,6 +2,7 @@ from api.serializers import ActiveModelSerializer
 from rest_framework.serializers import ImageField
 
 from shop.models import ImageMetaData, OpenGraphMeta
+from shop.services.metadata_service import MetaDataService
 
 
 class ImageMetaDataSerializer(ActiveModelSerializer):
@@ -31,6 +32,7 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             "title",
             "description",
             "images",
+            "keywords",
             "url",
             "locale",
             "site_name",
@@ -38,14 +40,39 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
 
     def to_representation(self, instance: OpenGraphMeta):
         data = super().to_representation(instance)
+        query_params = getattr(self.context.get("request"), "query_params", {})
+
+        city_domain = query_params.get("city_domain")
+        kwargs = {"city_domain": city_domain}
+
+        if (inst := self.context.get("instance")):
+            kwargs['instance'] = inst
+            data['content_type'] = inst._meta.model_name
+            data['object_id'] = inst.id
+        else:
+            kwargs['instance'] = instance.content_object
+        
+        fields = ("title", "keywords", "description")
+        kwargs['fields'] = fields
+        kwargs['meta_obj'] = instance
+
+        result = MetaDataService.get_formatted_meta_tag_by_instance(**kwargs)
+        for field in fields:
+            data[field] = result.get(field)
+
+        url = data.get('url')
         return {
             'title': data.get('title'),
             'description': data.get('description'),
+            'keywords': data.get('keywords'),
             'OpenGraph': {
-                'url': data.get('url'),
+                'url': url,
                 'siteName': data.get('site_name'),
                 'images': data.get('images'),
                 'locale': data.get('locale'),
                 'type': "website",
             },
+            'alternatese': {
+                'canonical': url,
+            }
         }
