@@ -667,6 +667,7 @@ class OpenGraphMeta(TimeBasedModel):
     url = models.CharField(
         verbose_name=_("Ссылка"),
         max_length=255,
+        help_text="Ссылка на объект без указания домена пример: '/katalog/vodostochka/dummy-product-2234/'"
     )
     site_name = models.CharField(
         verbose_name=_("Наименование сайта"), max_length=255, default="Кров маркет"

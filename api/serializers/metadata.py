@@ -1,5 +1,4 @@
 from api.serializers import ActiveModelSerializer
-from rest_framework.serializers import ImageField
 
 from shop.models import ImageMetaData, OpenGraphMeta
 from shop.services.metadata_service import MetaDataService
@@ -61,11 +60,15 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             data[field] = result.get(field)
 
         url = data.get('url')
+        keywords = data.get('keywords').split(",")
+        if keywords:
+            keywords = [x.strip() for x in keywords]
+
         return {
             'title': data.get('title'),
             'description': data.get('description'),
-            'keywords': data.get('keywords'),
-            'OpenGraph': {
+            'keywords': keywords,
+            'openGraph': {
                 'url': url,
                 'siteName': data.get('site_name'),
                 'images': data.get('images'),
