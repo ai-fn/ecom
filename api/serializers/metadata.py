@@ -8,7 +8,10 @@ class ImageMetaDataSerializer(ActiveModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        data.pop("id")
+        data.pop("is_active")
         data['image'] = instance.image.url if instance.image else None
+        data['url'] = data.pop("image")
         return data
 
     class Meta:
