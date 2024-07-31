@@ -39,30 +39,30 @@ def set_domain(sender, created, instance, **kwargs):
         instance.save()
 
 
-@receiver(post_save)
-def set_instance_slug(sender, created, instance, **kwargs):
+@receiver(pre_save)
+def set_instance_slug(sender, instance, **kwargs):
     if isinstance(sender, City):
-        if created and not instance.domain:
+        if not instance.domain:
             instance.domain = f'{slugify(instance.name)}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
             instance.save()
             
     elif isinstance(sender, Product):
-        if created and not instance.slug:
+        if not instance.slug:
             instance.slug = slugify(instance.title)
             instance.save()
 
     elif isinstance(sender, CharacteristicValue):
-        if created and not instance.slug:
+        if not instance.slug:
             instance.slug = slugify(instance.value)
             instance.save()
 
     elif isinstance(sender, (Category)):
-        if created and not instance.slug:
+        if not instance.slug:
             instance.slug = slugify(instance.name) + f"-{instance.id}"
             instance.save()
 
     elif isinstance(sender, (Characteristic, Brand, Page)):
-        if created and not instance.slug:
+        if not instance.slug:
             instance.slug = slugify(instance.name)
             instance.save()
 

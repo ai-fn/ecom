@@ -380,7 +380,7 @@ class CharacteristicValue(TimeBasedModel):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
         if update_fields is not None and "value" in update_fields:
-            self.slug = slugify(unidecode(self.value))
+            self.slug = slugify(unidecode(str(self.value)))
             update_fields = {*update_fields, "slug"}
 
         return super().save(force_insert, force_update, using, update_fields)

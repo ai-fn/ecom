@@ -10,17 +10,17 @@ from shop.models import Setting
 
 def get_default_file_upload_path(instance, filename):
     UPLOAD_PATH_SETTING, _ = Setting.objects.get_or_create(
-        custom_key="upload_path", defaults={"value_string": "import_files"}
+        custom_key="upload_path", defaults={"value_string": "/var/import_files/"}
     )
     return os.path.join(UPLOAD_PATH_SETTING.value_string, filename)
 
 
-def get_default_images_upload_path(instance, filename):
+def get_default_images_upload_path():
     DEFAULT_IMAGES_UPLOAD_PATH, _ = Setting.objects.get_or_create(
         custom_key="DEFAULT_IMAGES_UPLOAD_PATH",
-        defaults={"value_sting": "import_images"},
+        defaults={"value_string": "/var/import_images/"},
     )
-    return os.path.join(DEFAULT_IMAGES_UPLOAD_PATH.value_string, filename)
+    return DEFAULT_IMAGES_UPLOAD_PATH.value_string
 
 
 class ImportTask(TimeBasedModel):
@@ -74,19 +74,19 @@ class ImportSetting(TimeBasedModel):
     import_task = models.ForeignKey(
         ImportTask, on_delete=models.CASCADE, verbose_name=_("Импорт")
     )
-    name = models.CharField(_("Наименование"), max_length=256)
+    name = models.CharField(_("Наименование"), max_length=256, unique=True)
     slug = models.SlugField(_("Слаг"), max_length=512, unique=True)
     fields = models.JSONField(_("Соотношение полей"), unique=True)
     path_to_images = models.CharField(
         max_length=255, default=get_default_images_upload_path, blank=True, null=True
     )
-    items_not_in_file_action = models.CharField(
+    items_not_in_file_action = models.CharField(_("Объекты не в файле"),
         max_length=50, choices=ITEMS_NOT_IN_FILE_ACTION_CHOICES, default="IGNORE"
     )
-    inactive_items_action = models.CharField(
+    inactive_items_action = models.CharField(_("Неактивные объекты"),
         max_length=50, choices=INACTICE_ITEMS_ACTION_CHOICES, default="LEAVE"
     )
-    remove_existing_price_if_empty = models.BooleanField(default=False)
+    remove_existing_price_if_empty = models.BooleanField(_("Удалить существующую цену, если она в файле указана пустой"), default=False)
 
     class Meta:
         verbose_name = _("Шаблон импорта")
