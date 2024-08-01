@@ -25,16 +25,14 @@ test:
     - echo "Running tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d shop-backend-test ]; then 
-        cd shop-backend-test && git pull; 
-      else 
+        cd shop-backend-test && git pull git@$SSH_HOST:${CI_PROJECT_PATH}.git; 
+      else
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
       fi &&
       docker compose --env-file .env -f docker-compose-dev.yml up -d &&
       docker compose --env-file .env -f docker-compose-dev.yml logs web &&
       docker compose --env-file .env -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local || true &&
-      docker compose --env-file .env -f docker-compose-dev.yml down &&
-      cd .. &&
-      rm -rf shop-backend-test"
+      docker compose --env-file .env -f docker-compose-dev.yml down"
 
 deploy:
   stage: deploy
