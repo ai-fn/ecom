@@ -39,8 +39,8 @@ deploy:
   script:
     - echo "Running deploy..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
-      docker compose -f docker compose-traefik.yml down --timeout 30 &&
+      docker compose -f docker-compose-traefik.yml down --timeout 30 &&
       git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
-      docker compose -f docker compose-traefik.yml build &&
-      docker compose -f docker compose-traefik.yml up -d --force-recreate &&
+      docker compose -f docker-compose-traefik.yml build &&
+      docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
       docker compose exec web python manage.py migrate --settings=megashop.settings.local"
