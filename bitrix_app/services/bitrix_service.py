@@ -38,8 +38,8 @@ class Bitrix24API:
         self.get_user_webhook_url = getattr(settings, "GET_USER_WEBHOOK_URL", None)
 
     def _get_user(self, email: str) -> dict:
-        url = f"{self.get_user_webhook_url}/crm.lead.get.json"
-        resp = self.post_response(url, data={"email": email})
+        url = f"{self.get_user_webhook_url}/user.get.json"
+        resp = self.post_response(url, params={"EMAIL": email})
         user_data = resp[0].get(
             "result",
             [
