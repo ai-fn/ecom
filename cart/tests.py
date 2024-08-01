@@ -1,12 +1,13 @@
 import unittest
+from unittest import mock
 from django.urls import reverse
 
+from loguru import logger
 from rest_framework import status
 
 from account.models import City, CityGroup, CustomUser
 from shop.models import Category, Brand, Price
 from cart.models import Order, Product, CartItem, ProductsInOrder
-import unittest
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -53,7 +54,10 @@ class OrderViewSetTests(APITestCase):
             customer=self.user, quantity=1, product_id=self.prod1.id
         )
 
-    def test_create_order_from_cart(self):
+    @mock.patch('bitrix_app.services.Bitrix24API.create_lead_for_order')
+    def test_create_order_from_cart(self, mock_create_lead_for_order):
+        mock_create_lead_for_order.return_value = {'result': {'ID': '12345'}}, 200
+
         query_params = {"city_domain": "voronezh.krov.market"}
         url = (
             reverse("api:cart:orders-list")
@@ -81,6 +85,14 @@ class OrderViewSetTests(APITestCase):
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(ProductsInOrder.objects.count(), 1)
         self.assertEqual(CartItem.objects.filter(customer=self.user).count(), 0)
+        order = Order.objects.first()
+        
+        mock_create_lead_for_order.assert_called_once_with(order, query_params["city_domain"])
+        
+        lead_response, status_code = mock_create_lead_for_order.return_value
+        self.assertEqual(status_code, 200)
+        self.assertIn('result', lead_response)
+        self.assertIn('ID', lead_response['result'])
 
 
 class CartCountViewTests(APITestCase):

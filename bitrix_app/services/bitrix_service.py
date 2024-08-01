@@ -56,10 +56,11 @@ class Bitrix24API:
         lead_user_id = self.get_default_lead_user().get("ID")
         lead_data = {
             "fields": {
-                "TITLE": f"Заказ от {order.customer.get_full_name()} ({order.customer.phone})",
+                "TITLE": f"{order.customer.phone} Заказ от {order.customer.get_full_name()}",
                 "ASSIGNED_BY_ID": lead_user_id,
                 "OPENED": "Y",
                 "STATUS_ID": "NEW",
+                "ADDRESS": order.address,
                 "NAME": order.customer.first_name,
                 "SECOND_NAME": order.customer.middle_name,
                 "LAST_NAME": order.customer.last_name,
