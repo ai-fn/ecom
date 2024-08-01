@@ -122,7 +122,7 @@ class TestBitrix24API(unittest.TestCase):
             "fields": {
                 "TITLE": "+79991234567 Заказ от Иван Иванов",
                 "ASSIGNED_BY_ID": "123",
-                "OPENED": "Y",
+                "OPENED": "N",
                 "STATUS_ID": "NEW",
                 "ADDRESS": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, 123001, Россия",
                 "NAME": "Иван",
@@ -132,6 +132,7 @@ class TestBitrix24API(unittest.TestCase):
                 "OPPORTUNITY": 5000,
                 "PHONE": [{"VALUE": "+79991234567", "VALUE_TYPE": "WORK"}],
                 "WEB": [{"VALUE": "example.com", "VALUE_TYPE": "WORK"}],
+                "UF_CRM_1586436329935": None,
             },
             "params": {"REGISTER_SONET_EVENT": "Y"},
         }
