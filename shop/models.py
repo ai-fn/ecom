@@ -457,6 +457,7 @@ class SettingChoices(models.TextChoices):
     CDN_ADDRESS = "cdn_address", "Адрес CDN"
     MULTIDOMAINS_ENABLED = "multidomains_enabled", "Включен ли Multidomains"
     ROBOTS_TXT = "robots_txt", "Наполнение для robots.txt"
+    OPEN_GRAPH_META_IMAGE = "openGraphMeta_image", "Путь до openGraphMeta изображения от корня директории сайта"
     # TODO добавить настройки платежных систем
     # TODO добавить доступность прямой оплаты
     # TODO добавить настройки водяного знака на изображение
@@ -692,27 +693,6 @@ class OpenGraphMeta(TimeBasedModel):
     class Meta:
         verbose_name = _("Метаданные")
         verbose_name_plural = _("Метаданные")
-
-
-class ImageMetaData(TimeBasedModel):
-
-    image = models.ImageField(verbose_name=_("Изображение"), upload_to="pages/")
-    width = models.PositiveSmallIntegerField(
-        verbose_name=_("Ширина"),
-    )
-    height = models.PositiveSmallIntegerField(
-        verbose_name=_("Высота"),
-    )
-    open_graph_meta = models.ForeignKey(
-        OpenGraphMeta, on_delete=models.CASCADE, verbose_name=_("Метаданные")
-    )
-
-    def __str__(self) -> str:
-        return f"Изображение метаданных {self.id}"
-
-    class Meta:
-        verbose_name = _("Изображение метаданных")
-        verbose_name_plural = _("Изображения метаданных")
 
 
 class Page(TimeBasedModel):

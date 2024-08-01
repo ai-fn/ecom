@@ -8,7 +8,6 @@ from shop.models import (
     Characteristic,
     CharacteristicValue,
     FavoriteProduct,
-    ImageMetaData,
     OpenGraphMeta,
     Page,
     Price,
@@ -376,21 +375,6 @@ class OpenGraphMetaAdmin(admin.ModelAdmin):
         "content_type",
     )
     list_filter = ("locale",)
-
-
-@admin.register(ImageMetaData)
-class ImageMetaDataAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "image",
-        "width",
-        "height",
-    )
-    search_fields = (
-        "image",
-        "width",
-        "height",
-    )
 
 
 @admin.register(Page)

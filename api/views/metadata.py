@@ -1,12 +1,9 @@
-from django.shortcuts import get_object_or_404
-from loguru import logger
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_404_NOT_FOUND
 from rest_framework.decorators import action
 
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
@@ -14,7 +11,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 
 
 from api.serializers import OpenGraphMetaSerializer
-from shop.models import ImageMetaData, OpenGraphMeta, Product
+from shop.models import OpenGraphMeta, Product
 from shop.services.metadata_service import MetaDataService
 
 

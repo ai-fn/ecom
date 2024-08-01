@@ -563,17 +563,6 @@
 | verbose_name        | Метаданные |
 | verbose_name_plural | Метаданные |
 
-## ImageMetaData
-
-| Field           | Type                      | Options                                 | Description |
-| --------------- | ------------------------- | --------------------------------------- | ----------- |
-| id              | AutoField                 | primary_key=True                        | Primary Key |
-| created_at      | DateTimeField             | auto_now_add=True                       | Created At  |
-| updated_at      | DateTimeField             | auto_now=True                           | Updated At  |
-| image           | ImageField                | upload_to="pages/"                      | Изображение |
-| width           | PositiveSmallIntegerField |                                         | Ширина      |
-| height          | PositiveSmallIntegerField |                                         | Высота      |
-| open_graph_meta | ForeignKey                | OpenGraphMeta, on_delete=models.CASCADE | Метаданные  |
 
 **Methods**
 
