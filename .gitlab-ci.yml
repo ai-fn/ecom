@@ -10,7 +10,8 @@ before_script:
   - mkdir -p ~/.ssh/
   - echo "$SSH_KEY" > ~/.ssh/gitlab
   - chmod 600 ~/.ssh/gitlab
-  - cat >>~/.ssh/shop-backend-config << END
+  - |
+    cat > ~/.ssh/shop-backend-config << 'END'
     Host target-shop
       HostName $SSH_HOST
       User $SSH_USER
