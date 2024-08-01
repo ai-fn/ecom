@@ -22,7 +22,7 @@ test:
   tags:
     - backend
   script:
-    - set -e
+    - ERROR_OCCURRED=0
     - echo "Running tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d shop-backend-test ]; then 
@@ -30,13 +30,15 @@ test:
       else
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
       fi &&
-      sudo chown -R 1000:1000 ./data/elasticsearch &&
-      sudo chmod -R 755 ./data/elasticsearch &&
-      docker compose -f docker-compose-dev.yml up -d &&
-      docker compose -f docker-compose-dev.yml exec web python manage.py migrate --settings=megashop.settings.local &&
-      docker compose -f docker-compose-dev.yml logs web &&
-      docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local &&
-      docker compose -f docker-compose-dev.yml down"
+      sudo chown -R 1000:1000 ./data/elasticsearch || ERROR_OCCURRED=1 &&
+      sudo chmod -R 755 ./data/elasticsearch || ERROR_OCCURRED=1 &&
+      docker compose -f docker-compose-dev.yml up -d || ERROR_OCCURRED=1 &&
+      docker compose -f docker-compose-dev.yml exec web python manage.py migrate --settings=megashop.settings.local || ERROR_OCCURRED=1 &&
+      docker compose -f docker-compose-dev.yml logs web || ERROR_OCCURRED=1 &&
+      docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local || ERROR_OCCURRED=1 &&
+      docker compose -f docker-compose-dev.yml down || ERROR_OCCURRED=1
+      exit ERROR_OCCURRED
+      "
   allow_failure: false
 
 deploy:
