@@ -2,25 +2,35 @@ stages:
   - test
   - deploy
 
+before_script:
+  - echo "Configuring SSH..."
+  - mkdir -p ~/.ssh/
+  - echo "$SSH_KEY" > ~/.ssh/gitlab
+  - chmod 600 ~/.ssh/gitlab
+  - cat >>~/.ssh/shop-backend-config << END
+    Host target-shop
+      HostName $SSH_HOST
+      User $SSH_USER
+      IdentityFile ~/.ssh/gitlab
+      LogLevel ERROR
+      StrictHostKeyChecking no
+    END
+
 test:
   stage: test
   tags:
     - backend
-  before_script:
-    - docker info
   script:
     - |
       echo "Running tests..."
-      docker-compose -f docker-compose-dev.yml up -d
-      docker-compose exec web python manage.py test --settings=megashop.settings.local
-      docker-compose down
+      ssh -F ~/.ssh/shop-backend-config target-shop "if [ -d shop-backend-test ]; then cd shop-backend-test && git pull; else git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test; fi &&
+        cd shop-backend-test &&
+        docker-compose -f docker-compose-dev.yml up -d &&
+        docker-compose exec web python manage.py test --settings=megashop.settings.local &&
+        docker-compose down &&
   after_script:
-    - |
-      echo "Cleaning up..."
-      cd ..
-      rm -rf ${CI_PROJECT_NAME}
-      docker-compose -f ${CI_PROJECT_NAME}/docker-compose-dev.yml down --volumes --remove-orphans
-
+    - cd ..
+    - rm -rf shop-backend-test"
 
 deploy:
   stage: deploy
@@ -30,19 +40,6 @@ deploy:
     - main
   script:
     - |
-      set -x
-      echo "Configuring SSH..."
-      mkdir -p ~/.ssh/
-      echo "$SSH_KEY" > ~/.ssh/gitlab
-      chmod 600 ~/.ssh/gitlab
-      cat >>~/.ssh/shop-backend-config << END
-      Host target-shop
-        HostName $SSH_HOST
-        User $SSH_USER
-        IdentityFile ~/.ssh/gitlab
-        LogLevel ERROR
-        StrictHostKeyChecking no
-      END
       echo "Running deploy..."
       ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
         docker compose -f docker-compose-traefik.yml down --timeout 30 &&
