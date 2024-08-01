@@ -35,10 +35,12 @@ test:
       docker compose -f docker-compose-dev.yml up -d &&
       docker compose -f docker-compose-dev.yml exec web python manage.py migrate --settings=megashop.settings.local &&
       docker compose -f docker-compose-dev.yml logs web &&
-      docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local &&
+      docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local
       "
   after_script:
-    - docker compose -f docker-compose-dev.yml down
+    - ssh -F ~/.ssh/shop-backend-config target-shop "
+        ./shop-backend-test/docker compose -f docker-compose-dev.yml down
+      "
   allow_failure: false
 
 deploy:
