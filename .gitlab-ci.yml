@@ -29,10 +29,10 @@ test:
       else
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
       fi &&
-      docker compose --env-file .env -f docker-compose-dev.yml up -d &&
-      docker compose --env-file .env -f docker-compose-dev.yml logs web &&
-      docker compose --env-file .env -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local || true &&
-      docker compose --env-file .env -f docker-compose-dev.yml down"
+      docker compose -f docker-compose-dev.yml up -d &&
+      docker compose -f docker-compose-dev.yml logs web &&
+      docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local || true &&
+      docker compose -f docker-compose-dev.yml down"
 
 deploy:
   stage: deploy
