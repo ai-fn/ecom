@@ -29,10 +29,14 @@ test:
       else
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
       fi &&
+      sudo chown -R 1000:1000 ./data/elasticsearch &&
+      sudo chmod -R 755 ./data/elasticsearch &&
       docker compose -f docker-compose-dev.yml up -d &&
+      docker compose -f docker-compose-dev.yml exec web python manage.py migrate --settings=megashop.settings.local &&
       docker compose -f docker-compose-dev.yml logs web &&
       docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local || true &&
       docker compose -f docker-compose-dev.yml down"
+  allow_failure: false
 
 deploy:
   stage: deploy
@@ -46,3 +50,5 @@ deploy:
       docker compose -f docker-compose-traefik.yml build &&
       docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
       docker compose exec web python manage.py migrate --settings=megashop.settings.local"
+  needs:
+      - test
