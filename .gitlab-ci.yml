@@ -25,7 +25,7 @@ test:
     - echo "Running tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d shop-backend-test ]; then 
-        cd shop-backend-test && git pull git@$SSH_HOST:${CI_PROJECT_PATH}.git; 
+        cd shop-backend-test && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git; 
       else
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
       fi &&
