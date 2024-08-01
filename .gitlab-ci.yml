@@ -6,14 +6,17 @@ test:
   stage: test
   tags:
     - backend
-  only:
-    - main
+  image: docker:20.10.7
+  services:
+    - docker:20.10.7-dind
+  before_script:
+    - docker info
   script:
     - |
       echo "Running tests..."
-      docker compose -f docker-compose-dev.yml up -d
-      docker compose exec web python manage.py test --settings=megashop.settings.local
-      docker compose down
+      docker-compose -f docker-compose-test.yml up -d
+      docker-compose exec web python manage.py test --settings=megashop.settings.test
+      docker-compose down
 
 deploy:
   stage: deploy
