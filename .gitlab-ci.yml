@@ -1,5 +1,19 @@
 stages:
+  - test
   - deploy
+
+test:
+  stage: test
+  tags:
+    - backend
+  only:
+    - main
+  script:
+    - |
+      echo "Running tests..."
+      docker compose -f docker-compose-dev.yml up -d
+      docker compose exec web python manage.py test --settings=megashop.settings.local
+      docker compose down
 
 deploy:
   stage: deploy
