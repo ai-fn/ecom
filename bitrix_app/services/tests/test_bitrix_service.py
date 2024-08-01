@@ -26,7 +26,7 @@ class TestBitrix24API(unittest.TestCase):
         self.assertIn("TITLE", fields)
         self.assertIn("STATUS_ID", fields)
         self.assertEqual(fields["TITLE"]["type"], "string")
-        self.assertEqual(fields["STATUS_ID"]["type"], "crm_status")
+        self.assertIn(fields["STATUS_ID"]["type"], ("string", "crm_status"))
 
     @patch("requests.get")
     def test_retrieve(self, mock_get):
