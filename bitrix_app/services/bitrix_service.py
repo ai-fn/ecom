@@ -89,17 +89,17 @@ class Bitrix24API:
         return self._allowed_fields
 
     def get_response(self, url: str, params: dict = None) -> tuple[dict, int]:
+        response = requests.get(url, params=params)
         try:
-            response = requests.get(url, params=params)
             response.raise_for_status()
             return response.json(), response.status_code
         except requests.RequestException as e:
             logger.error(f"Request failed for GET {url} with params {params}: {e}")
             return {}, response.status_code
 
-    def post_response(self, url: str, data: dict = None) -> tuple[dict, int]:
+    def post_response(self, url: str, data: dict = None, params: dict = None) -> tuple[dict, int]:
+        response = requests.post(url, json=data, params=params)
         try:
-            response = requests.post(url, json=data)
             response.raise_for_status()
             return response.json(), response.status_code
         except requests.RequestException as e:
