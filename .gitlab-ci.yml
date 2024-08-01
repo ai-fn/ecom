@@ -28,7 +28,7 @@ test:
       END_FILE=.env.dist docker compose -f docker-compose-dev.yml up -d &&
       docker compose exec web python manage.py test --settings=megashop.settings.local &&
       docker compose down &&
-      cd .. &&
+      cd .. && ls &&
       rm -rf shop-backend-test"
 
 deploy:
