@@ -31,7 +31,7 @@ class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all().order_by("-created_at")
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
-    bitrix_api = Bitrix24API
+    bitrix_api = Bitrix24API()
 
     def get_permissions(self):
         if self.action in ("update", "partial_update", "destroy"):
