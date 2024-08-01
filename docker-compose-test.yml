@@ -1,0 +1,101 @@
+services:
+
+  db:
+    image: postgres:14.5
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  cache:
+    image: redis:7.0.4
+    restart: always
+    volumes:
+      - ./data/cache:/data
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - backend
+
+  golang:
+    build:
+        context: .
+        dockerfile: go.Dockerfile
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    restart: always
+    environment:
+      - POSTGRES_HOST=db
+    env_file:
+      - .env
+    ports:
+      - "${GO_PORT}:8080"
+    networks:
+      - backend
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:${DJANGO_PORT}
+    restart: always
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    ports:
+      - "${DJANGO_PORT}:8000"
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  celery:
+    build: .
+    command: celery -A megashop worker --loglevel=info --beat
+    restart: always
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - cache
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  celerybeat:
+    build: .
+    command: celery -A megashop beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    restart: always
+    volumes:
+      - .:/code
+      - ./data/celerybeat:/var/lib/celerybeat  # Папка для хранения файлов состояния планировщика
+    depends_on:
+      - db
+      - cache
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  elasticsearch:
+    image: elasticsearch:7.17.0
+    environment:
+      - "discovery.type=single-node"
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "${ELASTICSEARCH_HTTP_PORT}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT}:9300"
+    restart: always
+
+    mem_limit: 2g  # Установите лимит памяти, например, в 2 гигабайта
+    networks:
+      - backend
+
+networks:
+  test-backend:
