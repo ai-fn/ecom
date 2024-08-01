@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 
+from account.models import City
 from cart.models import Order
 
 
@@ -54,20 +55,25 @@ class Bitrix24API:
 
     def create_lead_for_order(self, order: Order, domain: str):
         lead_user_id = self.get_default_lead_user().get("ID")
+        logger.info(f"lead_user_id: {lead_user_id}")
+        city = City.objects.filter(domain=domain).first()
+        city_name = getattr(city, "name", None)
+
         lead_data = {
             "fields": {
                 "TITLE": f"{order.customer.phone} Заказ от {order.customer.get_full_name()}",
                 "ASSIGNED_BY_ID": lead_user_id,
-                "OPENED": "Y",
+                "OPENED": "N",
                 "STATUS_ID": "NEW",
                 "ADDRESS": order.address,
                 "NAME": order.customer.first_name,
                 "SECOND_NAME": order.customer.middle_name,
                 "LAST_NAME": order.customer.last_name,
                 "CURRENCY_ID": "RUB",
-                "OPPORTUNITY": order.total,
+                "OPPORTUNITY": int(order.total),
                 "PHONE": [ { "VALUE": order.customer.phone, "VALUE_TYPE": "WORK" } ] ,
-			    "WEB": [ { "VALUE": domain, "VALUE_TYPE": "WORK" } ]
+			    "WEB": [ { "VALUE": domain, "VALUE_TYPE": "WORK" } ],
+                "UF_CRM_1586436329935": city_name
             },
             "params": { "REGISTER_SONET_EVENT": "Y" }
         }
