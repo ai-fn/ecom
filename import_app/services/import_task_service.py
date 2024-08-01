@@ -126,7 +126,6 @@ class ImportTaskService:
         unique_fields: dict,
         path_to_images: str,
     ):
-        logger.info(fields)
         no_unique_fields = len(unique_fields) < 1
 
         for _, row in df.iterrows():
@@ -186,7 +185,6 @@ class ImportTaskService:
                 )
                 data[data_field_name] = cell
 
-            logger.info(f"decimal fields {decimal_fields}, type: {type(decimal_fields)}")
             for field_name in decimal_fields:
                 cell_name = decimal_fields.get(field_name)
                 cell = row.get(cell_name)
@@ -211,11 +209,8 @@ class ImportTaskService:
     def update_or_create_instance(
         self, model: models.Model, data: dict, unique_fields: list
     ):
-        logger.info(unique_fields)
-        logger.info(data)
         try:
             unique_data = {column: data.pop(field, None) for field, column in unique_fields.items()}
-            logger.info(unique_data)
             model.objects.update_or_create(**unique_data, defaults=data)
         except Exception as e:
             logger.error(
