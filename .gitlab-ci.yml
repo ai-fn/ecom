@@ -1,32 +1,45 @@
 stages:
+  - test
   - deploy
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+before_script:
+  - echo "Configuring SSH..."
+  - mkdir -p ~/.ssh/
+  - echo "$SSH_KEY" > ~/.ssh/gitlab
+  - chmod 600 ~/.ssh/gitlab
+  - echo "Host target-shop" > ~/.ssh/shop-backend-config
+  - echo "  HostName $SSH_HOST" >> ~/.ssh/shop-backend-config
+  - echo "  User $SSH_USER" >> ~/.ssh/shop-backend-config
+  - echo "  IdentityFile ~/.ssh/gitlab" >> ~/.ssh/shop-backend-config
+  - echo "  LogLevel ERROR" >> ~/.ssh/shop-backend-config
+  - echo "  StrictHostKeyChecking no" >> ~/.ssh/shop-backend-config
+
+test:
+  stage: test
+  tags:
+    - backend
+  script:
+    - echo "Running tests..."
+    - ssh -F ~/.ssh/shop-backend-config target-shop "if [ -d shop-backend-test ]; then cd shop-backend-test && git pull; else git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test; fi &&
+      cd shop-backend-test &&
+      docker-compose -f docker-compose-local.yml up -d &&
+      docker-compose exec web python manage.py test --settings=megashop.settings.test &&
+      docker-compose down &&
+      cd .. &&
+      rm -rf shop-backend-test"
 
 deploy:
   stage: deploy
   tags:
     - backend
-  only:
-    - main
   script:
-    - |
-      set -x
-      echo "Configuring SSH..."
-      mkdir -p ~/.ssh/
-      echo "$SSH_KEY" > ~/.ssh/gitlab
-      chmod 600 ~/.ssh/gitlab
-      cat >>~/.ssh/shop-backend-config << END
-      Host target-shop
-        HostName $SSH_HOST
-        User $SSH_USER
-        IdentityFile ~/.ssh/gitlab
-        LogLevel ERROR
-        StrictHostKeyChecking no
-      END
-      echo "Running deploy..."
-      ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
-        docker compose -f docker-compose-traefik.yml down --timeout 30 &&
-        git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
-        docker compose -f docker-compose-traefik.yml build &&
-        docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
-        docker compose exec web python manage.py migrate --settings=megashop.settings.local"
-  
+    - echo "Running deploy..."
+    - ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
+      docker-compose -f docker-compose-traefik.yml down --timeout 30 &&
+      git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
+      docker-compose -f docker-compose-traefik.yml build &&
+      docker-compose -f docker-compose-traefik.yml up -d --force-recreate &&
+      docker-compose exec web python manage.py migrate --settings=megashop.settings.local"
