@@ -19,11 +19,10 @@ before_script:
 
 test:
   stage: test
-  only:
-    - main
   tags:
     - backend
   script:
+    - set -e
     - echo "Running tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d shop-backend-test ]; then 
@@ -36,18 +35,16 @@ test:
       docker compose -f docker-compose-dev.yml up -d &&
       docker compose -f docker-compose-dev.yml exec web python manage.py migrate --settings=megashop.settings.local &&
       docker compose -f docker-compose-dev.yml logs web &&
-      docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local || true &&
+      docker compose -f docker-compose-dev.yml exec web python manage.py test --settings=megashop.settings.local &&
       docker compose -f docker-compose-dev.yml down"
   allow_failure: false
 
 deploy:
   stage: deploy
-  only:
-    - main
-  when: on_success
   tags:
     - backend
   script:
+    - set -e
     - echo "Running deploy..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
       docker compose -f docker-compose-traefik.yml down --timeout 30 &&
