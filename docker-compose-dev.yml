@@ -13,7 +13,9 @@ services:
     restart: always
     volumes:
       - ./data/cache:/data
-  
+    ports:
+      - "${REDIS_PORT}:6379"
+
   golang:
     build:
         context: .

@@ -18,6 +18,8 @@ services:
       - ./data/cache:/data
     networks:
       - internal
+    ports:
+      - "${REDIS_PORT}:6379"
 
   web:
     build: .

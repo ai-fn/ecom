@@ -120,7 +120,7 @@ USE_TEST_DB = os.environ.get("USE_TEST_DB", "0") == "1"
 # PORTS SETTINGS
 
 GO_PORT = os.getenv("GO_PORT", "8080")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_HOST = os.getenv("REDIS_HOST", "cache")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
 DJANGO_PORT = os.getenv("DJANGO_PORT", "8000")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
@@ -306,7 +306,7 @@ SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM") == "True"
 CHAT_ID = os.environ.get("CHAT_ID", "DEFAULT")
 
 # CACHE SETTINGS
-CACHE_LOCATION = os.environ.get("CACHE_LOCATION", f"redis://cache:{REDIS_PORT}/0")
+CACHE_LOCATION = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
