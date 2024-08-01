@@ -17,7 +17,7 @@ class BrandView(ModelViewSet):
         responses={200: BrandSerializer(many=True)},
         examples=[
             OpenApiExample(
-                name="responce",
+                name="response",
                 value={
                     "id": 1,
                     "name": "Deke",

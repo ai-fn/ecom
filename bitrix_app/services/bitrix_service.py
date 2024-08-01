@@ -7,6 +7,8 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 
+from cart.models import Order
+
 
 class Bitrix24API:
 
@@ -32,6 +34,46 @@ class Bitrix24API:
         self.lead_delete_webhook_url = getattr(
             settings, "LEAD_DELETE_WEBHOOK_URL", None
         )
+        self.get_user_webhook_url = getattr(settings, "GET_USER_WEBHOOK_URL", None)
+
+    def _get_user(self, email: str) -> dict:
+        url = f"{self.get_user_webhook_url}/crm.lead.get.json"
+        resp = self.post_response(url, data={"email": email})
+        user_data = resp[0].get(
+            "result",
+            [
+                {},
+            ],
+        )[0]
+        return user_data
+
+    def get_default_lead_user(self):
+        default_lead_user_email = getattr(settings, "DEFAULT_LEAD_USER_EMAIL", None)
+        result = self._get_user(email=default_lead_user_email)
+        return result
+
+    def create_lead_for_order(self, order: Order, domain: str):
+        lead_user_id = self.get_default_lead_user().get("ID")
+        lead_data = {
+            "fields": {
+                "TITLE": f"Заказ от {order.customer.get_full_name()} ({order.customer.phone})",
+                "ASSIGNED_BY_ID": lead_user_id,
+                "OPENED": "Y",
+                "STATUS_ID": "NEW",
+                "NAME": order.customer.first_name,
+                "SECOND_NAME": order.customer.middle_name,
+                "LAST_NAME": order.customer.last_name,
+                "CURRENCY_ID": "RUB",
+                "OPPORTUNITY": order.total,
+                "PHONE": [ { "VALUE": order.customer.phone, "VALUE_TYPE": "WORK" } ] ,
+			    "WEB": [ { "VALUE": domain, "VALUE_TYPE": "WORK" } ]
+            },
+            "params": { "REGISTER_SONET_EVENT": "Y" }
+        }
+        result, status = self.add_lead(lead_data)
+        if not 200 <= status < 400:
+            logger.error(f"Order Lead creation failed, response data: {result}")
+        return result
 
     def get_allowed_fields(self):
         if self._allowed_fields is None:

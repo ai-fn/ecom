@@ -13,6 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from bitrix_app.services import Bitrix24API
 from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import (
     CartItemSerializer,
@@ -30,6 +31,7 @@ class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all().order_by("-created_at")
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
+    bitrix_api = Bitrix24API
 
     def get_permissions(self):
         if self.action in ("update", "partial_update", "destroy"):
@@ -517,6 +519,8 @@ class OrderViewSet(ModelViewSet):
 
             order.total = total
             order.save(update_fields=["total"])
+
+            self.bitrix_api.create_lead_for_order(order, city_domain)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @extend_schema(
