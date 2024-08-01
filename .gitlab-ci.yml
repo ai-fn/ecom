@@ -16,6 +16,8 @@ test:
       mkdir -p ~/.ssh/
       echo "$SSH_KEY" > ~/.ssh/gitlab
       chmod 600 ~/.ssh/gitlab
+      echo "SSH_HOST: $SSH_HOST"
+      echo "SSH_USER: $SSH_USER"
       cat >>~/.ssh/shop-backend-config << END
       Host target-shop
         HostName $SSH_HOST
