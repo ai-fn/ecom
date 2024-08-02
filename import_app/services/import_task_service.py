@@ -142,13 +142,13 @@ class ImportTaskService:
             )
             try:
                 with transaction.atomic():
+                    m2m_data = self.get_notna_items(m2m_fields, row)
                     if no_unique_fields:
                         instance = model.objects.create(**data)
                         if m2m_data:
                             self._set_m2m_data(instance, m2m_data)
                     else:
                         unique_data = self.get_notna_items(unique_fields, row)
-                        m2m_data = self.get_notna_items(m2m_fields, row)
                         self.update_or_create_instance(model, data, unique_data, m2m_data)
             except Exception as e:
                 logger.error(
