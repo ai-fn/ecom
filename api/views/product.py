@@ -75,6 +75,7 @@ class ProductViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "title": "Product A",
+                    "h1_tag": "dummy_h1_tag",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
@@ -106,6 +107,7 @@ class ProductViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "title": "Product A",
+                    "h1_tag": "dummy_h1_tag",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
@@ -175,6 +177,7 @@ class ProductViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "title": "Product A",
+                    "h1_tag": "dummy_h1_tag",
                     "brand": 1,
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
@@ -291,6 +294,7 @@ class ProductViewSet(ModelViewSet):
                     "id": 5138,
                     "category": {
                         "id": 2350,
+                        "h1_tag": "dummy_h1_tag",
                         "name": "Ветро-влагозащита А (1,6 х 43,75 м)",
                         "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m",
                         "order": 2350,
@@ -299,6 +303,7 @@ class ProductViewSet(ModelViewSet):
                             {
                                 "id": 2348,
                                 "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
+                                "h1_tag": "dummy_h1_tag",
                                 "slug": "armiruiushchaia-tkan-al-fa-peist",
                                 "order": 2348,
                                 "parent": 2333,
@@ -314,7 +319,7 @@ class ProductViewSet(ModelViewSet):
                                 "is_visible": True,
                                 "is_popular": False,
                                 "thumb_img": "base64string",
-                    "is_acitve": True,
+                                "is_acitve": True,
                             }
                         ],
                         "parents": [
@@ -334,6 +339,7 @@ class ProductViewSet(ModelViewSet):
                     "brand": {
                         "id": 6,
                         "name": "ISOBOX",
+                        "h1_tag": "dummy_h1_tag",
                         "icon": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                         "order": 0,
                         "slug": "isobox",
@@ -360,9 +366,11 @@ class ProductViewSet(ModelViewSet):
                     ],
                     "images": [
                         {
+                            "id": 1,
+                            "name": "test-name",
                             "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                             "thumb_img": "base64string",
-                    "is_acitve": True,
+                            "is_acitve": True,
                         }
                     ],
                     "in_stock": True,
@@ -413,6 +421,7 @@ class ProductViewSet(ModelViewSet):
                 request_only=True,
                 value={
                     "title": "Product A",
+                    "h1_tag": "dummy_h1_tag",
                     "brand_id": 1,
                     "article": "620223",
                     "slug": "product-a",
@@ -549,6 +558,7 @@ class ProductViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "title": "Product A",
+                    "h1_tag": "dummy_h1_tag",
                     "brand": 1,
                     "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -595,6 +605,7 @@ class ProductViewSet(ModelViewSet):
                 value={
                     "title": "Product A",
                     "brand": 1,
+                    "h1_tag": "dummy_h1_tag",
                     "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "thumb_img": "ivborw0kggoaaaansuheugaaaaoaaaakcayaaacnms+9aaaa3eleqvr4nk2psureqbrf79udl0limbacvtnkdlmtbitugk2+ild/kejima/wo2ysbstrsvlb0moiqnzmooz5duiwso2nvlzoaf4bagarobzt10qkwuvhoiie67p+i6lpnseane1zkyjnxhiiydsrvsqlnmeypnjvb6jrukul1crlsnnmpndowtkhay2stzi+jmzn9konw3dtvt/p+/6jmrdrfgvxhcpp8x+/crzv6zfvrkqqwzrnj7twyyaijpl5suq6szklvbvlwyy7mx8hd4imj/npbo/lc6cizdfxzep/cizmgqaaaabjru5erkjggg==",
@@ -629,6 +640,7 @@ class ProductViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "title": "Product A",
+                    "h1_tag": "dummy_h1_tag",
                     "brand": 1,
                     "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -686,6 +698,7 @@ class ProductViewSet(ModelViewSet):
                 value={
                     "id": 1,
                     "title": "Product A",
+                    "h1_tag": "dummy_h1_tag",
                     "brand": 1,
                     "article": "620223",
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",

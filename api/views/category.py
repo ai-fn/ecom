@@ -40,12 +40,14 @@ class CategoryViewSet(ModelViewSet):
                     "id": 2333,
                     "name": "Гидро-ветрозащита и пароизоляция",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
+                    "h1_tag": "dummy_h1_tag",
                     "order": 2333,
                     "parent": 2348,
                     "children": [
                         {
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
+                            "h1_tag": "dummy_h1_tag",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
                             "order": 2348,
                             "parent": 2333,
@@ -91,6 +93,7 @@ class CategoryViewSet(ModelViewSet):
                 value={
                     "id": 2333,
                     "name": "Гидро-ветрозащита и пароизоляция",
+                    "h1_tag": "dummy_h1_tag",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
                     "order": 2333,
                     "parent": 2348,
@@ -98,6 +101,7 @@ class CategoryViewSet(ModelViewSet):
                         {
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
+                            "h1_tag": "dummy_h1_tag",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
                             "order": 2348,
                             "parent": 2333,
@@ -144,6 +148,7 @@ class CategoryViewSet(ModelViewSet):
                 value={
                     "id": 2333,
                     "name": "Гидро-ветрозащита и пароизоляция",
+                    "h1_tag": "dummy_h1_tag",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
                     "order": 2333,
                     "parent": 2348,
@@ -151,6 +156,7 @@ class CategoryViewSet(ModelViewSet):
                         {
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
+                            "h1_tag": "dummy_h1_tag",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
                             "order": 2348,
                             "parent": 2333,
@@ -198,6 +204,7 @@ class CategoryViewSet(ModelViewSet):
                 value={
                     "name": "Гидро-ветрозащита и пароизоляция",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
+                    "h1_tag": "dummy_h1_tag",
                     "order": 2333,
                     "parent": 2348,
                     "children": [
@@ -205,6 +212,7 @@ class CategoryViewSet(ModelViewSet):
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
+                            "h1_tag": "dummy_h1_tag",
                             "order": 2348,
                             "parent": 2333,
                             "children": [],
@@ -241,6 +249,7 @@ class CategoryViewSet(ModelViewSet):
                     "id": 2333,
                     "name": "Гидро-ветрозащита и пароизоляция",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
+                    "h1_tag": "dummy_h1_tag",
                     "order": 2333,
                     "parent": 2348,
                     "children": [
@@ -248,6 +257,7 @@ class CategoryViewSet(ModelViewSet):
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
+                            "h1_tag": "dummy_h1_tag",
                             "order": 2348,
                             "parent": 2333,
                             "children": [],
@@ -291,12 +301,14 @@ class CategoryViewSet(ModelViewSet):
                 value={
                     "name": "Гидро-ветрозащита и пароизоляция",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
+                    "h1_tag": "dummy_h1_tag",
                     "order": 2333,
                     "parent": 2348,
                     "children": [
                         {
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
+                            "h1_tag": "dummy_h1_tag",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
                             "order": 2348,
                             "parent": 2333,
@@ -334,6 +346,7 @@ class CategoryViewSet(ModelViewSet):
                     "id": 2333,
                     "name": "Гидро-ветрозащита и пароизоляция",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
+                    "h1_tag": "dummy_h1_tag",
                     "order": 2333,
                     "parent": 2348,
                     "children": [
@@ -341,6 +354,7 @@ class CategoryViewSet(ModelViewSet):
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
+                            "h1_tag": "dummy_h1_tag",
                             "order": 2348,
                             "parent": 2333,
                             "children": [],
@@ -396,6 +410,7 @@ class CategoryViewSet(ModelViewSet):
                     "id": 2333,
                     "name": "Updated Category Name",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
+                    "h1_tag": "dummy_h1_tag",
                     "order": 2333,
                     "parent": 2348,
                     "children": [
@@ -403,6 +418,7 @@ class CategoryViewSet(ModelViewSet):
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
+                            "h1_tag": "dummy_h1_tag",
                             "order": 2348,
                             "parent": 2333,
                             "children": [],
@@ -456,12 +472,14 @@ class CategoryViewSet(ModelViewSet):
                     "name": "Гидро-ветрозащита и пароизоляция",
                     "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
                     "order": 2333,
+                    "h1_tag": "dummy_h1_tag",
                     "parent": 2348,
                     "children": [
                         {
                             "id": 2348,
                             "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
                             "slug": "armiruiushchaia-tkan-al-fa-peist",
+                            "h1_tag": "dummy_h1_tag",
                             "order": 2348,
                             "parent": 2333,
                             "children": [],

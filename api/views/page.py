@@ -24,6 +24,7 @@ from shop.models import Page
                             {
                                 "id": 1,
                                 "title": "Первая страница",
+                                "h1_tag": "dummy_h1_tag",
                                 "description": "Описание первой страницы",
                                 "slug": "pervaya-stranitsa",
                                 "image": "/media/pages/image1.jpg",
@@ -64,6 +65,7 @@ from shop.models import Page
                         value={
                             "id": 1,
                             "title": "Первая страница",
+                            "h1_tag": "dummy_h1_tag",
                             "description": "Описание первой страницы",
                             "slug": "pervaya-stranitsa",
                             "image": "/media/pages/image1.jpg",
@@ -104,6 +106,7 @@ from shop.models import Page
                         value={
                             "id": 2,
                             "title": "Новая страница",
+                            "h1_tag": "dummy_h1_tag",
                             "description": "Описание новой страницы",
                             "slug": "novaya-stranitsa",
                             "image": None,
@@ -144,6 +147,7 @@ from shop.models import Page
                         value={
                             "id": 1,
                             "title": "Обновленная страница",
+                            "h1_tag": "dummy_h1_tag",
                             "description": "Обновленное описание страницы",
                             "slug": "obnovlennaya-stranitsa",
                             "image": None,
@@ -184,6 +188,7 @@ from shop.models import Page
                         value={
                             "id": 1,
                             "title": "Частично обновленная страница",
+                            "h1_tag": "dummy_h1_tag",
                             "description": "Описание первой страницы",
                             "slug": "pervaya-stranitsa",
                             "image": "/media/pages/image1.jpg",

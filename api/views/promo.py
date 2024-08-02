@@ -113,6 +113,7 @@ class PromoViewSet(ModelViewSet):
                         {
                             "id": 1,
                             "name": "Category A",
+                            "h1_tag": "dummy-h1-tag",
                             "slug": "category-a",
                             "order": 1,
                             "parent": 1,
@@ -126,6 +127,8 @@ class PromoViewSet(ModelViewSet):
                     ],
                     "products": [
                         {
+                            "id": 1,
+                            "h1_tag": "dummy-h1-tag",
                             "title": "Product A",
                             "brand": 1,
                             "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -136,10 +139,8 @@ class PromoViewSet(ModelViewSet):
                                 {
                                     "id": 1,
                                     "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
-                                {
-                                    "id": 2,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                    "thumb_img": "base64string",
+                                    "name": "test_name",
                                 },
                             ],
                             "category_slug": "category-a",
@@ -148,6 +149,7 @@ class PromoViewSet(ModelViewSet):
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "cities": [
                         {
+                            "id": 1,
                             "name": "Воронеж",
                             "domain": "example.com",
                             "nominative_case": "Воронеж",
@@ -184,6 +186,7 @@ class PromoViewSet(ModelViewSet):
                         {
                             "id": 1,
                             "name": "Category A",
+                            "h1_tag": "dummy-h1-tag",
                             "slug": "category-a",
                             "order": 1,
                             "parent": 1,
@@ -197,6 +200,8 @@ class PromoViewSet(ModelViewSet):
                     ],
                     "products": [
                         {
+                            "id": 1,
+                            "h1_tag": "dummy-h1-tag",
                             "title": "Product A",
                             "brand": 1,
                             "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -207,10 +212,8 @@ class PromoViewSet(ModelViewSet):
                                 {
                                     "id": 1,
                                     "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
-                                {
-                                    "id": 2,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
+                                    "thumb_img": "base64string",
+                                    "name": "test_name",
                                 },
                             ],
                             "category_slug": "category-a",
@@ -219,6 +222,7 @@ class PromoViewSet(ModelViewSet):
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "cities": [
                         {
+                            "id": 1,
                             "name": "Воронеж",
                             "domain": "example.com",
                             "nominative_case": "Воронеж",
@@ -254,6 +258,7 @@ class PromoViewSet(ModelViewSet):
                         {
                             "id": 1,
                             "name": "Category A",
+                            "h1_tag": "dummy-h1-tag",
                             "slug": "category-a",
                             "order": 1,
                             "parent": 1,
@@ -267,6 +272,8 @@ class PromoViewSet(ModelViewSet):
                     ],
                     "products": [
                         {
+                            "id": 1,
+                            "h1_tag": "dummy-h1-tag",
                             "title": "Product A",
                             "brand": 1,
                             "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -277,11 +284,9 @@ class PromoViewSet(ModelViewSet):
                                 {
                                     "id": 1,
                                     "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
-                                {
-                                    "id": 2,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
+                                    "thumb_img": "base64string",
+                                    "name": "test_name",
+                                }
                             ],
                             "category_slug": "category-a",
                         }
@@ -289,6 +294,7 @@ class PromoViewSet(ModelViewSet):
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "cities": [
                         {
+                            "id": 1,
                             "name": "Воронеж",
                             "domain": "example.com",
                             "nominative_case": "Воронеж",
@@ -338,6 +344,7 @@ class PromoViewSet(ModelViewSet):
                         {
                             "id": 1,
                             "name": "Category A",
+                            "h1_tag": "dummy-h1-tag",
                             "slug": "category-a",
                             "order": 1,
                             "parent": 1,
@@ -351,6 +358,8 @@ class PromoViewSet(ModelViewSet):
                     ],
                     "products": [
                         {
+                            "id": 1,
+                            "h1_tag": "dummy-h1-tag",
                             "title": "Product A",
                             "brand": 1,
                             "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -361,11 +370,9 @@ class PromoViewSet(ModelViewSet):
                                 {
                                     "id": 1,
                                     "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
-                                {
-                                    "id": 2,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
+                                    "thumb_img": "base64string",
+                                    "name": "test_name",
+                                }
                             ],
                             "category_slug": "category-a",
                         }
@@ -373,6 +380,7 @@ class PromoViewSet(ModelViewSet):
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "cities": [
                         {
+                            "id": 1,
                             "name": "Воронеж",
                             "domain": "example.com",
                             "nominative_case": "Воронеж",
@@ -421,6 +429,7 @@ class PromoViewSet(ModelViewSet):
                     "categories": [
                         {
                             "id": 1,
+                            "h1_tag": "dummy-h1-tag",
                             "name": "Category A",
                             "slug": "category-a",
                             "order": 1,
@@ -435,6 +444,8 @@ class PromoViewSet(ModelViewSet):
                     ],
                     "products": [
                         {
+                            "id": 1,
+                            "h1_tag": "dummy-h1-tag",
                             "title": "Product A",
                             "brand": 1,
                             "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
@@ -445,11 +456,9 @@ class PromoViewSet(ModelViewSet):
                                 {
                                     "id": 1,
                                     "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
-                                {
-                                    "id": 2,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                },
+                                    "thumb_img": "base64string",
+                                    "name": "test_name",
+                                }
                             ],
                             "category_slug": "category-a",
                         }
@@ -457,6 +466,7 @@ class PromoViewSet(ModelViewSet):
                     "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
                     "cities": [
                         {
+                            "id": 1,
                             "name": "Воронеж",
                             "domain": "example.com",
                             "nominative_case": "Воронеж",

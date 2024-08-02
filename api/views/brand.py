@@ -21,6 +21,7 @@ class BrandView(ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Deke",
+                    "h1_tag": "dummy_h1_tag",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
                     "is_acitve": True,
@@ -40,6 +41,7 @@ class BrandView(ModelViewSet):
                 name="request",
                 value={
                     "name": "Deke",
+                    "h1_tag": "dummy_h1_tag",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
                     "is_acitve": True,
@@ -50,6 +52,7 @@ class BrandView(ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Deke",
+                    "h1_tag": "dummy_h1_tag",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
                     "is_acitve": True,
@@ -72,6 +75,7 @@ class BrandView(ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Deke",
+                    "h1_tag": "dummy_h1_tag",
                     "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 1,
                     "is_acitve": True,
@@ -91,6 +95,7 @@ class BrandView(ModelViewSet):
                 name="request",
                 value={
                     "name": "Abba",
+                    "h1_tag": "dummy_h1_tag",
                     "icon": "category_icons/93235f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 5,
                 },
@@ -98,7 +103,9 @@ class BrandView(ModelViewSet):
             OpenApiExample(
                 name="response",
                 value={
+                    "id": 1,
                     "name": "Abba",
+                    "h1_tag": "dummy_h1_tag",
                     "icon": "category_icons/93235f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 5,
                 },
@@ -141,6 +148,7 @@ class BrandView(ModelViewSet):
                 value={
                     "id": 1,
                     "name": "Abba",
+                    "h1_tag": "dummy_h1_tag",
                     "icon": "category_icons/93235f40b-88f3-49a3-821c-6ba73126323b.webp",
                     "order": 2,
                 },
