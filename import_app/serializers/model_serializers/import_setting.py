@@ -1,12 +1,13 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import ValidationError
-from collections import OrderedDict
-from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.settings import api_settings
 from rest_framework.fields import SkipField, get_error_detail, set_value
-from rest_framework.validators import UniqueValidator
+
 from collections.abc import Mapping
+from collections import OrderedDict
 
 from api.serializers.active_model import ActiveModelSerializer
 
@@ -24,17 +25,25 @@ class ImportSettingSerializer(ActiveModelSerializer):
         model = ImportSetting
         exclude = ["updated_at", "created_at"]
         extra_kwargs = {"slug": {"read_only": True}}
+    
+    def __init__(self, instance=None, data=..., **kwargs):
+        context = kwargs.get("context", {})
 
-    def get_file(self, obj) -> str | None:
-        return obj.file.url if obj.file else None
+        super().__init__(instance, data, **kwargs)
+
+        if not context.get("save_settings"):
+            self.fields["name"].required = False
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         if isinstance(instance, OrderedDict):
             import_task = instance.get("import_task")
+            file = instance.get("file")
         else:
             import_task = getattr(instance, "import_task", None)
+            import_task = getattr(instance, "file", None)
 
+        data['file'] = file.url if file else None
         data['import_task'] = ImportTaskSerializer(import_task).data
         return data
 

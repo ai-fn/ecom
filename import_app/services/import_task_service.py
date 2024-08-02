@@ -66,7 +66,7 @@ class ImportTaskService:
                 continue
 
             model = model_type.model_class()
-            foreign_key_fields, image_fields, decimal_fields, unique_fields = (
+            foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields = (
                 self.categorize_fields(model, fields)
             )
             self.process_rows(
@@ -77,6 +77,7 @@ class ImportTaskService:
                 image_fields,
                 decimal_fields,
                 unique_fields,
+                m2m_fields,
                 path_to_images,
             )
 
@@ -85,6 +86,7 @@ class ImportTaskService:
         image_fields = {}
         decimal_fields = {}
         unique_fields = {}
+        m2m_fields = {}
 
         for field_name in list(fields.keys()):
             try:
@@ -95,25 +97,28 @@ class ImportTaskService:
                 )
                 fields.pop(field_name)
                 continue
-
-            if field.primary_key:
+                
+            if (
+                field.primary_key
+                or isinstance(field, models.AutoField)
+                or getattr(field, "primary_key", None)
+                or getattr(field, "unique", None)
+            ):
                 unique_fields[field_name] = fields.pop(field_name)
 
-            elif isinstance(field, models.AutoField) or getattr(
-                field, "primary_key", None
-            ):
-                unique_fields[field.name] = fields.pop(field_name)
-            elif getattr(field, "unique", None):
-                unique_fields[field.name] = fields.pop(field_name)
+            elif isinstance(field, models.ManyToManyField):
+                m2m_fields[field_name] = fields.pop(field_name)
 
             elif isinstance(field, models.ForeignKey):
                 foreign_key_fields[field_name] = fields.pop(field_name)
+
             elif isinstance(field, models.ImageField):
                 image_fields[field_name] = fields.pop(field_name)
+
             elif isinstance(field, models.DecimalField):
                 decimal_fields[field_name] = fields.pop(field_name)
 
-        return foreign_key_fields, image_fields, decimal_fields, unique_fields
+        return foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields
 
     def process_rows(
         self,
@@ -124,6 +129,7 @@ class ImportTaskService:
         image_fields: dict,
         decimal_fields: dict,
         unique_fields: dict,
+        m2m_fields: dict,
         path_to_images: str,
     ):
         no_unique_fields = len(unique_fields) < 1
@@ -135,14 +141,18 @@ class ImportTaskService:
                 image_fields,
                 decimal_fields,
                 foreign_key_fields,
+                unique_fields,
+                m2m_fields,
                 path_to_images,
             )
             try:
                 with transaction.atomic():
                     if no_unique_fields:
-                        model.objects.create(**data)
+                        self._create_instance(data, model, m2m_fields)
                     else:
-                        self.update_or_create_instance(model, data, unique_fields)
+                        unique_data = self.get_notna_items(unique_fields, row)
+                        m2m_data = self.get_notna_items(m2m_fields, row)
+                        self.update_or_create_instance(model, data, unique_data, m2m_data)
             except Exception as e:
                 logger.error(
                     f"Error while create or update '{model._meta.model_name.title()}': {str(e)}"
@@ -155,64 +165,88 @@ class ImportTaskService:
         image_fields: dict,
         decimal_fields: dict,
         foreign_key_fields: dict,
+        unique_fields: dict,
+        m2m_fields: dict,
         path_to_images: str,
     ):
         data = {}
 
+        for field_name, cell in self.get_notna_items(image_fields, row).items():
+
+            data[field_name] = os.path.join(
+                settings.BASE_DIR,
+                path_to_images,
+                str(cell),
+            )
+
+        for field_name, cell in self.get_notna_items(foreign_key_fields, row).items():
+
+            data_field_name = (
+                f"{field_name}_id" if not field_name.endswith("_id") else field_name
+            )
+            data[data_field_name] = cell
+
+        for field_name, cell in self.get_notna_items(decimal_fields, row).items():
+
+            try:
+                data[field_name] = Decimal(str(cell))
+            except (ValueError, InvalidOperation) as e:
+                logger.error(f"Error converting {cell} to Decimal: {e}")
+                data[field_name] = None
+
         try:
-            for field_name in image_fields:
-                cell_name = image_fields[field_name]
-                cell = row.get(cell_name)
-                if not pd.notna(cell):
-                    logger.info(f"Field '{cell_name}' is empty in file")
-                    continue
-                
-                data[field_name] = os.path.join(
-                    settings.BASE_DIR,
-                    path_to_images,
-                    str(cell),
-                )
-
-            for field_name in foreign_key_fields:
-                cell_name = foreign_key_fields[field_name]
-                cell = row.get(cell_name)
-                if not pd.notna(cell):
-                    logger.info(f"Field '{cell_name}' is empty in file")
-                    continue
-
-                data_field_name = (
-                    f"{field_name}_id" if not field_name.endswith("_id") else field_name
-                )
-                data[data_field_name] = cell
-
-            for field_name in decimal_fields:
-                cell_name = decimal_fields.get(field_name)
-                cell = row.get(cell_name)
-                if not pd.notna(cell):
-                    logger.info(f"Field '{cell_name}' is empty in file")
-                    continue
-
-                try:
-                    data[field_name] = Decimal(str(cell))
-                except (ValueError, InvalidOperation) as e:
-                    logger.error(f"Error converting {cell} to Decimal: {e}")
-                    data[field_name] = None
+            for field_name, value in (*fields.items(), *m2m_fields.items(), *unique_fields.items()):
+                data[field_name] = row[value]
 
         except KeyError as key_error:
             logger.error(f"Got the KeyError: {str(key_error)}")
-
-        for field_name in fields:
-            data[field_name] = row[fields[field_name]]
-
+ 
         return data
 
     def update_or_create_instance(
-        self, model: models.Model, data: dict, unique_fields: list
+        self, model: models.Model, data: dict, unique_data: dict, m2m_data: dict
     ):
         try:
-            unique_data = {column: data.pop(field, None) for field, column in unique_fields.items()}
-            model.objects.update_or_create(**unique_data, defaults=data)
+            unique_data = {field: data.pop(field, None) for field in unique_data.keys()}
+            m2m_data = {field: data.pop(field, None) for field in m2m_data.keys()}
+
+            instance = model.objects.get(**unique_data)
+            for field_name, value in data.items():
+                setattr(instance, field_name, value)
+
+            instance.save()
+
+            if m2m_data:
+                self._set_m2m_data(instance, m2m_data)
         except Exception as e:
             logger.error(
                 f"Error while updating '{model._meta.model_name}' instance: {e}"
             )
+    
+    def get_notna_items(self, fields: dict, row: dict) -> dict:
+        result = {}
+        for field_name in fields:
+            col_name = fields[field_name]
+            cell = row.get(col_name)
+            if not pd.notna(cell):
+                logger.info(f"Field '{col_name}' is empty in file")
+                continue
+
+            result[field_name] = cell
+
+        return result
+    
+    def _set_m2m_data(self, instance, m2m_data: dict = None, replace_existing_m2m_elems: bool = True):
+        func_name = ("add", "set")[replace_existing_m2m_elems]
+
+        for field_name, value in m2m_data.items():
+            try:
+                m2m_field = getattr(instance, field_name)
+                func = getattr(m2m_field, func_name)
+                values = [int(x.strip()) for x in value.split(",")]
+                func(values)
+                print(m2m_field.all())
+            except Exception as e:
+                logger.error(f"Error while {func_name} m2m values for field {field_name}: {str(e)}")
+
+        return instance

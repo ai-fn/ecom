@@ -2,19 +2,24 @@ from api.serializers.active_model import ActiveModelSerializer
 
 from import_app.models import ImportTask
 
+from copy import deepcopy
+
 
 class ImportTaskSerializer(ActiveModelSerializer):
 
     class Meta:
         model = ImportTask
         exclude = ["updated_at"]
-
-    def get_status(self, obj) -> str:
-        return obj.get_status_display()
+    
+    def to_representation(self, instance):
+        data =  super().to_representation(instance)
+        data['file'] = instance.file.url if instance.file else None
+        return data
 
     def run_validation(self, data):
-        if 'user' not in data:
+        mutable_data = deepcopy(data)
+        if 'user' not in mutable_data:
             if request_user := getattr(self.context.get("request"), "user", None):
-                data['user'] = request_user.pk
+                mutable_data['user'] = request_user.pk
 
-        return super().run_validation(data)
+        return super().run_validation(mutable_data)
