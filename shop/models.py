@@ -231,6 +231,13 @@ class Product(ThumbModel):
             models.Index(fields=["category"]),
             models.Index(fields=["article"]),
         ]
+    
+    def save(self, *args, **kwargs) -> None:
+        if not self.slug:
+            id = getattr(self._meta.model.objects.last(), "id", 0) + 1
+            self.slug = slugify(unidecode(f"{self.title}-{id}"))
+
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
