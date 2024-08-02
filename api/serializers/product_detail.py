@@ -34,6 +34,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
         model = Product
         fields = [
             "id",
+            "h1_tag",
             "category",
             "title",
             "brand",

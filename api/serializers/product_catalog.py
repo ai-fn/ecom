@@ -44,6 +44,7 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
             "id",
             "title",
             "brand",
+            "h1_tag",
             "article",
             "slug",
             "city_price",

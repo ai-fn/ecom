@@ -13,6 +13,7 @@ class PageSerializer(ActiveModelSerializer):
         fields = [
             "id",
             "title",
+            "h1_tag",
             "description",
             "slug",
             "image",

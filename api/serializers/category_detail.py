@@ -9,6 +9,7 @@ class CategoryDetailSerializer(ActiveModelSerializer):
         model = Category
         fields = [
             "id",
+            "h1_tag",
             "name",
             "slug",
             "parent",
