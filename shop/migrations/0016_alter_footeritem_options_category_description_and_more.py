@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='footeritem',
             name='order',
-            field=models.PositiveIntegerField(blank=True, default=0, unique=True, verbose_name='Порядковый номер'),
+            field=models.PositiveIntegerField(blank=True, default=0, verbose_name='Порядковый номер'),
         ),
         migrations.AlterField(
             model_name='mainpagecategorybaritem',
