@@ -143,7 +143,9 @@ class ImportTaskService:
             try:
                 with transaction.atomic():
                     if no_unique_fields:
-                        self._create_instance(data, model, m2m_fields)
+                        instance = model.objects.create(**data)
+                        if m2m_data:
+                            self._set_m2m_data(instance, m2m_data)
                     else:
                         unique_data = self.get_notna_items(unique_fields, row)
                         m2m_data = self.get_notna_items(m2m_fields, row)
