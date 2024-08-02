@@ -170,7 +170,10 @@ class ImportTaskService:
 
         for field_name, cell in self.get_notna_items(image_fields, row).items():
 
-            data[field_name] = str(cell)
+            data[field_name] = os.path.join(
+                path_to_images,
+                str(cell),
+            )
 
         for field_name, cell in self.get_notna_items(foreign_key_fields, row).items():
 
