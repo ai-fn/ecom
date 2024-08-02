@@ -98,12 +98,7 @@ class ImportTaskService:
                 fields.pop(field_name)
                 continue
                 
-            if (
-                field.primary_key
-                or isinstance(field, models.AutoField)
-                or getattr(field, "primary_key", None)
-                or getattr(field, "unique", None)
-            ):
+            if getattr(field, "primary_key", None):
                 unique_fields[field_name] = fields.pop(field_name)
 
             elif isinstance(field, models.ManyToManyField):
