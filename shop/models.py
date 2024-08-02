@@ -1,6 +1,6 @@
 import os
 
-from typing import Iterable, Literal
+from django_ckeditor_5.fields import CKEditor5Field
 
 from django.db import models
 from django.utils.text import slugify
@@ -13,6 +13,16 @@ from unidecode import unidecode
 
 from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
+
+
+def set_order(instance: models.Model):
+    if not hasattr(instance, "order"):
+        return
+    
+    order = getattr(instance, "order", None)
+    if not order:
+        order_value = getattr(instance._meta.model.objects.order_by("-order").first(), "order", 0) + 1
+        setattr(instance, "order", order_value)
 
 
 class ThumbModel(TimeBasedModel):
@@ -29,8 +39,9 @@ class Category(ThumbModel, MPTTModel):
         max_length=255,
         verbose_name="Категория",
     )
-
-    slug = models.SlugField(unique=True, max_length=256)
+    description = CKEditor5Field(_("Описание"), max_length=4096, blank=True, null=True)
+    h1_tag = models.CharField(_("h1 тэг"), max_length=512, blank=True, null=True)
+    slug = models.SlugField(_("Слаг"), unique=True, max_length=256)
     parent = TreeForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -60,7 +71,7 @@ class Category(ThumbModel, MPTTModel):
         default=False,
     )
     order = models.BigIntegerField(
-        verbose_name="Порядковый номер категории", blank=True
+        verbose_name="Порядковый номер категории", blank=True, null=True, unique=True
     )
     opengraph_metadata = GenericRelation("OpenGraphMeta", related_query_name="category")
 
@@ -69,6 +80,10 @@ class Category(ThumbModel, MPTTModel):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        set_order(self)
+        super().save(*args, **kwargs)
 
     def clean(self):
         # Проверяем, является ли категория главной (не имеет родителя)
@@ -104,6 +119,7 @@ class Brand(TimeBasedModel):
         default="Нет имени",
         max_length=128,
     )
+    h1_tag = models.CharField(_("h1 тэг"), max_length=512, blank=True, null=True)
     icon = models.FileField(
         upload_to="category_icons/",
         verbose_name="Иконка",
@@ -114,10 +130,14 @@ class Brand(TimeBasedModel):
         unique=True,
         max_length=256,
     )
-    order = models.BigIntegerField(verbose_name="Порядковый номер бренда", blank=True)
+    order = models.BigIntegerField(verbose_name="Порядковый номер бренда", unique=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.name}"
+
+    def save(self, *args, **kwargs):
+        set_order(self)
+        super().save(*args, **kwargs)
 
 
 class Product(ThumbModel):
@@ -133,6 +153,7 @@ class Product(ThumbModel):
         verbose_name="Дополнительные категории",
         blank=True,
     )
+    h1_tag = models.CharField(_("h1 тэг"), max_length=512, blank=True, null=True)
     brand = models.ForeignKey(
         Brand,
         on_delete=models.PROTECT,
@@ -537,12 +558,12 @@ class Setting(TimeBasedModel):
 
 class FooterItem(TimeBasedModel):
     column = models.PositiveSmallIntegerField(_("Номер колонки"))
-    order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер")
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядковый номер", unique=True, blank=True)
     title = models.CharField(max_length=100, verbose_name="Наименование")
     link = models.CharField(verbose_name="Ссылка", blank=False, null=False, default="#")
 
     class Meta:
-        ordering = ["order"]
+        ordering = ("order",)
         verbose_name = "Элемент Footer"
         verbose_name_plural = "Элементы Footer"
         unique_together = ("column", "order")
@@ -550,9 +571,13 @@ class FooterItem(TimeBasedModel):
     def __str__(self):
         return f"Элемент Footer_{self.title}-{self.id}"
 
+    def save(self, *args, **kwargs):
+        set_order(self)
+        super().save(*args, **kwargs)
+
 
 class MainPageSliderImage(ThumbModel):
-    order = models.IntegerField(unique=True, verbose_name="Порядковый номер")
+    order = models.IntegerField(unique=True, verbose_name="Порядковый номер", blank=True)
     link = models.URLField(blank=True, null=True, verbose_name="Ссылка")
     title = models.CharField(
         max_length=255, blank=True, null=True, verbose_name="Заголовок"
@@ -580,11 +605,15 @@ class MainPageSliderImage(ThumbModel):
 
     def __str__(self) -> str:
         return f"MainPageSliderImage_{self.id}"
+    
+    def save(self, *args, **kwargs):
+        set_order(self)
+        super().save(*args, **kwargs)
 
 
 class MainPageCategoryBarItem(TimeBasedModel):
 
-    order = models.IntegerField(verbose_name=_("Порядковый номер"), unique=True)
+    order = models.IntegerField(verbose_name=_("Порядковый номер"), unique=True, blank=True)
     link = models.CharField(verbose_name=_("Ссылка"), max_length=128)
     text = models.CharField(verbose_name=_("Текст"), max_length=100)
 
@@ -595,12 +624,16 @@ class MainPageCategoryBarItem(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"MainPageCategoryBarItem_{self.id}"
+    
+    def save(self, *args, **kwargs):
+        set_order(self)
+        super().save(*args, **kwargs)
 
 
 class SideBarMenuItem(TimeBasedModel):
 
     order = models.PositiveSmallIntegerField(
-        default=0, verbose_name="Порядковый номер", unique=True
+        verbose_name="Порядковый номер", unique=True, blank=True
     )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     link = models.CharField(max_length=255, verbose_name="Ссылка")
@@ -619,6 +652,11 @@ class SideBarMenuItem(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"SideBarMenuItem_{self.id}"
+    
+    def save(self, *args, **kwargs):
+        set_order(self)
+        super().save(*args, **kwargs)
+
 
 
 class ProductGroup(TimeBasedModel):
@@ -698,6 +736,7 @@ class OpenGraphMeta(TimeBasedModel):
 class Page(TimeBasedModel):
     title = models.CharField(max_length=255, verbose_name=_("Наименование"))
     description = models.TextField(max_length=1024, verbose_name=_("Описание"))
+    h1_tag = models.CharField(_("h1 тэг"), max_length=512, blank=True, null=True)
     slug = models.SlugField(unique=True, verbose_name=_("Слаг страницы"))
     image = models.ImageField(
         _("Изображение"), upload_to="pages/", blank=True, null=True

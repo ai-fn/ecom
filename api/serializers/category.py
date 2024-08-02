@@ -19,6 +19,7 @@ class CategorySerializer(ActiveModelSerializer):
             "slug",
             "order",
             "parent",
+            "description",
             "children",
             "parents",
             "icon",

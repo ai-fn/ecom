@@ -25,13 +25,6 @@ from unidecode import unidecode
 slugify = lambda x: django_slugify(unidecode(x))
 
 
-@receiver(pre_save)
-def set_instance_order(sender, instance, **kwargs):
-    if sender in (Brand, Category, FooterItem, MainPageSliderImage):
-        if not instance.order:
-            instance.order = get_order(sender)
-
-
 @receiver(post_save, sender=City)
 def set_domain(sender, created, instance, **kwargs):
     if created and not instance.domain:

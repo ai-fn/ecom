@@ -12,6 +12,7 @@ class CategoryDetailSerializer(ActiveModelSerializer):
             "name",
             "slug",
             "parent",
+            "description",
             "is_popular",
             "is_visible",
             "icon",
