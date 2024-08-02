@@ -13,6 +13,21 @@ class ReadOnlyOrAdminPermission(BasePermission):
         return request.method in SAFE_METHODS
 
 
+class ReadCreateOrAdminPermission(BasePermission):
+    
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+
+        elif not request.user and request.user.is_authenticated:
+            return False
+        
+        elif request.method == "POST":
+            return True
+        
+        else:
+            return request.user.is_staff
+
 class AllowCreateOrAdmin(BasePermission):
 
     def has_permission(self, request, view):

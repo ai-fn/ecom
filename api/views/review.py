@@ -1,6 +1,11 @@
+from django_filters import rest_framework as filters
+
 from rest_framework.viewsets import ModelViewSet
-from api.permissions import ReadOnlyOrAdminPermission
+
+from api.filters.review import ReviewFilters
+from api.permissions import ReadCreateOrAdminPermission
 from api.serializers.review import ReviewSerializer
+
 from shop.models import Review
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
@@ -16,7 +21,9 @@ class ReviewViewSet(ModelViewSet):
 
     queryset = Review.objects.all().order_by("-created_at")
     serializer_class = ReviewSerializer
-    permission_classes = [ReadOnlyOrAdminPermission]
+    permission_classes = [ReadCreateOrAdminPermission]
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = ReviewFilters
 
     @extend_schema(
         description="Получить список всех отзывов",
