@@ -3,13 +3,7 @@ from django.db.models import Q, F
 from loguru import logger
 
 from api.mixins import GeneralSearchMixin
-from shop.models import Category, CharacteristicValue, Price, Product
-
-
-class PriceFilter(filters.FilterSet):
-    class Meta:
-        model = Price
-        fields = ["city_group"]
+from shop.models import Category, Product
 
 
 class ProductFilter(GeneralSearchMixin, filters.FilterSet):
@@ -89,16 +83,3 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset
     
 
-class CharacteristicValueFilters(filters.FilterSet):
-
-    unique = filters.BooleanFilter(method="unique_filter")
-
-    class Meta:
-        model = CharacteristicValue
-        fields = ["characteristic", "product", "value", "slug", "created_at", "updated_at", "unique"]
-    
-    def unique_filter(self, queryset, name, value):
-        if value:
-            return queryset.order_by("slug").distinct("slug")
-        
-        return queryset
