@@ -98,4 +98,4 @@ services:
       - backend
 
 networks:
-  test-backend:
+  backend:
