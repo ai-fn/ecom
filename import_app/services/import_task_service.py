@@ -149,7 +149,7 @@ class ImportTaskService:
                             self._set_m2m_data(instance, m2m_data)
                     else:
                         unique_data = self.get_notna_items(unique_fields, row)
-                        self.update_or_create_instance(model, data, unique_data, m2m_data)
+                        self.update_instance(model, data, unique_data, m2m_data)
             except Exception as e:
                 logger.error(
                     f"Error while create or update '{model._meta.model_name.title()}': {str(e)}"
@@ -199,7 +199,7 @@ class ImportTaskService:
  
         return data
 
-    def update_or_create_instance(
+    def update_instance(
         self, model: models.Model, data: dict, unique_data: dict, m2m_data: dict
     ):
         try:

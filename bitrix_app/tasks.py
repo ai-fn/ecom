@@ -27,7 +27,6 @@ def task_sync_leads(weeks: int = 0, days: int = 0, hourse: int = 0, minutes: int
                 )
     except Exception as e:
         logger.error(f"Error while synchronizing leads: {e}")
-        raise
 
     from_date = (timezone.localtime(timezone.now()) - timedelta(weeks=weeks, days=days, hours=hourse, minutes=minutes)).strftime("%d-%m-%Y %H:%M")
     logger.info(f"Leads successfully synchronized for the period from {from_date} to now.")

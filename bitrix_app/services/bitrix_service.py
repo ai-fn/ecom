@@ -55,7 +55,6 @@ class Bitrix24API:
 
     def create_lead_for_order(self, order: Order, domain: str):
         lead_user_id = self.get_default_lead_user().get("ID")
-        logger.info(f"lead_user_id: {lead_user_id}")
         city = City.objects.filter(domain=domain).first()
         city_name = getattr(city, "name", None)
 
