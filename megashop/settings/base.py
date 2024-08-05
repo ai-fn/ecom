@@ -127,8 +127,10 @@ REDIS_PORT = os.getenv("REDIS_PORT", "6379")
 DJANGO_PORT = os.getenv("DJANGO_PORT", "8000")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 PROMETHEUS_PORT = os.getenv("PROMETHEUS_PORT", "9090")
-ELASTICSEARCH_HTTP_PORT = os.getenv("ELASTICSEARCH_HTTP_PORT", "9200")
-ELASTICSEARCH_TRANSPORT_PORT = os.getenv("ELASTICSEARCH_TRANSPORT_PORT", "9300")
+
+ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "elasticsearch")
+ELASTICSEARCH_HTTP_PORT = 9200
+ELASTICSEARCH_TRANSPORT_PORT = 9300
 
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")
 POSTGRES_NAME = os.environ.get("POSTGRES_DB", "default_db_name")
@@ -243,7 +245,7 @@ SPECTACULAR_SETTINGS = {
 }
 ELASTICSEARCH_DSL = {
     "default": {
-        "hosts": f"http://elasticsearch:{ELASTICSEARCH_HTTP_PORT}",
+        "hosts": f"http://{ELASTICSEARCH_HOST}:{ELASTICSEARCH_HTTP_PORT}",
         # "http_auth": ("elastic", "k1fjic392h9io"),
     }
 }
