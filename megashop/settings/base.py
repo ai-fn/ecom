@@ -131,22 +131,25 @@ ELASTICSEARCH_HTTP_PORT = os.getenv("ELASTICSEARCH_HTTP_PORT", "9200")
 ELASTICSEARCH_TRANSPORT_PORT = os.getenv("ELASTICSEARCH_TRANSPORT_PORT", "9300")
 
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")
+POSTGRES_NAME = os.environ.get("POSTGRES_DB", "default_db_name")
+POSTGRES_USER = os.environ.get("POSTGRES_USER", "default_user")
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "default_password")
 
 DATABASES = {
     DB_NAMES[not USE_TEST_DB]: {
         "ENGINE": "django_prometheus.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "default_db_name"),
-        "USER": os.environ.get("POSTGRES_USER", "default_user"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
+        "NAME": POSTGRES_NAME,
+        "USER": POSTGRES_USER,
+        "PASSWORD": POSTGRES_PASSWORD,
         "HOST": POSTGRES_HOST,
         "PORT": POSTGRES_PORT,
     },
     DB_NAMES[USE_TEST_DB]: {
         "ENGINE": "django_prometheus.db.backends.postgresql",
-        "NAME": "test_" + os.environ.get("POSTGRES_DB", "default_db_name"),
-        "USER": os.environ.get("POSTGRES_USER", "default_user"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "default_password"),
-        "HOST": "db",
+        "NAME": "test_" + POSTGRES_NAME,
+        "USER": POSTGRES_USER,
+        "PASSWORD": POSTGRES_PASSWORD,
+        "HOST": POSTGRES_HOST,
         "PORT": POSTGRES_PORT,
     },
 }
@@ -272,8 +275,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = f"redis://cache:{REDIS_PORT}/0"
-CELERY_RESULT_BACKEND = f"db+postgresql://{os.environ.get('POSTGRES_USER', 'default_user')}:{os.environ.get('POSTGRES_PASSWORD', 'default_password')}@db/{os.environ.get('POSTGRES_DB', 'default_db_name')}"
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:6379/0"
+CELERY_RESULT_BACKEND = f"db+postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_NAME}"
 
 # Default token generator setting
 DEFAULT_TOKEN_GENERATOR = PasswordResetTokenGenerator()
