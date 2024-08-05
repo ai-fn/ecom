@@ -313,7 +313,7 @@ SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM") == "True"
 CHAT_ID = os.environ.get("CHAT_ID", "DEFAULT")
 
 # CACHE SETTINGS
-CACHE_LOCATION = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+CACHE_LOCATION = f"redis://{REDIS_HOST}:6379/0"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
