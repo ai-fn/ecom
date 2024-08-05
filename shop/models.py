@@ -2,7 +2,7 @@ import os
 
 from django_ckeditor_5.fields import CKEditor5Field
 
-from django.db import models
+from django.db import models, transaction
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -234,10 +234,11 @@ class Product(ThumbModel):
     
     def save(self, *args, **kwargs) -> None:
         if not self.slug:
-            id = getattr(self._meta.model.objects.last(), "id", 0) + 1
-            self.slug = slugify(unidecode(f"{self.title}-{id}"))
+            self.slug = self.title
+            super().save(*args, **kwargs)
+            self.slug = slugify(unidecode(f"{self.title}-{self.id}"))
 
-        return super().save(*args, **kwargs)
+        return super().save(update_fields=["slug"])
 
     def __str__(self):
         return self.title
