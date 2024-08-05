@@ -7,13 +7,12 @@ from loguru import logger
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser
 
-from api.decorators import closed_view
 
 
 class UpdateIndex(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
     serializer_class = None
 
     @extend_schema(
@@ -31,7 +30,6 @@ class UpdateIndex(APIView):
             ),
         ],
     )
-    @closed_view
     def post(self, request, *args, **kwargs):
         try:
             call_command('update_index')

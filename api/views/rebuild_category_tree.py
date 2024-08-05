@@ -2,15 +2,14 @@ from loguru import logger
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser
 
-from api.decorators import closed_view
 from shop.models import Category
 from drf_spectacular.utils import extend_schema, OpenApiExample
 
 
 class RebuildCategoryTreeAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
     serializer_class = None
 
     @extend_schema(
@@ -35,7 +34,6 @@ class RebuildCategoryTreeAPIView(APIView):
             ),
         ],
     )
-    @closed_view
     def post(self, request) -> Response:
         try:
             Category.objects.rebuild()
