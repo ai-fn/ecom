@@ -237,8 +237,9 @@ class Product(ThumbModel):
             self.slug = self.title
             super().save(*args, **kwargs)
             self.slug = slugify(unidecode(f"{self.title}-{self.id}"))
-
-        return super().save(update_fields=["slug"])
+            return super().save(update_fields=["slug"])
+        
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
