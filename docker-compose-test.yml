@@ -20,24 +20,6 @@ services:
     networks:
       - backend
 
-  golang:
-    build:
-        context: .
-        dockerfile: go.Dockerfile
-    volumes:
-      - .:/code
-    depends_on:
-      - db
-    restart: always
-    environment:
-      - POSTGRES_HOST=db
-    env_file:
-      - .env
-    ports:
-      - "${GO_PORT}:8080"
-    networks:
-      - backend
-
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:${DJANGO_PORT}

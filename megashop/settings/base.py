@@ -122,7 +122,6 @@ USE_TEST_DB = os.environ.get("USE_TEST_DB", "0") == "1"
 
 # PORTS SETTINGS
 
-GO_PORT = os.getenv("GO_PORT", "8080")
 REDIS_HOST = os.getenv("REDIS_HOST", "cache")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
 DJANGO_PORT = os.getenv("DJANGO_PORT", "8000")

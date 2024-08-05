@@ -38,27 +38,6 @@ services:
         loki-url: http://147.45.106.166:3100/loki/api/v1/push
         loki-external-labels: job=dockerlogs,owner=megashop-backend,environment=development
   
-  golang:
-    build:
-        context: .
-        dockerfile: go.Dockerfile
-    volumes:
-      - .:/code
-    depends_on:
-      - db
-    restart: always
-    environment:
-      - POSTGRES_HOST=db
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-    logging:
-      driver: loki
-      options:
-        loki-url: http://147.45.106.166:3100/loki/api/v1/push
-        loki-external-labels: job=dockerlogs,owner=megashop-backend,environment=development
-
   celery:
     build: .
     command: celery -A celery_config worker --loglevel=info --pool=solo
@@ -122,12 +101,12 @@ services:
       - "discovery.type=zen"  # Используйте Zen Discovery для продакшен-кластеров
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # Настройте Java-параметры в соответствии с вашей средой
       - "xpack.security.enabled=true"
-      - "ELASTIC_PASSWORD=k1fjic392h9io"  # Задайте пароль для встроенного пользователя elastic
+      - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
       - "bootstrap.memory_lock=true"  # Предотвратить своппинг Elasticsearch
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     ports:
-      - "${ELASTICSEARCH_HTTP_PORT}:9200"  # Обратите внимание на безопасность сети в продакшене
+      - "${ELASTICSEARCH_HTTP_PORT}:9200"
     ulimits:
       memlock:
         soft: -1

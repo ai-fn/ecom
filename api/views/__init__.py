@@ -8,7 +8,6 @@ from .city_group import CityGroupViewSet
 from .city import CityViewSet
 from .promo import PromoViewSet
 from .data_export import DataExportView
-from .file_upload import XlsxFileUploadView
 from .price import PriceViewSet
 from .product import ProductViewSet
 from .products_in_order import ProductsInOrderViewSet
