@@ -13,16 +13,9 @@ from PIL import Image
 
 from django.utils import timezone
 from django.utils.text import slugify as django_slugify
-from api.serializers.product_detail import ProductDetailSerializer
 
 from shop.models import (
-    Characteristic,
-    CharacteristicValue,
-    Product,
-    Price,
     City,
-    ProductFile,
-    ProductImage,
     Promo,
 )
 from unidecode import unidecode
@@ -34,19 +27,15 @@ def custom_slugify(value):
 
 @shared_task
 def update_promo_status():
-    # Get the date one day ago
     one_day_ago = timezone.now().date() + timezone.timedelta(days=1)
 
-    # Filter promos that are expired one day ago
     expired_promos = Promo.objects.filter(active_to__lte=one_day_ago)
 
-    # Deactivate expired promos
     expired_promos.update(is_active=False)
 
 
 @shared_task
 def update_cities():
-    # Clone the git repository
     repo_url = "https://github.com/hflabs/city.git"
     repo_dir = "city_repo"
 
@@ -57,7 +46,6 @@ def update_cities():
         logger.debug("Error:", e)
         return
 
-    # Open city.csv and extract city names
     city_csv_path = os.path.join(repo_dir, "city.csv")
 
     try:
@@ -81,7 +69,6 @@ def update_cities():
     except Exception as e:
         logger.debug("Error occurred while extracting city names:", e)
     finally:
-        # Clean up: delete the cloned repository directory
         try:
             subprocess.run(["rm", "-rf", repo_dir], check=True)
         except subprocess.CalledProcessError as e:
@@ -112,99 +99,6 @@ def set_opacity(image: Image, opacity: float):
     image.putalpha(new_alpha)
 
     return image
-
-
-
-@shared_task
-def export_products_to_csv(email_to=None):
-    # Экспорт данных в CSV
-    products = Product.objects.all().order_by('id')
-    prices = Price.objects.all().order_by('product_id', 'city_group__name')
-    product_files = ProductFile.objects.all().order_by('product_id')
-    product_images = ProductImage.objects.all().order_by('product_id')
-    characteristics = Characteristic.objects.all().order_by('name')
-    characteristic_values = CharacteristicValue.objects.all().order_by('product_id', 'characteristic__name')
-
-    city_group_names = set(prices.values_list("city_group__name", flat=True))
-    characteristic_names = characteristics.values_list("name", flat=True)
-
-    serializer = ProductDetailSerializer(products, many=True)
-    file_path = os.path.join(settings.MEDIA_ROOT, "products.csv")
-
-    with open(file_path, "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(
-            [
-                "Заголовок",
-                "Описание",
-                "Категории",
-                "Артикул",
-                "Бренд",
-                *characteristic_names,
-                *city_group_names,
-                "Приоритет",
-                "Сертификаты URL",
-                "Сертификаты Названия",
-                "Изображения",
-            ]
-        )
-
-        current_prices = {}
-        for price in prices:
-            current_prices.setdefault(price.product_id, {})
-            current_prices[price.product_id][price.city_group.name] = price.price
-
-        current_characteristics = {}
-        for cv in characteristic_values:
-            current_characteristics.setdefault(cv.product_id, {})
-            current_characteristics[cv.product_id][cv.characteristic.name] = cv.value
-
-        current_files = {}
-        for pf in product_files:
-            current_files.setdefault(pf.product_id, [])
-            current_files[pf.product_id].append((os.path.basename(pf.file.name), pf.name))
-
-        current_images = {}
-        for pi in product_images:
-            current_images.setdefault(pi.product_id, [])
-            current_images[pi.product_id].append(os.path.basename(pi.image.url))
-
-        for product in serializer.data:
-            product_id = product["id"]
-
-            price_cells = [current_prices.get(product_id, {}).get(name, "") for name in city_group_names]
-
-            categories_names = " || ".join(
-                [item[0] for item in product["category"].get("parents", [])] + [product["category"]["name"]]
-            )
-
-            characteristic_values_cells = [current_characteristics.get(product_id, {}).get(name, "") for name in characteristic_names]
-
-            product_file_urls = " || ".join([file[0] for file in current_files.get(product_id, [])])
-            product_file_names = " || ".join([file[1] for file in current_files.get(product_id, [])])
-
-            product_image_urls = " || ".join(current_images.get(product_id, []))
-
-            writer.writerow(
-                [
-                    product.get("title", ""),
-                    product.get("description", ""),
-                    categories_names,
-                    product.get("article", ""),
-                    product["brand"].get("name", "") if product.get("brand") else "",
-                    *characteristic_values_cells,
-                    *price_cells,
-                    product.get("priority", ""),
-                    product_file_urls,
-                    product_file_names,
-                    product_image_urls,
-                ]
-            )
-
-    if email_to:
-        send_email_with_attachment(email_to, file_path)
-
-    return file_path
 
 
 def send_email_with_attachment(email_to, file_path):

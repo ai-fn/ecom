@@ -7,7 +7,6 @@ from .characteristic import CharacteristicViewSet
 from .city_group import CityGroupViewSet
 from .city import CityViewSet
 from .promo import PromoViewSet
-from .data_export import DataExportView
 from .price import PriceViewSet
 from .product import ProductViewSet
 from .products_in_order import ProductsInOrderViewSet

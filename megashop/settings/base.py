@@ -69,10 +69,22 @@ INSTALLED_APPS = [
     "cart.apps.CartConfig",
     "bitrix_app.apps.BitrixAppConfig",
     "import_app.apps.ImportAppConfig",
+    "export_app.apps.ExportAppConfig",
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
     "django_ckeditor_5",
     "api.apps.ApiConfig",
+]
+
+IMPORT_EXPORT_APPS = [
+    "shop",
+    "shop",
+    "cart",
+    "blog",
+    "account",
+    "bitrix_app",
+    "import_app",
+    "export_app",
 ]
 
 AUTH_USER_MODEL = "account.CustomUser"
@@ -198,7 +210,6 @@ REST_FRAMEWORK = {
         "user": "100000/day",
     },
 }
-
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),

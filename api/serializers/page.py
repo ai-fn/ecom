@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.serializers import SerializerMethodField
 from api.serializers import ActiveModelSerializer, OpenGraphMetaSerializer
@@ -31,8 +32,7 @@ class PageSerializer(ActiveModelSerializer):
 
         return data
 
-    # @extend_schema_field(OpenGraphMetaSerializer)
-    def get_opengraph_metadata(self, obj):
+    def get_opengraph_metadata(self, obj) -> OrderedDict | None:
         if obj.opengraph_metadata.exists():
             return OpenGraphMetaSerializer(obj.opengraph_metadata.first()).data
         return None
