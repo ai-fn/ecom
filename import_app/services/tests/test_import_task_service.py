@@ -102,7 +102,7 @@ class ImportTaskServiceTestCase(TestCase):
 
         model = Price
         import_service = ImportTaskService()
-        foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields = (
+        foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields, bool_fields = (
             import_service.categorize_fields(model, fields)
         )
 
@@ -128,6 +128,7 @@ class ImportTaskServiceTestCase(TestCase):
         unique_fields = dict()
         m2m_fields = dict()
         image_fields = dict()
+        bool_fields = dict()
 
         foreign_key_fields = {"product": "product_id", "city_group": "city_group_id"}
         decimal_fields = {"price": "price", "old_price": "old_price"}
@@ -142,6 +143,7 @@ class ImportTaskServiceTestCase(TestCase):
             foreign_key_fields,
             unique_fields,
             m2m_fields,
+            bool_fields,
             path_to_images,
         )
 

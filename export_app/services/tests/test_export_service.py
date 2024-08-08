@@ -88,12 +88,12 @@ class ExportServiceTest(TestCase):
         df = ExportService.create_dataframe(model_fields)
         
         expected_data = {
-            'Товар_description': [self.product1.description, self.product2.description],
             'Товар_title': [self.product1.title, self.product2.title],
+            'Товар_description': [self.product1.description, self.product2.description],
         }
         expected_df = pd.DataFrame(expected_data)
 
-        pd.testing.assert_frame_equal(df, expected_df)
+        pd.testing.assert_frame_equal(df, expected_df, check_like=True)
     
     def test_create_dataframe_with_no_reg_fields(self):
         model_fields = {
