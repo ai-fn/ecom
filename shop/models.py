@@ -83,10 +83,12 @@ class Category(ThumbModel, MPTTModel):
 
     def save(self, *args, **kwargs):
         set_order(self)
+        if not self.slug and self.name:
+            self.slug = slugify(unidecode(self.name))
+
         super().save(*args, **kwargs)
 
     def clean(self):
-        # Проверяем, является ли категория главной (не имеет родителя)
         if self.parent and self.image:
             raise ValidationError(
                 "Изображение может быть добавлено только к главной категории."
@@ -104,7 +106,7 @@ class Category(ThumbModel, MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ["name"]
-
+    
 
 class Brand(TimeBasedModel):
     class Meta:
