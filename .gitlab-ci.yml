@@ -40,7 +40,6 @@ test:
     - ssh -F ~/.ssh/shop-backend-config target-shop "
         docker compose -f ./shop-backend-test/docker-compose-test.yml down
       "
-  allow_failure: false
 
 deploy:
   stage: deploy
