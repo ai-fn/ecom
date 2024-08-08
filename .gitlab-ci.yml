@@ -22,7 +22,6 @@ test:
   tags:
     - backend
   script:
-    - set -e
     - echo "Running tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d shop-backend-test ]; then 
