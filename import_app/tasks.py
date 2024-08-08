@@ -1,4 +1,5 @@
 import os
+from loguru import logger
 import pandas as pd
 
 from celery import shared_task
@@ -42,5 +43,5 @@ def handle_file_task(import_settings: dict):
                 import_task.update_end_at()
                 import_task.update_status("COMPLETED")
     except Exception as e:
-        print(f"Error processing file: {e}")
+        logger.error(f"Error processing file: {e}")
         import_task.update_status("FAILED")

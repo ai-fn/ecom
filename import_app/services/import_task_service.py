@@ -8,8 +8,7 @@ from decimal import Decimal, InvalidOperation
 from django.db import transaction, models
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
+from mptt.fields import TreeForeignKey
 
 from loguru import logger
 
@@ -66,7 +65,7 @@ class ImportTaskService:
                 continue
 
             model = model_type.model_class()
-            foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields = (
+            foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields, bool_fields = (
                 self.categorize_fields(model, fields)
             )
             self.process_rows(
@@ -78,6 +77,7 @@ class ImportTaskService:
                 decimal_fields,
                 unique_fields,
                 m2m_fields,
+                bool_fields,
                 path_to_images,
             )
 
@@ -87,6 +87,7 @@ class ImportTaskService:
         decimal_fields = {}
         unique_fields = {}
         m2m_fields = {}
+        bool_fields = {}
 
         for field_name in list(fields.keys()):
             try:
@@ -97,14 +98,14 @@ class ImportTaskService:
                 )
                 fields.pop(field_name)
                 continue
-                
+            
             if getattr(field, "primary_key", None):
                 unique_fields[field_name] = fields.pop(field_name)
 
             elif isinstance(field, models.ManyToManyField):
                 m2m_fields[field_name] = fields.pop(field_name)
 
-            elif isinstance(field, models.ForeignKey):
+            elif isinstance(field, models.ForeignKey) or isinstance(field, TreeForeignKey):
                 foreign_key_fields[field_name] = fields.pop(field_name)
 
             elif isinstance(field, models.ImageField):
@@ -112,8 +113,11 @@ class ImportTaskService:
 
             elif isinstance(field, models.DecimalField):
                 decimal_fields[field_name] = fields.pop(field_name)
+            
+            elif isinstance(field, models.BooleanField):
+                bool_fields[field_name] = fields.pop(field_name)
 
-        return foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields
+        return foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields, bool_fields
 
     def process_rows(
         self,
@@ -125,6 +129,7 @@ class ImportTaskService:
         decimal_fields: dict,
         unique_fields: dict,
         m2m_fields: dict,
+        bool_fields: dict,
         path_to_images: str,
     ):
         no_unique_fields = len(unique_fields) < 1
@@ -138,6 +143,7 @@ class ImportTaskService:
                 foreign_key_fields,
                 unique_fields,
                 m2m_fields,
+                bool_fields,
                 path_to_images,
             )
             try:
@@ -164,6 +170,7 @@ class ImportTaskService:
         foreign_key_fields: dict,
         unique_fields: dict,
         m2m_fields: dict,
+        bool_fields: dict,
         path_to_images: str,
     ):
         data = {}
@@ -189,6 +196,9 @@ class ImportTaskService:
             except (ValueError, InvalidOperation) as e:
                 logger.error(f"Error converting {cell} to Decimal: {e}")
                 data[field_name] = None
+        
+        for field_name, cell in self.get_notna_items(bool_fields, row).items():
+            data[field_name] = str(cell).lower() == "true"
 
         try:
             for field_name, value in (*fields.items(), *m2m_fields.items(), *unique_fields.items()):
@@ -209,7 +219,6 @@ class ImportTaskService:
             instance = model.objects.get(**unique_data)
             for field_name, value in data.items():
                 setattr(instance, field_name, value)
-
             instance.save()
 
             if m2m_data:
@@ -241,7 +250,6 @@ class ImportTaskService:
                 func = getattr(m2m_field, func_name)
                 values = [int(x.strip()) for x in value.split(",")]
                 func(values)
-                print(m2m_field.all())
             except Exception as e:
                 logger.error(f"Error while {func_name} m2m values for field {field_name}: {str(e)}")
 
