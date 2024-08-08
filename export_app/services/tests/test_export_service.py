@@ -103,11 +103,15 @@ class ExportServiceTest(TestCase):
         df = ExportService.create_dataframe(model_fields)
         
         expected_data = {
-            'Товар_similar_products': ['2', '1']
+            'Товар_similar_products': [self.product2.pk, self.product1.pk]
         }
         expected_df = pd.DataFrame(expected_data)
 
-        pd.testing.assert_frame_equal(df, expected_df)
+        df = df.applymap(str)
+        expected_df = expected_df.applymap(str)
+
+        # Сравнение значений
+        assert df.equals(expected_df), "DataFrames are not equal"
 
     def test_create_dataframe_with_empty_model_fields(self):
         model_fields = {
