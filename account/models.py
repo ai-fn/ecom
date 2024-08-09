@@ -153,7 +153,7 @@ class CustomUser(AbstractUser):
         _("Имя"), max_length=35, blank=True, null=True
     )
     last_name = models.CharField(_("Фамилия "), max_length=35, blank=True, null=True)
-    email = models.EmailField(_("Почта"), help_text=_("Адрес электронной почты"), blank=True, null=True)
+    email = models.EmailField(_("Почта"), help_text=_("Адрес электронной почты"), unique=True, blank=True, null=True)
     phone = models.CharField(
         verbose_name=_("Номер телефона"), null=True, blank=True, unique=True, max_length=16, help_text=_("In format +7xxxxxxxxxx")
     )
