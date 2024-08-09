@@ -22,6 +22,7 @@ test:
   tags:
     - backend
   script:
+    - set -e
     - echo "Running tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d shop-backend-test ]; then 
@@ -29,12 +30,13 @@ test:
       else
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
       fi &&
+      mkdir -p ./data/elasticsearch &&
       sudo chown -R 1000:1000 ./data/elasticsearch &&
       sudo chmod -R 755 ./data/elasticsearch &&
       docker compose -f docker-compose-test.yml up --build -d &&
       docker compose -f docker-compose-test.yml exec web python manage.py migrate --settings=megashop.settings.local &&
       docker compose -f docker-compose-test.yml logs web &&
-      docker compose -f docker-compose-test.yml exec web python manage.py test --settings=megashop.settings.local --no-input
+      docker compose -f docker-compose-test.yml exec web ./wait-for-it.sh elasticsearch:9200 --timeout=40 --strict -- python manage.py test --settings=megashop.settings.local --no-input || exit 1
       "
   after_script:
     - ssh -F ~/.ssh/shop-backend-config target-shop "
