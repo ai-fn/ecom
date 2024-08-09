@@ -110,7 +110,6 @@ class ExportServiceTest(TestCase):
         df = df.applymap(str)
         expected_df = expected_df.applymap(str)
 
-        # Сравнение значений
         assert df.equals(expected_df), "DataFrames are not equal"
 
     def test_create_dataframe_with_empty_model_fields(self):
