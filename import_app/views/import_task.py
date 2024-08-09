@@ -26,10 +26,6 @@ from shop.models import (
 
 @extend_schema(tags=["Import"])
 @extend_schema_view(
-    upload_file=extend_schema(
-        summary="Загрузка файла",
-        description="Загрузка файла",
-    ),
     get_columns=extend_schema(
         summary="Получение названий столбцов из файла",
         description="Получение названий столбцов из файла",
