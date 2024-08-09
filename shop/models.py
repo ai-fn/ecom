@@ -434,7 +434,7 @@ class Review(TimeBasedModel):
     rating = models.PositiveSmallIntegerField(
         verbose_name="Рейтинг", validators=[MaxValueValidator(5)]
     )
-    review = models.TextField(max_length=255, verbose_name="Отзыв")
+    review = models.TextField(max_length=400, verbose_name="Отзыв", blank=True, null=True)
 
     class Meta:
         verbose_name = "Отзыв"
