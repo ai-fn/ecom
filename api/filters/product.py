@@ -7,21 +7,27 @@ from shop.models import Category, Product
 
 
 class ProductFilter(GeneralSearchMixin, filters.FilterSet):
-    search = filters.CharFilter(method='filter_search')
-    price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr='lte')
-    price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr='gte')
-    brand_slug = filters.CharFilter(field_name="brand__slug", lookup_expr='icontains')
-    category = filters.CharFilter(method='filter_category')
+    search = filters.CharFilter(method="filter_search")
+    price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr="lte")
+    price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr="gte")
+    brand_slug = filters.CharFilter(field_name="brand__slug", lookup_expr="icontains")
+    category = filters.CharFilter(method="filter_category")
     characteristics = filters.CharFilter(
-        method='filter_characteristics',
-        label="Значения характеристик"
+        method="filter_characteristics", label="Значения характеристик"
     )
-    city_domain = filters.CharFilter(method='filter_city_domain')
+    city_domain = filters.CharFilter(method="filter_city_domain")
 
     class Meta:
         model = Product
-        fields = ['search', 'category', 'brand_slug', 'price_lte', 'price_gte', 'characteristics', 'city_domain']
-
+        fields = [
+            "search",
+            "category",
+            "brand_slug",
+            "price_lte",
+            "price_gte",
+            "characteristics",
+            "city_domain",
+        ]
 
     def filter_search(self, queryset, name, value):
         domain = self.request.query_params.get("city_domain")
@@ -38,36 +44,57 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
 
     def filter_category(self, queryset, name, value):
         category_slugs = set(map(lambda x: x.strip(), value.split(",")))
-        categories = [*category_slugs]
 
-        for category_slug in category_slugs:
-            try:
-                category_instance = Category.objects.get(slug=category_slug)
-                category_childrens = category_instance.children.values_list("slug", flat=True).distinct()
-                categories.extend(category_childrens)
-            except Category.DoesNotExist:
-                logger.debug(f"requested category with slug '{category_slug}' not found")
-
-        categories = set(categories)
-        queryset = queryset.filter(Q(category__slug__in=categories) | Q(additional_categories__slug__in=categories)).distinct()
-        return queryset 
+        queryset = queryset.filter(
+            (
+                Q(
+                    category__is_active=True,
+                    category__is_visible=True,
+                    category__slug__in=category_slugs,
+                )
+                | Q(
+                    category__is_active=True,
+                    category__is_visible=True,
+                    category__children__is_active=True,
+                    category__children__is_visible=True,
+                    category__children__slug__in=category_slugs,
+                )
+                | Q(
+                    additional_categories__is_active=True,
+                    additional_categories__is_visible=True,
+                    additional_categories__slug__in=category_slugs,
+                )
+                | Q(
+                    additional_categories__is_active=True,
+                    additional_categories__is_visible=True,
+                    additional_categories__children__is_visible=True,
+                    additional_categories__children__is_active=True,
+                    additional_categories__children__slug__in=category_slugs,
+                )
+            )
+        ).distinct()
+        return queryset
 
     def filter_characteristics(self, queryset, name, value):
         char_slugs = {}
         filter_conditions = Q()
         if value:
-            filters = value.split(',')
+            filters = value.split(",")
             for f in filters:
-                pair = f.split(':', 1)
+                pair = f.split(":", 1)
                 if len(pair) > 1:
                     char_name, char_slug = pair[0], pair[1]
                     char_slugs.setdefault(char_name, [])
                     char_slugs[char_name].append(char_slug)
 
         for char in char_slugs:
-            filter_conditions &= Q(characteristic_values__characteristic__slug=char, characteristic_values__slug__in=char_slugs[char])
-        
-        queryset = queryset.filter(filter_conditions, characteristic_values__characteristic__for_filtering=True).distinct()
+            filter_conditions &= Q(
+                characteristic_values__characteristic__slug=char,
+                characteristic_values__slug__in=char_slugs[char],
+                characteristic_values__characteristic__for_filtering=True,
+            )
+
+        queryset = queryset.filter(filter_conditions).distinct()
         return queryset
 
     def filter_city_domain(self, queryset, name, value):
@@ -79,7 +106,11 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
                 price_filter &= Q(prices__price__lte=price_lte)
             if price_gte:
                 price_filter &= Q(prices__price__gte=price_gte)
-            queryset = queryset.filter(price_filter).annotate(city_price=F("prices__price"), old_price=F("prices__old_price")).distinct()
+            queryset = (
+                queryset.filter(price_filter)
+                .annotate(
+                    city_price=F("prices__price"), old_price=F("prices__old_price")
+                )
+                .distinct()
+            )
         return queryset
-    
-
