@@ -8,6 +8,7 @@ from django.core import exceptions
 
 from api.serializers import ActiveModelSerializer
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 
 class UserReviewSerializer(ActiveModelSerializer):
@@ -99,3 +100,10 @@ class UserDetailInfoSerializer(
             "is_active",
             "email_confirmed"
         )
+    
+    def validate_email(self, value):
+        if self.instance:
+            if self.instance.email == value and self.instance.email_confirmed:
+                raise ValidationError("Provided email already confirmed")
+
+        return value
