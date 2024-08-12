@@ -147,20 +147,4 @@ class AccountInfoViewSet(
         """
         Частичное изменение информации о пользователе.
         """
-        self.kwargs["pk"] = request.user.pk
-        user = self.get_object()
-
-        if "email" in request.data:
-            address = request.data.get("email")
-
-            if address == user.email and user.email_confirmed:
-                return Response(
-                    {"message": _("provided email address already confirmed")}, status=status.HTTP_200_OK
-                )
-
-            user.email = address
-            user.email_confirmed = False
-            user.save()
-            return self._send_confirm_email(request, user, address)
-
         return super().partial_update(request, *args, **kwargs)
