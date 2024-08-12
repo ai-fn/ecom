@@ -672,7 +672,7 @@ class SideBarMenuItem(TimeBasedModel):
 
 class ProductGroup(TimeBasedModel):
 
-    name = models.CharField(verbose_name="Наименование", max_length=255, unique=True)
+    name = models.CharField(verbose_name="Наименование", max_length=255, blank=True, null=True)
     products = models.ManyToManyField(Product, verbose_name="Продукты", blank=True)
     characteristic = models.ForeignKey(
         Characteristic,
