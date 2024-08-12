@@ -45,6 +45,7 @@ class MetaDataService:
             city_group_name = CityGroup.get_default_city_group().name
 
         result = {}
+        products_count = 0
         for field in fields:
             price = None
             value: str = getattr(meta_obj, field)
@@ -52,23 +53,24 @@ class MetaDataService:
                 instance, "name", None
             )
             if instance._meta.model_name == "product":
-                price_instance = Price.objects.filter(
-                    product=instance, city_group__name=city_group_name
-                ).first()
-                price = (
-                    int(price_obj)
-                    if (price_obj := getattr(price_instance, "price", None)) is not None
-                    else price_obj
+                price_value = (
+                    instance.prices.filter(city_group__name=city_group_name)
+                    .values_list("price", flat=True)
+                    .first()
                 )
+                price = int(price_value) if price_value is not None else "--"
+                products_count = instance.category.products.count() 
             elif instance._meta.model_name == "category":
-                price_instance = Price.objects.filter(
-                    product__category=instance, city_group__name=city_group_name
-                ).order_by("price").first()
-                price = (
-                    f"от {int(price_obj)}"
-                    if (price_obj := getattr(price_instance, "price", None)) is not None
-                    else price_obj
+                price_value = (
+                    instance.products.prefetch_related("prices")
+                    .order_by("prices__price")
+                    .values_list("prices__price", flat=True)
+                    .first()
                 )
+                price = (
+                    f"от {int(price_value)}" if price_value is not None else "--"
+                )
+                products_count = instance.products.count()
 
             result[field] = value.format(
                 object_name=object_name,
@@ -80,6 +82,7 @@ class MetaDataService:
                 accusative_case=city.accusative_case,
                 instrumental_case=city.instrumental_case,
                 prepositional_case=city.prepositional_case,
+                count=products_count,
             )
 
         return result
