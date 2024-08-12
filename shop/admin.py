@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django.core.signals import setting_changed
-from django.contrib.contenttypes.admin import GenericTabularInline
 
 from shop.models import (
     Brand,
@@ -29,7 +27,7 @@ from mptt.admin import DraggableMPTTAdmin
 
 
 class CharacteristicInline(admin.TabularInline):
-    model = Characteristic
+    model = Characteristic.categories.through
     extra = 1
 
 
@@ -49,9 +47,6 @@ class ProductGroupInline(admin.TabularInline):
 
 
 class CustomMPTTModelAdmin(DraggableMPTTAdmin):
-    inlines = [
-        CharacteristicInline,
-    ]
     prepopulated_fields = {"slug": ("name",)}
     mptt_level_indent = 30
 
@@ -64,7 +59,9 @@ class CustomMPTTModelAdmin(DraggableMPTTAdmin):
         return form
 
 
-admin.site.register(Category, CustomMPTTModelAdmin)
+@admin.register(Category)
+class CategoryAdmin(CustomMPTTModelAdmin):
+    inlines = [CharacteristicInline]
 
 
 @admin.register(Brand)
@@ -205,17 +202,17 @@ class ReviewAdmin(admin.ModelAdmin):
 class CharacteristicAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "category",
         "for_filtering",
     )
-    list_filter = ("category", "for_filtering",)
+    list_filter = ("categories", "for_filtering",)
     prepopulated_fields = {"slug": ("name",)}
     search_fields = (
         "name",
         "slug",
-        "category__name",
-        "category__slug",
+        "categories__name",
+        "categories__slug",
     )
+    filter_horizontal = ("categories",)
 
 
 @admin.register(CharacteristicValue)
