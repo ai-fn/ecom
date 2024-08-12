@@ -1,28 +1,18 @@
 import os
 
 from django_ckeditor_5.fields import CKEditor5Field
-
-from django.db import models, transaction
+from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+
 from unidecode import unidecode
 
 from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
-
-
-def set_order(instance: models.Model):
-    if not hasattr(instance, "order"):
-        return
-    
-    order = getattr(instance, "order", None)
-    if not order:
-        order_value = getattr(instance._meta.model.objects.order_by("-order").first(), "order", 0) + 1
-        setattr(instance, "order", order_value)
 
 
 class ThumbModel(TimeBasedModel):
@@ -81,12 +71,6 @@ class Category(ThumbModel, MPTTModel):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        set_order(self)
-        if not self.slug and self.name:
-            self.slug = slugify(unidecode(self.name))
-
-        super().save(*args, **kwargs)
 
     def clean(self):
         if self.parent and self.image:
@@ -136,10 +120,6 @@ class Brand(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"{self.name}"
-
-    def save(self, *args, **kwargs):
-        set_order(self)
-        super().save(*args, **kwargs)
 
 
 class Product(ThumbModel):
@@ -236,11 +216,11 @@ class Product(ThumbModel):
     
     def save(self, *args, **kwargs) -> None:
         if not self.slug:
-            self.slug = self.title
-            super().save(*args, **kwargs)
-            self.slug = slugify(unidecode(f"{self.title}-{self.id}"))
-            return super().save(update_fields=["slug"])
-        
+            id = self._meta.model.objects.values_list("id", flat=True).order_by("id").last() or 0
+            self.slug = slugify(unidecode(f"{self.title}-{id + 1}"))
+            if self.pk:
+                kwargs["update_fields"] = {*kwargs.get("update_fields", set()), "slug"}
+
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -410,12 +390,13 @@ class CharacteristicValue(TimeBasedModel):
         verbose_name=_("Слаг"), null=False, blank=False, max_length=1024
     )
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
+    def save(self, *args, update_fields=None, **kwargs) -> None:
         if update_fields is not None and "value" in update_fields:
             self.slug = slugify(unidecode(str(self.value)))
-            update_fields = {*update_fields, "slug"}
+            if self.pk:
+                update_fields = {*update_fields, "slug"}
 
-        return super().save(force_insert, force_update, using, update_fields)
+        return super().save(*args, update_fields=update_fields, **kwargs)
 
     def __str__(self):
         return f"{self.characteristic.name}: {self.value}"
@@ -583,10 +564,6 @@ class FooterItem(TimeBasedModel):
     def __str__(self):
         return f"Элемент Footer_{self.title}-{self.id}"
 
-    def save(self, *args, **kwargs):
-        set_order(self)
-        super().save(*args, **kwargs)
-
 
 class MainPageSliderImage(ThumbModel):
     order = models.IntegerField(unique=True, verbose_name="Порядковый номер", blank=True)
@@ -617,10 +594,6 @@ class MainPageSliderImage(ThumbModel):
 
     def __str__(self) -> str:
         return f"MainPageSliderImage_{self.id}"
-    
-    def save(self, *args, **kwargs):
-        set_order(self)
-        super().save(*args, **kwargs)
 
 
 class MainPageCategoryBarItem(TimeBasedModel):
@@ -636,10 +609,6 @@ class MainPageCategoryBarItem(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"MainPageCategoryBarItem_{self.id}"
-    
-    def save(self, *args, **kwargs):
-        set_order(self)
-        super().save(*args, **kwargs)
 
 
 class SideBarMenuItem(TimeBasedModel):
@@ -664,11 +633,6 @@ class SideBarMenuItem(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"SideBarMenuItem_{self.id}"
-    
-    def save(self, *args, **kwargs):
-        set_order(self)
-        super().save(*args, **kwargs)
-
 
 
 class ProductGroup(TimeBasedModel):

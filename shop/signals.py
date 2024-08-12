@@ -5,65 +5,10 @@ from PIL import Image
 from django.conf import settings
 from loguru import logger
 from shop.models import (
-    Category,
-    Brand,
-    CharacteristicValue,
-    FooterItem,
-    MainPageSliderImage,
-    Page,
-    Product,
-    City,
-    Characteristic,
     ThumbModel,
 )
 from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save, pre_delete
-from django.utils.text import slugify as django_slugify
-from unidecode import unidecode
-
-
-slugify = lambda x: django_slugify(unidecode(x))
-
-
-@receiver(post_save, sender=City)
-def set_domain(sender, created, instance, **kwargs):
-    if created and not instance.domain:
-        instance.domain = f'{slugify(instance.name)}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
-        instance.save()
-
-
-@receiver(pre_save)
-def set_instance_slug(sender, instance, **kwargs):
-    if isinstance(sender, City):
-        if not instance.domain:
-            instance.domain = f'{slugify(instance.name)}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
-            instance.save()
-            
-    elif isinstance(sender, Product):
-        if not instance.slug:
-            instance.slug = slugify(instance.title)
-            instance.save()
-
-    elif isinstance(sender, CharacteristicValue):
-        if not instance.slug:
-            instance.slug = slugify(instance.value)
-            instance.save()
-
-    elif isinstance(sender, (Category)):
-        if not instance.slug:
-            instance.slug = slugify(instance.name) + f"-{instance.id}"
-            instance.save()
-
-    elif isinstance(sender, (Characteristic, Brand, Page)):
-        if not instance.slug:
-            instance.slug = slugify(instance.name)
-            instance.save()
-
-
-
-def get_order(sender):
-    last_obj = sender.objects.order_by("order").last()
-    return last_obj.order + 1 if last_obj else 1
+from django.db.models.signals import post_save, pre_delete
 
 
 @receiver(pre_delete)

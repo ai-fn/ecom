@@ -5,9 +5,11 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
+
+from unidecode import unidecode
 
 
-# Create your models here.
 class TimeBasedModel(models.Model):
     class Meta:
         abstract = True
@@ -16,6 +18,47 @@ class TimeBasedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(_("Активность"), default=True)
+
+    def save(self, *args, update_fields=None, **kwargs) -> None:
+        update_fields = self._set_order(update_fields)
+        update_fields = self._set_slug(update_fields)
+        return super().save(*args, update_fields=update_fields, **kwargs)
+
+    def _set_order(self: models.Model, update_fields):
+        if hasattr(self, "order"):
+
+            order = getattr(self, "order", None)
+            if not order:
+                order_value = (
+                    self._meta.model.objects
+                    .order_by("-order")
+                    .values_list("order", flat=True)
+                    .first() or 0
+                ) + 1
+                setattr(self, "order", order_value)
+
+                if self.pk:
+                    update_fields = update_fields or tuple()
+                    update_fields = {*update_fields, "order"}
+
+        return update_fields
+
+
+    def _set_slug(self: models.Model, update_fields=None):
+        if hasattr(self, "slug"):
+
+            slug = getattr(self, "slug", None)
+            if not slug:
+                value = getattr(self, "name", None) or getattr(self, "title", None)
+                if value is not None:
+                    slug_value = slugify(unidecode(value))
+                    setattr(self, "slug", slug_value)
+
+                if self.pk:
+                    update_fields = update_fields or tuple()
+                    update_fields = {*update_fields, "slug"}
+
+        return update_fields
 
 
 class City(TimeBasedModel):
@@ -96,6 +139,13 @@ class City(TimeBasedModel):
     def __str__(self):
         return self.name
     
+    def save(self, *args, **kwargs):
+        if self.domain:
+            self.domain = f'{slugify(unidecode(self.name))}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
+        
+        return super().save(*args, **kwargs)
+
+
     @staticmethod
     def get_default_city() -> "City":
         default_name = settings.DEFAULT_CITY_NAME
@@ -105,7 +155,7 @@ class City(TimeBasedModel):
             city.save()
 
         return city
-    
+
     @staticmethod
     def get_default_city_pk() -> int:
         return CityGroup.get_default_city_group().pk
