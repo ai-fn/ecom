@@ -23,11 +23,12 @@ from shop.models import CharacteristicValue, Product, ProductFile, ProductGroup
 
 class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
     images = ProductImageSerializer(many=True)
+
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
     files = serializers.SerializerMethodField()
-    priority = serializers.IntegerField(read_only=True)
     groups = serializers.SerializerMethodField()
+    priority = serializers.IntegerField(read_only=True)
     characteristic_values = SimplifiedCharacteristicValueSerializer(many=True, write_only=True)
 
     class Meta:
@@ -48,6 +49,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
             "images",
             "in_stock",
             "is_popular",
+            "is_new",
             "priority",
             "thumb_img",
             "files",
