@@ -82,8 +82,8 @@ class AccountInfoViewSetTest(APITestCase):
         self.user.email_confirmed = True
         self.user.save()
         response = self.client.patch(url, {'email': self.user.email})
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data['message'], 'provided email address already confirmed')
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(str(response.data["email"][0]), 'Provided email already confirmed')
 
     @override_settings(CACHES={
         'default': {
