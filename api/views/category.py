@@ -260,7 +260,7 @@ class CategoryViewSet(ModelViewSet):
     @action(detail=False, methods=["get"], url_path="orphans-categories")
     def orphans_categories(self, request, *args, **kwargs):
         self.queryset = self.filter_queryset(
-            self.get_queryset().filter(parent__isNone=True)
+            self.get_queryset().filter(parent__isnull=True)
         )
         return super().list(request, *args, **kwargs)
 
