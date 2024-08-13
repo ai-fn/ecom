@@ -15,6 +15,25 @@ from shop.models import OpenGraphMeta, Product
 from shop.services.metadata_service import MetaDataService
 
 
+OPEN_GRAPH_META_RESPONSE_EXAMPLE = {
+    "title": "Документация",
+    "description": "Документация",
+    "OpenGraph": {
+        "url": "http://moskva.krov.market/dokumentaciya/",
+        "siteName": "Кров маркет",
+        "images": [
+            {
+                "image": "/media/pages/image-70e50210-8678-4b3a-90f9-3626526c11cb_ZnnxbcK.webp",
+                "width": 1280,
+                "height": 720,
+            }
+        ],
+        "locale": "ru_RU",
+        "type": "website",
+    },
+}
+
+
 @extend_schema(tags=["Shop"])
 class MetadataViewSet(GenericViewSet):
     queryset = OpenGraphMeta.objects.all()
@@ -28,23 +47,7 @@ class MetadataViewSet(GenericViewSet):
             OpenApiExample(
                 name="Response Example",
                 response_only=True,
-                value={
-                    "title": "Документация",
-                    "description": "Документация",
-                    "OpenGraph": {
-                        "url": "http://moskva.krov.market/dokumentaciya/",
-                        "siteName": "Кров маркет",
-                        "images": [
-                            {
-                                "image": "/media/pages/image-70e50210-8678-4b3a-90f9-3626526c11cb_ZnnxbcK.webp",
-                                "width": 1280,
-                                "height": 720,
-                            }
-                        ],
-                        "locale": "ru_RU",
-                        "type": "website",
-                    },
-                },
+                value=OPEN_GRAPH_META_RESPONSE_EXAMPLE,
             )
         ],
         parameters=[

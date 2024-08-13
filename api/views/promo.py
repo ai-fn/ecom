@@ -5,10 +5,139 @@ from rest_framework.decorators import action
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import PromoSerializer
 from shop.models import Promo
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
 
+from api.views.city import CITY_RESPONSE_EXAMPLE
+from api.views.category import CATEGORY_DETAIL_RESPONSE_EXAMPLE
+from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
 
+
+PROMO_REQUEST_EXAMPLE = {
+    "name": "Test",
+    "is_active": True,
+    "products_id": [1, 2, 3],
+    "cities_id": [1, 2, 3],
+    "categories_id": [1, 2, 3],
+    "active_to": "2024-04-05",
+    "image": "/media/promo/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+    "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma",
+}
+PROMO_RESPONSE_EXAMPLE = {
+    "id": 1,
+    **PROMO_REQUEST_EXAMPLE,
+    "categories": [CATEGORY_DETAIL_RESPONSE_EXAMPLE],
+    "products": [UNAUTHORIZED_RESPONSE_EXAMPLE],
+    "cities": [CITY_RESPONSE_EXAMPLE],
+}
+PROMO_RESPONSE_EXAMPLE.pop("products_id")
+PROMO_RESPONSE_EXAMPLE.pop("categories_id")
+PROMO_RESPONSE_EXAMPLE.pop("cities_id")
+
+PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PROMO_REQUEST_EXAMPLE.items())[:2]}
+
+
+@extend_schema_view(
+    list=extend_schema(
+        description="Получение списка промо акций",
+        summary="Получение списка промо акций",
+        operation_id="api_promos_list",
+        responses={200: PromoSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                description="Пример ответа на получение списка всех промо акций",
+                response_only=True,
+                value=PROMO_RESPONSE_EXAMPLE,
+            )
+        ],
+    ),
+    retrieve=extend_schema(
+        description="Получение промо акции по уникальному идентификатору",
+        summary="Получение промо акции по уникальному идентификатору",
+        operation_id="api_promos_retrieve",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                description="Пример ответа на получение промо акции",
+                response_only=True,
+                value=PROMO_RESPONSE_EXAMPLE,
+            )
+        ],
+    ),
+    create=extend_schema(
+        description="Создание промо акции",
+        summary="Создание промо акции",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                description="Пример ответа на создание промо акции",
+                response_only=True,
+                value=PROMO_RESPONSE_EXAMPLE,
+            ),
+            OpenApiExample(
+                name="Request Example",
+                description="Пример запроса на создание промо акции",
+                response_only=True,
+                value=PROMO_REQUEST_EXAMPLE,
+            ),
+        ],
+    ),
+    update=extend_schema(
+        description="Обновление промо акции",
+        summary="Обновление промо акции",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                description="Пример ответа на обновление промо акции",
+                response_only=True,
+                value=PROMO_RESPONSE_EXAMPLE,
+            ),
+            OpenApiExample(
+                name="Request Example",
+                description="Пример запроса на обновление промо акции",
+                response_only=True,
+                value=PROMO_REQUEST_EXAMPLE,
+            ),
+        ],
+    ),
+    partial_update=extend_schema(
+        description="Частичное обновление промо акции",
+        summary="Частичное обновление промо акции",
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                description="Пример ответа на частичное обновление промо акции",
+                response_only=True,
+                value=PROMO_RESPONSE_EXAMPLE,
+            ),
+            OpenApiExample(
+                name="Request Example",
+                description="Пример запроса на частичное обновление промо акции",
+                response_only=True,
+                value=PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE,
+            ),
+        ],
+    ),
+    destroy=extend_schema(
+        description="Удаление промо акции",
+        summary="Удаление промо акции",
+        responses={204: None},
+    ),
+    active_promos=extend_schema(
+        summary="Получение списка активных промо акций",
+        description="Получение списка активных промо акций",
+        responses={200: PromoSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                name="Response Example",
+                description="Пример ответа на получение списка активных промо акций",
+                response_only=True,
+                value=PROMO_RESPONSE_EXAMPLE,
+            ),
+        ],
+    ),
+)
 @extend_schema(
     tags=["Shop"],
     parameters=[
@@ -37,466 +166,7 @@ class PromoViewSet(ModelViewSet):
         self.domain = self.request.query_params.get("domain")
         return self.queryset.filter(cities__domain=self.domain).distinct()
 
-    @extend_schema(
-        summary="Получение списка активных промо акций",
-        description="Получение списка активных промо акций",
-        responses={200: PromoSerializer(many=True)},
-        examples=[
-            OpenApiExample(
-                name="Response Example",
-                description="Пример ответа на получение списка активных промо акций",
-                response_only=True,
-                value={
-                    "count": 1,
-                    "next": None,
-                    "previous": None,
-                    "results": [
-                        {
-                            "id": 1,
-                            "name": "Test",
-                            "is_active": True,
-                            "categories": [],
-                            "products": [],
-                            "image": "/media/promo/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
-                            "cities": [
-                                {
-                                    "id": 46,
-                                    "name": "Воронеж",
-                                    "domain": "voronezh",
-                                    "nominative_case": "Воронеж",
-                                    "genitive_case": "Воронежа",
-                                    "dative_case": "Воронежу",
-                                    "accusative_case": "Воронеж",
-                                    "instrumental_case": "Воронежем",
-                                    "prepositional_case": "Воронеже",
-                                    "is_active": True,
-                                },
-                                {
-                                    "id": 45,
-                                    "name": "Москва",
-                                    "domain": "moskva",
-                                    "nominative_case": "Москва",
-                                    "genitive_case": "Москвы",
-                                    "dative_case": "Москве",
-                                    "accusative_case": "Москву",
-                                    "instrumental_case": "Москвой",
-                                    "prepositional_case": "Москве",
-                                },
-                            ],
-                            "active_to": "2024-04-05",
-                            "is_active": True,
-                            "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma/wO2ysBStrsVlB0MoiQnZmooZ5duIWso2nvlzOAf4bAgARobZt10QkWuvHoiie67p+I6LPnSEANE1zKyJnxhiIyDsRvSqlNmEYPnjvb6jrukul1CrLsnNmPnDOwTkHay2stZi+JmzN9koNw3DtvT/p+/6JmRdRFGVxHCPP8x+/cRzv6ZfvrKqqwzRNj7TWyyAIjpl5SUQ6SZKLvbVlWYY7MX8hd4imj/npbO/lC6CIzDfxzEp/CIzmgQAAAABJRU5ErkJggg==",
-                        }
-                    ],
-                },
-            ),
-        ],
-    )
     @action(methods=["get"], detail=False)
     def active_promos(self, request, *args, **kwargs):
         self.queryset = self.queryset.filter(is_active=True)
         return super().list(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Получение списка промо акций",
-        summary="Получение списка промо акций",
-        operation_id="api_promos_list",
-        examples=[
-            OpenApiExample(
-                name="Response Example",
-                description="Пример ответа на получение списка всех промо акций",
-                response_only=True,
-                value={
-                    "id": 1,
-                    "name": "Promo 1",
-                    "categories": [
-                        {
-                            "id": 1,
-                            "name": "Category A",
-                            "h1_tag": "dummy-h1-tag",
-                            "slug": "category-a",
-                            "order": 1,
-                            "parent": 1,
-                            "children": 2,
-                            "parents": ["Деке", "deke-1"],
-                            "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "is_visible": True,
-                            "is_popular": True,
-                        },
-                    ],
-                    "products": [
-                        {
-                            "id": 1,
-                            "h1_tag": "dummy-h1-tag",
-                            "title": "Product A",
-                            "brand": 1,
-                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            "slug": "product-a",
-                            "city_price": 100.0,
-                            "old_price": 120.0,
-                            "images": [
-                                {
-                                    "id": 1,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    "thumb_img": "base64string",
-                                    "name": "test_name",
-                                },
-                            ],
-                            "category_slug": "category-a",
-                        }
-                    ],
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "cities": [
-                        {
-                            "id": 1,
-                            "name": "Воронеж",
-                            "domain": "example.com",
-                            "nominative_case": "Воронеж",
-                            "genitive_case": "Воронежа",
-                            "dative_case": "Воронежу",
-                            "accusative_case": "Воронежем",
-                            "instrumental_case": "Воронежем",
-                            "prepositional_case": "Воронеже",
-                            "is_active": True,
-                        }
-                    ],
-                    "active_to": "2024-04-30",
-                    "is_active": True,
-                },
-            )
-        ],
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Получение промо акции по уникальному идентификатору",
-        summary="Получение промо акции по уникальному идентификатору",
-        operation_id="api_promos_retrieve",
-        examples=[
-            OpenApiExample(
-                name="Response Example",
-                description="Пример ответа на получение промо акции",
-                response_only=True,
-                value={
-                    "id": 1,
-                    "name": "Promo 1",
-                    "categories": [
-                        {
-                            "id": 1,
-                            "name": "Category A",
-                            "h1_tag": "dummy-h1-tag",
-                            "slug": "category-a",
-                            "order": 1,
-                            "parent": 1,
-                            "children": 2,
-                            "parents": ["Деке", "deke-1"],
-                            "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "is_visible": True,
-                            "is_popular": True,
-                        },
-                    ],
-                    "products": [
-                        {
-                            "id": 1,
-                            "h1_tag": "dummy-h1-tag",
-                            "title": "Product A",
-                            "brand": 1,
-                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            "slug": "product-a",
-                            "city_price": 100.0,
-                            "old_price": 120.0,
-                            "images": [
-                                {
-                                    "id": 1,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    "thumb_img": "base64string",
-                                    "name": "test_name",
-                                },
-                            ],
-                            "category_slug": "category-a",
-                        }
-                    ],
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "cities": [
-                        {
-                            "id": 1,
-                            "name": "Воронеж",
-                            "domain": "example.com",
-                            "nominative_case": "Воронеж",
-                            "genitive_case": "Воронежа",
-                            "dative_case": "Воронежу",
-                            "accusative_case": "Воронежем",
-                            "instrumental_case": "Воронежем",
-                            "prepositional_case": "Воронеже",
-                            "is_active": True,
-                        }
-                    ],
-                    "active_to": "2024-04-30",
-                    "is_active": True,
-                },
-            )
-        ],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Создание промо акции",
-        summary="Создание промо акции",
-        examples=[
-            OpenApiExample(
-                name="Response Example",
-                description="Пример ответа на создание промо акции",
-                response_only=True,
-                value={
-                    "id": 1,
-                    "name": "Promo 1",
-                    "categories": [
-                        {
-                            "id": 1,
-                            "name": "Category A",
-                            "h1_tag": "dummy-h1-tag",
-                            "slug": "category-a",
-                            "order": 1,
-                            "parent": 1,
-                            "children": 2,
-                            "parents": ["Деке", "deke-1"],
-                            "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "is_visible": True,
-                            "is_popular": True,
-                        },
-                    ],
-                    "products": [
-                        {
-                            "id": 1,
-                            "h1_tag": "dummy-h1-tag",
-                            "title": "Product A",
-                            "brand": 1,
-                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            "slug": "product-a",
-                            "city_price": 100.0,
-                            "old_price": 120.0,
-                            "images": [
-                                {
-                                    "id": 1,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    "thumb_img": "base64string",
-                                    "name": "test_name",
-                                }
-                            ],
-                            "category_slug": "category-a",
-                        }
-                    ],
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "cities": [
-                        {
-                            "id": 1,
-                            "name": "Воронеж",
-                            "domain": "example.com",
-                            "nominative_case": "Воронеж",
-                            "genitive_case": "Воронежа",
-                            "dative_case": "Воронежу",
-                            "accusative_case": "Воронежем",
-                            "instrumental_case": "Воронежем",
-                            "prepositional_case": "Воронеже",
-                            "is_active": True,
-                        }
-                    ],
-                    "active_to": "2024-04-30",
-                    "is_active": True,
-                },
-            ),
-            OpenApiExample(
-                name="Request Example",
-                description="Пример запроса на создание промо акции",
-                response_only=True,
-                value={
-                    "name": "Promo 1",
-                    "categories": [1, 2],
-                    "products": [1, 2],
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "cities": [1, 2],
-                    "active_to": "2024-04-30",
-                    "is_active": True,
-                },
-            ),
-        ],
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Обновление промо акции",
-        summary="Обновление промо акции",
-        examples=[
-            OpenApiExample(
-                name="Response Example",
-                description="Пример ответа на обновление промо акции",
-                response_only=True,
-                value={
-                    "id": 1,
-                    "name": "Promo 1",
-                    "categories": [
-                        {
-                            "id": 1,
-                            "name": "Category A",
-                            "h1_tag": "dummy-h1-tag",
-                            "slug": "category-a",
-                            "order": 1,
-                            "parent": 1,
-                            "children": 2,
-                            "parents": ["Деке", "deke-1"],
-                            "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "is_visible": True,
-                            "is_popular": True,
-                        },
-                    ],
-                    "products": [
-                        {
-                            "id": 1,
-                            "h1_tag": "dummy-h1-tag",
-                            "title": "Product A",
-                            "brand": 1,
-                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            "slug": "product-a",
-                            "city_price": 100.0,
-                            "old_price": 120.0,
-                            "images": [
-                                {
-                                    "id": 1,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    "thumb_img": "base64string",
-                                    "name": "test_name",
-                                }
-                            ],
-                            "category_slug": "category-a",
-                        }
-                    ],
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "cities": [
-                        {
-                            "id": 1,
-                            "name": "Воронеж",
-                            "domain": "example.com",
-                            "nominative_case": "Воронеж",
-                            "genitive_case": "Воронежа",
-                            "dative_case": "Воронежу",
-                            "accusative_case": "Воронежем",
-                            "instrumental_case": "Воронежем",
-                            "prepositional_case": "Воронеже",
-                            "is_active": True,
-                        }
-                    ],
-                    "active_to": "2024-04-30",
-                    "is_active": True,
-                },
-            ),
-            OpenApiExample(
-                name="Request Example",
-                description="Пример запроса на обновление промо акции",
-                response_only=True,
-                value={
-                    "name": "Promo 1",
-                    "categories": [1, 2],
-                    "products": [1, 2],
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "cities": [1, 2],
-                    "active_to": "2024-04-30",
-                    "is_active": True,
-                },
-            ),
-        ],
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Частичное обновление промо акции",
-        summary="Частичное обновление промо акции",
-        examples=[
-            OpenApiExample(
-                name="Response Example",
-                description="Пример ответа на частичное обновление промо акции",
-                response_only=True,
-                value={
-                    "id": 1,
-                    "name": "Partial Updated Name for Promo 1",
-                    "categories": [
-                        {
-                            "id": 1,
-                            "h1_tag": "dummy-h1-tag",
-                            "name": "Category A",
-                            "slug": "category-a",
-                            "order": 1,
-                            "parent": 1,
-                            "children": 2,
-                            "parents": ["Деке", "deke-1"],
-                            "icon": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "image_url": "/media/catalog/images/aojw3-ionadi43ujasdkasl.webp",
-                            "is_visible": True,
-                            "is_popular": True,
-                        },
-                    ],
-                    "products": [
-                        {
-                            "id": 1,
-                            "h1_tag": "dummy-h1-tag",
-                            "title": "Product A",
-                            "brand": 1,
-                            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                            "slug": "product-a",
-                            "city_price": 100.0,
-                            "old_price": 120.0,
-                            "images": [
-                                {
-                                    "id": 1,
-                                    "image_url": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                                    "thumb_img": "base64string",
-                                    "name": "test_name",
-                                }
-                            ],
-                            "category_slug": "category-a",
-                        }
-                    ],
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "cities": [
-                        {
-                            "id": 1,
-                            "name": "Воронеж",
-                            "domain": "example.com",
-                            "nominative_case": "Воронеж",
-                            "genitive_case": "Воронежа",
-                            "dative_case": "Воронежу",
-                            "accusative_case": "Воронежем",
-                            "instrumental_case": "Воронежем",
-                            "prepositional_case": "Воронеже",
-                            "is_active": True,
-                        }
-                    ],
-                    "active_to": "2024-04-30",
-                    "is_active": True,
-                },
-            ),
-            OpenApiExample(
-                name="Request Example",
-                description="Пример запроса на частичное обновление промо акции",
-                response_only=True,
-                value={"name": "Partial Updated Name for Promo 1"},
-            ),
-        ],
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Удаление промо акции",
-        summary="Удаление промо акции",
-        responses={204: None},
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)

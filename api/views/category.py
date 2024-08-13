@@ -18,10 +18,27 @@ from drf_spectacular.utils import (
 
 REQUEST_EXAMPLE = {
     "name": "Гидро-ветрозащита и пароизоляция",
-    "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
     "h1_tag": "dummy_h1_tag",
+    "slug": "gidro-vetrozashchita-i-paroizoliatsiia",
     "order": 2333,
     "parent": 2348,
+    "description": "dummy_description",
+    "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+    "image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+    "thumb_img": "base64string",
+    "is_acitve": True,
+    "is_popular": True,
+    "is_visible": True,
+}
+CATEGORY_DETAIL_RESPONSE_EXAMPLE = {
+    "id": 1088,
+    **REQUEST_EXAMPLE,
+}
+
+PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(REQUEST_EXAMPLE.items())[:2]}
+CATEGORY_RESPONSE_EXAMPLE = {
+    "id": 2333,
+    **REQUEST_EXAMPLE,
     "children": [
         {
             "id": 2348,
@@ -30,31 +47,24 @@ REQUEST_EXAMPLE = {
             "slug": "armiruiushchaia-tkan-al-fa-peist",
             "order": 2348,
             "parent": 2333,
-            "children": [],
-            "parents": [
-                [
-                    "Гидро-ветрозащита и пароизоляция",
-                    "gidro-vetrozashchita-i-paroizoliatsiia",
-                ]
-            ],
+            "description": "dummy_description",
             "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-            "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+            "image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+            "thumb_img": "base64string",
             "is_visible": True,
             "is_popular": False,
-            "thumb_img": "base64string",
             "is_acitve": True,
+            "children": [],
+            "parents": [],
         },
     ],
-    "parents": [],
-    "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-    "image_url": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-    "is_visible": True,
-    "is_popular": True,
-    "thumb_img": "base64string",
-    "is_acitve": True,
+    "parents": [
+        ["Кровельные материалы", "krovelnye-materialy"],
+        ["Вентиляционные системы", "ventiliatsionnye-sistemy"],
+        ["Аэраторы", "aeratory"],
+    ],
 }
-PARTIAL_UPDATE_REQUEST_EXAMPLE = {"name": REQUEST_EXAMPLE["name"]}
-CATEGORY_RESPONSE_EXAMPLE = {**REQUEST_EXAMPLE, "id": 2333}
+
 
 @extend_schema_view(
     orphans_categories=extend_schema(
@@ -83,7 +93,7 @@ CATEGORY_RESPONSE_EXAMPLE = {**REQUEST_EXAMPLE, "id": 2333}
                     OpenApiExample(
                         name="Response Example",
                         response_only=True,
-                        value=CATEGORY_RESPONSE_EXAMPLE,
+                        value=CATEGORY_DETAIL_RESPONSE_EXAMPLE,
                     ),
                 ],
             ),
@@ -141,7 +151,7 @@ CATEGORY_RESPONSE_EXAMPLE = {**REQUEST_EXAMPLE, "id": 2333}
                     OpenApiExample(
                         name="Retrieve Response Example",
                         response_only=True,
-                        value=CATEGORY_RESPONSE_EXAMPLE,
+                        value=CATEGORY_DETAIL_RESPONSE_EXAMPLE,
                     ),
                 ],
             ),
@@ -250,7 +260,7 @@ class CategoryViewSet(ModelViewSet):
     @action(detail=False, methods=["get"], url_path="orphans-categories")
     def orphans_categories(self, request, *args, **kwargs):
         self.queryset = self.filter_queryset(
-            self.get_queryset().filter(parent__isnull=True)
+            self.get_queryset().filter(parent__isNone=True)
         )
         return super().list(request, *args, **kwargs)
 

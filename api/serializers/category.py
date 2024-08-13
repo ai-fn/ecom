@@ -8,8 +8,6 @@ class CategorySerializer(ActiveModelSerializer):
     children = serializers.SerializerMethodField()
 
     parents = serializers.SerializerMethodField()
-    is_popular = serializers.BooleanField(read_only=True)
-    is_visible = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Category

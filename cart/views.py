@@ -22,150 +22,43 @@ from api.serializers import (
     ProductDetailSerializer,
 )
 from shop.models import Price, Product, ProductFrequenlyBoughtTogether
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
+from api.views.products_in_order import PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE
+from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE, RETRIEVE_RESPONSE_EXAMPLE
 
 
-@extend_schema(tags=["Order"])
-class OrderViewSet(ModelViewSet):
+ORDER_REQUEST_EXAMPLE = {
+    "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, 123001, Россия",
+}
+ORDER_RESPONSE_EXAMPLE = {
+    "id": 5,
+    **ORDER_REQUEST_EXAMPLE,
+    "customer": 1,
+    "products": [PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE],
+    "created_at": "2024-03-28T15:08:57.462177+03:00",
+    "total": 137.66,
+    "status": {"name": "Создан"},
+}
+ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
+    "customer": 1,
+}
 
-    queryset = Order.objects.all().order_by("-created_at")
-    serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
-    bitrix_api = Bitrix24API()
 
-    def get_permissions(self):
-        if self.action in ("update", "partial_update", "destroy"):
-            return [IsAdminUser]
-        elif self.action == "retrieve":
-            self.permission_classes.append(IsOwnerOrAdminPermission)
+CART_ITEM_REQUEST_EXAMPLE = {
+    "product_id": 1,
+    "quantity": 20,
+}
+CART_ITEM_RESPONSE_EXAMPLE = {
+    "id": 1,
+    "product": UNAUTHORIZED_RESPONSE_EXAMPLE,
+    "quantity": 20
+}
+CART_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
+    k: v for k, v in list(CART_ITEM_REQUEST_EXAMPLE.items())[:2]
+}
 
-        return super().get_permissions()
-
-    def get_queryset(self):
-        if self.action == "list":
-            return super().get_queryset().filter(customer=self.request.user)
-
-        return super().get_queryset()
-
-    @extend_schema(
-        summary="Получение активных заказов пользователя",
-        description="Получение активных заказов пользователя",
-        examples=[
-            OpenApiExample(
-                name="List Response Example",
-                response_only=True,
-                value={
-                    "id": 5,
-                    "customer": 1,
-                    "products": [
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                    ],
-                    "created_at": "2024-03-28T15:08:57.462177+03:00",
-                    "region": "Воронежская область",
-                    "district": "",
-                    "city_name": "Воронеж",
-                    "street": "улица 20-летия Октября",
-                    "house": "84",
-                    "total": "137.66",
-                    "status": {"name": "Создан"},
-                },
-                description="Пример ответа для получения списка всех заказов в Swagger UI",
-                summary="Пример ответа для получения списка всех заказов",
-                media_type="application/json",
-            ),
-        ],
-    )
-    @action(detail=False, methods=["get"], url_path="active-orders")
-    def active_orders(self, request, *args, **kwargs):
-        self.queryset = self.get_queryset().filter(is_active=True)
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
+@extend_schema_view(
+    list=extend_schema(
         description="Получить список всех заказов",
         summary="Список заказов",
         responses={200: OrderSerializer(many=True)},
@@ -173,116 +66,14 @@ class OrderViewSet(ModelViewSet):
             OpenApiExample(
                 name="List Response Example",
                 response_only=True,
-                value={
-                    "id": 5,
-                    "customer": 1,
-                    "products": [
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                    ],
-                    "created_at": "2024-03-28T15:08:57.462177+03:00",
-                    "region": "Воронежская область",
-                    "district": "",
-                    "city_name": "Воронеж",
-                    "street": "улица 20-летия Октября",
-                    "house": "84",
-                    "total": "137.66",
-                    "status": {"name": "Создан"},
-                },
+                value=ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа для получения списка всех заказов в Swagger UI",
                 summary="Пример ответа для получения списка всех заказов",
                 media_type="application/json",
             ),
         ],
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    retrieve=extend_schema(
         description="Получить информацию о конкретном заказе",
         summary="Информация о заказе",
         responses={200: OrderSerializer()},
@@ -290,73 +81,14 @@ class OrderViewSet(ModelViewSet):
             OpenApiExample(
                 name="Retrieve Response Example",
                 response_only=True,
-                value={
-                    "id": 5,
-                    "customer": 1,
-                    "products": [
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                    ],
-                    "created_at": "2024-03-28T15:08:57.462177+03:00",
-                    "region": "Воронежская область",
-                    "district": "",
-                    "city_name": "Воронеж",
-                    "street": "улица 20-летия Октября",
-                    "house": "84",
-                    "total": "137.66",
-                    "status": {"name": "Создан"},
-                },
+                value=ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа для получения информации о конкретном заказе в Swagger UI",
                 summary="Пример ответа для получения информации о конкретном заказе",
                 media_type="application/json",
             ),
         ],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    create=extend_schema(
         description="Создать новый заказ",
         summary="Создание заказа",
         request=OrderSerializer,
@@ -388,69 +120,109 @@ class OrderViewSet(ModelViewSet):
             OpenApiExample(
                 name="Create Response Example",
                 response_only=True,
-                value={
-                    "id": 5,
-                    "customer": 1,
-                    "products": [
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                    ],
-                    "created_at": "2024-03-28T15:08:57.462177+03:00",
-                    "region": "Воронежская область",
-                    "district": "",
-                    "city_name": "Воронеж",
-                    "street": "улица 20-летия Октября",
-                    "house": "84",
-                    "total": "137.66",
-                    "status": {"name": "Создан"},
-                },
+                value=ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа на создание нового заказа в Swagger UI",
                 summary="Пример ответа ответа на создание нового заказа",
                 media_type="application/json",
             ),
         ],
-    )
+    ),
+    update=extend_schema(
+        description="Обновить информацию о конкретном заказе",
+        summary="Обновление заказа",
+        request=OrderSerializer,
+        responses={200: OrderSerializer()},
+        examples=[
+            OpenApiExample(
+                name="Update Request Example",
+                request_only=True,
+                value=ORDER_REQUEST_EXAMPLE,
+                description="Пример запроса на обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример запроса на обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name="Update Response Example",
+                response_only=True,
+                value=ORDER_RESPONSE_EXAMPLE,
+                description="Пример ответа на обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример ответа на обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+        ],
+    ),
+    partial_update=extend_schema(
+        description="Частично обновить информацию о конкретном заказе",
+        summary="Частичное обновление заказа",
+        request=OrderSerializer,
+        responses={200: OrderSerializer()},
+        examples=[
+            OpenApiExample(
+                name="Partial Update Request Example",
+                request_only=True,
+                value={"customer": "2"},
+                description="Пример запроса на частичное обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример запроса на частичное обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name="Partial Update Response Example",
+                response_only=True,
+                value=ORDER_RESPONSE_EXAMPLE,
+                description="Пример ответа на частичное обновление информации о конкретном заказе в Swagger UI",
+                summary="Пример ответа на частичное обновление информации о конкретном заказе",
+                media_type="application/json",
+            ),
+        ],
+    ),
+    destroy=extend_schema(
+        description="Удалить заказ",
+        summary="Удаление заказа",
+        responses={204: None},
+    ),
+    active_orders=extend_schema(
+        summary="Получение активных заказов пользователя",
+        description="Получение активных заказов пользователя",
+        examples=[
+            OpenApiExample(
+                name="List Response Example",
+                response_only=True,
+                value=ORDER_RESPONSE_EXAMPLE,
+                description="Пример ответа для получения списка всех заказов в Swagger UI",
+                summary="Пример ответа для получения списка всех заказов",
+                media_type="application/json",
+            ),
+        ],
+    ),
+)
+@extend_schema(tags=["Order"])
+class OrderViewSet(ModelViewSet):
+
+    queryset = Order.objects.all().order_by("-created_at")
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+    bitrix_api = Bitrix24API()
+
+    def get_permissions(self):
+        if self.action in ("update", "partial_update", "destroy"):
+            return [IsAdminUser]
+        elif self.action == "retrieve":
+            self.permission_classes.append(IsOwnerOrAdminPermission)
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        if self.action == "list":
+            return super().get_queryset().filter(customer=self.request.user)
+
+        return super().get_queryset()
+
+    @action(detail=False, methods=["get"], url_path="active-orders")
+    def active_orders(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset().filter(is_active=True)
+        return super().list(request, *args, **kwargs)
+
+
     def create(self, request, *args, **kwargs):
         total = 0
         city_domain = request.query_params.get("city_domain")
@@ -523,265 +295,9 @@ class OrderViewSet(ModelViewSet):
             self.bitrix_api.create_lead_for_order(order, city_domain)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @extend_schema(
-        description="Обновить информацию о конкретном заказе",
-        summary="Обновление заказа",
-        request=OrderSerializer,
-        responses={200: OrderSerializer()},
-        examples=[
-            OpenApiExample(
-                name="Update Request Example",
-                request_only=True,
-                value={
-                    "customer": 2,
-                    "products": [
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 2,
-                                "order": 1,
-                                "product": {
-                                    "id": 11,
-                                    "title": "Желоб водосточный 3 м Premium, шоколад",
-                                    "brand": 1,
-                                    "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                    "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                    "city_price": 74.87,
-                                    "old_price": 74.87,
-                                    "images": [
-                                        {
-                                            "id": 1,
-                                            "name": "updated_example",
-                                            "thumb_img": "thumb_example_updated.png",
-                                            "image": "/media/catalog/products/images/example_updated.png",
-                                            "is_active": True,
-                                        },
-                                        {
-                                            "id": 1,
-                                            "name": "updated_example",
-                                            "thumb_img": "thumb_example_updated.png",
-                                            "image": "/media/catalog/products/images/example_updated.png",
-                                            "is_active": True,
-                                        },
-                                        {
-                                            "id": 1,
-                                            "name": "updated_example",
-                                            "thumb_img": "thumb_example_updated.png",
-                                            "image": "/media/catalog/products/images/example_updated.png",
-                                            "is_active": True,
-                                        },
-                                    ],
-                                    "in_stock": True,
-                                    "category_slug": "seriia-premium-3",
-                                    "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                    "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                    "is_popular": False,
-                                },
-                                "quantity": 15,
-                                "price": "2.23",
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                    ],
-                    "created_at": "2024-03-28T15:08:57.462177+03:00",
-                    "region": "Воронежская область",
-                    "district": "",
-                    "city_name": "Воронеж",
-                    "street": "улица 20-летия Октября",
-                    "house": "84",
-                    "total": "137.66",
-                    "status": {"name": "Создан"},
-                },
-                description="Пример запроса на обновление информации о конкретном заказе в Swagger UI",
-                summary="Пример запроса на обновление информации о конкретном заказе",
-                media_type="application/json",
-            ),
-            OpenApiExample(
-                name="Update Response Example",
-                response_only=True,
-                value={
-                    "id": 5,
-                    "customer": 2,
-                    "products": [
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                    ],
-                    "created_at": "2024-03-28T15:08:57.462177+03:00",
-                    "region": "Воронежская область",
-                    "district": "",
-                    "city_name": "Воронеж",
-                    "street": "улица 20-летия Октября",
-                    "house": "84",
-                    "total": "137.66",
-                    "status": {"name": "Создан"},
-                },
-                description="Пример ответа на обновление информации о конкретном заказе в Swagger UI",
-                summary="Пример ответа на обновление информации о конкретном заказе",
-                media_type="application/json",
-            ),
-        ],
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
 
-    @extend_schema(
-        description="Частично обновить информацию о конкретном заказе",
-        summary="Частичное обновление заказа",
-        request=OrderSerializer,
-        responses={200: OrderSerializer()},
-        examples=[
-            OpenApiExample(
-                name="Partial Update Request Example",
-                request_only=True,
-                value={"customer": "2"},
-                description="Пример запроса на частичное обновление информации о конкретном заказе в Swagger UI",
-                summary="Пример запроса на частичное обновление информации о конкретном заказе",
-                media_type="application/json",
-            ),
-            OpenApiExample(
-                name="Partial Update Response Example",
-                response_only=True,
-                value={
-                    "id": 5,
-                    "customer": 2,
-                    "products": [
-                        {
-                            "id": 2,
-                            "order": 1,
-                            "product": {
-                                "id": 11,
-                                "title": "Желоб водосточный 3 м Premium, шоколад",
-                                "brand": 1,
-                                "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                                "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                                "city_price": 74.87,
-                                "old_price": 74.87,
-                                "images": [
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                    {
-                                        "id": 1,
-                                        "name": "updated_example",
-                                        "thumb_img": "thumb_example_updated.png",
-                                        "image": "/media/catalog/products/images/example_updated.png",
-                                        "is_active": True,
-                                    },
-                                ],
-                                "in_stock": True,
-                                "category_slug": "seriia-premium-3",
-                                "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                                "is_popular": False,
-                            },
-                            "quantity": 15,
-                            "price": "2.23",
-                        },
-                    ],
-                    "created_at": "2024-03-28T15:08:57.462177+03:00",
-                    "region": "Воронежская область",
-                    "district": "",
-                    "city_name": "Воронеж",
-                    "street": "улица 20-летия Октября",
-                    "house": "84",
-                    "total": "137.66",
-                    "status": {"name": "Создан"},
-                },
-                description="Пример ответа на частичное обновление информации о конкретном заказе в Swagger UI",
-                summary="Пример ответа на частичное обновление информации о конкретном заказе",
-                media_type="application/json",
-            ),
-        ],
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-    @extend_schema(
-        description="Удалить заказ",
-        summary="Удаление заказа",
-        responses={204: None},
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
-
-
-@extend_schema(
-    tags=["Cart"],
-    parameters=[
-        OpenApiParameter(
-            name="city_domain",
-            description="Домен города",
-            type=str,
-            location=OpenApiParameter.QUERY,
-        )
-    ],
-)
-class CartItemViewSet(ModelViewSet):
-    queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_serializer(self, *args, **kwargs):
-        kwargs.setdefault("context", {})
-        kwargs["context"]["city_domain"] = getattr(self, "city_domain", "")
-        kwargs["context"]["request"] = self.request
-        return super().get_serializer(*args, **kwargs)
-
-    @extend_schema(
+@extend_schema_view(
+    list=extend_schema(
         description="Получить список всех элементов корзины",
         summary="Список элементов корзины",
         responses={200: CartItemSerializer(many=True)},
@@ -789,46 +305,119 @@ class CartItemViewSet(ModelViewSet):
             OpenApiExample(
                 name="List Response Example",
                 response_only=True,
-                value={
-                    "id": 1,
-                    "product": {
-                        "id": 1,
-                        "title": "Чердачная лестница Standard Termo",
-                        "brand": {
-                            "id": 1,
-                            "name": "Deke",
-                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                            "order": 1,
-                        },
-                        "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                        "slug": "cherdachnaia-lestnitsa-standard-termo-5573",
-                        "city_price": "4865",
-                        "old_price": "3465",
-                        "images": [
-                            {
-                                "image_url": "/media/catalog/products/facbff77-b636-46ba-83de-bc4be3fc7105.webp"
-                            }
-                        ],
-                        "category_slug": "deke",
-                        "brand_slug": "test_brand-1",
-                        "search_image": "/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                    },
-                    "quantity": 15,
-                },
+                value=CART_ITEM_RESPONSE_EXAMPLE,
                 description="Пример ответа для получения списка элементов корзины в Swagger UI",
                 summary="Пример ответа для получения списка элементов корзины",
                 media_type="application/json",
             ),
         ],
-    )
-    def list(self, request, *args, **kwargs):
-
-        self.city_domain = request.query_params.get("city_domain")
-
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    retrieve=extend_schema(
+        description="Получить информацию о конкретном элементе корзины",
+        summary="Информация о элементе корзины",
+        responses={200: ProductDetailSerializer()},
+        examples=[
+            OpenApiExample(
+                name="Retrieve Response Example",
+                response_only=True,
+                value=CART_ITEM_RESPONSE_EXAMPLE,
+                description="Пример ответа для получения информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример ответа для получения информации о конкретном элементе корзины",
+                media_type="application/json",
+            ),
+        ],
+    ),
+    create=extend_schema(
+        description="Добавить новые элементы в корзину",
+        summary="Добавление новых элементов в корзину",
+        responses={201: CartItemSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                name="Create Request Example",
+                request_only=True,
+                value=[CART_ITEM_REQUEST_EXAMPLE],
+                description="Пример запроса на добавление новых элементов в корзину в Swagger UI",
+                summary="Пример запроса на добавление новых элементов в корзину",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name="Create Response Example",
+                response_only=True,
+                value=[CART_ITEM_REQUEST_EXAMPLE],
+                description="Пример ответа на добавление новых элементов в корзину в Swagger UI",
+                summary="Пример ответа на добавление новых элементов в корзину",
+                media_type="application/json",
+            ),
+        ],
+    ),
+    update=extend_schema(
+        description="Обновить информацию о конкретном элементе корзины",
+        summary="Обновление информации о элементе корзины",
+        responses={200: CartItemSerializer()},
+        examples=[
+            OpenApiExample(
+                name="Update Request Example",
+                request_only=True,
+                value=CART_ITEM_REQUEST_EXAMPLE,
+                description="Пример запроса на обновление информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример запроса на обновление информации о конкретном элементе корзины",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name="Update Response Example",
+                response_only=True,
+                value=CART_ITEM_RESPONSE_EXAMPLE,
+            ),
+        ],
+    ),
+    partial_update=extend_schema(
+        description="Частично обновить информацию о конкретном элементе корзины",
+        summary="Частичное обновление информации о элементе корзины",
+        responses={200: ProductDetailSerializer()},
+        examples=[
+            OpenApiExample(
+                name="Partial Update Request Example",
+                request_only=True,
+                value={
+                    "quantity": 20,
+                },
+                description="Пример запроса на частичное обновление информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример запроса на частичное обновление информации о конкретном элементе корзины",
+                media_type="application/json",
+            ),
+            OpenApiExample(
+                name="Partial Update Response Example",
+                response_only=True,
+                value=CART_ITEM_RESPONSE_EXAMPLE,
+                description="Пример ответа на частичное обновление информации о конкретном элементе корзины в Swagger UI",
+                summary="Пример ответа на частичное обновление информации о конкретном элементе корзины",
+                media_type="application/json",
+            ),
+        ],
+    ),
+    destroy=extend_schema(
+        description="Удалить конкретный элемент из корзины",
+        summary="Удаление элемента из корзины",
+        examples=[
+            OpenApiExample(
+                name="Delete Request Example",
+                request_only=True,
+                value=None,
+                description="Удаление элемента из корзины",
+            ),
+            OpenApiExample(
+                name="Delete Response Example",
+                response_only=True,
+                value=None,
+                description="Удаление элемента из корзины",
+            ),
+        ],
+    ),
+    delete_cart=extend_schema(
+        description="Удаление всех элементов из корзины",
+        summary="Удаление всех элементов из корзины",
+    ),
+    delete_some=extend_schema(
         description="Удалить несколько товаров из корзины (необходимо передавать id товаров)",
         summary="Удалить несколько товаров из корзины",
         examples=[
@@ -850,7 +439,85 @@ class CartItemViewSet(ModelViewSet):
                 status_codes=[400],
             ),
         ],
-    )
+    ),
+    get_simple_prods=extend_schema(
+        description="Получить список минимальной информации об элементах корзины",
+        summary="Список минимальной информации об элементах корзины",
+        responses={200: SimplifiedCartItemSerializer()},
+        examples=[
+            OpenApiExample(
+                name="List Response Example",
+                response_only=True,
+                value=[CART_ITEM_REQUEST_EXAMPLE],
+                description="Пример ответа для получения списка минимальной информации об элементах корзины в Swagger UI",
+                summary="Пример ответа для получения списка минимальной информации об элементах корзины",
+                media_type="application/json",
+            ),
+        ],
+    ),
+    cartitems_detail=extend_schema(
+        description="Получение подробной информации о товарах в корзине",
+        summary="Получение подробной информации о товарах в корзине",
+        responses={200: ProductDetailSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                name="Get Detail Info Request Example",
+                response_only=True,
+                value=RETRIEVE_RESPONSE_EXAMPLE,
+                description="Пример ответа подробной информации о товарах в корзине в Swagger UI",
+                summary="Пример подробной информации о товарах в корзине",
+                media_type="application/json",
+            ),
+        ],
+    ),
+    delete_by_prod=extend_schema(
+        description="Delete Cart Item by Product ID",
+        summary="Delete Cart Item by Product ID",
+    ),
+)
+@extend_schema(
+    tags=["Cart"],
+    parameters=[
+        OpenApiParameter(
+            name="city_domain",
+            description="Домен города",
+            type=str,
+            location=OpenApiParameter.QUERY,
+        )
+    ],
+)
+class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+    permission_classes = [IsAuthenticated]
+
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["city_domain"] = self.request.query_params.get("city_domain")
+        return context
+
+
+    def get_serializer_class(self):
+        if self.action == "cartitems_detail":
+            return ProductDetailSerializer
+        elif self.action in ("partial_update", "get_simple_prods"):
+            return SimplifiedCartItemSerializer
+
+        return super().get_serializer_class()
+
+
+    def perform_create(self, serializer):
+        serializer.save(customer=self.request.user)
+
+
+    def get_queryset(self):
+        if self.action == "cartitems_detail":
+            return self.queryset
+
+        return self.queryset.filter(customer=self.request.user)
+
+
     @action(methods=["post"], detail=False)
     def delete_some(self, request, *args, **kwargs):
         ids_list = request.data.get("products_id", [])
@@ -872,10 +539,7 @@ class CartItemViewSet(ModelViewSet):
             {"message": "Objects successfully deleted"}, status=status.HTTP_200_OK
         )
 
-    @extend_schema(
-        description="Удаление всех элементов из корзины",
-        summary="Удаление всех элементов из корзины",
-    )
+
     @action(methods=["delete"], detail=False)
     def delete_cart(self, request, *args, **kwargs):
         queryset = CartItem.objects.filter(customer=request.user)
@@ -885,40 +549,7 @@ class CartItemViewSet(ModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def get_serializer_class(self):
-        if self.action == "cartitems_detail":
-            return ProductDetailSerializer
-        elif self.action == "partial_update":
-            return SimplifiedCartItemSerializer
-        elif self.action == "get_simple_prods":
-            return SimplifiedCartItemSerializer
 
-        return super().get_serializer_class()
-
-    @extend_schema(
-        description="Получить список минимальной информации об элементах корзины",
-        summary="Список минимальной информации об элементах корзины",
-        responses={200: SimplifiedCartItemSerializer(many=True)},
-        examples=[
-            OpenApiExample(
-                name="List Response Example",
-                response_only=True,
-                value=[
-                    {
-                        "product_id": 1,
-                        "quantity": 15,
-                    },
-                    {
-                        "product_id": 2,
-                        "quantity": 12,
-                    },
-                ],
-                description="Пример ответа для получения списка минимальной информации об элементах корзины в Swagger UI",
-                summary="Пример ответа для получения списка минимальной информации об элементах корзины",
-                media_type="application/json",
-            ),
-        ],
-    )
     @action(detail=False, methods=["get"])
     def get_simple_prods(self, request, *args, **kwargs):
         queryset = CartItem.objects.filter(customer=request.user)
@@ -931,35 +562,7 @@ class CartItemViewSet(ModelViewSet):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    @extend_schema(
-        description="Добавить новые элементы в корзину",
-        summary="Добавление новых элементов в корзину",
-        responses={201: CartItemSerializer(many=True)},
-        examples=[
-            OpenApiExample(
-                name="Create Request Example",
-                request_only=True,
-                value=[
-                    {"product_id": 3732, "quantity": 15},
-                    {"product_id": 3733, "quantity": 13},
-                ],
-                description="Пример запроса на добавление новых элементов в корзину в Swagger UI",
-                summary="Пример запроса на добавление новых элементов в корзину",
-                media_type="application/json",
-            ),
-            OpenApiExample(
-                name="Create Response Example",
-                response_only=True,
-                value=[
-                    {"product_id": 3732, "quantity": 15},
-                    {"product_id": 3733, "quantity": 13},
-                ],
-                description="Пример ответа на добавление новых элементов в корзину в Swagger UI",
-                summary="Пример ответа на добавление новых элементов в корзину",
-                media_type="application/json",
-            ),
-        ],
-    )
+
     def create(self, request, *args, **kwargs):
         existing_cart_items = CartItem.objects.filter(customer=request.user)
 
@@ -993,147 +596,7 @@ class CartItemViewSet(ModelViewSet):
         )
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
-    @extend_schema(
-        description="Получить информацию о конкретном элементе корзины",
-        summary="Информация о элементе корзины",
-        responses={200: ProductDetailSerializer()},
-        examples=[
-            OpenApiExample(
-                name="Retrieve Response Example",
-                response_only=True,
-                value={
-                    "id": 24,
-                    "product": {
-                        "id": 3732,
-                        "title": "Желоб водосточный 3 м Premium, пломбир",
-                        "brand": {
-                            "id": 1,
-                            "name": "Deke",
-                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                            "order": 1,
-                        },
-                        "image": "/media/catalog/products/a42d0139-f06b-462a-bd70-4885d7edc288.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-plombir-3732",
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                        ],
-                        "category_slug": "seriya-premium",
-                        "brand_slug": "test_brand-1",
-                        "search_image": "/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "is_stock": True,
-                    },
-                    "quantity": 100,
-                },
-                description="Пример ответа для получения информации о конкретном элементе корзины в Swagger UI",
-                summary="Пример ответа для получения информации о конкретном элементе корзины",
-                media_type="application/json",
-            ),
-        ],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
 
-    @extend_schema(
-        description="Получение подробной информации о товарах в корзине",
-        summary="Получение подробной информации о товарах в корзине",
-        responses={200: ProductDetailSerializer(many=True)},
-        examples=[
-            OpenApiExample(
-                name="Get Detail Info Request Example",
-                response_only=True,
-                value={
-                    "id": 5138,
-                    "category": {
-                        "id": 2350,
-                        "name": "Ветро-влагозащита А (1,6 х 43,75 м)",
-                        "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m",
-                        "order": 2350,
-                        "parent": 2333,
-                        "children": None,
-                        "parents": [
-                            [
-                                "Гидро-ветрозащита и пароизоляция",
-                                "gidro-vetrozashchita-i-paroizoliatsiia",
-                            ]
-                        ],
-                        "icon": None,
-                        "image_url": None,
-                        "is_visible": True,
-                        "is_popular": False,
-                        "thumb_img": None,
-                    },
-                    "title": "Ветро-влагозащита А (1,6 х 43,75 м)",
-                    "brand": {
-                        "id": 6,
-                        "name": "ISOBOX",
-                        "icon": None,
-                        "order": 0,
-                        "slug": "isobox",
-                    },
-                    "article": "620223",
-                    "description": "Ветро-влагозащитная пленка А – паропроницаемый материал, состоящий из полипропиленового нетканого полотна. Сохраняет теплозащитные характеристики утеплителя и продлевает срок службы всей конструкции.",
-                    "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m-5138",
-                    "created_at": "2024-06-04T16:57:46.221822+03:00",
-                    "city_price": None,
-                    "old_price": None,
-                    "characteristic_values": [
-                        {
-                            "id": 67720,
-                            "characteristic_name": "Применение",
-                            "value": "Применяется для защиты теплоизоляционного слоя и внутренних элементов конструкции стен от ветра, атмосферной влаги и не препятствует выходу водяных паров из утеплителя.",
-                            "slug": "primeniaetsia-dlia-zashchity-teploizoliatsionnogo-sloia-i-vnutrennikh-elementov-konstruktsii-sten-ot-vetra-atmosfernoi-vlagi-i-ne-prepiatstvuet-vykhodu-vodianykh-parov-iz-uteplitelia",
-                        },
-                        {
-                            "id": 67721,
-                            "characteristic_name": "Страна происхождения",
-                            "value": "Россия",
-                            "slug": "rossiia",
-                        },
-                    ],
-                    "images": [
-                        {
-                            "id": 1,
-                            "name": "updated_example",
-                            "thumb_img": "thumb_example_updated.png",
-                            "image": "/media/catalog/products/images/example_updated.png",
-                            "is_active": True,
-                        }
-                    ],
-                    "in_stock": True,
-                    "is_popular": False,
-                    "priority": 500,
-                    "is_acitve": True,
-                    "thumb_img": "base64img",
-                    "files": [
-                        {
-                            "id": 5,
-                            "file": "/media/catalog/products/documents/20240301_142235.heic",
-                            "name": "Test",
-                            "is_active": True,
-                            "product": 5138,
-                        }
-                    ],
-                },
-                description="Пример ответа подробной информации о товарах в корзине в Swagger UI",
-                summary="Пример подробной информации о товарах в корзине",
-                media_type="application/json",
-            ),
-        ],
-    )
     @action(detail=False, methods=["get"])
     def cartitems_detail(self, request, *args, **kwargs):
         id_lists = list(
@@ -1144,114 +607,7 @@ class CartItemViewSet(ModelViewSet):
         self.queryset = Product.objects.filter(id__in=id_lists)
         return super().list(request, *args, **kwargs)
 
-    @extend_schema(
-        description="Обновить информацию о конкретном элементе корзины",
-        summary="Обновление информации о элементе корзины",
-        responses={200: CartItemSerializer()},
-        examples=[
-            OpenApiExample(
-                name="Update Request Example",
-                request_only=True,
-                value={"product_id": 3736, "quantity": 20},
-                description="Пример запроса на обновление информации о конкретном элементе корзины в Swagger UI",
-                summary="Пример запроса на обновление информации о конкретном элементе корзины",
-                media_type="application/json",
-            ),
-            OpenApiExample(
-                name="Update Response Example",
-                response_only=True,
-                value={
-                    "id": 2,
-                    "product": {
-                        "id": 3736,
-                        "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                        "brand": {
-                            "id": 1,
-                            "name": "Deke",
-                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                            "order": 1,
-                        },
-                        "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                        "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                        "city_price": "6865",
-                        "old_price": "3865",
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            }
-                        ],
-                        "category_slug": "deke",
-                        "brand_slug": "test_brand-1",
-                        "search_image": "/media/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                    },
-                    "quantity": 20,
-                },
-            ),
-        ],
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
 
-    @extend_schema(
-        description="Частично обновить информацию о конкретном элементе корзины",
-        summary="Частичное обновление информации о элементе корзины",
-        responses={200: ProductDetailSerializer()},
-        examples=[
-            OpenApiExample(
-                name="Partial Update Request Example",
-                request_only=True,
-                value={
-                    "quantity": 20,
-                },
-                description="Пример запроса на частичное обновление информации о конкретном элементе корзины в Swagger UI",
-                summary="Пример запроса на частичное обновление информации о конкретном элементе корзины",
-                media_type="application/json",
-            ),
-            OpenApiExample(
-                name="Partial Update Response Example",
-                response_only=True,
-                value={
-                    "id": 2,
-                    "product": {
-                        "id": 3736,
-                        "title": "Хомут универсальный для водосточной трубы Standard, светло-коричневый",
-                        "brand": {
-                            "id": 1,
-                            "name": "Deke",
-                            "icon": "category_icons/7835f40b-88f3-49a3-821c-6ba73126323b.webp",
-                            "order": 1,
-                        },
-                        "image": "/media/catalog/products/edc6eea5-7202-44d6-8e76-a7bbdc5c16ce.webp",
-                        "slug": "khomut-universalnyi-dlia-vodostochnoi-truby-standard-svetlo-korichnevyi-5560",
-                        "city_price": "6865",
-                        "old_price": "3865",
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            }
-                        ],
-                        "category_slug": "deke",
-                        "brand_slug": "test_brand-1",
-                        "search_image": "/media/catalog/products/search-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-4ae4f533-785b-465b-ad46-e2fd9e459660.webp",
-                    },
-                    "quantity": 20,
-                },
-                description="Пример ответа на частичное обновление информации о конкретном элементе корзины в Swagger UI",
-                summary="Пример ответа на частичное обновление информации о конкретном элементе корзины",
-                media_type="application/json",
-            ),
-        ],
-    )
     def partial_update(self, request, *args, **kwargs):
         product_id = kwargs.get("pk")
         product = get_object_or_404(Product, id=product_id)
@@ -1259,31 +615,7 @@ class CartItemViewSet(ModelViewSet):
         kwargs["pk"], self.kwargs["pk"] = cart_item.pk, cart_item.pk
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(
-        description="Удалить конкретный элемент из корзины",
-        summary="Удаление элемента из корзины",
-        examples=[
-            OpenApiExample(
-                name="Delete Request Example",
-                request_only=True,
-                value=None,
-                description="Удаление элемента из корзины",
-            ),
-            OpenApiExample(
-                name="Delete Response Example",
-                response_only=True,
-                value=None,
-                description="Удаление элемента из корзины",
-            ),
-        ],
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
 
-    @extend_schema(
-        description="Delete Cart Item by Product ID",
-        summary="Delete Cart Item by Product ID",
-    )
     @action(detail=True, methods=["delete"])
     def delete_by_prod(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
@@ -1293,15 +625,6 @@ class CartItemViewSet(ModelViewSet):
 
         self.kwargs["pk"] = cart_item.pk
         return super().destroy(request, *args, **kwargs)
-
-    def get_queryset(self):
-        if self.action == "cartitems_detail":
-            return self.queryset
-
-        return self.queryset.filter(customer=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(customer=self.request.user)
 
 
 @extend_schema(tags=["Cart"])

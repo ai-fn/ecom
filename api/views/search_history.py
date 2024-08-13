@@ -11,20 +11,34 @@ from shop.models import SearchHistory
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
 
 
+SEARCH_HISTORY_REQUEST_EXAMPLE = {
+    "title": "Новый запрос",
+    "is_active": True,
+}
+SEARCH_HISTORY_REQUEST_EXAMPLE_WITH_USER_ID = {
+    "user_id": 1,
+    **SEARCH_HISTORY_REQUEST_EXAMPLE,
+}
+SEARCH_HISTORY_RESPONSE_EXAMPLE = {
+    "id": 1,
+    **SEARCH_HISTORY_REQUEST_EXAMPLE,
+}
+SEARCH_HISTORY_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
+    k: v for k, v in list(SEARCH_HISTORY_REQUEST_EXAMPLE.items())[:2]
+}
+
+
 @extend_schema_view(
     list=extend_schema(
         summary="Список поисковых запросов",
         description="Возвращает список всех сохраненных поисковых запросов.",
+        responses={200: SearchHistorySerializer(many=True)},
         examples=[
             OpenApiExample(
                 "Пример успешного ответа",
                 summary="Пример списка поисковых запросов",
                 description="Пример ответа, содержащего список поисковых запросов.",
-                value={
-                    "id": 1,
-                    "title": "Новый запрос",
-                    "is_active": True,
-                },
+                value=SEARCH_HISTORY_RESPONSE_EXAMPLE,
                 response_only=True,
             )
         ],
@@ -37,30 +51,21 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример запроса",
                 summary="Пример запроса на добавление поискового запроса (с указанием user_id)",
                 description="Пример тела запроса для добавления нового поискового запроса.",
-                value={
-                    "title": "Новый запрос",
-                    "user_id": 1,
-                },
+                value=SEARCH_HISTORY_REQUEST_EXAMPLE_WITH_USER_ID,
                 request_only=True,
             ),
             OpenApiExample(
                 "Пример запроса",
                 summary="Пример запроса на добавление поискового запроса (без указания user_id)",
                 description="Пример тела запроса для добавления нового поискового запроса.",
-                value={
-                    "title": "Новый запрос",
-                },
+                value=SEARCH_HISTORY_REQUEST_EXAMPLE,
                 request_only=True,
             ),
             OpenApiExample(
                 "Пример успешного ответа",
                 summary="Пример успешного ответа при добавлении поискового запроса",
                 description="Пример успешного ответа, содержащего добавленный поисковый запрос.",
-                value={
-                    "id": 1,
-                    "title": "Новый запрос",
-                    "is_active": True,
-                },
+                value=SEARCH_HISTORY_RESPONSE_EXAMPLE,
                 response_only=True,
             ),
         ],
@@ -73,11 +78,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример успешного ответа",
                 summary="Пример ответа для одного поискового запроса",
                 description="Пример ответа, содержащего данные одного поискового запроса.",
-                value={
-                    "id": 1,
-                    "title": "Пример запроса",
-                    "is_active": True,
-                },
+                value=SEARCH_HISTORY_RESPONSE_EXAMPLE,
                 response_only=True,
             )
         ],
@@ -90,20 +91,14 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример запроса",
                 summary="Пример запроса на обновление поискового запроса",
                 description="Пример тела запроса для обновления существующего поискового запроса.",
-                value={
-                    "title": "Обновленный запрос",
-                },
+                value=SEARCH_HISTORY_REQUEST_EXAMPLE,
                 request_only=True,
             ),
             OpenApiExample(
                 "Пример успешного ответа",
                 summary="Пример успешного ответа при обновлении поискового запроса",
                 description="Пример успешного ответа, содержащего обновленный поисковый запрос.",
-                value={
-                    "id": 1,
-                    "title": "Обновленный запрос",
-                    "is_active": True,
-                },
+                value=SEARCH_HISTORY_RESPONSE_EXAMPLE,
                 response_only=True,
             ),
         ],
@@ -116,20 +111,14 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExam
                 "Пример запроса",
                 summary="Пример запроса на частичное обновление поискового запроса",
                 description="Пример тела запроса для частичного обновления существующего поискового запроса.",
-                value={
-                    "title": "Частично обновленный запрос",
-                },
+                value=SEARCH_HISTORY_PARTIAL_UPDATE_REQUEST_EXAMPLE,
                 request_only=True,
             ),
             OpenApiExample(
                 "Пример успешного ответа",
                 summary="Пример успешного ответа при частичном обновлении поискового запроса",
                 description="Пример успешного ответа, содержащего частично обновленный поисковый запрос.",
-                value={
-                    "id": 1,
-                    "title": "Частично обновленный запрос",
-                    "is_active": True,
-                },
+                value=SEARCH_HISTORY_RESPONSE_EXAMPLE,
                 response_only=True,
             ),
         ],
@@ -174,12 +163,13 @@ class SearchHistoryViewSet(ModelViewSet):
         examples=[
             OpenApiExample(
                 name="Request Example",
-                value={},
+                value=None,
             ),
         ],
     )
     @action(detail=False, methods=["delete"])
     def clear_history(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+        headers = self.get_success_headers()
         queryset.delete()
-        return Response([], status=HTTP_204_NO_CONTENT)
+        return Response(headers=headers, status=HTTP_204_NO_CONTENT)

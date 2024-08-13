@@ -5,6 +5,8 @@ from api.serializers import ProductCatalogSerializer
 from shop.models import Product
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
+from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
+
 
 @extend_schema(tags=["Shop"])
 class SimilarProducts(ListModelMixin, GenericViewSet):
@@ -29,32 +31,7 @@ class SimilarProducts(ListModelMixin, GenericViewSet):
             OpenApiExample(
                 name="Response Example",
                 response_only=True,
-                value={
-                    "id": 1,
-                    "title": "Product A",
-                    "brand": 1,
-                    "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "slug": "product-a",
-                    "city_price": 100.0,
-                    "old_price": 120.0,
-                    "images": [
-                        {
-                            "id": 1,
-                            "name": "updated_example",
-                            "thumb_img": "thumb_example_updated.png",
-                            "image": "/media/catalog/products/images/example_updated.png",
-                            "is_active": True,
-                        },
-                        {
-                            "id": 1,
-                            "name": "updated_example",
-                            "thumb_img": "thumb_example_updated.png",
-                            "image": "/media/catalog/products/images/example_updated.png",
-                            "is_active": True,
-                        },
-                    ],
-                    "category_slug": "category-a",
-                },
+                value=UNAUTHORIZED_RESPONSE_EXAMPLE,
             )
         ],
     )

@@ -44,23 +44,24 @@ class ProductForGroupImageSerializer(ProductForGroupNonImageSerializer):
 
 class ProductGroupSerializer(ActiveModelSerializer):
 
-    products = SerializerMethodField()
-    characteristic = SerializerMethodField()
-
     class Meta:
         model = ProductGroup
         exclude = ["updated_at", "created_at"]
 
-    def get_products(self, obj) -> Any:
-        context = {"characteristic_name": obj.characteristic.name, **self.context}
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        context = {"characteristic_name": instance.characteristic.name, **self.context}
         if self.context.get("visual_groups"):
-            return ProductForGroupImageSerializer(
-                obj.products.all(), many=True, context=context
+            products = ProductForGroupImageSerializer(
+                instance.products.all(), many=True, context=context
+            ).data
+        else:
+            products = ProductForGroupNonImageSerializer(
+                instance.products.all(), many=True, context=context
             ).data
 
-        return ProductForGroupNonImageSerializer(
-            obj.products.all(), many=True, context=context
-        ).data
-
-    def get_characteristic(self, obj) -> str:
-        return obj.characteristic.name if obj.characteristic else None
+        data['products'] = products
+        data['characteristic'] = instance.characteristic.name if instance.characteristic else None
+        return data

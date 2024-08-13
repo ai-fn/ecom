@@ -3,134 +3,57 @@ from api.serializers.products_in_order import ProductsInOrderSerializer
 from rest_framework.permissions import IsAuthenticated
 from cart.models import ProductsInOrder
 
-from drf_spectacular.utils import extend_schema, OpenApiExample
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample
+from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
 
 
-@extend_schema(tags=["Cart"])
-class ProductsInOrderViewSet(ModelViewSet):
-    queryset = ProductsInOrder.objects.all().order_by("-created_at")
-    serializer_class = ProductsInOrderSerializer
-    permission_classes = [IsAuthenticated]
+PRODUCTS_IN_ORDER_REQUEST_EXAMPLE = {
+    "order_id": 1,
+    "product_id": 1,
+    "quantity": 20,
+    "price": 130.00
+}
+PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE = {
+    "id": 2,
+    "order": 1,
+    "product": UNAUTHORIZED_RESPONSE_EXAMPLE,
+    **PRODUCTS_IN_ORDER_REQUEST_EXAMPLE,
+}
+PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE.pop("product_id")
+PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE.pop("order_id")
 
-    @extend_schema(
+PRODUCTS_IN_ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PRODUCTS_IN_ORDER_REQUEST_EXAMPLE.items())[:2]}
+
+
+@extend_schema_view(
+    list=extend_schema(
         description="Получить список всех продуктов в заказе.",
         summary="Список продуктов в заказе",
+        responses={200: ProductsInOrderSerializer(many=True)},
         examples=[
             OpenApiExample(
                 name="List Products in Order Example",
-                value={
-                    "id": 2,
-                    "order": 1,
-                    "product": {
-                        "id": 11,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                        "city_price": 74.87,
-                        "old_price": 74.87,
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-3",
-                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "is_popular": False,
-                    },
-                    "quantity": 15,
-                    "price": "2.23",
-                    "is_active": True,
-                },
+                value=PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа при запросе списка продуктов в заказе в Swagger UI",
                 response_only=True,
                 media_type="application/json",
             ),
         ],
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    retrieve=extend_schema(
         description="Получить информацию о конкретном продукте в заказе.",
         summary="Информация о продукте в заказе",
         examples=[
             OpenApiExample(
                 name="Retrieve Product in Order Example",
-                value={
-                    "id": 2,
-                    "order": 1,
-                    "product": {
-                        "id": 11,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                        "city_price": 74.87,
-                        "old_price": 74.87,
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-3",
-                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "is_popular": False,
-                    },
-                    "quantity": 15,
-                    "price": "2.23",
-                    "is_active": True,
-                },
+                value=PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа при запросе информации о продукте в заказе в Swagger UI",
                 response_only=True,
                 media_type="application/json",
             ),
         ],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    create=extend_schema(
         description="Добавить новый продукт в заказ.",
         summary="Добавление продукта в заказ",
         request=ProductsInOrderSerializer,
@@ -139,73 +62,20 @@ class ProductsInOrderViewSet(ModelViewSet):
             OpenApiExample(
                 name="Create Product in Order Example",
                 request_only=True,
-                value={
-                    "id": 2,
-                    "order": 1,
-                    "product_id": 1,
-                    "quantity": 15,
-                    "price": "2.23",
-                    "is_active": True,
-                },
+                value=PRODUCTS_IN_ORDER_REQUEST_EXAMPLE,
                 description="Пример запроса для добавления нового продукта в заказ в Swagger UI",
                 media_type="application/json",
             ),
             OpenApiExample(
                 name="Create Product in Order Example",
                 response_only=True,
-                value={
-                    "id": 1,
-                    "order": 1,
-                    "product": {
-                        "id": 11,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                        "city_price": 74.87,
-                        "old_price": 74.87,
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-3",
-                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "is_popular": False,
-                    },
-                    "quantity": 15,
-                    "price": "2.23",
-                    "is_active": True,
-                },
+                value=PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа на добавление нового продукта в заказ в Swagger UI",
                 media_type="application/json",
             ),
         ],
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    update=extend_schema(
         description="Обновить информацию о продукте в заказе.",
         summary="Обновление информации о продукте в заказе",
         request=ProductsInOrderSerializer,
@@ -214,70 +84,20 @@ class ProductsInOrderViewSet(ModelViewSet):
             OpenApiExample(
                 name="Пример запроса на обновление элемента заказа",
                 request_only=True,
-                value={
-                    "order": 1,
-                    "product_id": 11,
-                    "quantity": 15,
-                },
+                value=PRODUCTS_IN_ORDER_REQUEST_EXAMPLE,
                 description="Пример запроса для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
             ),
             OpenApiExample(
                 name="Пример ответа на обновление элемента заказа",
                 response_only=True,
-                value={
-                    "id": 2,
-                    "order": 1,
-                    "product": {
-                        "id": 11,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                        "city_price": 74.87,
-                        "old_price": 74.87,
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-3",
-                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "is_popular": False,
-                    },
-                    "quantity": 15,
-                    "price": "2.23",
-                    "is_active": True,
-                },
+                value=PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
             ),
         ],
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    partial_update=extend_schema(
         description="Частично обновить информацию о продукте в заказе.",
         summary="Частичное обновление информации о продукте в заказе",
         request=ProductsInOrderSerializer,
@@ -286,68 +106,20 @@ class ProductsInOrderViewSet(ModelViewSet):
             OpenApiExample(
                 name="Partial Update Product in Order Example",
                 request_only=True,
-                value={
-                    "quantity": 3,
-                },
+                value=PRODUCTS_IN_ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE,
                 description="Пример запроса для частичного обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
             ),
             OpenApiExample(
                 name="Пример частичного обновления элемента заказа",
                 response_only=True,
-                value={
-                    "id": 2,
-                    "order": 1,
-                    "product": {
-                        "id": 11,
-                        "title": "Желоб водосточный 3 м Premium, шоколад",
-                        "brand": 1,
-                        "image": "/media/catalog/products/image-476565d5-b3aa-494f-8e57-a8c92af898cb.webp",
-                        "slug": "zhelob-vodostochnyi-3-m-premium-shokolad-11",
-                        "city_price": 74.87,
-                        "old_price": 74.87,
-                        "images": [
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                            {
-                                "id": 1,
-                                "name": "updated_example",
-                                "thumb_img": "thumb_example_updated.png",
-                                "image": "/media/catalog/products/images/example_updated.png",
-                                "is_active": True,
-                            },
-                        ],
-                        "in_stock": True,
-                        "category_slug": "seriia-premium-3",
-                        "search_image": "/media/catalog/products/search-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "catalog_image": "/media/catalog/products/catalog-image-288c5a83-dde5-4475-a059-3365811cce9e.webp",
-                        "is_popular": False,
-                    },
-                    "quantity": 3,
-                    "price": "2.23",
-                    "is_active": True,
-                },
+                value=PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE,
                 description="Пример ответа для обновления информации о продукте в заказе в Swagger UI",
                 media_type="application/json",
             ),
         ],
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    destroy=extend_schema(
         description="Удалить продукт из заказа.",
         summary="Удаление продукта из заказа",
         responses={204: None},
@@ -360,6 +132,10 @@ class ProductsInOrderViewSet(ModelViewSet):
                 media_type="application/json",
             ),
         ],
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+    ),
+)
+@extend_schema(tags=["Cart"])
+class ProductsInOrderViewSet(ModelViewSet):
+    queryset = ProductsInOrder.objects.all().order_by("-created_at")
+    serializer_class = ProductsInOrderSerializer
+    permission_classes = [IsAuthenticated]

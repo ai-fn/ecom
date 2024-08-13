@@ -33,3 +33,4 @@ from .productfile import ProductFileViewSet
 from .productimage import ProductImageViewSet
 from .feedback import FeedbackViewSet
 from .page import PageViewSet
+from .product_group import ProductGroupViewSet

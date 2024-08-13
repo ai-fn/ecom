@@ -4,52 +4,56 @@ from django_filters import rest_framework as filters
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
+from shop.models import Category, Product, Characteristic
+
 from api.filters import ProductFilter
 from api.permissions import ReadOnlyOrAdminPermission
-from api.serializers.characteristic_filter import CharacteristicFilterSerializer
-from api.serializers.product_catalog import ProductCatalogSerializer
-from api.serializers.product_detail import ProductDetailSerializer
+from api.serializers import CharacteristicFilterSerializer
+from api.serializers import ProductCatalogSerializer
+from api.serializers import ProductDetailSerializer
+from api.views.category import CATEGORY_RESPONSE_EXAMPLE
+from api.views.brand import BRAND_RESPONSE_EXAMPLE
+from api.views.productimage import PRODUCT_IMAGE_RESPONSE_EXAMPLE
+from api.views.productfile import PRODUCT_FILE_RESPONSE_EXAMPLE
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from shop.models import Category, Product, Characteristic
 
 
-UNAUTHORIZED_RESPONSE_EXAMPLE = {
+BASE_PRODUCT_RESPONSE = {
     "id": 4883,
     "title": "TEST PRODUCT 2",
     "brand": 1,
-    "h1_tag": None,
-    "article": "csmnssvd",
+    "h1_tag": "dummy-h1-tag",
+    "article": "dummy-article",
     "slug": "test-product-4883",
-    "city_price": None,
-    "old_price": None,
-    "images": [
-        {
-            "id": "1",
-            "name": "dummy-name",
-            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
-            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
-            "is_active": True,
-        }
-    ],
-    "in_stock": True,
+    "city_price": 120.00,
+    "old_price": 130.00,
     "category_slug": "krovelnye-materialy",
     "brand_slug": "tekhnonikol",
-    "search_image": None,
-    "catalog_image": None,
-    "original_image": None,
-    "is_popular": False,
-    "is_new": False,
+    "search_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+    "catalog_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+    "original_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
     "thumb_img": "dkjfdkfhkjshgfjkehskfbhjkasldewhefbcsdhecgfbhsewlfgbcsekhfesfdbvslhefglsefghdjlsehfcdegcsdjeu",
     "description": "TEST PRODUCT 2 TEST PRODUCT 2 TEST PRODUCT 2 TEST PRODUCT 2 TEST PRODUCT 2",
-    "in_promo": False,
     "priority": 500,
-    "is_active": True
+    "is_popular": False,
+    "is_new": False,
+    "in_promo": False,
+    "is_active": True,
+    "in_stock": True,
 }
 
-AUTHORIZED_RESPONSE_EXAMPLE = {**UNAUTHORIZED_RESPONSE_EXAMPLE, "cart_quantity": 20}
+UNAUTHORIZED_RESPONSE_EXAMPLE = {
+    **BASE_PRODUCT_RESPONSE,
+    "images": [PRODUCT_IMAGE_RESPONSE_EXAMPLE],
+}
+
+AUTHORIZED_RESPONSE_EXAMPLE = {
+    **UNAUTHORIZED_RESPONSE_EXAMPLE,
+    "cart_quantity": 20,
+}
 
 UPDATE_REQUEST_EXAMPLE = {
     "h1_tag": "dummy-h1-tag",
@@ -63,103 +67,35 @@ UPDATE_REQUEST_EXAMPLE = {
         {
             "characteristic_id": 12,
             "product_id": 13,
-            "value": "Применяется для защиты теплоизоляционного слоя и внутренних элементов конструкции стен от ветра, атмосферной влаги и не препятствует выходу водяных паров из утеплителя.",
+            "value": (
+                "Применяется для защиты теплоизоляционного слоя и внутренних элементов "
+                "конструкции стен от ветра."
+            ),
         },
     ],
-    "images": [
-        {
-            "name": "dummy-name",
-            "image": "/media/catalog/products/images/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
-            "product_id": 120,
-            "thumb_img": "asdfcvzarfqejrh0324wuegbfashfvoqwvashflj",
-            "is_active": True,
-        }
-    ],
+    "images": [PRODUCT_IMAGE_RESPONSE_EXAMPLE],
     "in_stock": True,
     "is_popular": False,
     "is_new": True,
     "thumb_img": "base64string",
-    "is_acitve": True,
+    "is_active": True,
 }
-PARTIAL_UPDATE_REQEUST_EXAMPLE = {
-    key: value for key, value in list(UPDATE_REQUEST_EXAMPLE.items())[:2]
+
+PARTIAL_UPDATE_REQUEST_EXAMPLE = {
+    key: UPDATE_REQUEST_EXAMPLE[key]
+    for key in ["h1_tag", "category"]
 }
-RETRIVE_RESPONSE_EXAMPLE = {
+
+RETRIEVE_RESPONSE_EXAMPLE = {
     "id": 5138,
     **UPDATE_REQUEST_EXAMPLE,
-    "category": {
-        "id": 2350,
-        "h1_tag": "dummy_h1_tag",
-        "name": "Ветро-влагозащита А (1,6 х 43,75 м)",
-        "slug": "vetro-vlagozashchita-a-1-6-kh-43-75-m",
-        "order": 2350,
-        "parent": 2333,
-        "children": [
-            {
-                "id": 2348,
-                "name": "Армирующая ткань АЛЬФА ПЭЙСТ",
-                "h1_tag": "dummy_h1_tag",
-                "slug": "armiruiushchaia-tkan-al-fa-peist",
-                "order": 2348,
-                "parent": 2333,
-                "children": [],
-                "parents": [
-                    [
-                        "Гидро-ветрозащита и пароизоляция",
-                        "gidro-vetrozashchita-i-paroizoliatsiia",
-                    ]
-                ],
-                "icon": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                "image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-                "is_visible": True,
-                "is_popular": False,
-                "thumb_img": "base64string",
-                "is_acitve": True,
-            }
-        ],
-        "parents": [
-            [
-                "Гидро-ветрозащита и пароизоляция",
-                "gidro-vetrozashchita-i-paroizoliatsiia",
-            ]
-        ],
-        "icon": None,
-        "image": "/media/catalog/categories/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-        "is_visible": True,
-        "is_popular": False,
-        "thumb_img": "base64string",
-        "is_acitve": True,
-    },
-    "brand": {
-        "id": 6,
-        "name": "ISOBOX",
-        "h1_tag": "dummy_h1_tag",
-        "icon": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-        "order": 0,
-        "slug": "isobox",
-    },
+    "category": CATEGORY_RESPONSE_EXAMPLE,
+    "brand": BRAND_RESPONSE_EXAMPLE,
     "created_at": "2024-06-04T16:57:46.221822+03:00",
     "city_price": 120.00,
     "old_price": 130.00,
-    "images": [
-        {
-            "id": 1,
-            "name": "test-name",
-            "image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-            "thumb_img": "base64string",
-            "is_acitve": True,
-        }
-    ],
     "priority": 500,
-    "files": [
-        {
-            "id": 5,
-            "file": "/media/catalog/products/documents/20240301_142235.heic",
-            "name": "Test",
-            "is_active": True,
-            "product": 5138,
-        },
-    ],
+    "files": [PRODUCT_FILE_RESPONSE_EXAMPLE],
     "groups": {
         "visual_groups": [
             {
@@ -208,7 +144,7 @@ RETRIVE_RESPONSE_EXAMPLE = {
         ],
     }
 }
-RETRIVE_RESPONSE_EXAMPLE.pop("characteristic_values")
+RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
 
 
 @extend_schema(tags=["Shop"])
@@ -326,7 +262,7 @@ RETRIVE_RESPONSE_EXAMPLE.pop("characteristic_values")
             OpenApiExample(
                 name="Retrieve Response Example",
                 response_only=True,
-                value=RETRIVE_RESPONSE_EXAMPLE,
+                value=RETRIEVE_RESPONSE_EXAMPLE,
                 description="Пример ответа для получения подробой информации о конкретном продукте в Swagger UI",
                 summary="Пример ответа для получения подробой информации о конкретном продукте",
                 media_type="application/json",
@@ -358,7 +294,7 @@ RETRIVE_RESPONSE_EXAMPLE.pop("characteristic_values")
             OpenApiExample(
                 name="Create Response Example",
                 response_only=True,
-                value=RETRIVE_RESPONSE_EXAMPLE,
+                value=RETRIEVE_RESPONSE_EXAMPLE,
                 description="Пример ответа на создание нового продукта в каталоге в Swagger UI",
                 summary="Пример ответа на создание нового продукта в каталоге",
                 media_type="application/json",
@@ -397,7 +333,7 @@ RETRIVE_RESPONSE_EXAMPLE.pop("characteristic_values")
             OpenApiExample(
                 name="Update Response Example",
                 response_only=True,
-                value=RETRIVE_RESPONSE_EXAMPLE,
+                value=RETRIEVE_RESPONSE_EXAMPLE,
                 description="Пример ответа на обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на обновление информации о продукте в каталоге",
                 media_type="application/json",
@@ -413,7 +349,7 @@ RETRIVE_RESPONSE_EXAMPLE.pop("characteristic_values")
             OpenApiExample(
                 name="Partial Update Request Example",
                 request_only=True,
-                value=PARTIAL_UPDATE_REQEUST_EXAMPLE,
+                value=PARTIAL_UPDATE_REQUEST_EXAMPLE,
                 description="Пример запроса на частичное обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример запроса на частичное обновление информации о продукте в каталоге",
                 media_type="application/json",
@@ -421,7 +357,7 @@ RETRIVE_RESPONSE_EXAMPLE.pop("characteristic_values")
             OpenApiExample(
                 name="Partial Update Response Example",
                 response_only=True,
-                value=RETRIVE_RESPONSE_EXAMPLE,
+                value=RETRIEVE_RESPONSE_EXAMPLE,
                 description="Пример ответа на частичное обновление информации о продукте в каталоге в Swagger UI",
                 summary="Пример ответа на частичное обновление информации о продукте в каталоге",
                 media_type="application/json",

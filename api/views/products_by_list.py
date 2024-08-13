@@ -7,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from api.serializers import ProductCatalogSerializer
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 from shop.models import Product
+from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
 
 
 @extend_schema(tags=["Shop"])
@@ -40,52 +41,7 @@ class ProductsById(GenericAPIView):
             ),
             OpenApiExample(
                 name="Domain Provided Example",
-                value={
-                    "id": 5572,
-                    "title": "Чердачная лестница Standard Metal",
-                    "brand": 1,
-                    "image": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...",
-                    "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
-                    "city_price": "6865",
-                    "old_price": "3865",
-                    "images": [
-                        {
-                            "id": 1,
-                            "name": "updated_example",
-                            "thumb_img": "thumb_example_updated.png",
-                            "image": "/media/catalog/products/images/example_updated.png",
-                            "is_active": True,
-                        }
-                    ],
-                    "category_slug": "deke",
-                    "in_stock": True,
-                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                },
-                response_only=True,
-            ),
-            OpenApiExample(
-                name="Domain Not Provided Example",
-                value={
-                    "id": 5572,
-                    "title": "Чердачная лестница Standard Metal",
-                    "brand": 1,
-                    "image": "http://dev-api-shop.altawest.rucatalog/products/ee08e97e-45be-4415-ab4e-f3f9133cf307.webp&...",
-                    "slug": "cherdachnaia-lestnitsa-standard-metal-5572",
-                    "images": [
-                        {
-                            "id": 1,
-                            "name": "updated_example",
-                            "thumb_img": "thumb_example_updated.png",
-                            "image": "/media/catalog/products/images/example_updated.png",
-                            "is_active": True,
-                        }
-                    ],
-                    "category_slug": "deke",
-                    "in_stock": True,
-                    "search_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                    "catalog_image": "/media/catalog/products/image-b04109e4-a711-498e-b267-d0f9ebcac550.webp",
-                },
+                value=UNAUTHORIZED_RESPONSE_EXAMPLE,
                 response_only=True,
             ),
         ],
