@@ -214,14 +214,16 @@ class Product(ThumbModel):
             models.Index(fields=["article"]),
         ]
     
+
     def save(self, *args, **kwargs) -> None:
         if not self.slug:
-            id = self._meta.model.objects.values_list("id", flat=True).order_by("id").last() or 0
-            self.slug = slugify(unidecode(f"{self.title}-{id + 1}"))
-            if self.pk:
-                kwargs["update_fields"] = {*kwargs.get("update_fields", set()), "slug"}
+            self.slug = self.title
+            models.Model.save(self, *args, **kwargs)
+            self.slug = f"{slugify(unidecode(self.title))}-{self.id}"
+            return super().save(update_fields=["slug"])
+        else:
+            return super().save(*args, **kwargs)
 
-        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
