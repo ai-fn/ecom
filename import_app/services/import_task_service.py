@@ -15,6 +15,15 @@ from loguru import logger
 
 class ImportTaskService:
 
+    def __init__(self, replace_existing_m2m_elems=True) -> None:
+        self.image_fields = {}
+        self.decimal_fields = {}
+        self.unique_fields = {}
+        self.foreign_key_fields = {}
+        self.m2m_fields = {}
+        self.bool_fields = {}
+        self.replace_existing_m2m_elems = replace_existing_m2m_elems
+
     @staticmethod
     def get_columns(task: ImportTask):
 
@@ -43,11 +52,10 @@ class ImportTaskService:
 
         for field_name in field_names:
             try:
-                field = model._meta.get_field(field_name)
+                model._meta.get_field(field_name)
             except Exception as e:
                 logger.error(e)
                 fields.pop(field_name)
-                continue
 
         return unique_field_names
 
@@ -55,7 +63,7 @@ class ImportTaskService:
         if import_settings is None:
             import_settings = {}
 
-        path_to_images = import_settings.get("path_to_images", "/tmp/import_images/")
+        self.path_to_images = import_settings.get("path_to_images", "/tmp/import_images/")
         mapping = import_settings.get("fields", {})
 
         for model_name, fields in mapping.items():
@@ -65,29 +73,14 @@ class ImportTaskService:
                 continue
 
             model = model_type.model_class()
-            foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields, bool_fields = (
-                self.categorize_fields(model, fields)
-            )
+            self.categorize_fields(model, fields)
             self.process_rows(
                 df,
                 model,
                 fields,
-                foreign_key_fields,
-                image_fields,
-                decimal_fields,
-                unique_fields,
-                m2m_fields,
-                bool_fields,
-                path_to_images,
             )
 
     def categorize_fields(self, model: models.Model, fields: dict) -> tuple:
-        foreign_key_fields = {}
-        image_fields = {}
-        decimal_fields = {}
-        unique_fields = {}
-        m2m_fields = {}
-        bool_fields = {}
 
         for field_name in list(fields.keys()):
             try:
@@ -98,63 +91,50 @@ class ImportTaskService:
                 )
                 fields.pop(field_name)
                 continue
-            
+
             if getattr(field, "primary_key", None):
-                unique_fields[field_name] = fields.pop(field_name)
+                self.unique_fields[field_name] = fields.pop(field_name)
 
             elif isinstance(field, models.ManyToManyField):
-                m2m_fields[field_name] = fields.pop(field_name)
+                self.m2m_fields[field_name] = fields.pop(field_name)
 
-            elif isinstance(field, models.ForeignKey) or isinstance(field, TreeForeignKey):
-                foreign_key_fields[field_name] = fields.pop(field_name)
+            elif isinstance(field, models.ForeignKey) or isinstance(
+                field, TreeForeignKey
+            ):
+                self.foreign_key_fields[field_name] = fields.pop(field_name)
 
             elif isinstance(field, models.ImageField):
-                image_fields[field_name] = fields.pop(field_name)
+                self.image_fields[field_name] = fields.pop(field_name)
 
             elif isinstance(field, models.DecimalField):
-                decimal_fields[field_name] = fields.pop(field_name)
-            
-            elif isinstance(field, models.BooleanField):
-                bool_fields[field_name] = fields.pop(field_name)
+                self.decimal_fields[field_name] = fields.pop(field_name)
 
-        return foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields, bool_fields
+            elif isinstance(field, models.BooleanField):
+                self.bool_fields[field_name] = fields.pop(field_name)
+
 
     def process_rows(
         self,
         df: pd.DataFrame,
         model: models.Model,
         fields: dict,
-        foreign_key_fields: dict,
-        image_fields: dict,
-        decimal_fields: dict,
-        unique_fields: dict,
-        m2m_fields: dict,
-        bool_fields: dict,
-        path_to_images: str,
     ):
-        no_unique_fields = len(unique_fields) < 1
+        no_unique_fields = len(self.unique_fields) < 1
 
         for _, row in df.iterrows():
             data = self.prepare_data(
                 row,
                 fields,
-                image_fields,
-                decimal_fields,
-                foreign_key_fields,
-                unique_fields,
-                m2m_fields,
-                bool_fields,
-                path_to_images,
             )
             try:
                 with transaction.atomic():
-                    m2m_data = self.get_notna_items(m2m_fields, row)
+                    m2m_data = self.get_notna_items(self.m2m_fields, row)
                     if no_unique_fields:
                         instance = model.objects.create(**data)
                         if m2m_data:
                             self._set_m2m_data(instance, m2m_data)
                     else:
-                        unique_data = self.get_notna_items(unique_fields, row)
+                        unique_data = self.get_notna_items(self.unique_fields, row)
                         self.update_instance(model, data, unique_data, m2m_data)
             except Exception as e:
                 logger.error(
@@ -165,48 +145,41 @@ class ImportTaskService:
         self,
         row: dict,
         fields: dict,
-        image_fields: dict,
-        decimal_fields: dict,
-        foreign_key_fields: dict,
-        unique_fields: dict,
-        m2m_fields: dict,
-        bool_fields: dict,
-        path_to_images: str,
     ):
         data = {}
 
-        for field_name, cell in self.get_notna_items(image_fields, row).items():
+        for field_name, cell in self.get_notna_items(self.image_fields, row).items():
 
             data[field_name] = os.path.join(
-                path_to_images,
+                self.path_to_images,
                 str(cell),
             )
 
-        for field_name, cell in self.get_notna_items(foreign_key_fields, row).items():
+        for field_name, cell in self.get_notna_items(self.foreign_key_fields, row).items():
 
             data_field_name = (
                 f"{field_name}_id" if not field_name.endswith("_id") else field_name
             )
             data[data_field_name] = cell
 
-        for field_name, cell in self.get_notna_items(decimal_fields, row).items():
+        for field_name, cell in self.get_notna_items(self.decimal_fields, row).items():
 
             try:
                 data[field_name] = Decimal(str(cell))
             except (ValueError, InvalidOperation) as e:
                 logger.error(f"Error converting {cell} to Decimal: {e}")
                 data[field_name] = None
-        
-        for field_name, cell in self.get_notna_items(bool_fields, row).items():
+
+        for field_name, cell in self.get_notna_items(self.bool_fields, row).items():
             data[field_name] = str(cell).lower() == "true"
 
         try:
-            for field_name, value in (*fields.items(), *m2m_fields.items(), *unique_fields.items()):
+            for field_name, value in (*fields.items(), *self.unique_fields.items()):
                 data[field_name] = row[value]
 
         except KeyError as key_error:
             logger.error(f"Got the KeyError: {str(key_error)}")
- 
+
         return data
 
     def update_instance(
@@ -227,7 +200,7 @@ class ImportTaskService:
             logger.error(
                 f"Error while updating '{model._meta.model_name}' instance: {e}"
             )
-    
+
     def get_notna_items(self, fields: dict, row: dict) -> dict:
         result = {}
         for field_name in fields:
@@ -240,9 +213,9 @@ class ImportTaskService:
             result[field_name] = cell
 
         return result
-    
-    def _set_m2m_data(self, instance, m2m_data: dict = None, replace_existing_m2m_elems: bool = True):
-        func_name = ("add", "set")[replace_existing_m2m_elems]
+
+    def _set_m2m_data(self, instance, m2m_data: dict = None):
+        func_name = ("add", "set")[self.replace_existing_m2m_elems]
 
         for field_name, value in m2m_data.items():
             try:
@@ -251,6 +224,8 @@ class ImportTaskService:
                 values = [int(x.strip()) for x in value.split(",")]
                 func(values)
             except Exception as e:
-                logger.error(f"Error while {func_name} m2m values for field {field_name}: {str(e)}")
+                logger.error(
+                    f"Error while {func_name} m2m values for field {field_name}: {str(e)}"
+                )
 
         return instance

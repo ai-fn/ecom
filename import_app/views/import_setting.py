@@ -173,6 +173,14 @@ IMPORT_SETTING_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_SE
     start_import=extend_schema(
         description="Запуск импорта",
         summary="Запуск импорта",
+        parameters=[
+            OpenApiParameter(
+                name="replace_existing_m2m",
+                type=bool,
+                default=True,
+                description="Заменять/добавлять (True/False) существующий записи в связях многие ко многим"
+            )
+        ],
         examples=[
             OpenApiExample(
                 "Request Example",
@@ -201,7 +209,8 @@ class ImportSettingViewSet(ModelViewSet):
 
     @action(detail=False, methods=["POST"], url_path="start-import")
     def start_import(self, request, *args, **kwargs):
-        save_settings = request.query_params.get("save_settings") == "true"
+        replace_existing_m2m = request.query_params.get("replace_existing_m2m", "true").lower() == "true"
+        save_settings = request.query_params.get("save_settings", "false").lower() == "true"
 
         serializer: ImportSettingSerializer = self.get_serializer(data=request.data)
 
@@ -220,7 +229,7 @@ class ImportSettingViewSet(ModelViewSet):
                 status=HTTP_400_BAD_REQUEST,
             )
         try:
-            handle_file_task.delay(serializer.data)
+            handle_file_task.delay(serializer.data, replace_existing_m2m)
         except Exception as e:
             return Response({"error": str(e)}, status=HTTP_400_BAD_REQUEST)
 

@@ -12,7 +12,7 @@ from import_app.services import ImportTaskService
 
 
 @shared_task
-def handle_file_task(import_settings: dict):
+def handle_file_task(import_settings: dict, replace_existing_m2m_elems: bool = True):
     import_task_id = import_settings.get("import_task", {}).get("id")
     import_task = ImportTask.objects.get(id=import_task_id)
     file_path = import_task.file.path
