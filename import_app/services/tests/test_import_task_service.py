@@ -102,15 +102,13 @@ class ImportTaskServiceTestCase(TestCase):
 
         model = Price
         import_service = ImportTaskService()
-        foreign_key_fields, image_fields, decimal_fields, unique_fields, m2m_fields, bool_fields = (
-            import_service.categorize_fields(model, fields)
-        )
+        import_service.categorize_fields(model, fields)
 
-        self.assertIn("product_id", foreign_key_fields.values())
-        self.assertIn("city_group_id", foreign_key_fields.values())
-        self.assertIn("price", decimal_fields.values())
-        self.assertIn("old_price", decimal_fields.values())
-        self.assertEqual(image_fields, dict())
+        self.assertIn("product_id", import_service.foreign_key_fields.values())
+        self.assertIn("city_group_id", import_service.foreign_key_fields.values())
+        self.assertIn("price", import_service.decimal_fields.values())
+        self.assertIn("old_price", import_service.decimal_fields.values())
+        self.assertEqual(import_service.image_fields, dict())
 
     def test_prepare_data(self):
         row = {
@@ -125,26 +123,20 @@ class ImportTaskServiceTestCase(TestCase):
             "price": "price",
             "old_price": "old_price",
         }
-        unique_fields = dict()
-        m2m_fields = dict()
-        image_fields = dict()
-        bool_fields = dict()
-
-        foreign_key_fields = {"product": "product_id", "city_group": "city_group_id"}
-        decimal_fields = {"price": "price", "old_price": "old_price"}
-        path_to_images = "/tmp/import_images/"
-
         import_service = ImportTaskService()
+        
+        import_service.unique_fields = dict()
+        import_service.m2m_fields = dict()
+        import_service.image_fields = dict()
+        import_service.bool_fields = dict()
+
+        import_service.foreign_key_fields = {"product": "product_id", "city_group": "city_group_id"}
+        import_service.decimal_fields = {"price": "price", "old_price": "old_price"}
+        import_service.path_to_images = "/tmp/import_images/"
+
         data = import_service.prepare_data(
             row,
-            fields,
-            image_fields,
-            decimal_fields,
-            foreign_key_fields,
-            unique_fields,
-            m2m_fields,
-            bool_fields,
-            path_to_images,
+            fields
         )
 
         self.assertEqual(data["product"], self.product1.id)
