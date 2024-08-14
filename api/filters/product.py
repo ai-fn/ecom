@@ -45,8 +45,7 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
     def filter_category(self, queryset, name, value):
         category_slugs = set(map(lambda x: x.strip(), value.split(",")))
 
-        queryset = queryset.filter(
-            (
+        q = (
                 Q(
                     category__is_active=True,
                     category__is_visible=True,
@@ -55,9 +54,9 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
                 | Q(
                     category__is_active=True,
                     category__is_visible=True,
-                    category__children__is_active=True,
-                    category__children__is_visible=True,
-                    category__children__slug__in=category_slugs,
+                    category__parent__is_active=True,
+                    category__parent__is_visible=True,
+                    category__parent__slug__in=category_slugs,
                 )
                 | Q(
                     additional_categories__is_active=True,
@@ -67,12 +66,12 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
                 | Q(
                     additional_categories__is_active=True,
                     additional_categories__is_visible=True,
-                    additional_categories__children__is_visible=True,
-                    additional_categories__children__is_active=True,
-                    additional_categories__children__slug__in=category_slugs,
+                    additional_categories__parent__is_visible=True,
+                    additional_categories__parent__is_active=True,
+                    additional_categories__parent__slug__in=category_slugs,
                 )
             )
-        ).distinct()
+        queryset = queryset.filter(q).distinct()
         return queryset
 
     def filter_characteristics(self, queryset, name, value):
