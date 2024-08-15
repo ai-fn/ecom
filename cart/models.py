@@ -1,28 +1,16 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from account.models import CustomUser, TimeBasedModel
 from shop.models import Product
 
 
-class OrderStatus(TimeBasedModel):
-    name = models.CharField(max_length=128, verbose_name="Название статуса")
-
-    def __str__(self) -> str:
-        return f"Статус заказа: {self.name}"
-
-    @staticmethod
-    def get_created_status(*args, **kwargs):
-        return OrderStatus.objects.get_or_create(name="Создан")[0]
-    
-    @staticmethod
-    def get_created_pk(*args, **kwargs) -> int:
-        return OrderStatus.get_created_status().pk
-
-    class Meta:
-        verbose_name = _("Статус заказа")
-        verbose_name_plural = _("Статусы заказа")
-
+class OrderStatus(models.TextChoices):
+    PENDING = 'P', _('Создан')
+    PROCESSING = 'PR', _('В обработке')
+    SHIPPED = 'S', _('Отправлен')
+    DELIVERED = 'D', _('Доставлен')
 
 class Order(TimeBasedModel):
     customer = models.ForeignKey(
@@ -38,17 +26,21 @@ class Order(TimeBasedModel):
         max_digits=10, decimal_places=2, verbose_name="Сумма заказа"
     )
     address = models.CharField(verbose_name=_("Адрес"), max_length=1024)
-    status = models.ForeignKey(
-        OrderStatus,
-        verbose_name="Статус заказа",
-        related_name="status",
-        on_delete=models.PROTECT,
-        default=OrderStatus.get_created_pk,
+    status = models.CharField(
+        choices=OrderStatus.choices,
+        verbose_name=_("Статус заказа"),
+        default=OrderStatus.PENDING,
+        max_length=20,
     )
 
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
+
+    def clean(self) -> None:
+        if self.status not in OrderStatus.values:
+            raise ValidationError(_(f"Некорректный статус: {self.status}"))
+        return super().clean()
 
     def __str__(self):
         return f"{self.customer} - {self.created_at}"

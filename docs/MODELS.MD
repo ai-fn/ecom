@@ -631,42 +631,18 @@
 
 # Cart App Models
 
-## OrderStatus
-
-| Field      | Type          | Options           | Description      |
-| ---------- | ------------- | ----------------- | ---------------- |
-| id         | AutoField     | primary_key=True  | Primary Key      |
-| created_at | DateTimeField | auto_now_add=True | Created At       |
-| updated_at | DateTimeField | auto_now=True     | Updated At       |
-| name       | CharField     | max_length=128    | Название статуса |
-
-**Methods**
-
-| Method             | Description                                             |
-| ------------------ | ------------------------------------------------------- |
-| __str__            | Returns a formatted string with the name of the status. |
-| get_created_status | Returns the "Создан" status, creating it if necessary.  |
-| get_created_pk     | Returns the primary key of the "Создан" status.         |
-
-**Meta Options**
-
-| Option              | Value          |
-| ------------------- | -------------- |
-| verbose_name        | Статус заказа  |
-| verbose_name_plural | Статусы заказа |
-
 ## Order
 
-| Field      | Type            | Options                                                                                          | Description   |
-| ---------- | --------------- | ------------------------------------------------------------------------------------------------ | ------------- |
-| id         | AutoField       | primary_key=True                                                                                 | Primary Key   |
-| created_at | DateTimeField   | auto_now_add=True                                                                                | Created At    |
-| updated_at | DateTimeField   | auto_now=True                                                                                    | Updated At    |
-| customer   | ForeignKey      | CustomUser, related_name="customer", on_delete=models.PROTECT                                    | Покупатель    |
-| products   | ManyToManyField | Product, verbose_name="Товары", blank=True, through="ProductsInOrder"                            | Товары        |
-| total      | DecimalField    | max_digits=10, decimal_places=2                                                                  | Сумма заказа  |
-| address    | CharField       | max_length=1024                                                                                  | Адрес         |
-| status     | ForeignKey      | OrderStatus, related_name="status", on_delete=models.PROTECT, default=OrderStatus.get_created_pk | Статус заказа |
+| Field      | Type            | Options                                                                                                   | Description   |
+| ---------- | --------------- | --------------------------------------------------------------------------------------------------------- | ------------- |
+| id         | AutoField       | primary_key=True                                                                                          | Primary Key   |
+| created_at | DateTimeField   | auto_now_add=True                                                                                         | Created At    |
+| updated_at | DateTimeField   | auto_now=True                                                                                             | Updated At    |
+| customer   | ForeignKey      | CustomUser, related_name="customer", on_delete=models.PROTECT                                             | Покупатель    |
+| products   | ManyToManyField | Product, verbose_name="Товары", blank=True, through="ProductsInOrder"                                     | Товары        |
+| total      | DecimalField    | max_digits=10, decimal_places=2                                                                           | Сумма заказа  |
+| address    | CharField       | max_length=1024                                                                                           | Адрес         |
+| status     | CharField       | choices=OrderStatus.choices, verbose_name=_("Статус заказа"), default=OrderStatus.PENDING, max_length=20  | Статус заказа |
 
 **Methods**
 
@@ -892,25 +868,25 @@
 
 ## Lead
 
-| Поле       | Тип данных     | Опции                                      | Описание                  |
-| ---------- | -------------- | ------------------------------------------ | ------------------------- |
-| id         | AutoField      | primary_key=True                           | Уникальный идентификатор  |
-| created_at | DateTimeField  | auto_now_add=True                          | Дата и время создания     |
-| updated_at | DateTimeField  | auto_now=True                              | Дата и время обновления   |
-| is_active  | BooleanField   | default=True                               | Активность                |
-| bitrix_id  | IntegerField   | unique=True                                | Идентификатор Bitrix24    |
-| title      | CharField      | max_length=255                             | Название лида             |
-| status     | CharField      | max_length=50                              | Статус лида               |
+| Поле       | Тип данных    | Опции             | Описание                 |
+| ---------- | ------------- | ----------------- | ------------------------ |
+| id         | AutoField     | primary_key=True  | Уникальный идентификатор |
+| created_at | DateTimeField | auto_now_add=True | Дата и время создания    |
+| updated_at | DateTimeField | auto_now=True     | Дата и время обновления  |
+| is_active  | BooleanField  | default=True      | Активность               |
+| bitrix_id  | IntegerField  | unique=True       | Идентификатор Bitrix24   |
+| title      | CharField     | max_length=255    | Название лида            |
+| status     | CharField     | max_length=50     | Статус лида              |
 
 **Methods**
 
-| Метод    | Описание                                             |
-| -------- | ---------------------------------------------------- |
-| __str__  | Возвращает форматированную строку с названием лида.  |
+| Метод   | Описание                                            |
+| ------- | --------------------------------------------------- |
+| __str__ | Возвращает форматированную строку с названием лида. |
 
 **Meta Options**
 
-| Опция               | Значение             |
-| ------------------- | -------------------- |
-| abstract            | True                 |
+| Опция    | Значение |
+| -------- | -------- |
+| abstract | True     |
 

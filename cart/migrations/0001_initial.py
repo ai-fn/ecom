@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='status',
-            field=models.ForeignKey(default=cart.models.OrderStatus.get_created_pk, on_delete=django.db.models.deletion.PROTECT, related_name='status', to='cart.orderstatus', verbose_name='Статус заказа'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='status', to='cart.orderstatus', verbose_name='Статус заказа', blank=True, null=True),
         ),
         migrations.CreateModel(
             name='CartItem',
