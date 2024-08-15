@@ -139,8 +139,10 @@ class ImportTaskServiceTestCase(TestCase):
             fields
         )
 
-        self.assertEqual(data["product"], self.product1.id)
-        self.assertEqual(data["city_group"], self.city_group1.id)
+        from loguru import logger
+        logger.info(data.keys())
+        self.assertEqual(data["product_id"], self.product1.id)
+        self.assertEqual(data["city_group_id"], self.city_group1.id)
         self.assertEqual(data["price"], Decimal("100.00"))
         self.assertEqual(data["old_price"], Decimal("90.00"))
 
