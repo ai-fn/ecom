@@ -173,8 +173,11 @@ class ImportTaskService:
         for field_name, cell in self.get_notna_items(self.bool_fields, row).items():
             data[field_name] = str(cell).lower() == "true"
         
+        for field_name, cell in self.get_notna_items(fields, row).items():
+            data[field_name] = cell
+
         try:
-            for field_name, value in (*self.get_notna_items(fields, row).items(), *self.unique_fields.items()):
+            for field_name, value in self.unique_fields.items():
                 data[field_name] = row[value]
 
         except KeyError as key_error:
