@@ -140,9 +140,9 @@ class City(TimeBasedModel):
         return self.name
     
     def save(self, *args, **kwargs):
-        if self.domain:
+        if not self.domain:
             self.domain = f'{slugify(unidecode(self.name))}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
-        
+
         return super().save(*args, **kwargs)
 
 
