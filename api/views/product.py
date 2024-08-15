@@ -4,7 +4,7 @@ from django_filters import rest_framework as filters
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
-from shop.models import Category, Product, Characteristic
+from shop.models import Category, CharacteristicValue, Price, Product, Characteristic
 
 from api.filters import ProductFilter
 from api.permissions import ReadOnlyOrAdminPermission
@@ -429,18 +429,26 @@ class ProductViewSet(ModelViewSet):
         )
         return super().list(request, *args, **kwargs)
 
+    def filter_queryset(self, queryset):
+        domain = getattr(self, "domain", None)
+        filterset = self.filterset_class(self.request.GET, queryset, request=self.request, city_domain=domain)
+        qs = filterset.qs
+        self.min_qs_price, self.max_qs_price = filterset.min_price, filterset.max_price
+
+        return qs
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(
             self.get_queryset()
             .select_related("category")
             .prefetch_related(
-                "additional_categories",
-                "category__children",
-                "additional_categories__children",
-                "characteristic_values",
-                "characteristic_values__characteristic",
-                "prices",
+                Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
+                
+                Prefetch('category__children'),
+                
+                Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
+                
+                Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
             )
         )
 
@@ -457,6 +465,7 @@ class ProductViewSet(ModelViewSet):
             .prefetch_related(Prefetch("categories", queryset=categories_queryset))
         )
 
+
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -467,12 +476,8 @@ class ProductViewSet(ModelViewSet):
                         characteristics_queryset, many=True
                     ).data,
                     "categories": categories_queryset.values("name", "slug"),
-                    "smallest_price": queryset.aggregate(
-                        min_price=Min("prices__price")
-                    )["min_price"],
-                    "greatest_price": queryset.aggregate(
-                        max_price=Max("prices__price")
-                    )["max_price"],
+                    "smallest_price": self.min_qs_price,
+                    "greatest_price": self.max_qs_price,
                 }
             )
 

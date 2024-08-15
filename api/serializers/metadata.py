@@ -30,7 +30,6 @@ class ImageMetaDataSerializer(Serializer):
 
             try:
                 image_path = settings.BASE_DIR / data["image"][1:]
-                logger.info(image_path)
                 with Image.open(image_path) as image:
                     image_size = {"width": image.width, "height": image.height}
                     cache.set(META_IMAGE_SIZE_CACHE_KEY, image_size, META_IMAGE_SIZE_REMINING_TIME)

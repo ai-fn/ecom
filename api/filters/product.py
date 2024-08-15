@@ -1,12 +1,18 @@
 from django_filters import rest_framework as filters
-from django.db.models import Q, F
-from loguru import logger
+from django.db.models import Q, F, Min, Max
 
 from api.mixins import GeneralSearchMixin
 from shop.models import Category, Product
 
 
-class ProductFilter(GeneralSearchMixin, filters.FilterSet):
+class CustomFilter(filters.FilterSet):
+
+    def __init__(self, data=None, queryset=None, *, request=None, prefix=None, city_domain: str = None):
+        super().__init__(data, queryset, request=request, prefix=prefix)
+        self.city_domain = city_domain
+
+
+class ProductFilter(GeneralSearchMixin, CustomFilter):
     search = filters.CharFilter(method="filter_search")
     price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr="lte")
     price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr="gte")
@@ -15,7 +21,6 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
     characteristics = filters.CharFilter(
         method="filter_characteristics", label="Значения характеристик"
     )
-    city_domain = filters.CharFilter(method="filter_city_domain")
 
     class Meta:
         model = Product
@@ -26,8 +31,34 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
             "price_lte",
             "price_gte",
             "characteristics",
-            "city_domain",
         ]
+
+    def filter_queryset(self, queryset):
+        for name, value in self.form.cleaned_data.items():
+            if name not in ["price_lte", "price_gte"] and value is not None:
+                queryset = self.filters[name].filter(queryset, value)
+
+        aggregates = queryset.aggregate(
+            min_price=Min("prices__price"), max_price=Max("prices__price")
+        )
+        self.min_price = aggregates["min_price"]
+        self.max_price = aggregates["max_price"]
+
+
+        queryset = self.apply_price_filters(queryset)
+
+        return queryset
+
+    def apply_price_filters(self, queryset):
+        gte_data = self.data.get("price_gte")
+        lte_data = self.data.get("price_lte")
+
+        if lte_data is not None:
+            queryset = queryset.filter(prices__price__lte=lte_data, prices__city_group__cities__domain=self.city_domain)
+        if gte_data is not None:
+            queryset = queryset.filter(prices__price__gte=gte_data, prices__city_group__cities__domain=self.city_domain)
+
+        return queryset
 
     def filter_search(self, queryset, name, value):
         domain = self.request.query_params.get("city_domain")
@@ -43,34 +74,23 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset
 
     def filter_category(self, queryset, name, value):
+        q = Q()
         category_slugs = set(map(lambda x: x.strip(), value.split(",")))
+        ctgs = Category.objects.filter(
+            is_active=True,
+            is_visible=True,
+            slug__in=category_slugs,
+        )
+        for ctg in ctgs:
 
-        q = (
-                Q(
-                    category__is_active=True,
-                    category__is_visible=True,
-                    category__slug__in=category_slugs,
-                )
-                | Q(
-                    category__is_active=True,
-                    category__is_visible=True,
-                    category__parent__is_active=True,
-                    category__parent__is_visible=True,
-                    category__parent__slug__in=category_slugs,
-                )
-                | Q(
-                    additional_categories__is_active=True,
-                    additional_categories__is_visible=True,
-                    additional_categories__slug__in=category_slugs,
-                )
-                | Q(
-                    additional_categories__is_active=True,
-                    additional_categories__is_visible=True,
-                    additional_categories__parent__is_visible=True,
-                    additional_categories__parent__is_active=True,
-                    additional_categories__parent__slug__in=category_slugs,
+            q |= Q(category=ctg)
+            q |= Q(additional_categories=ctg)
+            q |= Q(
+                category__in=ctg.get_descendants().filter(
+                    is_active=True, is_visible=True
                 )
             )
+
         queryset = queryset.filter(q).distinct()
         return queryset
 
@@ -94,22 +114,4 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
             )
 
         queryset = queryset.filter(filter_conditions).distinct()
-        return queryset
-
-    def filter_city_domain(self, queryset, name, value):
-        price_gte = self.request.query_params.get("price_gte")
-        price_lte = self.request.query_params.get("price_lte")
-        if value and (price_gte or price_lte):
-            price_filter = Q(prices__city_group__cities__domain=value)
-            if price_lte:
-                price_filter &= Q(prices__price__lte=price_lte)
-            if price_gte:
-                price_filter &= Q(prices__price__gte=price_gte)
-            queryset = (
-                queryset.filter(price_filter)
-                .annotate(
-                    city_price=F("prices__price"), old_price=F("prices__old_price")
-                )
-                .distinct()
-            )
         return queryset
