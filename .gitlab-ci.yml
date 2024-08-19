@@ -21,6 +21,8 @@ test:
   stage: test
   tags:
     - backend
+  only:
+    - main
   script:
     - set -e
     - echo "Running tests..."
@@ -47,6 +49,8 @@ deploy:
   stage: deploy
   tags:
     - backend
+  only:
+    - main
   script:
     - set -e
     - echo "Running deploy..."
