@@ -1,6 +1,9 @@
 from copy import deepcopy
 from collections import OrderedDict
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, empty
+from rest_framework.exceptions import ValidationError
+
+from django.db import transaction
 
 from export_app.models import ExportTask
 from export_app.http.export_task_settings.serializers import ExportSettingsSerializer
@@ -8,14 +11,16 @@ from export_app.http.export_task_settings.serializers import ExportSettingsSeria
 
 class ExportTaskSerializer(ModelSerializer):
 
-    settings = ExportSettingsSerializer()
-
     class Meta:
         model = ExportTask
         exclude = [
             "created_at",
             "updated_at",
         ]
+    
+    def __init__(self, instance=None, data=empty, **kwargs):
+        super().__init__(instance, data, **kwargs)
+        self.fields["settings"] = ExportSettingsSerializer(context=self.context)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -52,3 +57,16 @@ class ExportTaskSerializer(ModelSerializer):
             self.validated_data.pop("settings")
 
         return super().save(**kwargs)
+
+    def create(self, validated_data: dict):
+        with transaction.atomic():
+            if self.context.get("save_settings"):
+                settings_data: dict = validated_data.pop("settings")
+                serializer = ExportSettingsSerializer(data=settings_data, context=self.context)
+                if not serializer.is_valid():
+                    raise ValidationError(serializer.errors)
+
+                instance = serializer.save()
+                validated_data["settings"] = instance
+
+            return super().create(validated_data)

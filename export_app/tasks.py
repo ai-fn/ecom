@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from email.message import EmailMessage
+from django.core.mail import EmailMessage
 from loguru import logger
 
 from uuid import uuid4
@@ -17,7 +17,6 @@ from export_app.models import ExportTask, ExportTaskStatus
 def export(
     task_data: dict, file_type: Literal[".xlsx", ".csv"] = ".xlsx", email_to: str = None
 ):
-
     task = ExportTask.objects.get(id=task_data.get("id"))
     settings: dict = task_data.get("settings")
     if not settings:
@@ -37,7 +36,6 @@ def export(
         task.update_errors(str(e))
         task.save()
         raise
-        return
 
     try:
         file_path = write_to_file(df, file_type)
@@ -50,7 +48,9 @@ def export(
         return
 
     task.update_status(ExportTaskStatus.COMPLETED)
-    task.update_result_file(file_path.removeprefix(str(django_settings.MEDIA_ROOT) + "/"))
+    task.update_result_file(
+        file_path.removeprefix(str(django_settings.MEDIA_ROOT) + "/")
+    )
     task.update_ended_at()
     task.save()
 
@@ -91,8 +91,13 @@ def write_to_file(
 
 def send_email_with_attachment(email_to, file_path):
     subject = "Экспортированные продукты CSV"
-    body = "Пожалуйста, найдите приложенный CSV-файл с экспортированными продуктами."
-    email = EmailMessage(subject, body, django_settings.EMAIL_HOST_USER, [email_to])
+    body = "Пожалуйста, найдите приложенный CSV-файл с экспортированными объектами."
+    email = EmailMessage(
+        subject=subject,
+        body=body,
+        from_email=django_settings.EMAIL_HOST_USER,
+        to=[email_to],
+    )
     email.attach_file(file_path)
     result = email.send(fail_silently=True)
     logger.debug(f"CSV file of products was mailed with status: {result}")

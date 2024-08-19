@@ -1,1 +1,1 @@
-from .export_task_settings import ExportSettingsSerializer
+from .export_task_settings import ExportSettingsSerializer, SimplifiedSettingsSerializer

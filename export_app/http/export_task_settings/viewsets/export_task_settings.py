@@ -1,10 +1,13 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiResponse
 
 from export_app.models import ExportSettings
-from export_app.http.export_task_settings.serializers import ExportSettingsSerializer
+from export_app.http.export_task_settings.serializers import ExportSettingsSerializer, SimplifiedSettingsSerializer
 from export_app.http.export_task_settings.examples import *
 
 
@@ -119,7 +122,26 @@ from export_app.http.export_task_settings.examples import *
                 ]
             )
         }
-    )
+    ),
+    get_names=extend_schema(
+        summary='Получить имена существующих настроек.',
+        description='Получить имена существующих настроек.',
+        responses={
+            204: OpenApiResponse(
+                response=SimplifiedSettingsSerializer,
+                examples=[
+                    OpenApiExample(
+                        'Пример успешного удаления',
+                        value={
+                            "id": 1,
+                            "name": "dummy-name",
+                            "slug": "dummy-slug"
+                        }
+                    )
+                ]
+            )
+        }
+    ),
 )
 @extend_schema(
     tags=["Export App"],
@@ -135,3 +157,14 @@ class ExportSettingsViewSet(ModelViewSet):
             context["save_settings"] = save_settings
 
         return context
+
+    def get_serializer_class(self):
+        if self.action == "get_names":
+            return SimplifiedSettingsSerializer
+        return super().get_serializer_class()
+    
+    @action(detail=False, methods=["get"], url_path="get-names")
+    def get_names(self, request, *args, **kwargs):
+        queryset = self.get_queryset().values("id", "name", "slug").order_by("name")
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

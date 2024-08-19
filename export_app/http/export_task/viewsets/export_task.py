@@ -17,7 +17,8 @@ from drf_spectacular.utils import (
     OpenApiResponse,
 )
 
-from export_app.models import ExportTask
+from export_app.http.export_task_settings.serializers.export_task_settings import ExportSettingsSerializer
+from export_app.models import ExportSettings, ExportTask
 from export_app.http.export_task.serializers import ExportTaskSerializer
 from export_app.tasks import export
 from export_app.http.export_task.examples import *
@@ -40,6 +41,12 @@ start_export_parameters = [
         type=str,
         enum=[".xlsx", ".csv"],
     ),
+    OpenApiParameter(
+        name="setting_slug",
+        description="Слаг настроек для начала экспорта",
+        type=str,
+        required=False,
+    )
 ]
 
 start_export_responses = {
@@ -233,6 +240,11 @@ class ExportTaskViewSet(ModelViewSet):
     queryset = ExportTask.objects.all()
     permission_classes = [IsAdminUser]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["save_settings"] = self.request.query_params.get("save_settings", "false").lower() == "true"
+        return context
+
     @action(detail=False, methods=["GET"], url_path="allowed-models")
     def get_allowed_models(self, request, *args, **kwargs):
         result = ContentType.objects.filter(
@@ -259,9 +271,6 @@ class ExportTaskViewSet(ModelViewSet):
         return Response({"result": result}, status=HTTP_200_OK)
 
     def start(self, request, instance=None) -> Response:
-        task_settings = None
-
-        mail_to = request.query_params.get("mail_to")
         file_type = request.query_params.get("file_type", ".xlsx")
 
         if file_type not in (".xlsx", ".csv"):
@@ -271,13 +280,22 @@ class ExportTaskViewSet(ModelViewSet):
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
+        
+        task_settings = None
+        mail_to = request.query_params.get("mail_to")
+        settings_slug = request.query_params.get("setting_slug")
+        setting = ExportSettings.objects.filter(slug=settings_slug).first()
 
         if not instance:
-            serializer = self.get_serializer(data=request.data)
+            data = request.data
+            if setting:
+                data["settings"] = ExportSettingsSerializer(instance=setting).data
+
+            serializer = self.get_serializer(data=data)
 
             if not serializer.is_valid():
                 return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-            
+
             task_settings = serializer.validated_data.get("settings")
             if not task_settings:
                 return Response(
@@ -290,10 +308,14 @@ class ExportTaskViewSet(ModelViewSet):
             settings_data = serializer.initial_data['settings']
             data = {**serializer_data, "settings": settings_data}
         else:
+            if setting:
+                instance.settings = task_settings
+            
+            task_settings = instance.settings.name
             data = self.get_serializer(instance=instance).data
 
         export.delay(data, file_type, mail_to)
-        message = f"Export task started with settings {task_settings}"
+        message = f"Export task started with settings '{task_settings}'"
         logger.info(message)
 
         return Response({"detail": message}, status=HTTP_200_OK)

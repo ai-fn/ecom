@@ -3,6 +3,7 @@ from typing import Any
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinLengthValidator
 from django.conf import settings
 from loguru import logger
 
@@ -21,8 +22,9 @@ class ExportTaskStatus(models.TextChoices):
 
 
 class ExportSettings(TimeBasedModel):
-    name = models.CharField(_("Наименование"), max_length=256, unique=True)
-    fields = models.JSONField(_("Поля для экспорта"), unique=True)
+    name = models.CharField(_("Наименование"), max_length=256, unique=True, validators=[MinLengthValidator(3)])
+    slug = models.SlugField(_("Слаг"), max_length=256, unique=True)
+    fields = models.JSONField(_("Поля для экспорта"))
 
     class Meta:
         verbose_name = _("Настройки экспорта")
@@ -41,7 +43,7 @@ class ExportTask(TimeBasedModel):
         now = timezone.localtime(timezone.now())
         self.ended_at = now
         self.save()
-    
+
     def update_status(self, status: str):
         self.export_status = status
     
