@@ -162,7 +162,7 @@ class SearchHistoryViewSet(ModelViewSet):
         responses={204: None},
         examples=[
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 value=None,
             ),
         ],

@@ -19,7 +19,7 @@ class AddressAutocompleate(APIView):
         parameters=[OpenApiParameter(name="q", type=str, default="москва патрики")],
         examples=[
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 value={
                     "result": [
                         {

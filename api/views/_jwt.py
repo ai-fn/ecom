@@ -32,7 +32,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
                 }
             ),
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 request_only=True,
                 value={
                     "username": "dummy-username",
@@ -67,7 +67,7 @@ class MyTokenRefreshView(TokenRefreshView):
                 }
             ),
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 request_only=True,
                 value={
                     "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxMjc0MDMzMCwiaWF0IjoxNzExNDQ0MzMwLCJqdGkiOiIxYTZhYzMxMTI4YTQ0YWQ3OWM5YjEzMzE3ODgxYjY1ZCIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoicm9vdCJ9",

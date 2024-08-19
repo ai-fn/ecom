@@ -72,7 +72,7 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
         },
         examples=[
             OpenApiExample(
-                "Request Example",
+                "Пример запроса",
                 value=PAGE_REQUEST_EXAMPLE,
                 request_only=True,
             )
@@ -95,7 +95,7 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
         },
         examples=[
             OpenApiExample(
-                "Request Example",
+                "Пример запроса",
                 value=PAGE_REQUEST_EXAMPLE,
                 request_only=True,
             )
@@ -119,7 +119,7 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
         },
         examples=[
             OpenApiExample(
-                "Request Example",
+                "Пример запроса",
                 value=PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE,
                 request_only=True,
             )

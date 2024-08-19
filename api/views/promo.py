@@ -76,7 +76,7 @@ PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PROMO_REQUEST_EXAM
                 value=PROMO_RESPONSE_EXAMPLE,
             ),
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 description="Пример запроса на создание промо акции",
                 response_only=True,
                 value=PROMO_REQUEST_EXAMPLE,
@@ -94,7 +94,7 @@ PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PROMO_REQUEST_EXAM
                 value=PROMO_RESPONSE_EXAMPLE,
             ),
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 description="Пример запроса на обновление промо акции",
                 response_only=True,
                 value=PROMO_REQUEST_EXAMPLE,
@@ -112,7 +112,7 @@ PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PROMO_REQUEST_EXAM
                 value=PROMO_RESPONSE_EXAMPLE,
             ),
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 description="Пример запроса на частичное обновление промо акции",
                 response_only=True,
                 value=PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE,

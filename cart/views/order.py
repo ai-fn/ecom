@@ -72,7 +72,7 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         summary="Заказ выбранных товаров",
         examples=[
             OpenApiExample(
-                "Request Example",
+                "Пример запроса",
                 request_only=True,
                 value={"cart_items_ids": [1, 2, 3], **ORDER_REQUEST_EXAMPLE},
             ),

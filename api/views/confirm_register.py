@@ -29,7 +29,7 @@ remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
     description=f"Отпарвка СМС сообщения. Кэширование запроса на {code_lifetime} секунд.",
     summary="Отпарвка СМС сообщения",
     examples=[
-        OpenApiExample(name="Request Example", value={"phone_number": "+79889889898"}),
+        OpenApiExample(name="Пример запроса", value={"phone_number": "+79889889898"}),
         OpenApiExample(name="Response Example", value={"success": True}),
     ],
 )
@@ -136,7 +136,7 @@ class SendSMSView(GenericAPIView):
     summary="Проверка кода подтверждения",
     examples=[
         OpenApiExample(
-            name="Request Example",
+            name="Пример запроса",
             value={"phone_number": "+79889889898", "code": "4378"},
             request_only=True
         ),

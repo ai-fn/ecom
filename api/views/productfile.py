@@ -49,7 +49,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         description="Создать новый файл продукта",
         examples=[
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 value=PRPODUCT_FILE_REQUEST_EXAMPLE,
                 request_only=True,
             ),
@@ -65,7 +65,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         description="Обновить существующий файл продукта",
         examples=[
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 value=PRPODUCT_FILE_REQUEST_EXAMPLE,
                 request_only=True,
             ),
@@ -81,7 +81,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         description="Частично обновить существующий файл продукта",
         examples=[
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 value=PARTIAL_UPDATE_REQUEST_EXAMPLE,
                 request_only=True,
             ),

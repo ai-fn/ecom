@@ -41,7 +41,7 @@ RESPONSE_EXAMPLE = {
                 response_only=True,
             ),
             OpenApiExample(
-                name="Request Example",
+                name="Пример запроса",
                 value={"code": "9999"},
                 request_only=True,
             ),
