@@ -149,9 +149,9 @@ class PageViewSet(ModelViewSet):
             self.kwargs[self.lookup_field] = loogup_field
 
         return super().get_object()
-
+    
     def get_permissions(self):
         if self.action == "retrieve":
-            return [AllowAny]
+            self.permission_classes = [AllowAny]
 
         return super().get_permissions()
