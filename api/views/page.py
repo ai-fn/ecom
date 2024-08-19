@@ -6,7 +6,7 @@ from drf_spectacular.utils import (
 )
 
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny
 
 from api.serializers import PageSerializer
 from shop.models import Page
@@ -149,3 +149,9 @@ class PageViewSet(ModelViewSet):
             self.kwargs[self.lookup_field] = loogup_field
 
         return super().get_object()
+
+    def get_permissions(self):
+        if self.action == "retrieve":
+            return [AllowAny]
+
+        return super().get_permissions()
