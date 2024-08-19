@@ -1,5 +1,3 @@
-import os
-
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -10,15 +8,9 @@ from drf_spectacular.utils import (
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
-from import_app.tasks import handle_file_task
 from import_app.models import ImportSetting
 from import_app.serializers.model_serializers import ImportSettingSerializer
-
-from import_app.views.import_task import IMPORT_TASK_RESPONSE_EXAMPLE
 
 
 IMPORT_SETTING_REQUEST_EXAMPLE = {
@@ -34,7 +26,6 @@ IMPORT_SETTING_REQUEST_EXAMPLE = {
 IMPORT_SETTING_RESPONSE_EXAMPLE = {
     "id": 1,
     **IMPORT_SETTING_REQUEST_EXAMPLE,
-    "import_task": IMPORT_TASK_RESPONSE_EXAMPLE,
 }
 IMPORT_SETTING_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_SETTING_REQUEST_EXAMPLE.items())[:2]}
 
@@ -170,70 +161,8 @@ IMPORT_SETTING_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_SE
         description="Удаляет шаблон импорта по ID.",
         responses={204: OpenApiResponse(description="Шаблон импорта успешно удален.")},
     ),
-    start_import=extend_schema(
-        description="Запуск импорта",
-        summary="Запуск импорта",
-        parameters=[
-            OpenApiParameter(
-                name="replace_existing_m2m",
-                type=bool,
-                default=True,
-                description="Заменять/добавлять (True/False) существующий записи в связях многие ко многим"
-            )
-        ],
-        examples=[
-            OpenApiExample(
-                "Request Example",
-                value=IMPORT_SETTING_REQUEST_EXAMPLE,
-                request_only=True,
-            ),
-            OpenApiExample(
-                "Response Example",
-                value={"detail": "import started with settigs: {import settings}"},
-                response_only=True,
-            )
-        ]
-    ),
 )
 class ImportSettingViewSet(ModelViewSet):
     queryset = ImportSetting.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = ImportSettingSerializer
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["save_settings"] = (
-            self.request.query_params.get("save_settings") == "true"
-        )
-        return context
-
-    @action(detail=False, methods=["POST"], url_path="start-import")
-    def start_import(self, request, *args, **kwargs):
-        replace_existing_m2m = request.query_params.get("replace_existing_m2m", "true").lower() == "true"
-        save_settings = request.query_params.get("save_settings", "false").lower() == "true"
-
-        serializer: ImportSettingSerializer = self.get_serializer(data=request.data)
-
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-
-        if save_settings:
-            serializer.save()
-
-        import_task = serializer.validated_data["import_task"]
-
-        _, format = os.path.splitext(import_task.file.name)
-        if format != ".xlsx":
-            return Response(
-                {"detail": "File object must be in .xlsx format."},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        try:
-            handle_file_task.delay(serializer.data, replace_existing_m2m)
-        except Exception as e:
-            return Response({"error": str(e)}, status=HTTP_400_BAD_REQUEST)
-
-        return Response(
-            {"detail": f"import started with settigs: {serializer.data}"},
-            status=HTTP_200_OK,
-        )

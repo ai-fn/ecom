@@ -12,11 +12,17 @@ from import_app.services import ImportTaskService
 
 
 @shared_task
-def handle_file_task(import_settings: dict, replace_existing_m2m_elems: bool = True):
-    import_task_id = import_settings.get("import_task", {}).get("id")
+def handle_file_task(import_task_data: dict, replace_existing_m2m_elems: bool = True):
+    import_task_id = import_task_data.get("id")
+    import_settings = import_task_data.get("import_setting")
+    if not import_settings:
+        logger.error("Could not start import task without settings")
+        return
+
     import_task = ImportTask.objects.get(id=import_task_id)
+    
+    task_service = ImportTaskService(replace_existing_m2m_elems=replace_existing_m2m_elems)
     file_path = import_task.file.path
-    task_service = ImportTaskService()
 
     try:
         with open(file_path, "rb") as file_obj:

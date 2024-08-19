@@ -10,13 +10,13 @@ class ImportTaskAdmin(admin.ModelAdmin):
         "user",
         "file",
         "status",
+        "import_setting",
     )
 
 @admin.register(ImportSetting)
 class ImportSettingAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "import_task",
         "name",
         "slug",
     )
