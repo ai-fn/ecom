@@ -17,15 +17,26 @@ from drf_spectacular.utils import (
     OpenApiResponse,
 )
 
-from export_app.http.export_task_settings.serializers.export_task_settings import ExportSettingsSerializer
-from export_app.models import ExportSettings, ExportTask
+from export_app.models import ExportTask
 from export_app.http.export_task.serializers import ExportTaskSerializer
 from export_app.tasks import export
 from export_app.http.export_task.examples import *
 
 request_example = OpenApiExample(
-    "Пример запроса", value=example_create_request, request_only=True
+    "Пример запроса", 
+    value=example_create_request,
+    request_only=True,
 )
+request_example_with_user = OpenApiExample(
+    "Пример запроса с указанием id пользователя",
+    value=example_create_request_with_user,
+    request_only=True,
+)
+success_response_example = OpenApiExample(
+    "Пример успешного ответа",
+    value=example_successful_response_pending,
+)
+
 
 start_export_parameters = [
     OpenApiParameter(
@@ -41,12 +52,6 @@ start_export_parameters = [
         type=str,
         enum=[".xlsx", ".csv"],
     ),
-    OpenApiParameter(
-        name="setting_slug",
-        description="Слаг настроек для начала экспорта",
-        type=str,
-        required=False,
-    )
 ]
 
 start_export_responses = {
@@ -97,10 +102,7 @@ start_export_responses = {
             200: OpenApiResponse(
                 response=ExportTaskSerializer,
                 examples=[
-                    OpenApiExample(
-                        "Пример успешного ответа",
-                        value=example_successful_response_pending,
-                    )
+                    success_response_example,
                 ],
             )
         },
@@ -109,15 +111,19 @@ start_export_responses = {
         summary="Создать новую задачу экспорта",
         description="Создать новую задачу экспорта.",
         request=ExportTaskSerializer,
-        examples=[request_example],
+        examples=[
+            request_example,
+            OpenApiExample(
+                "Пример запроса с указанием id пользователя",
+                value=example_create_request_with_user,
+                request_only=True,
+            ),
+        ],
         responses={
             201: OpenApiResponse(
                 response=ExportTaskSerializer,
                 examples=[
-                    OpenApiExample(
-                        "Пример успешного ответа",
-                        value=example_successful_response_pending,
-                    )
+                    success_response_example,
                 ],
             )
         },
@@ -131,10 +137,7 @@ start_export_responses = {
             200: OpenApiResponse(
                 response=ExportTaskSerializer,
                 examples=[
-                    OpenApiExample(
-                        "Пример успешного ответа",
-                        value=example_successful_response_pending,
-                    )
+                    success_response_example,
                 ],
             )
         },
@@ -148,10 +151,7 @@ start_export_responses = {
             200: OpenApiResponse(
                 response=ExportTaskSerializer,
                 examples=[
-                    OpenApiExample(
-                        "Пример успешного ответа",
-                        value=example_successful_response_pending,
-                    )
+                    success_response_example,
                 ],
             )
         },
@@ -169,7 +169,6 @@ start_export_responses = {
     get_allowed_models=extend_schema(
         summary="Получение имён доступных моделей",
         description="Получение имён доступных моделей",
-        parameters=[OpenApiParameter(name="model", type=str, required=True)],
         responses={
             200: OpenApiResponse(
                 response=ExportTaskSerializer,
@@ -226,12 +225,23 @@ start_export_responses = {
         parameters=start_export_parameters,
         responses=start_export_responses,
         operation_id="api_export_app_export_tasks_start_export",
+        examples=[
+            request_example,
+            request_example_with_user,
+        ]
     ),
     start_export_obj=extend_schema(
         summary="Начало экспорта",
         description="Начало экспорта",
         parameters=start_export_parameters,
         responses=start_export_responses,
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={},
+                request_only=True,
+            )
+        ]
     ),
 )
 @extend_schema(tags=["Export App"])

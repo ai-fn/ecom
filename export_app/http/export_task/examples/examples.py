@@ -1,4 +1,5 @@
 from export_app.http.export_task_settings.examples import (
+    example_export_settings_create_request,
     example_export_settings_successful_response,
 )
 
@@ -9,7 +10,7 @@ export_status_completed = "COMPLETED"
 export_status_pending = "PENGING"
 
 ended_at = "2024-08-06T12:00:00Z"
-errors = None
+errors = "Some big errors text or null."
 error = "Invalid file type: expected (.xlsx, .csv), got (.pdf)"
 
 example_model_fields = [
@@ -39,13 +40,16 @@ example_get_all_response = {
     }
 }
 
-example_create_request = {
-    "settings": example_export_settings_successful_response,
+example_create_request_with_user = {
+    "settings": example_export_settings_create_request,
     "user": user,
+}
+example_create_request = {
+    "settings": example_export_settings_create_request,
 }
 
 example_partial_update_request = {
-    "settings": example_export_settings_successful_response,
+    "settings": example_export_settings_create_request,
 }
 
 example_successful_response_completed = {

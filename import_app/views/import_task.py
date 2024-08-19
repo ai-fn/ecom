@@ -30,14 +30,14 @@ from shop.models import (
 IMPORT_TASK_REQUEST_EXAMPLE = {
     "file": "/media/catalog/import_files/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.xlsx",
     "user": 1,
-    "status": "PENDING",
-    "end_at": "2024-06-04T16:57:46.221822+03:00",
     "comment": "Задача на импорт данных",
     "import_setting": IMPORT_SETTING_REQUEST_EXAMPLE,
 }
 IMPORT_TASK_RESPONSE_EXAMPLE = {
     "id": 1,
     **IMPORT_TASK_REQUEST_EXAMPLE,
+    "status": "PENDING",
+    "end_at": "2024-06-04T16:57:46.221822+03:00",
     "import_setting": IMPORT_SETTING_RESPONSE_EXAMPLE,
 }
 IMPORT_TASK_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_TASK_REQUEST_EXAMPLE.items())[:2]}
@@ -229,7 +229,7 @@ IMPORT_TASK_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_TASK_
         ],
         examples=[
             OpenApiExample(
-                "Request Example",
+                "Пример запроса",
                 value=IMPORT_TASK_REQUEST_EXAMPLE,
                 request_only=True,
             ),

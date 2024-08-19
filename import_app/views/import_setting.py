@@ -17,7 +17,7 @@ IMPORT_SETTING_REQUEST_EXAMPLE = {
     "import_task": 1,
     "name": "Импорт товаров",
     "slug": "import-tovarov",
-    "fields": {"id": "ID", "price": "цена"},
+    "fields": {"price": {"id": "ID", "price": "цена"}},
     "path_to_images": "/path/to/images",
     "items_not_in_file_action": "IGNORE",
     "inactive_items_action": "LEAVE",
