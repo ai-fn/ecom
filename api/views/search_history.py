@@ -139,7 +139,7 @@ SEARCH_HISTORY_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 @extend_schema(tags=["Shop"])
 class SearchHistoryViewSet(ModelViewSet):
 
-    queryset = SearchHistory.objects.all().order_by("-created_at")
+    queryset = SearchHistory.objects.order_by("-created_at")
     serializer_class = SearchHistorySerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdminPermission]
 

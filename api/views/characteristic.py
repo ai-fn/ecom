@@ -137,6 +137,6 @@ class CharacteristicViewSet(ModelViewSet):
         viewsets (_type_): _description_
     """
 
-    queryset = Characteristic.objects.all().order_by("-created_at")
+    queryset = Characteristic.objects.order_by("-created_at")
     serializer_class = CharacteristicSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

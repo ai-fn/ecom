@@ -129,14 +129,14 @@ FOOTER_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(FOOTER_ITEM_
     tags=["Settings"],
 )
 class FooterItemViewSet(ModelViewSet):
-    queryset = FooterItem.objects.all()
+    queryset = FooterItem.objects.order_by("column", "order")
     serializer_class = FooterItemSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
     pagination_class = None
 
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset().order_by("column", "order")
+        queryset = self.get_queryset()
         grouped_footer_items = [
             self.serializer_class(queryset.filter(column=column), many=True).data
             for column in set(queryset.values_list("column", flat=True))

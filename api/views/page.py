@@ -137,7 +137,7 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
     ),
 )
 class PageViewSet(ModelViewSet):
-    queryset = Page.objects.all()
+    queryset = Page.objects.order_by("-created_at")
     permission_classes = [IsAdminUser]
     serializer_class = PageSerializer
 

@@ -156,7 +156,7 @@ FAVORITE_PRODUCT_RESPONSE_EXAMPLE = {
     ]
 )
 class FavoriteProductViewSet(viewsets.ModelViewSet):
-    queryset = FavoriteProduct.objects.all()
+    queryset = FavoriteProduct.objects.order_by("-created_at")
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]
 

@@ -375,9 +375,9 @@ class ProductViewSet(ModelViewSet):
     Возвращает товары с учетом цены в заданном городе.
     """
 
-    queryset = Product.objects.all().order_by("-created_at")
+    queryset = Product.objects.order_by("-priority")
     permission_classes = [ReadOnlyOrAdminPermission]
-    characteristics_queryset = Characteristic.objects.all()
+    characteristics_queryset = Characteristic.objects.order_by("-created_at")
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProductFilter
 
@@ -443,20 +443,17 @@ class ProductViewSet(ModelViewSet):
             .select_related("category")
             .prefetch_related(
                 Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
-                
                 Prefetch('category__children'),
-                
                 Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
-                
                 Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
             )
-        )
+        ).order_by("-prioriry")
 
         categories_queryset = Category.objects.filter(
             products__in=queryset, is_visible=True
         ).distinct()
         characteristics_queryset = (
-            Characteristic.objects.filter(
+            self.characteristics_queryset.filter(
                 Q(categories__children__in=categories_queryset)
                 | Q(categories__in=categories_queryset),
                 for_filtering=True,

@@ -16,7 +16,7 @@ class ProductsById(GenericAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
     pagination_class = PageNumberPagination
-    queryset = Product.objects.all()
+    queryset = Product.objects.order_by("-priority")
 
     @extend_schema(
         description="Получение информации о товарах по массиву с id товаров",

@@ -13,7 +13,7 @@ class SimilarProducts(ListModelMixin, GenericViewSet):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
-    queryset = Product.objects.all()
+    queryset = Product.objects.order_by("-priority")
 
     @extend_schema(
         description="Получить список всех похожих продуктов",

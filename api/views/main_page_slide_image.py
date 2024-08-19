@@ -1,5 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
-from drf_spectacular.utils import extend_schema, OpenApiExample
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample
 
 from api.permissions import ReadOnlyOrAdminPermission
 from shop.models import MainPageSliderImage
@@ -22,13 +22,8 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 }
 
 
-@extend_schema(tags=["Settings"])
-class MainPageSliderImageViewSet(ModelViewSet):
-    queryset = MainPageSliderImage.objects.all()
-    serializer_class = MainPageSliderImageSerializer
-    permission_classes = [ReadOnlyOrAdminPermission]
-
-    @extend_schema(
+@extend_schema_view(
+    list=extend_schema(
         description="Получить список всех изображений слайдера на главной странице.",
         summary="Получить список всех изображений слайдера на главной странице",
         responses={200: MainPageSliderImageSerializer(many=True)},
@@ -39,11 +34,8 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             )
         ],
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    retrieve=extend_schema(
         description="Получить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Получение конкретного изображения слайдера главной страницы",
         responses={200: MainPageSliderImageSerializer()},
@@ -55,11 +47,8 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 response_only=True,
             )
         ],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    create=extend_schema(
         description="Создать новое изображение слайдера главной страницы.",
         summary="Создание нового изображения слайдера главной страницы",
         responses={201: MainPageSliderImageSerializer()},
@@ -76,11 +65,8 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             ),
         ],
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    update=extend_schema(
         description="Обновить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Обновление конкретного изображения слайдера главной страницы",
         request=MainPageSliderImageSerializer,
@@ -98,11 +84,8 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             ),
         ],
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    partial_update=extend_schema(
         description="Частично обновить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Частичное обновление конкретного изображения слайдера главной страницы",
         request=MainPageSliderImageSerializer,
@@ -120,11 +103,8 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             ),
         ],
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-    @extend_schema(
+    ),
+    destroy=extend_schema(
         description="Удалить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Удаление конкретного изображения слайдера главной страницы",
         responses={204: None},
@@ -135,6 +115,10 @@ class MainPageSliderImageViewSet(ModelViewSet):
                 value=None,
             )
         ],
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+    ),
+)
+@extend_schema(tags=["Settings"])
+class MainPageSliderImageViewSet(ModelViewSet):
+    queryset = MainPageSliderImage.objects.order_by("-order")
+    serializer_class = MainPageSliderImageSerializer
+    permission_classes = [ReadOnlyOrAdminPermission]

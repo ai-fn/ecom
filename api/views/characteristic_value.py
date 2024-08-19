@@ -146,7 +146,7 @@ class CharacteristicValueViewSet(IntegrityErrorHandlingMixin, ModelViewSet):
         viewsets (_type_): _description_
     """
 
-    queryset = CharacteristicValue.objects.all().order_by("-created_at")
+    queryset = CharacteristicValue.objects.order_by("-created_at")
     serializer_class = CharacteristicValueSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
     filter_backends = [DjangoFilterBackend]

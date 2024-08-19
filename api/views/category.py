@@ -241,7 +241,7 @@ CATEGORY_RESPONSE_EXAMPLE = {
 )
 @extend_schema(tags=["Shop"])
 class CategoryViewSet(ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.order_by("-order")
     serializer_class = CategorySerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 

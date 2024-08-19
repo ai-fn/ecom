@@ -138,6 +138,6 @@ class CityGroupViewSet(ModelViewSet):
         viewsets (_type_): _description_
     """
 
-    queryset = CityGroup.objects.all().order_by("-created_at")
+    queryset = CityGroup.objects.order_by("-created_at")
     serializer_class = CityGroupSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

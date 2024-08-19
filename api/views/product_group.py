@@ -167,5 +167,5 @@ PRODUCT_GROUP_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 class ProductGroupViewSet(viewsets.ModelViewSet):
-    queryset = ProductGroup.objects.all()
+    queryset = ProductGroup.objects.order_by("-created_at")
     serializer_class = ProductGroupSerializer

@@ -107,7 +107,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     tags=["Shop"],
 )
 class ProductImageViewSet(ModelViewSet):
-    queryset = ProductImage.objects.all()
+    queryset = ProductImage.objects.order_by("-created_at")
     permission_classes = [
         ReadOnlyOrAdminPermission,
     ]

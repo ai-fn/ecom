@@ -12,7 +12,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 
 @extend_schema(tags=["Shop"])
 class PriceViewSet(ModelViewSet):
-    queryset = Price.objects.all().order_by("-created_at")
+    queryset = Price.objects.order_by("-created_at")
     serializer_class = PriceSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]

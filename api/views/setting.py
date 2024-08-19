@@ -174,6 +174,6 @@ class SettingViewSet(ModelViewSet):
         viewsets (_type_): _description_
     """
 
-    queryset = Setting.objects.all().order_by("-created_at")
+    queryset = Setting.objects.order_by("-created_at")
     serializer_class = SettingSerializer
     permission_classes = [IsAdminUser]
