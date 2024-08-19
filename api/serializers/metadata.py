@@ -33,13 +33,10 @@ class ImageMetaDataSerializer(Serializer):
                 with Image.open(image_path) as image:
                     image_size = {"width": image.width, "height": image.height}
                     cache.set(META_IMAGE_SIZE_CACHE_KEY, image_size, META_IMAGE_SIZE_REMINING_TIME)
-                    logger.info("Set metadata image size cache data")
 
             except Exception as e:
                 image_size = {"width": None, "height": None}
                 logger.error(f"Error while open openGraphMeta image: {str(e)}")
-        else:
-            logger.info("Using cached openGraphMeta image size data")
         
         data.update(image_size)
 
@@ -63,7 +60,6 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
         result = None
         cached_data = cache.get(META_IMAGE_PATH_CACHE_KEY)
         if not cached_data:
-            logger.info("Using cached openGraphMeta image path data")
             result = cached_data
 
         else:
@@ -75,7 +71,6 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
                 cache.set(
                     META_IMAGE_PATH_CACHE_KEY, result, META_IMAGE_SIZE_REMINING_TIME
                 )
-                logger.info("Set cached openGraphMeta image path data")
 
         return result
 
