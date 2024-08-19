@@ -18,7 +18,6 @@ class SerializerGetPricesMixin:
             try:
                 c = City.objects.get(domain=city_domain)
             except City.DoesNotExist:
-                logger.info(f"City with domain {city_domain} not found")
                 return None
 
             price = Price.objects.filter(city_group__cities=c, product=obj).first()
@@ -34,7 +33,6 @@ class SerializerGetPricesMixin:
             try:
                 c = City.objects.get(domain=city_domain)
             except City.DoesNotExist:
-                logger.info(f"City with domain {city_domain} not found")
                 return None
 
             price = Price.objects.filter(city_group__cities=c, product=obj).first()
