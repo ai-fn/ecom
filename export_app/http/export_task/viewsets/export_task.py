@@ -283,14 +283,9 @@ class ExportTaskViewSet(ModelViewSet):
         
         task_settings = None
         mail_to = request.query_params.get("mail_to")
-        settings_slug = request.query_params.get("setting_slug")
-        setting = ExportSettings.objects.filter(slug=settings_slug).first()
 
         if not instance:
             data = request.data
-            if setting:
-                data["settings"] = ExportSettingsSerializer(instance=setting).data
-
             serializer = self.get_serializer(data=data)
 
             if not serializer.is_valid():
@@ -308,10 +303,15 @@ class ExportTaskViewSet(ModelViewSet):
             settings_data = serializer.initial_data['settings']
             data = {**serializer_data, "settings": settings_data}
         else:
-            if setting:
-                instance.settings = task_settings
-            
-            task_settings = instance.settings.name
+
+            settings = getattr(instance, "settings", None)
+            if not task_settings:
+                return Response(
+                    {"error": "Could not start export without settigns"},
+                    status=HTTP_400_BAD_REQUEST,
+                )
+            task_settings = settings.name
+
             data = self.get_serializer(instance=instance).data
 
         export.delay(data, file_type, mail_to)
