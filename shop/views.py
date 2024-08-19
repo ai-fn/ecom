@@ -1,6 +1,3 @@
-from django.shortcuts import get_object_or_404
-from django.views.generic import ListView
-from django.db.models import Q
 from django.conf import settings
 
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
@@ -8,7 +5,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 from api.serializers.setting import SettingSerializer
-from shop.models import Product, Category
 from shop.sitemaps import ProductSitemap, CategorySitemap
 from django.contrib.sitemaps.views import sitemap
 
