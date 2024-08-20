@@ -388,9 +388,19 @@ class CharacteristicValue(TimeBasedModel):
         verbose_name=_("Слаг"), null=False, blank=False, max_length=1024
     )
 
-    def save(self, *args, update_fields=None, **kwargs) -> None:
+    def save(self, *args, **kwargs) -> None:
+        def is_float(value: str) -> bool:
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+
         if not self.slug:
-            self.slug = slugify(unidecode(str(self.value)))
+            if self.value.isdigit() or is_float(self.value):
+                self.slug = self.value
+            else:
+                self.slug = slugify(unidecode(str(self.value)))
 
         return super().save(*args, **kwargs)
 
