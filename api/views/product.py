@@ -1,4 +1,3 @@
-from django.db.models import Max, Min
 from django.db.models import F, Sum, Prefetch, Q
 from django_filters import rest_framework as filters
 
@@ -254,6 +253,12 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
                 type=str,
                 location=OpenApiParameter.QUERY,
                 description="Фильтр по категории (slug)",
+            ),
+            OpenApiParameter(
+                name="brand_filter",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр по нескольким брендам (slug)",
             ),
         ],
     ),

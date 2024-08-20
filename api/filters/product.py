@@ -21,6 +21,7 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
     characteristics = filters.CharFilter(
         method="filter_characteristics", label="Значения характеристик"
     )
+    brand_filter = filters.CharFilter(method="filter_brand")
 
     class Meta:
         model = Product
@@ -32,6 +33,10 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
             "price_gte",
             "characteristics",
         ]
+    
+    def filter_brand(self, queryset, name, value):
+        brand_slugs = value.split(",")
+        return queryset.filter(brand__slug__in=brand_slugs)
 
     def filter_queryset(self, queryset):
         for name, value in self.form.cleaned_data.items():
