@@ -70,7 +70,6 @@ INSTALLED_APPS = [
     "export_app.apps.ExportAppConfig",
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
-    'tinymce',
     "api.apps.ApiConfig",
 ]
 
@@ -352,11 +351,3 @@ GET_USER_WEBHOOK_URL = os.getenv("GET_USER_WEBHOOK_URL")
 
 DEFAULT_CITY_GROUP_NAME = os.getenv("DEFAULT_CITY_GROUP_NAME", "Московская область")
 DEFAULT_CITY_NAME = os.getenv("DEFAULT_CITY_NAME", "Москва")
-
-# Editor
-TINYMCE_DEFAULT_CONFIG = {
-    'height': 360,
-    'width': 800,
-    'cleanup_on_startup': True,
-    'custom_undo_redo_levels': 20,
-}
