@@ -219,9 +219,8 @@ class Product(ThumbModel):
             self.slug = self.title
             models.Model.save(self, *args, **kwargs)
             self.slug = f"{slugify(unidecode(self.title))}-{self.id}"
-            return super().save(update_fields=["slug"])
-        else:
-            return super().save(*args, **kwargs)
+
+        return super().save(*args, **kwargs)
 
 
     def __str__(self):
@@ -390,12 +389,10 @@ class CharacteristicValue(TimeBasedModel):
     )
 
     def save(self, *args, update_fields=None, **kwargs) -> None:
-        if update_fields is not None and "value" in update_fields:
+        if not self.slug:
             self.slug = slugify(unidecode(str(self.value)))
-            if self.pk:
-                update_fields = {*update_fields, "slug"}
 
-        return super().save(*args, update_fields=update_fields, **kwargs)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.characteristic.name}: {self.value}"
