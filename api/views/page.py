@@ -3,6 +3,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
     OpenApiExample,
     OpenApiResponse,
+    OpenApiParameter,
 )
 
 from rest_framework.viewsets import ModelViewSet
@@ -28,7 +29,17 @@ PAGE_RESPONSE_EXAMPLE = {
 PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPLE.items())[:2]}
 
 
-@extend_schema(tags=["Shop"])
+@extend_schema(
+    tags=["Shop"],
+    parameters=[
+        OpenApiParameter(
+            "city_domain",
+            type=str,
+            required=True,
+            description="Домен города"
+        )
+    ]
+)
 @extend_schema_view(
     list=extend_schema(
         summary="Получить список страниц",
@@ -140,6 +151,11 @@ class PageViewSet(ModelViewSet):
     queryset = Page.objects.order_by("-created_at")
     permission_classes = [IsAdminUser]
     serializer_class = PageSerializer
+
+    def get_serializer_context(self):
+        data = super().get_serializer_context()
+        data["city_domain"] = self.request.query_params.get("city_domain")
+        return data
 
     def get_object(self) -> Page:
         loogup_field: str = self.kwargs.get(self.lookup_field)

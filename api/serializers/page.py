@@ -1,9 +1,14 @@
+import pymorphy2
+
 from typing import OrderedDict
-from drf_spectacular.utils import extend_schema_field
 from rest_framework.serializers import SerializerMethodField
+from account.models import City
 from api.serializers import ActiveModelSerializer, OpenGraphMetaSerializer
 
 from shop.models import Page
+
+
+morph = pymorphy2.MorphAnalyzer()
 
 
 class PageSerializer(ActiveModelSerializer):
@@ -21,14 +26,51 @@ class PageSerializer(ActiveModelSerializer):
             "opengraph_metadata",
         ]
         read_only_fields = ["slug", "id"]
+
+    def inflect_phrase(self, phrase, case):
+        words = phrase.split()
+        inflected_words = []
+
+        for idx, word in enumerate(words):
+
+            parsed = morph.parse(word)[0]
+            inflected_word = parsed.inflect({case})
+            
+            word = inflected_word.word if inflected_word else word
+            if idx == 0:
+                word = word.title()
+            
+            inflected_words.append(word)
+        
+        return ' '.join(inflected_words)
+
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
         
         if instance.image:
             data["image"] = instance.image.url 
+
         if instance.opengraph_metadata.exists():
             data["opengraph_metadata"] = OpenGraphMetaSerializer(instance.opengraph_metadata.first()).data
+
+        if instance.description:
+            domain = self.context.get("city_domain")
+            city = City.objects.filter(domain=domain).first()
+            city_group = getattr(city, "city_group", None)
+            city_name = getattr(city, "name", "")
+            city_group_name = getattr(city_group, "name", "")
+
+            formatters = {}
+            set_case = lambda parsed_word, case: parsed_word.inflect({case}).word.title() if parsed_word.inflect({case}) is not None else parsed_word.word
+            cases = ("nomn", "gent", "datv", "accs", "ablt", "loct")
+            if city is not None:
+                for case in cases:
+                    formatters[f"c_{case}"] = self.inflect_phrase(city_name, case)
+                    formatters[f"cg_{case}"] = self.inflect_phrase(city_group_name, case)
+
+            if formatters:
+                data["description"] = instance.description.format(**formatters)
 
         return data
 
