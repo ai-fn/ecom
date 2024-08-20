@@ -4,7 +4,8 @@ from django_filters import rest_framework as filters
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
-from shop.models import Category, CharacteristicValue, Price, Product, Characteristic
+from api.serializers.brand import BrandSerializer
+from shop.models import Brand, Category, CharacteristicValue, Price, Product, Characteristic
 
 from api.filters import ProductFilter
 from api.permissions import ReadOnlyOrAdminPermission
@@ -448,6 +449,8 @@ class ProductViewSet(ModelViewSet):
                 Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
             )
         ).order_by("-priority")
+        brands_queryset = Brand.objects.filter(id__in=queryset.values_list("brand", flat=True))
+        brands = BrandSerializer(brands_queryset, many=True).data
 
         categories_queryset = Category.objects.filter(
             products__in=queryset, is_visible=True
@@ -462,7 +465,6 @@ class ProductViewSet(ModelViewSet):
             .prefetch_related(Prefetch("categories", queryset=categories_queryset))
         )
 
-
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -473,6 +475,7 @@ class ProductViewSet(ModelViewSet):
                         characteristics_queryset, many=True
                     ).data,
                     "categories": categories_queryset.values("name", "slug"),
+                    "brands": brands,
                     "smallest_price": self.min_qs_price,
                     "greatest_price": self.max_qs_price,
                 }
