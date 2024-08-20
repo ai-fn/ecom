@@ -447,7 +447,7 @@ class ProductViewSet(ModelViewSet):
                 Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
                 Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
             )
-        ).order_by("-prioriry")
+        ).order_by("-priority")
 
         categories_queryset = Category.objects.filter(
             products__in=queryset, is_visible=True
