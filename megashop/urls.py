@@ -58,7 +58,6 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("feeds.xml/", FeedsView.as_view(), name="product_feed"),
 
-        path("ckeditor5/", include('django_ckeditor_5.urls')),
         path(
             "sitemap.xml",
             sitemap,

@@ -14,8 +14,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from .ckeditor_configs import *
-
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from loguru import logger
 
@@ -72,7 +70,7 @@ INSTALLED_APPS = [
     "export_app.apps.ExportAppConfig",
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
-    "django_ckeditor_5",
+    'tinymce',
     "api.apps.ApiConfig",
 ]
 
@@ -355,5 +353,10 @@ GET_USER_WEBHOOK_URL = os.getenv("GET_USER_WEBHOOK_URL")
 DEFAULT_CITY_GROUP_NAME = os.getenv("DEFAULT_CITY_GROUP_NAME", "Московская область")
 DEFAULT_CITY_NAME = os.getenv("DEFAULT_CITY_NAME", "Москва")
 
-# CKEditor
-CKEDITOR_UPLOAD_PATH = "uploads/"
+# Editor
+TINYMCE_DEFAULT_CONFIG = {
+    'height': 360,
+    'width': 800,
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 20,
+}

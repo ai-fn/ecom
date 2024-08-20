@@ -1,6 +1,6 @@
 import os
 
-from django_ckeditor_5.fields import CKEditor5Field
+from tinymce.models import HTMLField
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -29,7 +29,7 @@ class Category(ThumbModel, MPTTModel):
         max_length=255,
         verbose_name="Категория",
     )
-    description = CKEditor5Field(_("Описание"), max_length=4096, blank=True, null=True)
+    description = HTMLField(_("Описание"), max_length=4096, blank=True, null=True)
     h1_tag = models.CharField(_("h1 тэг"), max_length=512, blank=True, null=True)
     slug = models.SlugField(_("Слаг"), unique=True, max_length=256)
     parent = TreeForeignKey(
@@ -711,7 +711,7 @@ class OpenGraphMeta(TimeBasedModel):
 
 class Page(TimeBasedModel):
     title = models.CharField(max_length=255, verbose_name=_("Наименование"))
-    description = models.TextField(max_length=1024, verbose_name=_("Описание"))
+    description = HTMLField(max_length=2048, verbose_name=_("Описание"))
     h1_tag = models.CharField(_("h1 тэг"), max_length=512, blank=True, null=True)
     slug = models.SlugField(unique=True, verbose_name=_("Слаг страницы"))
     image = models.ImageField(
