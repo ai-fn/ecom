@@ -1,3 +1,4 @@
+from .rating import RatingMixin
 from .token_expired import TokenExpiredTimeMixin
 from .validate_phone import ValidatePhoneNumberMixin
 from .verify_email import GenerateCodeMixin, SendVerifyEmailMixin

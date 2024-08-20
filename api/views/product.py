@@ -5,7 +5,7 @@ from django_filters import rest_framework as filters
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
 from api.serializers.brand import BrandSerializer
-from shop.models import Brand, Category, CharacteristicValue, Price, Product, Characteristic
+from shop.models import Brand, Category, CharacteristicValue, Price, Product, Characteristic, Review
 
 from api.filters import ProductFilter
 from api.permissions import ReadOnlyOrAdminPermission
@@ -44,6 +44,7 @@ BASE_PRODUCT_RESPONSE = {
     "in_promo": False,
     "is_active": True,
     "in_stock": True,
+    "rating": 4.0,
 }
 
 UNAUTHORIZED_RESPONSE_EXAMPLE = {
@@ -96,6 +97,7 @@ RETRIEVE_RESPONSE_EXAMPLE = {
     "city_price": 120.00,
     "old_price": 130.00,
     "priority": 500,
+    "rating": 4.0,
     "files": [PRODUCT_FILE_RESPONSE_EXAMPLE],
     "groups": {
         "visual_groups": [
@@ -443,6 +445,7 @@ class ProductViewSet(ModelViewSet):
             self.get_queryset()
             .select_related("category")
             .prefetch_related(
+                Prefetch('reviews', queryset=Review.objects.all()),
                 Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
                 Prefetch('category__children'),
                 Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),

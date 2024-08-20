@@ -7,7 +7,10 @@ from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 from rest_framework import serializers
 
 from api.serializers import ActiveModelSerializer
-from api.mixins import SerializerGetPricesMixin
+from api.mixins import (
+    RatingMixin,
+    SerializerGetPricesMixin, 
+)
 from api.serializers import (
     CategorySerializer,
     CharacteristicValueSerializer,
@@ -21,8 +24,10 @@ from api.serializers import (
 from shop.models import CharacteristicValue, Product, ProductFile, ProductGroup
 
 
-class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
+class ProductDetailSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModelSerializer):
     images = ProductImageSerializer(many=True)
+
+    rating = serializers.SerializerMethodField()
 
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
@@ -54,6 +59,7 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
             "thumb_img",
             "files",
             "groups",
+            "rating",
         ]
     
     def create(self, validated_data):
@@ -74,7 +80,6 @@ class ProductDetailSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
                 serializer = ProductImageSerializer(data=image_data)
                 serializer.is_valid(raise_exception=1)
                 serializer.save()
-
 
         return product
 

@@ -1,16 +1,17 @@
 from api.serializers import ActiveModelSerializer
 
-from api.mixins import SerializerGetPricesMixin
+from api.mixins import SerializerGetPricesMixin, RatingMixin
 from api.serializers import ProductImageSerializer
 from shop.models import Product
 from rest_framework import serializers
 
 
-class ProductCatalogSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
+class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModelSerializer):
     images = ProductImageSerializer(
         many=True,
         read_only=True,
     )
+    rating = serializers.SerializerMethodField()
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
     category_slug = serializers.SerializerMethodField()
@@ -63,4 +64,5 @@ class ProductCatalogSerializer(SerializerGetPricesMixin, ActiveModelSerializer):
             "description",
             "in_promo",
             "priority",
+            "rating",
         ]
