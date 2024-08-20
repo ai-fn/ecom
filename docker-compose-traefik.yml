@@ -82,7 +82,7 @@ services:
       - cache
     networks:
       - internal
-    
+
   prometheus:
     image: prom/prometheus:v2.30.0
     volumes:
@@ -96,23 +96,25 @@ services:
     networks:
       - traefik
       - internal
-      
+
   elasticsearch:
     image: elasticsearch:7.17.0
     environment:
-      - "discovery.type=single-node"
+      - discovery.type=single-node
+      - xpack.security.enabled=true
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     ports:
       - "${ELASTICSEARCH_HTTP_PORT}:9200"
       - "${ELASTICSEARCH_TRANSPORT_PORT}:9300"
     restart: always
-
+    env_file:
+      - .env
     mem_limit: 2g  # Установите лимит памяти, например, в 2 гигабайта
     networks:
       - traefik
       - internal
-      
+
 networks:
   traefik:
     external: true

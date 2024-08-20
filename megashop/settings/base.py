@@ -128,7 +128,7 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DB_NAMES = ("test", "default")
-USE_TEST_DB = os.environ.get("USE_TEST_DB", "0") == "1"
+USE_TEST_DB = os.getenv("USE_TEST_DB", "0") == "1"
 
 # PORTS SETTINGS
 
@@ -138,14 +138,15 @@ DJANGO_PORT = os.getenv("DJANGO_PORT", "8000")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 PROMETHEUS_PORT = os.getenv("PROMETHEUS_PORT", "9090")
 
+ELASTICSEARCH_PASSWORD = os.getenv("ELASTIC_PASSWORD")
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "elasticsearch")
 ELASTICSEARCH_HTTP_PORT = 9200
 ELASTICSEARCH_TRANSPORT_PORT = 9300
 
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")
-POSTGRES_NAME = os.environ.get("POSTGRES_DB", "default_db_name")
-POSTGRES_USER = os.environ.get("POSTGRES_USER", "default_user")
-POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "default_password")
+POSTGRES_NAME = os.getenv("POSTGRES_DB", "default_db_name")
+POSTGRES_USER = os.getenv("POSTGRES_USER", "default_user")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "default_password")
 
 DATABASES = {
     DB_NAMES[not USE_TEST_DB]: {
@@ -250,12 +251,11 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
-    # OTHER SETTINGS
 }
 ELASTICSEARCH_DSL = {
     "default": {
         "hosts": f"http://{ELASTICSEARCH_HOST}:{ELASTICSEARCH_HTTP_PORT}",
-        # "http_auth": ("elastic", "k1fjic392h9io"),
+        "http_auth": ("elastic", ELASTICSEARCH_PASSWORD),
     }
 }
 
@@ -302,24 +302,24 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # SMS settings
-# SMS_LOGIN = os.environ.get("SMS_LOGIN", "DEFAULT")
-# SMS_PASSWORD = os.environ.get("SMS_PASSWORD", "DEFAULT")
-SMS_RU_TOKEN = os.environ.get("SMS_RU_TOKEN", "DEFAULT")
+# SMS_LOGIN = os.getenv("SMS_LOGIN", "DEFAULT")
+# SMS_PASSWORD = os.getenv("SMS_PASSWORD", "DEFAULT")
+SMS_RU_TOKEN = os.getenv("SMS_RU_TOKEN", "DEFAULT")
 
-CONFIRM_CODE_LIFE_TIME = os.environ.get("CONFIRM_CODE_LIFE_TIME", 60)
-SMS_CACHE_PREFIX = os.environ.get("SMS_CACHE_PREFIX", "SMS_CACHE")
-CACHE_PREFIX = os.environ.get("CACHE_PREFIX", "CACHE_PREFIX")
+CONFIRM_CODE_LIFE_TIME = os.getenv("CONFIRM_CODE_LIFE_TIME", 60)
+SMS_CACHE_PREFIX = os.getenv("SMS_CACHE_PREFIX", "SMS_CACHE")
+CACHE_PREFIX = os.getenv("CACHE_PREFIX", "CACHE_PREFIX")
 
-BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "DEFAULT")
-SHOP_NAME = os.environ.get("SHOP_NAME", "DEFAULT")
-COMPANY_NAME = os.environ.get("COMPANY_NAME", "DEFAULT")
+BASE_DOMAIN = os.getenv("BASE_DOMAIN", "DEFAULT")
+SHOP_NAME = os.getenv("SHOP_NAME", "DEFAULT")
+COMPANY_NAME = os.getenv("COMPANY_NAME", "DEFAULT")
 
 # TG SETTINGS
-TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "DEFAULT")
+TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN", "DEFAULT")
 
 # SEND VERIFY CODE
-SEND_TO_TELEGRAM = os.environ.get("SEND_TO_TELEGRAM") == "True"
-CHAT_ID = os.environ.get("CHAT_ID", "DEFAULT")
+SEND_TO_TELEGRAM = os.getenv("SEND_TO_TELEGRAM") == "True"
+CHAT_ID = os.getenv("CHAT_ID", "DEFAULT")
 
 # CACHE SETTINGS
 CACHE_LOCATION = f"redis://{REDIS_HOST}:6379/0"
