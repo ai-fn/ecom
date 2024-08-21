@@ -12,7 +12,10 @@ from .review import ReviewSerializer
 from .simple_city_group import SimpleCityGroupSerializer
 from .city import CitySerializer
 from .city_group import CityGroupSerializer
-from .category import CategorySerializer
+from .category import (
+    CategorySerializer,
+    CategorySimplifiedSerializer,
+)
 from .characteristic import CharacteristicSerializer
 from .characteristic_value import (
     CharacteristicValueSerializer,

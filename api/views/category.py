@@ -1,8 +1,11 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
 from api.permissions import ReadOnlyOrAdminPermission
-from api.serializers.category import CategorySerializer
-from api.serializers.category_detail import CategoryDetailSerializer
+from api.serializers import (
+    CategorySerializer,
+    CategorySimplifiedSerializer,
+    CategoryDetailSerializer,
+)
 from django.shortcuts import get_object_or_404
 from shop.models import Category
 from rest_framework.decorators import action
@@ -63,6 +66,19 @@ CATEGORY_RESPONSE_EXAMPLE = {
         ["Вентиляционные системы", "ventiliatsionnye-sistemy"],
         ["Аэраторы", "aeratory"],
     ],
+}
+CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
+  "id": 650,
+  "name": "Кровельные материалы",
+  "slug": "krovelnye-materialy",
+  "parents": [
+        ["Кровельные материалы", "krovelnye-materialy"],
+        ["Вентиляционные системы", "ventiliatsionnye-sistemy"],
+        ["Аэраторы", "aeratory"],
+  ],
+  "icon": "/media/catalog/categories/images/some-image.webp",
+  "image": "/media/catalog/categories/images/some-image.webp",
+  "is_active": True,
 }
 
 
@@ -167,7 +183,7 @@ CATEGORY_RESPONSE_EXAMPLE = {
                     OpenApiExample(
                         name="Retrieve Response Example",
                         response_only=True,
-                        value=CATEGORY_RESPONSE_EXAMPLE,
+                        value=CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE,
                     ),
                 ],
             ),
@@ -248,6 +264,9 @@ class CategoryViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action in ["retrieve", "popular_categories"]:
             return CategoryDetailSerializer
+
+        elif self.action == "retrieve_by_slug":
+            return CategorySimplifiedSerializer
 
         return super().get_serializer_class()
 
