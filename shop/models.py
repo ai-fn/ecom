@@ -398,7 +398,7 @@ class CharacteristicValue(TimeBasedModel):
 
         if not self.slug:
             if self.value.isdigit() or is_float(self.value):
-                self.slug = self.value
+                self.slug = self.value.replace(".", "_").replace(",", "-")
             else:
                 self.slug = slugify(unidecode(str(self.value)))
 
