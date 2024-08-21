@@ -101,7 +101,6 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
 
     def filter_characteristics(self, queryset, name, value):
         char_slugs = {}
-        filter_conditions = Q()
         if value:
             filters = value.split(",")
             for f in filters:
@@ -111,12 +110,7 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
                     char_slugs.setdefault(char_name, [])
                     char_slugs[char_name].append(char_slug)
 
-        for char in char_slugs:
-            filter_conditions &= Q(
-                characteristic_values__characteristic__slug=char,
-                characteristic_values__slug__in=char_slugs[char],
-                characteristic_values__characteristic__for_filtering=True,
-            )
+        for slug, values in char_slugs.items():
+            queryset = queryset.filter(characteristic_values__characteristic__slug=slug, characteristic_values__slug__in=values, characteristic_values__characteristic__for_filtering=True)
 
-        queryset = queryset.filter(filter_conditions).distinct()
-        return queryset
+        return queryset.distinct()
