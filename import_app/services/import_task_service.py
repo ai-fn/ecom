@@ -287,7 +287,6 @@ class ImportTaskService:
 
     def process_items_not_in_file_action(self, model: models.Model):
         queryset = model.objects.exclude(id__in=self.ids)
-        logger.info(model.objects.filter(id__in=self.ids).values("id", "pk", "title", "in_stock"))
 
         if self.items_not_in_file_action == "DEACTIVATE":
             queryset.update(is_active=False)
