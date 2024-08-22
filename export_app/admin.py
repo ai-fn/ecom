@@ -1,16 +1,17 @@
 from django.contrib import admin
 
+from api.mixins import ActiveAdminMixin
 from export_app.models import ExportSettings, ExportTask
 
 @admin.register(ExportSettings)
-class ExportSettingsAdmin(admin.ModelAdmin):
+class ExportSettingsAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "name",
     )
 
 @admin.register(ExportTask)
-class ExportTaskAdmin(admin.ModelAdmin):
+class ExportTaskAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "user",

@@ -6,3 +6,4 @@ from .serialize_prices import SerializerGetPricesMixin
 from .validate_address import ValidateAddressMixin
 from .general_search import GeneralSearchMixin
 from .integrity_error_handling_nixin import IntegrityErrorHandlingMixin
+from .active_admin import ActiveAdminMixin

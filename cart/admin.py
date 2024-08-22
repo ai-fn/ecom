@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import CartItem, Order, ProductsInOrder
+from api.mixins import ActiveAdminMixin
 
 
 class ProductsInOrderInline(admin.TabularInline):
@@ -11,7 +12,7 @@ class ProductsInOrderInline(admin.TabularInline):
 
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ActiveAdminMixin, admin.ModelAdmin):
     ordering = ("created_at",)
     list_display = (
         "customer",
@@ -29,7 +30,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(CartItem)
-class CartAdmin(admin.ModelAdmin):
+class CartAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "customer",
         "product",

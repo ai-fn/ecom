@@ -1,10 +1,11 @@
 from django.contrib import admin
 
+from api.mixins import ActiveAdminMixin
 from import_app.models import ImportTask, ImportSetting
 
 
 @admin.register(ImportTask)
-class ImportTaskAdmin(admin.ModelAdmin):
+class ImportTaskAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "user",
@@ -14,7 +15,7 @@ class ImportTaskAdmin(admin.ModelAdmin):
     )
 
 @admin.register(ImportSetting)
-class ImportSettingAdmin(admin.ModelAdmin):
+class ImportSettingAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "name",

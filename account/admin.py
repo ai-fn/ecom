@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 from account.models import City, CityGroup, CustomUser
-from api.mixins import ValidatePhoneNumberMixin
+from api.mixins import ValidatePhoneNumberMixin, ActiveAdminMixin
 
 from .signals import set_cases
 
@@ -40,7 +40,7 @@ class CustomUserCreationForm(CustomUserValidation, UserCreationForm):
         return user
 
 
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(ActiveAdminMixin, UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     list_display = (
@@ -81,7 +81,7 @@ admin.site.register(CustomUser, CustomUserAdmin)
 
 
 @admin.register(City)
-class CityAdmin(admin.ModelAdmin):
+class CityAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "name",
@@ -98,7 +98,7 @@ class CityAdmin(admin.ModelAdmin):
 
 
 @admin.register(CityGroup)
-class CityGroupAdmin(admin.ModelAdmin):
+class CityGroupAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
         "main_city",

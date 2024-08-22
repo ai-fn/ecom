@@ -4,16 +4,17 @@ from blog.models import (
     Article,
     Feedback,
 )
+from api.mixins import ActiveAdminMixin
 
 
 @admin.register(Article)
-class ArticleAdmin(admin.ModelAdmin):
+class ArticleAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = ("name", "created")
     filter_horizontal = ("products",)
 
 
 @admin.register(Feedback)
-class FeedbackAdmin(admin.ModelAdmin):
+class FeedbackAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "name",

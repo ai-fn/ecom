@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from api.mixins import ActiveAdminMixin
 from shop.models import (
     Brand,
     Category,
@@ -60,12 +61,12 @@ class CustomMPTTModelAdmin(DraggableMPTTAdmin):
 
 
 @admin.register(Category)
-class CategoryAdmin(CustomMPTTModelAdmin):
+class CategoryAdmin(ActiveAdminMixin, CustomMPTTModelAdmin):
     inlines = [CharacteristicInline]
 
 
 @admin.register(Brand)
-class BrandAdmin(admin.ModelAdmin):
+class BrandAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "name",
@@ -80,7 +81,7 @@ class BrandAdmin(admin.ModelAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "article",
         "id",
@@ -89,6 +90,7 @@ class ProductAdmin(admin.ModelAdmin):
         "is_popular",
         "is_new",
         'priority',
+        "is_active",
     )
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ("title",)
@@ -98,6 +100,7 @@ class ProductAdmin(admin.ModelAdmin):
         "is_popular",
         "in_stock",
         "is_new",
+        "is_active",
     )
     inlines = [
         PromoInline,
@@ -112,14 +115,14 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 @admin.register(FavoriteProduct)
-class FavoriteProductAdmin(admin.ModelAdmin):
+class FavoriteProductAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = ("id", "user", "product", "created_at", "updated_at")
     search_fields = ("user__username", "product__title")
     list_filter = ("created_at", "updated_at")
 
 
 @admin.register(ProductFile)
-class ProductFileAdmin(admin.ModelAdmin):
+class ProductFileAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         'id',
         'name',
@@ -135,7 +138,7 @@ class ProductFileAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductGroup)
-class ProductGroupAdmin(admin.ModelAdmin):
+class ProductGroupAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
         "characteristic",
@@ -145,7 +148,7 @@ class ProductGroupAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductFrequenlyBoughtTogether)
-class ProductFrequenlyBoughtTogetherAdmin(admin.ModelAdmin):
+class ProductFrequenlyBoughtTogetherAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = ("product_from", "product_to", "purchase_count")
     list_filter = ("product_from", "product_to")
     search_fields = (
@@ -158,7 +161,7 @@ class ProductFrequenlyBoughtTogetherAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductImage)
-class ProductImageAdmin(admin.ModelAdmin):
+class ProductImageAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = [
         "product",
         "name",
@@ -171,7 +174,7 @@ class ProductImageAdmin(admin.ModelAdmin):
 
 
 @admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
+class ReviewAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "reviewer_name",
@@ -199,7 +202,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 
 @admin.register(Characteristic)
-class CharacteristicAdmin(admin.ModelAdmin):
+class CharacteristicAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
         "for_filtering",
@@ -216,7 +219,7 @@ class CharacteristicAdmin(admin.ModelAdmin):
 
 
 @admin.register(CharacteristicValue)
-class CharacteristicValueAdmin(admin.ModelAdmin):
+class CharacteristicValueAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "product",
@@ -236,7 +239,7 @@ class CharacteristicValueAdmin(admin.ModelAdmin):
 
 
 @admin.register(Price)
-class PriceAdmin(admin.ModelAdmin):
+class PriceAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "product",
         "city_group",
@@ -251,7 +254,7 @@ class PriceAdmin(admin.ModelAdmin):
 
 
 @admin.register(Setting)
-class SettingAdmin(admin.ModelAdmin):
+class SettingAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = ("get_key", "type", "get_value")
     fields = (
         "predefined_key",
@@ -278,7 +281,7 @@ class SettingAdmin(admin.ModelAdmin):
 
 
 @admin.register(Promo)
-class PromoAdmin(admin.ModelAdmin):
+class PromoAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "name",
@@ -304,7 +307,7 @@ class PromoAdmin(admin.ModelAdmin):
 
 
 @admin.register(FooterItem)
-class FooterItemAdmin(admin.ModelAdmin):
+class FooterItemAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "column",
@@ -316,7 +319,7 @@ class FooterItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(MainPageSliderImage)
-class MainPageSliderImageAdmin(admin.ModelAdmin):
+class MainPageSliderImageAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "title",
@@ -330,7 +333,7 @@ class MainPageSliderImageAdmin(admin.ModelAdmin):
 
 
 @admin.register(MainPageCategoryBarItem)
-class MainPageCategoryBarItemAdmin(admin.ModelAdmin):
+class MainPageCategoryBarItemAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "link",
@@ -342,7 +345,7 @@ class MainPageCategoryBarItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(SideBarMenuItem)
-class SideBarMenuItemAdmin(admin.ModelAdmin):
+class SideBarMenuItemAdmin(ActiveAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "id",
@@ -356,7 +359,7 @@ class SideBarMenuItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(OpenGraphMeta)
-class OpenGraphMetaAdmin(admin.ModelAdmin):
+class OpenGraphMetaAdmin(ActiveAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "id",
@@ -375,7 +378,7 @@ class OpenGraphMetaAdmin(admin.ModelAdmin):
 
 
 @admin.register(Page)
-class PageAdmin(admin.ModelAdmin):
+class PageAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "title",
         "description",
@@ -387,7 +390,7 @@ class PageAdmin(admin.ModelAdmin):
     )
 
 @admin.register(SearchHistory)
-class SearchHistoryAdmin(admin.ModelAdmin):
+class SearchHistoryAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "title",
