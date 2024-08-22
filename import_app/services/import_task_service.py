@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from import_app.models import ImportTask
+from import_app.models import ImportTask, ImportSetting
 
 from decimal import Decimal, InvalidOperation
 
@@ -15,15 +15,27 @@ from loguru import logger
 
 class ImportTaskService:
 
-    def __init__(self, replace_existing_m2m_elems=True) -> None:
-        self.image_fields = {}
-        self.decimal_fields = {}
-        self.unique_fields = {}
-        self.foreign_key_fields = {}
-        self.m2m_fields = {}
-        self.bool_fields = {}
+    def __init__(
+        self,
+        replace_existing_m2m_elems=True,
+    ) -> None:
+        self.m2m_fields = dict()
+        self.image_fields = dict()
+        self.unique_fields = dict()
+        self.decimal_fields = dict()
+        self.foreign_key_fields = dict()
+
+        self.ids = list()
+        self.errors = list()
+        self.bool_fields = dict()
+
+        self.inactive_items_action = "LEAVE"
+        self.items_not_in_file_action = "IGNORE"
+
         self.replace_existing_m2m_elems = replace_existing_m2m_elems
-        self.errors = []
+
+        self.invalid_value_error_text_en = "Invalid value for '{field_name}', provided '{provided_value}', but expected one of '{choices}'"
+        self.invalid_value_error_text_ru = "Неверно значение для '{field_name}', передано '{provided_value}', но ожидалось одно из '{choices}'"
 
     @staticmethod
     def get_columns(task: ImportTask):
@@ -45,13 +57,22 @@ class ImportTaskService:
 
         return file.columns.to_list()
 
+    def process_dataframe(self, df, import_settings: dict):
 
-    def process_dataframe(self, df, import_settings=None):
-        if import_settings is None:
-            import_settings = {}
-
-        self.path_to_images = import_settings.get("path_to_images", "/tmp/import_images/")
+        self.path_to_images = import_settings.get(
+            "path_to_images", "/tmp/import_images/"
+        )
         mapping = import_settings.get("fields", {})
+
+        if (
+            ITEMS_NOT_IN_FILE_ACTION := import_settings.get("items_not_in_file_action")
+        ) is not None:
+            self.items_not_in_file_action = ITEMS_NOT_IN_FILE_ACTION
+
+        if (
+            INACTIVE_ITEMS_ACTION := import_settings.get("inactive_items_action")
+        ) is not None:
+            self.inactive_items_action = INACTIVE_ITEMS_ACTION
 
         for model_name, fields in mapping.items():
             model_type = ContentType.objects.filter(model=model_name).first()
@@ -76,7 +97,9 @@ class ImportTaskService:
                 logger.error(
                     f"FieldError: '{model._meta.model_name.title()}' has no field named '{field_name}'"
                 )
-                self.errors.append(f"У модели {model._meta.model_name.title()} нет поля под названием '{field_name}'")
+                self.errors.append(
+                    f"У модели {model._meta.model_name.title()} нет поля под названием '{field_name}'"
+                )
                 fields.pop(field_name)
                 continue
 
@@ -100,7 +123,6 @@ class ImportTaskService:
             elif isinstance(field, models.BooleanField):
                 self.bool_fields[field_name] = fields.pop(field_name)
 
-
     def process_rows(
         self,
         df: pd.DataFrame,
@@ -118,17 +140,28 @@ class ImportTaskService:
                 with transaction.atomic():
                     m2m_data = self.get_notna_items(self.m2m_fields, row)
                     if no_unique_fields:
+
                         instance = model.objects.create(**data)
+                        self.ids.append(instance.pk)
+
                         if m2m_data:
                             self._set_m2m_data(instance, m2m_data)
                     else:
                         unique_data = self.get_notna_items(self.unique_fields, row)
                         self.update_instance(model, data, unique_data, m2m_data)
+
             except Exception as e:
                 logger.error(
                     f"Error while create or update '{model._meta.model_name.title()}': {str(e)}"
                 )
-                self.errors.append(f"Ошибка при создании или обновлении '{model._meta.model_name.title()}': {str(e)}")
+                self.errors.append(
+                    f"Ошибка при создании или обновлении '{model._meta.model_name.title()}': {str(e)}"
+                )
+                return
+
+        self.process_items_not_in_file_action(model)
+        self.process_inactive_items_action(model)
+
 
     def prepare_data(
         self,
@@ -144,7 +177,9 @@ class ImportTaskService:
                 str(cell),
             )
 
-        for field_name, cell in self.get_notna_items(self.foreign_key_fields, row).items():
+        for field_name, cell in self.get_notna_items(
+            self.foreign_key_fields, row
+        ).items():
 
             data_field_name = (
                 f"{field_name}_id" if not field_name.endswith("_id") else field_name
@@ -157,12 +192,14 @@ class ImportTaskService:
                 data[field_name] = Decimal(str(cell))
             except (ValueError, InvalidOperation) as e:
                 logger.error(f"Error converting {cell} to Decimal: {str(e)}")
-                self.errors.append(f"Ошибка преобразования {cell}(для поля {field_name}) в Decimal: {str(e)}")
+                self.errors.append(
+                    f"Ошибка преобразования {cell}(для поля {field_name}) в Decimal: {str(e)}"
+                )
                 data[field_name] = None
 
         for field_name, cell in self.get_notna_items(self.bool_fields, row).items():
             data[field_name] = str(cell).lower() == "true"
-        
+
         for field_name, cell in self.get_notna_items(fields, row).items():
             data[field_name] = cell
 
@@ -184,6 +221,8 @@ class ImportTaskService:
             m2m_data = {field: data.pop(field, None) for field in m2m_data.keys()}
 
             instance = model.objects.get(**unique_data)
+            self.ids.append(instance.pk)
+
             for field_name, value in data.items():
                 setattr(instance, field_name, value)
             instance.save()
@@ -194,7 +233,9 @@ class ImportTaskService:
             logger.error(
                 f"Error while updating '{model._meta.model_name}' instance: {str(e)}"
             )
-            self.errors.append(f"Ошбика обновления объекта '{model._meta.model_name}': {str(e)}")
+            self.errors.append(
+                f"Ошбика обновления объекта '{model._meta.model_name}': {str(e)}"
+            )
 
     def get_notna_items(self, fields: dict, row: dict) -> dict:
         result = {}
@@ -222,6 +263,52 @@ class ImportTaskService:
                 logger.error(
                     f"Error while {func_name} m2m values for field {field_name}: {str(e)}"
                 )
-                self.errors.append(f"Ошибка при записи значений связи 'многие-ко-многим' для поля {field_name}: {str(e)}")
+                self.errors.append(
+                    f"Ошибка при записи значений связи 'многие-ко-многим' для поля {field_name}: {str(e)}"
+                )
 
         return instance
+
+    def process_inactive_items_action(self, model: models.Model):
+        if self.inactive_items_action == "LEAVE":
+            pass
+
+        elif self.inactive_items_action == "ACTIVATE":
+            model.objects.filter(is_active=False).update(is_active=True)
+
+        else:
+            format_kwargs = {
+                "field_name": "inactive_items_action",
+                "provided_value": self.inactive_items_action,
+                "choices": ImportSetting.INACTIVE_ITEMS_ACTION_CHOICES,
+            }
+            logger.error(self.invalid_value_error_text_en.format(**format_kwargs))
+            self.errors.append(self.invalid_value_error_text_ru.format(**format_kwargs))
+
+    def process_items_not_in_file_action(self, model: models.Model):
+        queryset = model.objects.exclude(id__in=self.ids)
+        logger.info(model.objects.filter(id__in=self.ids).values("id", "pk", "title", "in_stock"))
+
+        if self.items_not_in_file_action == "DEACTIVATE":
+            queryset.update(is_active=False)
+
+        elif self.items_not_in_file_action == "DELETE":
+            queryset.delete()
+
+        elif self.items_not_in_file_action == "SET_NOT_IN_STOCK":
+            if not hasattr(model, "in_stock"):
+                logger.info(f"'{model.__name__}' has no attribute 'in_stock', ignore")
+            else:
+                queryset.update(in_stock=False)
+
+        elif self.items_not_in_file_action == "IGNORE":
+            pass
+
+        else:
+            format_kwargs = {
+                "field_name": "items_not_in_file_action",
+                "provided_value": self.items_not_in_file_action,
+                "choices": ImportSetting.ITEMS_NOT_IN_FILE_ACTION_CHOICES,
+            }
+            logger.error(self.invalid_value_error_text_en.format(**format_kwargs))
+            self.errors.append(self.invalid_value_error_text_ru.format(**format_kwargs))
