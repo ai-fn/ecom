@@ -113,6 +113,11 @@ class ImportTask(TimeBasedModel):
         blank=True,
         null=True,
     )
+    errors = models.TextField(
+        _("Ошибки"),
+        blank=True,
+        null=True,
+    )
     import_setting = models.ForeignKey(
         ImportSetting,
         on_delete=models.SET_NULL,
@@ -128,10 +133,12 @@ class ImportTask(TimeBasedModel):
 
     def update_status(self, status: str) -> "ImportTask":
         self.status = status
-        self.save(update_fields=["status"])
         return self
 
     def update_end_at(self) -> "ImportTask":
         self.end_at = timezone.localtime(timezone.now())
-        self.save()
+        return self
+    
+    def update_errors(self, errors: list[str]) -> "ImportTask":
+        self.errors = "\n".join(errors)
         return self

@@ -20,17 +20,16 @@ class ImportTaskSerializer(ActiveModelSerializer):
 
     def __init__(self, instance=None, data=empty, **kwargs):
         super().__init__(instance, data, **kwargs)
-        self.fields["import_setting"] = ImportSettingSerializer(context=self.context)
+        self.fields["import_setting"] = ImportSettingSerializer(context=self.context, required=False)
         if instance:
             self.fields["file"] = FileField(required=False)
 
 
     def to_representation(self, instance):
         data =  super().to_representation(instance)
-        if isinstance(instance, OrderedDict):
-            import_setting_serializer = ImportSettingSerializer(data=data["import_setting"])
+        if self.initial_data.get("import_setting"):
+            import_setting_serializer = ImportSettingSerializer(data=self.initial_data["import_setting"])
             import_setting_serializer.is_valid(raise_exception=True)
-
             data["import_setting"] = import_setting_serializer.data
         else:
             data["import_setting"] = ImportSettingSerializer(instance.import_setting).data
@@ -46,3 +45,10 @@ class ImportTaskSerializer(ActiveModelSerializer):
                 mutable_data['user'] = request_user.pk
 
         return super().run_validation(mutable_data)
+    
+
+    def create(self, validated_data):
+        if self.context.get("save_settings") is False and validated_data.get("import_setting"):
+            validated_data.pop("import_setting")
+
+        return super().create(validated_data)

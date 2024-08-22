@@ -279,14 +279,12 @@ class ImportTaskViewSet(ModelViewSet):
     def start_import(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        task_settings = None
         import_settings = request.data.get("import_setting")
         replace_existing_m2m = request.query_params.get("replace_existing_m2m", "true").lower() == "true"
 
         if not import_settings:
             return Response({"error": "Could not start import witout import settings."}, status=HTTP_400_BAD_REQUEST)
 
-        task_settings = instance.import_setting.name
         setting_serializer = self.get_serializer(instance=instance, data={"import_setting": import_settings})
         if not setting_serializer.is_valid():
             return Response(setting_serializer.errors, status=HTTP_400_BAD_REQUEST)
@@ -294,7 +292,7 @@ class ImportTaskViewSet(ModelViewSet):
         data = setting_serializer.data
 
         handle_file_task.delay(data, replace_existing_m2m)
-        message = f"import started with settigs: '{task_settings}'"
+        message = f"import started with settigs: '{import_settings}'"
 
         logger.info(message)
         return Response(

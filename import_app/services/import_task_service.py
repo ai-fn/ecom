@@ -23,6 +23,7 @@ class ImportTaskService:
         self.m2m_fields = {}
         self.bool_fields = {}
         self.replace_existing_m2m_elems = replace_existing_m2m_elems
+        self.errors = []
 
     @staticmethod
     def get_columns(task: ImportTask):
@@ -44,20 +45,6 @@ class ImportTaskService:
 
         return file.columns.to_list()
 
-    def get_unique_field_names(self, model: models.Model, fields_dict: dict) -> dict:
-
-        fields = fields_dict.copy()
-        unique_field_names = {}
-        field_names = list(fields.keys())
-
-        for field_name in field_names:
-            try:
-                model._meta.get_field(field_name)
-            except Exception as e:
-                logger.error(e)
-                fields.pop(field_name)
-
-        return unique_field_names
 
     def process_dataframe(self, df, import_settings=None):
         if import_settings is None:
@@ -89,6 +76,7 @@ class ImportTaskService:
                 logger.error(
                     f"FieldError: '{model._meta.model_name.title()}' has no field named '{field_name}'"
                 )
+                self.errors.append(f"У модели {model._meta.model_name.title()} нет поля под названием '{field_name}'")
                 fields.pop(field_name)
                 continue
 
@@ -140,6 +128,7 @@ class ImportTaskService:
                 logger.error(
                     f"Error while create or update '{model._meta.model_name.title()}': {str(e)}"
                 )
+                self.errors.append(f"Ошибка при создании или обновлении '{model._meta.model_name.title()}': {str(e)}")
 
     def prepare_data(
         self,
@@ -167,7 +156,8 @@ class ImportTaskService:
             try:
                 data[field_name] = Decimal(str(cell))
             except (ValueError, InvalidOperation) as e:
-                logger.error(f"Error converting {cell} to Decimal: {e}")
+                logger.error(f"Error converting {cell} to Decimal: {str(e)}")
+                self.errors.append(f"Ошибка преобразования {cell}(для поля {field_name}) в Decimal: {str(e)}")
                 data[field_name] = None
 
         for field_name, cell in self.get_notna_items(self.bool_fields, row).items():
@@ -182,6 +172,7 @@ class ImportTaskService:
 
         except KeyError as key_error:
             logger.error(f"Got the KeyError: {str(key_error)}")
+            self.errors.append(f"Ошибка обращения по ключу: {str(key_error)}")
 
         return data
 
@@ -201,8 +192,9 @@ class ImportTaskService:
                 self._set_m2m_data(instance, m2m_data)
         except Exception as e:
             logger.error(
-                f"Error while updating '{model._meta.model_name}' instance: {e}"
+                f"Error while updating '{model._meta.model_name}' instance: {str(e)}"
             )
+            self.errors.append(f"Ошбика обновления объекта '{model._meta.model_name}': {str(e)}")
 
     def get_notna_items(self, fields: dict, row: dict) -> dict:
         result = {}
@@ -224,11 +216,12 @@ class ImportTaskService:
             try:
                 m2m_field = getattr(instance, field_name)
                 func = getattr(m2m_field, func_name)
-                values = [int(x.strip()) for x in value.split(",")]
+                values = [int(x.strip()) for x in str(value).split(",")]
                 func(values)
             except Exception as e:
                 logger.error(
                     f"Error while {func_name} m2m values for field {field_name}: {str(e)}"
                 )
+                self.errors.append(f"Ошибка при записи значений связи 'многие-ко-многим' для поля {field_name}: {str(e)}")
 
         return instance

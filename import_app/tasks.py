@@ -13,6 +13,7 @@ from import_app.services import ImportTaskService
 
 @shared_task
 def handle_file_task(import_task_data: dict, replace_existing_m2m_elems: bool = True):
+
     import_task_id = import_task_data.get("id")
     import_settings = import_task_data.get("import_setting")
     if not import_settings:
@@ -45,9 +46,18 @@ def handle_file_task(import_task_data: dict, replace_existing_m2m_elems: bool = 
                 df = read_function(tmp.name)
                 
                 import_task.update_status("IN_PROGRESS")
+                import_task.save(update_fields=('status',))
                 task_service.process_dataframe(df, import_settings)
                 import_task.update_end_at()
                 import_task.update_status("COMPLETED")
+                if task_service.errors:
+                    import_task.errors = "\n".join(task_service.errors)
+                
+                import_task.save()
+
     except Exception as e:
-        logger.error(f"Error processing file: {e}")
+        logger.error(f"Error processing file: {str(e)}")
+        task_service.errors.append(f"Ошибка обработки файла: {str(e)}")
         import_task.update_status("FAILED")
+        import_task.update_errors(task_service.errors)
+        import_task.save()
