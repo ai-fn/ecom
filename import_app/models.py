@@ -75,6 +75,9 @@ class ImportSetting(TimeBasedModel):
     class Meta:
         verbose_name = _("Шаблон импорта")
         verbose_name_plural = _("Шаблоны импорта")
+    
+    def __str__(self) -> str:
+        return f"Настройки импорта '{self.name}'"
 
 
 class ImportTask(TimeBasedModel):
@@ -126,6 +129,9 @@ class ImportTask(TimeBasedModel):
     class Meta:
         verbose_name = _("Импорт")
         verbose_name_plural = _("Импорты")
+    
+    def __str__(self) -> str:
+        return f"Задача импорта #{self.id}"
 
     def update_status(self, status: str) -> "ImportTask":
         self.status = status
