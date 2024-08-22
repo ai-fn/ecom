@@ -71,6 +71,7 @@ class CategorySimplifiedSerializer(ActiveModelSerializer):
             "id",
             "name",
             "slug",
+            "description",
             "parents",
             "icon",
             "image",

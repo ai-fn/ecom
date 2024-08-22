@@ -71,6 +71,7 @@ CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
   "id": 650,
   "name": "Кровельные материалы",
   "slug": "krovelnye-materialy",
+  "description": "dummy_description",
   "parents": [
         ["Кровельные материалы", "krovelnye-materialy"],
         ["Вентиляционные системы", "ventiliatsionnye-sistemy"],
