@@ -69,7 +69,7 @@ CART_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     create=extend_schema(
         description="Добавить новые элементы в корзину",
         summary="Добавление новых элементов в корзину",
-        responses={201: CartItemSerializer(many=True)},
+        responses={201: CartItemSerializer()},
         examples=[
             OpenApiExample(
                 name="Create Request Example",

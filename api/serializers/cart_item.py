@@ -49,4 +49,4 @@ class SimplifiedCartItemSerializer(ActiveModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = ["product_id", "quantity"]
+        fields = ["id", "product_id", "quantity"]
