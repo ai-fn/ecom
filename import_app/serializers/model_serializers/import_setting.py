@@ -9,7 +9,7 @@ from import_app.models import ImportSetting
 class ImportSettingSerializer(ActiveModelSerializer):
 
     items_not_in_file_action = serializers.ChoiceField(choices=ImportSetting.ITEMS_NOT_IN_FILE_ACTION_CHOICES, required=False)
-    inactive_items_action = serializers.ChoiceField(choices=ImportSetting.INACTICE_ITEMS_ACTION_CHOICES, required=False)
+    inactive_items_action = serializers.ChoiceField(choices=ImportSetting.INACTIVE_ITEMS_ACTION_CHOICES, required=False)
     slug = serializers.SlugField(read_only=True)
 
     class Meta:

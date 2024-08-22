@@ -27,7 +27,7 @@ def get_default_images_upload_path():
 
 class ImportSetting(TimeBasedModel):
 
-    INACTICE_ITEMS_ACTION_CHOICES = [
+    INACTIVE_ITEMS_ACTION_CHOICES = [
         ("LEAVE", "оставить как есть"),
         ("ACTIVATE", "активировать"),
     ]
@@ -68,7 +68,7 @@ class ImportSetting(TimeBasedModel):
     inactive_items_action = models.CharField(
         _("Неактивные объекты"),
         max_length=50,
-        choices=INACTICE_ITEMS_ACTION_CHOICES,
+        choices=INACTIVE_ITEMS_ACTION_CHOICES,
         default="LEAVE",
     )
 
