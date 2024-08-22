@@ -162,7 +162,7 @@ CART_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         examples=[
             OpenApiExample(
                 name="Delete Some Example",
-                value={"products_id": [46, 47, 48]},
+                value={"cartitem_ids": [46, 47, 48]},
                 request_only=True,
             ),
             OpenApiExample(
@@ -259,14 +259,14 @@ class CartItemViewSet(ModelViewSet):
 
     @action(methods=["post"], detail=False)
     def delete_some(self, request, *args, **kwargs):
-        ids_list = request.data.get("products_id", [])
+        ids_list = request.data.get("cartitem_ids", [])
         if not ids_list:
             return Response(
                 {"message": "IDs is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         queryset = self.filter_queryset(self.get_queryset()).filter(
-            product__in=ids_list
+            id__in=ids_list
         )
         if not queryset:
             return Response(

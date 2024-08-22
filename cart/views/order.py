@@ -74,7 +74,7 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
             OpenApiExample(
                 "Пример запроса",
                 request_only=True,
-                value={"cart_items_ids": [1, 2, 3], **ORDER_REQUEST_EXAMPLE},
+                value={"cartitem_ids": [1, 2, 3], **ORDER_REQUEST_EXAMPLE},
             ),
             OpenApiExample(
                 "Response Example",
@@ -223,9 +223,9 @@ class OrderViewSet(ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="order-selected")
     def order_selected(self, request, *args, **kwargs):
-        ids = request.data.get("cart_items_ids")
+        ids = request.data.get("cartitem_ids")
         if ids is None:
-            return Response({"detail": "'cart_items_ids' is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "'cartitem_ids' is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         cart_items = CartItem.objects.select_related("product").filter(id__in=ids, customer=request.user.pk)
         if not cart_items.exists():
