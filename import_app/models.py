@@ -71,10 +71,6 @@ class ImportSetting(TimeBasedModel):
         choices=INACTICE_ITEMS_ACTION_CHOICES,
         default="LEAVE",
     )
-    remove_existing_price_if_empty = models.BooleanField(
-        _("Удалить существующую цену, если она в файле указана пустой"),
-        default=False,
-    )
 
     class Meta:
         verbose_name = _("Шаблон импорта")

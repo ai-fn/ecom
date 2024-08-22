@@ -21,7 +21,6 @@ IMPORT_SETTING_REQUEST_EXAMPLE = {
     "path_to_images": "/path/to/images",
     "items_not_in_file_action": "IGNORE",
     "inactive_items_action": "LEAVE",
-    "remove_existing_price_if_empty": False,
 }
 IMPORT_SETTING_RESPONSE_EXAMPLE = {
     "id": 1,
