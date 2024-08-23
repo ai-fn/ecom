@@ -176,7 +176,7 @@ class ImportTaskService:
                 self.errors.append(
                     f"Ошибка при создании или обновлении '{model._meta.model_name.title()}': {str(e)}"
                 )
-                return
+                continue
 
         self.process_items_not_in_file_action(model)
         self.process_inactive_items_action(model)
