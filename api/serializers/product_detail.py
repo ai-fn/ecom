@@ -26,9 +26,6 @@ from shop.models import CharacteristicValue, Product, ProductFile, ProductGroup
 
 class ProductDetailSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModelSerializer):
     images = ProductImageSerializer(many=True)
-
-    rating = serializers.SerializerMethodField()
-
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
     files = serializers.SerializerMethodField()

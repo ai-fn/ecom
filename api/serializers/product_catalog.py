@@ -11,7 +11,6 @@ class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveMode
         many=True,
         read_only=True,
     )
-    rating = serializers.SerializerMethodField()
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
     category_slug = serializers.SerializerMethodField()
@@ -64,5 +63,4 @@ class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveMode
             "description",
             "in_promo",
             "priority",
-            "rating",
         ]

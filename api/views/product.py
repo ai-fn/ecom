@@ -45,6 +45,7 @@ BASE_PRODUCT_RESPONSE = {
     "is_active": True,
     "in_stock": True,
     "rating": 4.0,
+    "reviews_count": 10,
 }
 
 UNAUTHORIZED_RESPONSE_EXAMPLE = {
@@ -98,6 +99,7 @@ RETRIEVE_RESPONSE_EXAMPLE = {
     "old_price": 130.00,
     "priority": 500,
     "rating": 4.0,
+    "reviews_count": 10,
     "files": [PRODUCT_FILE_RESPONSE_EXAMPLE],
     "groups": {
         "visual_groups": [
