@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
 
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.pagination import PageNumberPagination
 
 from api.filters.review import ReviewFilters
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
@@ -24,6 +25,9 @@ REVIEW_RESPONSE_EXAMPLE = {"id": 1, **REVIEW_REQUEST_EXAMPLE}
 REVIEW_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     k: v for k, v in list(REVIEW_REQUEST_EXAMPLE.items())[:2]
 }
+
+class CustomProductReviewPagination(PageNumberPagination):
+    page_size = 8
 
 @extend_schema_view(
     list=extend_schema(
@@ -147,3 +151,10 @@ class ReviewViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewS
     permission_classes = [ReadCreateOrAdminPermission]
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = ReviewFilters
+
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        print(request.query_params.get("product"))
+        if request.query_params.get("product") is not None:
+            self.pagination_class = CustomProductReviewPagination
