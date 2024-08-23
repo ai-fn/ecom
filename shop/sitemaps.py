@@ -25,7 +25,6 @@ class CustomSitemap:
         return os.path.join(self.catalog_url, *link.split("/")[3:])
 
 
-# TODO занести в сайтмап урлы
 class ProductSitemap(CustomSitemap, Sitemap):
     """
     Карта-сайта для продуктов
@@ -47,7 +46,6 @@ class ProductSitemap(CustomSitemap, Sitemap):
         return os.path.join(self.catalog_url, obj.category.slug, obj.slug)
 
 
-# TODO занести в сайтмап урлы
 class CategorySitemap(CustomSitemap, Sitemap):
     """Карта сайта для категорий
 
