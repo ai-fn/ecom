@@ -31,7 +31,7 @@ class TimeBasedModel(models.Model):
             if not order:
                 order_value = (
                     self._meta.model.objects
-                    .order_by("-order")
+                    .order_by("order")
                     .values_list("order", flat=True)
                     .first() or 0
                 ) + 1

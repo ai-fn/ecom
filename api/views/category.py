@@ -259,7 +259,7 @@ CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
 )
 @extend_schema(tags=["Shop"])
 class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
-    queryset = Category.objects.order_by("-order")
+    queryset = Category.objects.order_by("order")
     serializer_class = CategorySerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 

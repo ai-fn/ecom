@@ -120,6 +120,6 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 )
 @extend_schema(tags=["Settings"])
 class MainPageSliderImageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
-    queryset = MainPageSliderImage.objects.order_by("-order")
+    queryset = MainPageSliderImage.objects.order_by("order")
     serializer_class = MainPageSliderImageSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
