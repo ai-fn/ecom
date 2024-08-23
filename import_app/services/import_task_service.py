@@ -5,9 +5,13 @@ from import_app.models import ImportTask, ImportSetting
 
 from decimal import Decimal, InvalidOperation
 
-from django.db import transaction, models
 from django.db import models
+from django.db import transaction, models
+from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
+
+from django.core.management.base import CommandError
+
 from mptt.fields import TreeForeignKey
 
 from loguru import logger
@@ -87,6 +91,21 @@ class ImportTaskService:
                 model,
                 fields,
             )
+        
+        # update category tree
+        if "category" in import_settings["fields"]:
+            from shop.models import Category
+            Category.objects.rebuild()
+
+        # update es indexes
+        try:
+            call_command('update_index')
+            logger.info('Successfully updated Elasticsearch indexes')
+        except CommandError as e:
+            logger.info(str(e))
+        except Exception as e:
+            logger.error(str(e.with_traceback(e.__traceback__)))
+
 
     def categorize_fields(self, model: models.Model, fields: dict) -> tuple:
 
