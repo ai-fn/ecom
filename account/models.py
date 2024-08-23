@@ -33,7 +33,7 @@ class TimeBasedModel(models.Model):
                     self._meta.model.objects
                     .order_by("order")
                     .values_list("order", flat=True)
-                    .first() or 0
+                    .last() or 0
                 ) + 1
                 setattr(self, "order", order_value)
 
