@@ -20,6 +20,7 @@ class PageSerializer(ActiveModelSerializer):
             "id",
             "title",
             "h1_tag",
+            "content",
             "description",
             "slug",
             "image",
@@ -62,7 +63,6 @@ class PageSerializer(ActiveModelSerializer):
             city_group_name = getattr(city_group, "name", "")
 
             formatters = {}
-            set_case = lambda parsed_word, case: parsed_word.inflect({case}).word.title() if parsed_word.inflect({case}) is not None else parsed_word.word
             cases = ("nomn", "gent", "datv", "accs", "ablt", "loct")
             if city is not None:
                 for case in cases:

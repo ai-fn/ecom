@@ -717,11 +717,16 @@ class OpenGraphMeta(TimeBasedModel):
 
 class Page(TimeBasedModel):
     title = models.CharField(max_length=255, verbose_name=_("Наименование"))
+    content = models.TextField(
+        _("Контент страницы"),
+        blank=True,
+        null=True,
+    )
     description = models.TextField(
         max_length=2048,
         verbose_name=_("Описание"),
         help_text=f"Шаблон описания с подстановкой названия объекта и названия города в разных падежах ()"
-        "'Купить Строительные материалы в {cg_nomn} по цене {price}'\nВозможные переменные: c_nomn, c_gent, c_datv, c_accs, c_ablt, c_loct, cg_nomn, cg_gent, cg_datv, cg_accs, cg_ablt, cg_loct."
+        "'Купить Строительные материалы в {cg_nomn}'\nВозможные переменные: c_nomn, c_gent, c_datv, c_accs, c_ablt, c_loct, cg_nomn, cg_gent, cg_datv, cg_accs, cg_ablt, cg_loct."
         "(Переменные в формате [c - город / cg - группа городов]_[название падежа, начиная с именитольного])"
     )
     h1_tag = models.CharField(_("h1 тэг"), max_length=512, blank=True, null=True)

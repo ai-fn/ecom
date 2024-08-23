@@ -6,6 +6,9 @@ from drf_spectacular.utils import (
     OpenApiParameter,
 )
 
+
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser, AllowAny
 
@@ -18,6 +21,12 @@ from api.views.metadata import OPEN_GRAPH_META_RESPONSE_EXAMPLE
 PAGE_REQUEST_EXAMPLE = {
     "title": "Первая страница",
     "h1_tag": "dummy_h1_tag",
+    "content": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo " \
+                "inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut " \
+                "fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, " \
+                "consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, " \
+                "quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate " \
+                "velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?",
     "description": "Описание первой страницы",
     "slug": "pervaya-stranitsa",
     "image": "/media/pages/image1.jpg",
@@ -147,16 +156,40 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
             )
         },
     ),
+    retrieve_by_slug=extend_schema(
+        summary="Получение страницы по слагу",
+        description="Получение страницы по слагу",
+        responses={
+            200: OpenApiResponse(
+                response=PageSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример успешного ответа",
+                        value=PAGE_RESPONSE_EXAMPLE,
+                    )
+                ]
+            )
+        }
+    ),
 )
 class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = Page.objects.order_by("-created_at")
     permission_classes = [IsAdminUser]
     serializer_class = PageSerializer
 
+
+    def get_permissions(self):
+        if self.action == "retrieve_by_slug":
+            return [AllowAny()]
+
+        return super().get_permissions()
+
+
     def get_serializer_context(self):
         data = super().get_serializer_context()
         data["city_domain"] = self.request.query_params.get("city_domain")
         return data
+
 
     def get_object(self) -> Page:
         loogup_field: str = self.kwargs.get(self.lookup_field)
@@ -167,8 +200,18 @@ class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet
 
         return super().get_object()
     
+
     def get_permissions(self):
-        if self.action == "retrieve":
+        if self.action == "retrieve_by_slug":
             self.permission_classes = [AllowAny]
 
         return super().get_permissions()
+
+    @action(detail=False, methods=["get"], url_path="by-slug/(?P<slug>[^/.]+)")
+    def retrieve_by_slug(self, request, slug=None, *args, **kwargs):
+        """
+        Кастомное действие для получения страницы по слагу.
+        """
+        self.lookup_field = self.lookup_url_kwarg = "slug"
+        self.kwargs[self.lookup_field] = slug
+        return super().retrieve(request, *args, **kwargs)
