@@ -1,23 +1,12 @@
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer, BooleanField
+from rest_framework.fields import empty
 
 
-class ActiveModelSerializerMetaClass(serializers.SerializerMetaclass):
-
-    def __new__(cls, name, bases, attrs):
-        new_class = super().__new__(cls, name, bases, attrs)
-        if hasattr(new_class, 'Meta'):
-            meta = new_class.Meta
-            if hasattr(meta, 'exclude'):
-                pass
-            elif hasattr(meta, 'fields'):
-                meta.fields = list(meta.fields) + ['is_active']
-            else:
-                meta.fields = ['is_active']
-        return new_class
-
-
-class ActiveModelSerializer(serializers.ModelSerializer, metaclass=ActiveModelSerializerMetaClass):
-    is_active = serializers.BooleanField(default=True)
+class ActiveModelSerializer(ModelSerializer):
 
     class Meta:
         abstract = True
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        super().__init__(instance, data, **kwargs)
+        self.fields["is_active"] = BooleanField(default=True)
