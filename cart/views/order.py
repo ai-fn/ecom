@@ -219,9 +219,9 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSe
 
     @action(detail=False, methods=["get"], url_path="active-orders")
     def active_orders(self, request, *args, **kwargs):
-        self.queryset = self.get_queryset().filter(is_active=True)
+        self.queryset = self.get_queryset().exclude(status="DELIVERED")
         return super().list(request, *args, **kwargs)
-    
+
 
     @action(detail=False, methods=["post"], url_path="order-selected")
     def order_selected(self, request, *args, **kwargs):
