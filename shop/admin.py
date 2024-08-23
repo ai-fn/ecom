@@ -86,6 +86,7 @@ class ProductAdmin(ActiveAdminMixin, admin.ModelAdmin):
         "article",
         "id",
         "title",
+        "brand",
         "category",
         "is_popular",
         "is_new",
