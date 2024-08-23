@@ -56,3 +56,4 @@ from ._document import ImageSerializer
 from ._document import BrandDocumentSerializer
 from .feedback import FeedbackSerializer
 from .page import PageSerializer
+from .item_set import ItemSetSerializer, ItemSetElementSerializer

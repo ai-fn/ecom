@@ -13,6 +13,8 @@ from unidecode import unidecode
 from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
 
+from shop.validators import validate_object_exists
+
 
 class ThumbModel(TimeBasedModel):
     class Meta:
@@ -760,3 +762,40 @@ class SearchHistory(TimeBasedModel):
         verbose_name_plural = _("Истории поиска")
         ordering = ("-created_at",)
         unique_together = (("title", "user"),)
+
+
+class ItemSet(TimeBasedModel):
+
+    title = models.CharField(_("Заголовок"), max_length=256)
+    description = models.TextField(_("Описание"), max_length=1024)
+    order = models.PositiveIntegerField(_("Порядковый номер"), default=0, unique=True)
+
+    class Meta:
+        verbose_name = _("Набор объектов")
+        verbose_name_plural = _("Наборы объектов")
+
+    def __str__(self) -> str:
+        return f"Набор объектов '{self.title}'"
+
+
+class ItemSetElement(TimeBasedModel):
+    ALLOWED_MODELS = ("product",)
+
+    item_set = models.ForeignKey(ItemSet, on_delete=models.CASCADE, verbose_name=_("Набор элементов"), related_name="elements")
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(_("Порядковый номер"), default=0, unique=True)
+    object_id = models.PositiveIntegerField(_("ID элемента"))
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def clean(self):
+        if self.content_type.model not in self.ALLOWED_MODELS:
+            raise ValidationError(f'Model "{self.content_type.model}" is not allowed.')
+
+        validate_object_exists(self.content_type, self.object_id)
+
+    class Meta:
+        verbose_name = _("Элемент набора объектов")
+        verbose_name_plural = _("Элементы набора объектов")
+
+    def __str__(self) -> str:
+        return f"{self.content_object} in {self.item_set}"

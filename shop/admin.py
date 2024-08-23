@@ -23,6 +23,8 @@ from shop.models import (
     MainPageCategoryBarItem,
     ProductFrequenlyBoughtTogether,
     SideBarMenuItem,
+    ItemSet,
+    ItemSetElement,
 )
 from mptt.admin import DraggableMPTTAdmin
 
@@ -402,3 +404,12 @@ class SearchHistoryAdmin(ActiveAdminMixin, admin.ModelAdmin):
     )
     ordering = ("created_at", "title")
     list_filter = ("user",)
+
+
+@admin.register(ItemSet)
+class ItemSetAdmin(ActiveAdminMixin, admin.ModelAdmin):
+    pass
+
+@admin.register(ItemSetElement)
+class ItemSetElementAdmin(ActiveAdminMixin, admin.ModelAdmin):
+    pass
