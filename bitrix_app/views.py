@@ -1,7 +1,6 @@
-from typing import Any
 from loguru import logger
 
-from api.mixins import IntegrityErrorHandlingMixin
+from api.mixins import IntegrityErrorHandlingMixin, ActiveQuerysetMixin
 
 from bitrix_app.services.bitrix_service import Bitrix24API
 from bitrix_app.models import Lead
@@ -224,7 +223,7 @@ by_bitrix_id_param = OpenApiParameter(
         responses={204: None},
     ),
 )
-class LeadViewSet(IntegrityErrorHandlingMixin, ModelViewSet):
+class LeadViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
     permission_classes = [IsAdminUser]

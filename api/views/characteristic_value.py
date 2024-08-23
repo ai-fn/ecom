@@ -6,7 +6,7 @@ from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExam
 from api.filters import CharacteristicValueFilters
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.characteristic_value import CharacteristicValueSerializer
-from api.mixins import IntegrityErrorHandlingMixin
+from api.mixins import IntegrityErrorHandlingMixin, ActiveQuerysetMixin
 
 from shop.models import CharacteristicValue
 
@@ -139,7 +139,7 @@ CHARACTERISTIC_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 @extend_schema(
     tags=["Shop"],
 )
-class CharacteristicValueViewSet(IntegrityErrorHandlingMixin, ModelViewSet):
+class CharacteristicValueViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     """Возвращает значение характеристик продукта
 
     Args:

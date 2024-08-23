@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import PromoSerializer
 from shop.models import Promo
@@ -150,7 +151,7 @@ PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PROMO_REQUEST_EXAM
         )
     ],
 )
-class PromoViewSet(ModelViewSet):
+class PromoViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
     queryset = Promo.objects.order_by("-created_at")
     serializer_class = PromoSerializer

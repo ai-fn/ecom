@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers import ProductFileSerializer
 from shop.models import ProductFile
 
@@ -105,7 +106,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["api"])
-class ProductFileViewSet(ModelViewSet):
+class ProductFileViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = ProductFile.objects.order_by("-created_at")
     serializer_class = ProductFileSerializer
     permission_classes = [AllowAny]

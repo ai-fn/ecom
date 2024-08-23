@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers.products_in_order import ProductsInOrderSerializer
 from rest_framework.permissions import IsAuthenticated
 from cart.models import ProductsInOrder
@@ -135,7 +136,7 @@ PRODUCTS_IN_ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PRODUC
     ),
 )
 @extend_schema(tags=["Cart"])
-class ProductsInOrderViewSet(ModelViewSet):
+class ProductsInOrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = ProductsInOrder.objects.order_by("-created_at")
     serializer_class = ProductsInOrderSerializer
     permission_classes = [IsAuthenticated]

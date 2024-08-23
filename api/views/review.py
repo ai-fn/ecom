@@ -3,6 +3,7 @@ from django_filters import rest_framework as filters
 from rest_framework.viewsets import ModelViewSet
 
 from api.filters.review import ReviewFilters
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.permissions import ReadCreateOrAdminPermission
 from api.serializers.review import ReviewSerializer
 
@@ -134,7 +135,7 @@ REVIEW_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Reviews"])
-class ReviewViewSet(ModelViewSet):
+class ReviewViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     """Возвращает отзывы
 
     Args:

@@ -1,3 +1,4 @@
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from shop.models import ProductImage
 from api.serializers import ProductImageSerializer
 
@@ -106,7 +107,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 @extend_schema(
     tags=["Shop"],
 )
-class ProductImageViewSet(ModelViewSet):
+class ProductImageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = ProductImage.objects.order_by("-created_at")
     permission_classes = [
         ReadOnlyOrAdminPermission,

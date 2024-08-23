@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from import_app.serializers.model_serializers import ImportTaskSerializer
 from import_app.services.import_task_service import ImportTaskService
 from import_app.models import ImportTask
@@ -241,7 +242,7 @@ IMPORT_TASK_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_TASK_
         ]
     ),
 )
-class ImportTaskViewSet(ModelViewSet):
+class ImportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = ImportTask.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = ImportTaskSerializer

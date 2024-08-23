@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import viewsets
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from shop.models import FavoriteProduct
 from api.serializers import FavoriteProductSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiParameter, OpenApiResponse
@@ -155,7 +156,7 @@ FAVORITE_PRODUCT_RESPONSE_EXAMPLE = {
         ),
     ]
 )
-class FavoriteProductViewSet(viewsets.ModelViewSet):
+class FavoriteProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.order_by("-created_at")
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]

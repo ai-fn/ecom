@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.footer_settings import (
     FooterItemSerializer,
@@ -128,7 +129,7 @@ FOOTER_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(FOOTER_ITEM_
 @extend_schema(
     tags=["Settings"],
 )
-class FooterItemViewSet(ModelViewSet):
+class FooterItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = FooterItem.objects.order_by("column", "order")
     serializer_class = FooterItemSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

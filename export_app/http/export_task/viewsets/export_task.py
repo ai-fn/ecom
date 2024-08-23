@@ -17,6 +17,7 @@ from drf_spectacular.utils import (
     OpenApiResponse,
 )
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from export_app.models import ExportTask
 from export_app.http.export_task.serializers import ExportTaskSerializer
 from export_app.tasks import export
@@ -245,7 +246,7 @@ start_export_responses = {
     ),
 )
 @extend_schema(tags=["Export App"])
-class ExportTaskViewSet(ModelViewSet):
+class ExportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     serializer_class = ExportTaskSerializer
     queryset = ExportTask.objects.all()
     permission_classes = [IsAdminUser]

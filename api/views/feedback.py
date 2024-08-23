@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
 
 from rest_framework.viewsets import ModelViewSet
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from blog.models import Feedback
 from api.serializers import FeedbackSerializer
 from api.permissions import AllowCreateOrAdmin
@@ -46,7 +47,7 @@ from api.permissions import AllowCreateOrAdmin
         responses={204: OpenApiResponse(description='Отзыв успешно удален')}
     )
 )
-class FeedbackViewSet(ModelViewSet):
+class FeedbackViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = Feedback.objects.order_by("-created_at")
     serializer_class = FeedbackSerializer
     permission_classes = [AllowCreateOrAdmin]

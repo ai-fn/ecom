@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.decorators import action
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers import SearchHistorySerializer
 from api.permissions import IsOwnerOrAdminPermission
 from shop.models import SearchHistory
@@ -137,7 +138,7 @@ SEARCH_HISTORY_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Shop"])
-class SearchHistoryViewSet(ModelViewSet):
+class SearchHistoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
     queryset = SearchHistory.objects.order_by("-created_at")
     serializer_class = SearchHistorySerializer

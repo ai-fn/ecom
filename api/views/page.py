@@ -9,6 +9,7 @@ from drf_spectacular.utils import (
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser, AllowAny
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers import PageSerializer
 from shop.models import Page
 from api.views.metadata import OPEN_GRAPH_META_RESPONSE_EXAMPLE
@@ -147,7 +148,7 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
         },
     ),
 )
-class PageViewSet(ModelViewSet):
+class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = Page.objects.order_by("-created_at")
     permission_classes = [IsAdminUser]
     serializer_class = PageSerializer

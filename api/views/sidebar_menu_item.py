@@ -1,8 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers import SideBarMenuItemSerializer
 from shop.models import SideBarMenuItem
 from api.permissions import ReadOnlyOrAdminPermission
@@ -106,7 +105,7 @@ SIDE_BAR_MENU_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(SIDE_
     ),
 )
 @extend_schema(tags=["Shop"])
-class SideBarMenuItemViewSet(ModelViewSet):
+class SideBarMenuItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
     queryset = SideBarMenuItem.objects.order_by("-created_at")
     serializer_class = SideBarMenuItemSerializer

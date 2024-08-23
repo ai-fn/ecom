@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from shop.models import MainPageSliderImage
 from api.serializers import MainPageSliderImageSerializer
@@ -118,7 +119,7 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Settings"])
-class MainPageSliderImageViewSet(ModelViewSet):
+class MainPageSliderImageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = MainPageSliderImage.objects.order_by("-order")
     serializer_class = MainPageSliderImageSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

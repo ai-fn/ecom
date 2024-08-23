@@ -9,6 +9,7 @@ from drf_spectacular.utils import (
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from import_app.models import ImportSetting
 from import_app.serializers.model_serializers import ImportSettingSerializer
 
@@ -161,7 +162,7 @@ IMPORT_SETTING_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_SE
         responses={204: OpenApiResponse(description="Шаблон импорта успешно удален.")},
     ),
 )
-class ImportSettingViewSet(ModelViewSet):
+class ImportSettingViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = ImportSetting.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = ImportSettingSerializer

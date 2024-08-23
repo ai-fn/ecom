@@ -5,6 +5,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse,
 )
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from shop.models import ProductGroup
 from api.serializers import ProductGroupSerializer
 
@@ -166,6 +167,6 @@ PRODUCT_GROUP_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         },
     ),
 )
-class ProductGroupViewSet(viewsets.ModelViewSet):
+class ProductGroupViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, viewsets.ModelViewSet):
     queryset = ProductGroup.objects.order_by("-created_at")
     serializer_class = ProductGroupSerializer

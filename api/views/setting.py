@@ -1,5 +1,6 @@
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers.setting import SettingSerializer
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
@@ -167,7 +168,7 @@ class RobotsTxtView(generics.GenericAPIView):
     ),
 )
 @extend_schema(tags=["Settings"])
-class SettingViewSet(ModelViewSet):
+class SettingViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     """Возвращает настройки
 
     Args:

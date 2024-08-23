@@ -2,6 +2,8 @@
 from django.db import transaction
 from django.db.models import F
 from loguru import logger
+
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.permissions import IsOwnerOrAdminPermission
 
 from rest_framework import status
@@ -191,7 +193,7 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Order"])
-class OrderViewSet(ModelViewSet):
+class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
     queryset = Order.objects.all().order_by("-created_at")
     serializer_class = OrderSerializer

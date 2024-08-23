@@ -6,6 +6,7 @@ from rest_framework import status
 
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiResponse
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from export_app.models import ExportSettings
 from export_app.http.export_task_settings.serializers import ExportSettingsSerializer, SimplifiedSettingsSerializer
 from export_app.http.export_task_settings.examples import *
@@ -146,7 +147,7 @@ from export_app.http.export_task_settings.examples import *
 @extend_schema(
     tags=["Export App"],
 )
-class ExportSettingsViewSet(ModelViewSet):
+class ExportSettingsViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     serializer_class = ExportSettingsSerializer
     queryset = ExportSettings.objects.all()
     permission_classes = [IsAdminUser]

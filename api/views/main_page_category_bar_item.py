@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample
 
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import MainPageCategoryBarItemSerializer
 from shop.models import MainPageCategoryBarItem
@@ -114,7 +115,7 @@ CATEGORY_BAR_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(CATEGO
     ),
 )
 @extend_schema(tags=["Settings"])
-class MainPageCategoryBarItemViewSet(ModelViewSet):
+class MainPageCategoryBarItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
     queryset = MainPageCategoryBarItem.objects.order_by("-created_at")
     serializer_class = MainPageCategoryBarItemSerializer

@@ -1,3 +1,4 @@
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.brand import BrandSerializer
 from shop.models import Brand
@@ -106,7 +107,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(REQUEST_EXAMPLE.items())
     ),
 )
 @extend_schema(tags=["Shop"])
-class BrandView(ModelViewSet):
+class BrandView(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = Brand.objects.order_by("-created_at")
     serializer_class = BrandSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
