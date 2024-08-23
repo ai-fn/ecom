@@ -8,10 +8,9 @@ from drf_spectacular.utils import (
 
 
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAdminUser, AllowAny
 
+from api.permissions import ReadOnlyOrAdminPermission
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers import PageSerializer
 from shop.models import Page
@@ -174,15 +173,8 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
 )
 class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = Page.objects.order_by("-created_at")
-    permission_classes = [IsAdminUser]
+    permission_classes = [ReadOnlyOrAdminPermission]
     serializer_class = PageSerializer
-
-
-    def get_permissions(self):
-        if self.action == "retrieve_by_slug":
-            return [AllowAny()]
-
-        return super().get_permissions()
 
 
     def get_serializer_context(self):
@@ -199,13 +191,7 @@ class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet
             self.kwargs[self.lookup_field] = loogup_field
 
         return super().get_object()
-    
 
-    def get_permissions(self):
-        if self.action == "retrieve_by_slug":
-            self.permission_classes = [AllowAny]
-
-        return super().get_permissions()
 
     @action(detail=False, methods=["get"], url_path="by-slug/(?P<slug>[^/.]+)")
     def retrieve_by_slug(self, request, slug=None, *args, **kwargs):
