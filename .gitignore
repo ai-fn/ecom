@@ -7,10 +7,10 @@ data.json
 db.json
 .venv
 media/*
+static/*
 calls/
 results.sql
 ssl/live
-static
 venv
 data/db/
 ssl/.updated-options-ssl-nginx-conf-digest.txt
