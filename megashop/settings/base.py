@@ -254,7 +254,7 @@ SPECTACULAR_SETTINGS = {
 ELASTICSEARCH_DSL = {
     "default": {
         "hosts": f"http://{ELASTICSEARCH_HOST}:{ELASTICSEARCH_HTTP_PORT}",
-        "http_auth": ("elastic", ELASTICSEARCH_PASSWORD),
+        "basic_auth": ("elastic", ELASTICSEARCH_PASSWORD),
     }
 }
 

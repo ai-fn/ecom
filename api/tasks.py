@@ -9,8 +9,6 @@ from django.core.mail import EmailMessage
 
 from loguru import logger
 
-from PIL import Image
-
 from django.utils import timezone
 from django.utils.text import slugify as django_slugify
 
@@ -87,18 +85,6 @@ def update_cities():
                     c.save()
 
         logger.debug("Cities successfully created")
-
-
-def set_opacity(image: Image, opacity: float):
-    if not 0 <= opacity <= 1:
-        return
-
-    alpha = image.split()[3]
-    new_alpha = alpha.point(lambda i: i * opacity)
-
-    image.putalpha(new_alpha)
-
-    return image
 
 
 def send_email_with_attachment(email_to, file_path):

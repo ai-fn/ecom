@@ -1,8 +1,10 @@
 from PIL import Image
+
 from django.conf import settings
+from django.core.cache import cache
+
 from loguru import logger
 
-from django.core.cache import cache
 
 from api.serializers import ActiveModelSerializer
 
