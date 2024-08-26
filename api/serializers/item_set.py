@@ -1,4 +1,3 @@
-from typing import OrderedDict
 from rest_framework import serializers 
 from api.serializers.product_catalog import ProductCatalogSerializer
 from shop.models import ItemSet, ItemSetElement, Product
@@ -23,6 +22,7 @@ class ItemSetSerializer(serializers.ModelSerializer):
 
 
 class ItemSetElementSerializer(serializers.ModelSerializer):
+
     content_object = serializers.SerializerMethodField()
 
     class Meta:
@@ -30,11 +30,17 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "item_set",
+            "order",
             "content_type",
             "object_id",
             "content_object",
         ]
 
-    def get_content_object(self, obj) -> OrderedDict | None:
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["content_type"] = instance.content_type.model
+        return data
+    
+    def get_content_object(self, obj):
         if isinstance(obj.content_object, Product):
             return ProductCatalogSerializer(obj.content_object).data

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
 
 from api.mixins import ActiveAdminMixin
 from shop.models import (
@@ -406,10 +407,45 @@ class SearchHistoryAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_filter = ("user",)
 
 
+class ContentTypeFilter(admin.SimpleListFilter):
+    title = 'content type'
+    parameter_name = 'content_type'
+
+    def lookups(self, request, model_admin):
+        allowed_content_types = ContentType.objects.filter(model__in=model_admin.model.ALLOWED_MODELS)
+        return [(ct.id, ct.model) for ct in allowed_content_types]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(content_type__id__exact=self.value())
+        return queryset
+
+
 @admin.register(ItemSet)
 class ItemSetAdmin(ActiveAdminMixin, admin.ModelAdmin):
-    pass
+    list_display = (
+        "id",
+        "title",
+        "description",
+        "order",
+    )
 
 @admin.register(ItemSetElement)
 class ItemSetElementAdmin(ActiveAdminMixin, admin.ModelAdmin):
-    pass
+    list_display = (
+        "id",
+        "content_type",
+        "order",
+        "item_set",
+    )
+    list_filter = (
+        ContentTypeFilter,
+        "item_set",
+    )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "content_type":
+            kwargs["queryset"] = ContentType.objects.filter(model__in=ItemSetElement.ALLOWED_MODELS)
+
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+

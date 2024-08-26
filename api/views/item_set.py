@@ -14,16 +14,17 @@ class ItemSetPaginate(PageNumberPagination):
 
 ITEM_SET_ELEMENT_RESPONSE_EXAMPLE = {
     "id": 1,
+    "order": 1,
     "item_set": 1,
-    "content_type": "dummy-content-type",
+    "content_type": "product",
     "object_id": 1,
     "content_object": UNAUTHORIZED_RESPONSE_EXAMPLE,
 }
 ITEM_SET_ELEMENT_REQUEST_EXAMPLE = {
     "item_set": 1,
-    "content_type": "dummy-content-type",
+    "order": 1,
+    "content_type": 1,
     "object_id": 1,
-    "content_object": 120,
 }
 ITEM_SET_ELEMENT_PARTIAL_UPDATE_EXAMPLE = {
     "item_set": 1,

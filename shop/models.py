@@ -768,11 +768,12 @@ class ItemSet(TimeBasedModel):
 
     title = models.CharField(_("Заголовок"), max_length=256)
     description = models.TextField(_("Описание"), max_length=1024)
-    order = models.PositiveIntegerField(_("Порядковый номер"), default=0, unique=True)
+    order = models.PositiveIntegerField(_("Порядковый номер"), default=0)
 
     class Meta:
         verbose_name = _("Набор объектов")
         verbose_name_plural = _("Наборы объектов")
+        ordering = ("order", "-created_at")
 
     def __str__(self) -> str:
         return f"Набор объектов '{self.title}'"
@@ -783,7 +784,7 @@ class ItemSetElement(TimeBasedModel):
 
     item_set = models.ForeignKey(ItemSet, on_delete=models.CASCADE, verbose_name=_("Набор элементов"), related_name="elements")
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    order = models.PositiveIntegerField(_("Порядковый номер"), default=0, unique=True)
+    order = models.PositiveIntegerField(_("Порядковый номер"), default=0)
     object_id = models.PositiveIntegerField(_("ID элемента"))
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -796,6 +797,7 @@ class ItemSetElement(TimeBasedModel):
     class Meta:
         verbose_name = _("Элемент набора объектов")
         verbose_name_plural = _("Элементы набора объектов")
+        ordering = ("order", "-created_at")
 
     def __str__(self) -> str:
         return f"{self.content_object} in {self.item_set}"
