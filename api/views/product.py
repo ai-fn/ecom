@@ -397,7 +397,7 @@ class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
             return ProductCatalogSerializer
 
         return ProductDetailSerializer
-
+    
     def get_queryset(self):
         self.domain = self.request.query_params.get("city_domain")
         self.queryset = super().get_queryset()
@@ -413,11 +413,6 @@ class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
                     filter=F("cart_items__customer_id") == self.request.user.id,
                 )
             )
-
-        # Order the queryset by priority
-        self.queryset = self.queryset.order_by(
-            "-priority",
-        )
 
         return self.queryset
 
@@ -459,7 +454,7 @@ class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
                 Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
                 Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
             )
-        ).order_by("-priority")
+        )
         brands_queryset = Brand.objects.filter(id__in=queryset.values_list("brand", flat=True))
         brands = BrandSerializer(brands_queryset, many=True).data
 
