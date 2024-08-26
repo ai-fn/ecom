@@ -670,21 +670,21 @@ class OpenGraphMeta(TimeBasedModel):
         _("Заголовок"),
         max_length=1024,
         help_text="Шаблон заголовка объекта с подстановкой названия города в разных падежах:"
-        " 'Купить {object_name} в {prepositional_case} по цене {price}'\nВозможные переменные: object_name, city_group, price, count, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        " 'Купить {object_name} в {loct} по цене {price}'\nВозможные переменные: object_name, city_group, price, count, nomn, gent, datv, accs, ablt, loct."
         " (Наименование объекта, название области, цена, кол-во товаров в категории ...название города в падежах, начиная с именитольного)",
     )
     description = models.TextField(
         _("Описание"),
         max_length=4096,
         help_text="Шаблон описания с подстановкой названия объекта и названия города в разных падежах ()"
-        "'Купить {object_name} в {city_group} по цене {price}'\nВозможные переменные: object_name, city_group, price, count, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        "'Купить {object_name} в {city_group} по цене {price}'\nВозможные переменные: object_name, city_group, price, count, nomn, gent, datv, accs, ablt, loct."
         "(Наименование объекта, название области, цена, кол-во товаров в категории ...название города в падежах, начиная с именитольного)",
     )
     keywords = models.TextField(
         _("Ключевые слова"),
         max_length=4096,
         blank=True, null=True,
-        help_text="Ключевые слова: 'купить в {prepositional_case} по цене {price}, сайдинг в {city_group}, {object_name} в городе {nominative_case}'. nВозможные переменные: object_name, city_group, price, count, nominative_case, genitive_case, dative_case, accusative_case, instrumental_case, prepositional_case."
+        help_text="Ключевые слова: 'купить в {loct} по цене {price}, сайдинг в {city_group}, {object_name} в городе {nomn}'. nВозможные переменные: object_name, city_group, price, count, nomn, gent, datv, accs, ablt, loct."
         " (Наименование объекта, название области, цена, кол-во товаров в категории ...название города в падежах, начиная с именитольного)",
     )
     url = models.CharField(

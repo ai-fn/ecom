@@ -723,12 +723,6 @@
 | number             | BigIntegerField         | default=0                                                                         | Номер телефона         |
 | how_to_get_office  | CharField               | max_length=512, null=True, blank=True                                             | Как добраться до офиса |
 | schedule           | TextField               | default="Отсутствует"                                                             | График работы          |
-| nominative_case    | CharField               | max_length=128, null=True, blank=True                                             | Именительный падеж     |
-| genitive_case      | CharField               | max_length=128, null=True, blank=True                                             | Родительный падеж      |
-| dative_case        | CharField               | max_length=128, null=True, blank=True                                             | Дательный падеж        |
-| accusative_case    | CharField               | max_length=128, null=True, blank=True                                             | Винительный падеж      |
-| instrumental_case  | CharField               | max_length=128, null=True, blank=True                                             | Творительный падеж     |
-| prepositional_case | CharField               | max_length=128, null=True                                                         | Предложный падеж       |
 | population         | PositiveBigIntegerField | default=0                                                                         | Численность населения  |
 | city_group         | ForeignKey              | CityGroup, on_delete=models.PROTECT, related_name="cities", null=True, blank=True | Группа городов         |
 

@@ -20,19 +20,13 @@ SIMPLIFIED_CITY_GROUP_RESPONSE_EXAMPLE = {
 CITY_REQUEST_EXAMPLE = {
     "name": "Воронеж",
     "domain": "example.com",
-    "nominative_case": "Воронеж",
-    "genitive_case": "Воронежа",
-    "dative_case": "Воронежу",
-    "accusative_case": "Воронежем",
-    "instrumental_case": "Воронежем",
-    "prepositional_case": "Воронеже",
     "is_active": True,
     "city_group": 1,
 }
 CITY_RESPONSE_EXAMPLE = {
     "id": 1,
-    "city_group": SIMPLIFIED_CITY_GROUP_RESPONSE_EXAMPLE,
     ** CITY_REQUEST_EXAMPLE,
+    "city_group": SIMPLIFIED_CITY_GROUP_RESPONSE_EXAMPLE,
 }
 CITY_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     k: v for k, v in list(CITY_REQUEST_EXAMPLE.items())[:2]

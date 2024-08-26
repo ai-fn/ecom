@@ -8,8 +8,6 @@ from rest_framework.exceptions import ValidationError
 from account.models import City, CityGroup, CustomUser
 from api.mixins import ValidatePhoneNumberMixin, ActiveAdminMixin
 
-from .signals import set_cases
-
 
 class CustomUserValidation(ValidatePhoneNumberMixin):
 
@@ -106,6 +104,3 @@ class CityGroupAdmin(ActiveAdminMixin, admin.ModelAdmin):
     search_fields = (
         "name",
     )
-
-def ready():
-    setting_changed.connect(set_cases)

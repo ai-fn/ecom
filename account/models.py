@@ -94,26 +94,6 @@ class City(TimeBasedModel):
         verbose_name="График работы",
         default="Отсутствует",
     )
-    nominative_case = models.CharField(
-        verbose_name="Именительный падеж", null=True, blank=True, max_length=128
-    )
-    genitive_case = models.CharField(
-        verbose_name="Родительный падеж", null=True, blank=True, max_length=128
-    )
-    dative_case = models.CharField(
-        verbose_name="Дательный падеж", null=True, blank=True, max_length=128
-    )
-    accusative_case = models.CharField(
-        verbose_name="Винительный падеж", null=True, blank=True, max_length=128
-    )
-    instrumental_case = models.CharField(
-        verbose_name="Творительный падеж", null=True, blank=True, max_length=128
-    )
-    prepositional_case = models.CharField(
-        verbose_name="Предложный падеж",
-        null=True,
-        max_length=128,
-    )
     population = models.PositiveBigIntegerField(
         verbose_name="Численность населения", default=0
     )

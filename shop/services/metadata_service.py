@@ -1,11 +1,18 @@
 from typing import Iterable, Literal
 from django.contrib.contenttypes.models import ContentType
 
+from pymorphy2 import MorphAnalyzer
+
 from account.models import City, CityGroup
-from shop.models import OpenGraphMeta, Price
+from shop.models import OpenGraphMeta
+
+
+_morph = MorphAnalyzer()
+_inflect_phrase = lambda phrase, case: _morph.parse(phrase)[0].inflect({case}).word.title()
 
 
 class MetaDataService:
+
 
     @staticmethod
     def get_obj_by_slug(slug: str, content_type: str) -> OpenGraphMeta:
@@ -31,13 +38,7 @@ class MetaDataService:
         fields: Iterable[Literal["title", "description", "keywords"]],
         city_domain: str = None,
     ):
-        try:
-            if not city_domain:
-                raise City.DoesNotExist
-            else:
-                city = City.objects.get(domain=city_domain)
-        except City.DoesNotExist:
-            city = City.get_default_city()
+        city = City.objects.filter(domain=city_domain).first() or City.get_default_city()
 
         if city.city_group is not None:
             city_group_name = city.city_group.name
@@ -71,18 +72,12 @@ class MetaDataService:
                     f"от {int(price_value)}" if price_value is not None else "--"
                 )
                 products_count = instance.products.count()
+            
+            kwargs = dict(object_name=object_name, price=price, city_group=city_group_name, count=products_count)
+            cases = ("nomn", "gent", "datv", "accs", "ablt", "loct")
+            for case in cases:
+                kwargs[case] = _inflect_phrase(city.name, case)
 
-            result[field] = value.format(
-                object_name=object_name,
-                price=price,
-                city_group=city_group_name,
-                nominative_case=city.nominative_case,
-                genitive_case=city.genitive_case,
-                dative_case=city.dative_case,
-                accusative_case=city.accusative_case,
-                instrumental_case=city.instrumental_case,
-                prepositional_case=city.prepositional_case,
-                count=products_count,
-            )
+            result[field] = value.format(**kwargs)
 
         return result

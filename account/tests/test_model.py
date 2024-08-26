@@ -2,49 +2,6 @@ from django.test import TestCase
 from account.models import City, CityGroup, CustomUser
 
 
-class CityModelTest(TestCase):
-
-    def setUp(self):
-        self.city = City.objects.create(name="Москва")
-
-    def test_cases_are_set_correctly(self):
-        city = City.objects.get(name="Москва")
-        self.assertEqual(city.nominative_case, "Москва")
-        self.assertEqual(city.genitive_case, "Москвы")
-        self.assertEqual(city.dative_case, "Москве")
-        self.assertEqual(city.accusative_case, "Москву")
-        self.assertEqual(city.instrumental_case, "Москвой")
-        self.assertEqual(city.prepositional_case, "Москве")
-
-    def test_cases_with_different_city(self):
-        city2 = City.objects.create(name='Санкт-Петербург')
-        self.assertEqual(city2.nominative_case, 'Санкт-Петербург')
-        self.assertEqual(city2.genitive_case, 'Санкт-Петербурга')
-        self.assertEqual(city2.dative_case, 'Санкт-Петербургу')
-        self.assertEqual(city2.accusative_case, 'Санкт-Петербург')
-        self.assertEqual(city2.instrumental_case, 'Санкт-Петербургом')
-        self.assertEqual(city2.prepositional_case, 'Санкт-Петербурге')
-
-    def test_signal_set_cases_on_create(self):
-        self.assertEqual(self.city.nominative_case, "Москва")
-        self.assertEqual(self.city.genitive_case, "Москвы")
-        self.assertEqual(self.city.dative_case, "Москве")
-        self.assertEqual(self.city.accusative_case, "Москву")
-        self.assertEqual(self.city.instrumental_case, "Москвой")
-        self.assertEqual(self.city.prepositional_case, "Москве")
-
-    def test_signal_set_cases_on_update(self):
-        self.city.name = "Новосибирск"
-        self.city.save()
-        self.city.refresh_from_db()
-        self.assertEqual(self.city.nominative_case, "Новосибирск")
-        self.assertEqual(self.city.genitive_case, "Новосибирска")
-        self.assertEqual(self.city.dative_case, "Новосибирску")
-        self.assertEqual(self.city.accusative_case, "Новосибирск")
-        self.assertEqual(self.city.instrumental_case, "Новосибирском")
-        self.assertEqual(self.city.prepositional_case, "Новосибирске")
-
-
 class CityGroupModelTest(TestCase):
 
     def setUp(self):
