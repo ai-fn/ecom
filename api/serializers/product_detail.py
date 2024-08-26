@@ -119,14 +119,13 @@ class ProductDetailSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModel
 
     def get_groups(self, obj) -> None | ReturnDict:
         context = {"current_product": obj.id}
-        groups = ProductGroup.objects.filter(products=obj)
-        visual_groups = groups.filter(characteristic__name__iexact="цвет")
+        visual_groups = obj.groups.filter(characteristic__name__istartswith="цвет")
         return {
             "visual_groups": ProductGroupSerializer(
                 visual_groups, many=True, context={"visual_groups": True, **context}
             ).data,
             "non_visual_group": ProductGroupSerializer(
-                groups.exclude(id__in=visual_groups), many=True, context=context
+                obj.groups.exclude(id__in=visual_groups), many=True, context=context
             ).data,
         }
 

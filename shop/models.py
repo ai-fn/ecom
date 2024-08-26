@@ -646,7 +646,7 @@ class SideBarMenuItem(TimeBasedModel):
 class ProductGroup(TimeBasedModel):
 
     name = models.CharField(verbose_name="Наименование", max_length=255, blank=True, null=True)
-    products = models.ManyToManyField(Product, verbose_name="Продукты", blank=True)
+    products = models.ManyToManyField(Product, verbose_name="Продукты", blank=True, related_name="groups")
     characteristic = models.ForeignKey(
         Characteristic,
         verbose_name="Характеристика",
@@ -766,7 +766,7 @@ class SearchHistory(TimeBasedModel):
 
 class ItemSet(TimeBasedModel):
 
-    title = models.CharField(_("Заголовок"), max_length=256)
+    title = models.CharField(_("Заголовок"), max_length=256, unique=True)
     description = models.TextField(_("Описание"), max_length=1024)
     order = models.PositiveIntegerField(_("Порядковый номер"), default=0)
 
@@ -792,11 +792,12 @@ class ItemSetElement(TimeBasedModel):
         if self.content_type.model not in self.ALLOWED_MODELS:
             raise ValidationError(f'Model "{self.content_type.model}" is not allowed.')
 
-        validate_object_exists(self.content_type, self.object_id)
+        # validate_object_exists(self.content_type, self.object_id)
 
     class Meta:
         verbose_name = _("Элемент набора объектов")
         verbose_name_plural = _("Элементы набора объектов")
+        unique_together = (("content_type", "object_id", "item_set"),)
         ordering = ("order", "-created_at")
 
     def __str__(self) -> str:
