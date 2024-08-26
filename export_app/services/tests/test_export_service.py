@@ -88,8 +88,8 @@ class ExportServiceTest(TestCase):
         df = ExportService.create_dataframe(model_fields)
         
         expected_data = {
-            'Товар_title': [self.product1.title, self.product2.title],
-            'Товар_description': [self.product1.description, self.product2.description],
+            'Товар_title': [self.product2.title, self.product1.title],
+            'Товар_description': [self.product2.description, self.product1.description],
         }
         expected_df = pd.DataFrame(expected_data)
 
@@ -103,7 +103,7 @@ class ExportServiceTest(TestCase):
         df = ExportService.create_dataframe(model_fields)
         
         expected_data = {
-            'Товар_similar_products': [self.product2.pk, self.product1.pk]
+            'Товар_similar_products': [self.product1.pk, self.product2.pk]
         }
         expected_df = pd.DataFrame(expected_data)
 
@@ -146,35 +146,35 @@ class ExportServiceTest(TestCase):
         self.assertTrue(set(expected_columns).issubset(set(df.columns)))
         self.assertEqual(len(df), 2)
 
-        self.assertEqual(df.iloc[0]['Товар_category'], str(self.category1.pk))
-        self.assertEqual(df.iloc[0]['Товар_h1_tag'], 'Product 1')
-        self.assertEqual(df.iloc[0]['Товар_brand'], str(self.brand.pk))
-        self.assertEqual(df.iloc[0]['Товар_title'], 'Product 1 Title')
-        self.assertEqual(df.iloc[0]['Товар_description'], 'Description 1')
-        self.assertEqual(df.iloc[0]['Товар_slug'], 'product-1')
-        self.assertEqual(df.iloc[0]['Товар_similar_products'], str(self.product2.pk))
-        self.assertEqual(df.iloc[0]['Товар_in_stock'], True)
-        self.assertEqual(df.iloc[0]['Товар_is_popular'], True)
-        self.assertEqual(df.iloc[0]['Товар_is_new'], True)
-        self.assertEqual(df.iloc[0]['Товар_priority'], 1)
-        self.assertEqual(df.iloc[0]['Товар_article'], 'P1')
-        self.assertEqual(df.iloc[0]['Товар_additional_categories'], f"{self.category2.pk}, {self.category3.pk}")
-        self.assertEqual(df.iloc[0]['Товар_unavailable_in'], f"{self.city1.pk}, {self.city2.pk}")
-
-        self.assertEqual(df.iloc[1]['Товар_category'], str(self.category2.pk))
-        self.assertEqual(df.iloc[1]['Товар_h1_tag'], 'Product 2')
+        self.assertEqual(df.iloc[1]['Товар_category'], str(self.category1.pk))
+        self.assertEqual(df.iloc[1]['Товар_h1_tag'], 'Product 1')
         self.assertEqual(df.iloc[1]['Товар_brand'], str(self.brand.pk))
-        self.assertEqual(df.iloc[1]['Товар_title'], 'Product 2 Title')
-        self.assertEqual(df.iloc[1]['Товар_description'], 'Description 2')
-        self.assertEqual(df.iloc[1]['Товар_slug'], 'product-2')
-        self.assertEqual(df.iloc[1]['Товар_similar_products'], str(self.product1.pk))
+        self.assertEqual(df.iloc[1]['Товар_title'], 'Product 1 Title')
+        self.assertEqual(df.iloc[1]['Товар_description'], 'Description 1')
+        self.assertEqual(df.iloc[1]['Товар_slug'], 'product-1')
+        self.assertEqual(df.iloc[1]['Товар_similar_products'], str(self.product2.pk))
         self.assertEqual(df.iloc[1]['Товар_in_stock'], True)
-        self.assertEqual(df.iloc[1]['Товар_is_popular'], False)
-        self.assertEqual(df.iloc[1]['Товар_is_new'], False)
-        self.assertEqual(df.iloc[1]['Товар_priority'], 2)
-        self.assertEqual(df.iloc[1]['Товар_article'], 'P2')
-        self.assertEqual(df.iloc[1]['Товар_additional_categories'], f"{self.category1.pk}")
-        self.assertEqual(df.iloc[1]['Товар_unavailable_in'], f"{self.city1.pk}")
+        self.assertEqual(df.iloc[1]['Товар_is_popular'], True)
+        self.assertEqual(df.iloc[1]['Товар_is_new'], True)
+        self.assertEqual(df.iloc[1]['Товар_priority'], 1)
+        self.assertEqual(df.iloc[1]['Товар_article'], 'P1')
+        self.assertEqual(df.iloc[1]['Товар_additional_categories'], f"{self.category2.pk}, {self.category3.pk}")
+        self.assertEqual(df.iloc[1]['Товар_unavailable_in'], f"{self.city1.pk}, {self.city2.pk}")
+
+        self.assertEqual(df.iloc[0]['Товар_category'], str(self.category2.pk))
+        self.assertEqual(df.iloc[0]['Товар_h1_tag'], 'Product 2')
+        self.assertEqual(df.iloc[0]['Товар_brand'], str(self.brand.pk))
+        self.assertEqual(df.iloc[0]['Товар_title'], 'Product 2 Title')
+        self.assertEqual(df.iloc[0]['Товар_description'], 'Description 2')
+        self.assertEqual(df.iloc[0]['Товар_slug'], 'product-2')
+        self.assertEqual(df.iloc[0]['Товар_similar_products'], str(self.product1.pk))
+        self.assertEqual(df.iloc[0]['Товар_in_stock'], True)
+        self.assertEqual(df.iloc[0]['Товар_is_popular'], False)
+        self.assertEqual(df.iloc[0]['Товар_is_new'], False)
+        self.assertEqual(df.iloc[0]['Товар_priority'], 2)
+        self.assertEqual(df.iloc[0]['Товар_article'], 'P2')
+        self.assertEqual(df.iloc[0]['Товар_additional_categories'], f"{self.category1.pk}")
+        self.assertEqual(df.iloc[0]['Товар_unavailable_in'], f"{self.city1.pk}")
 
 if __name__ == '__main__':
     unittest.main()
