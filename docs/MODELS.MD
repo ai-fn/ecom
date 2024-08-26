@@ -6,9 +6,6 @@
 
 | Field      | Type          | Options                                | Description |
 | ---------- | ------------- | -------------------------------------- | ----------- |
-| id         | AutoField     | primary_key=True                       | Primary Key |
-| created_at | DateTimeField | auto_now_add=True                      | Created At  |
-| updated_at | DateTimeField | auto_now=True                          | Updated At  |
 | thumb_img  | TextField     | null=True, blank=True, max_length=1024 | Миниатюра   |
 
 ## Category

@@ -108,6 +108,6 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(REQUEST_EXAMPLE.items())
 )
 @extend_schema(tags=["Shop"])
 class BrandView(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
-    queryset = Brand.objects.order_by("-created_at")
+    queryset = Brand.objects.all()
     serializer_class = BrandSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

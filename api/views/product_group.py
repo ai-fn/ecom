@@ -168,5 +168,5 @@ PRODUCT_GROUP_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 class ProductGroupViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, viewsets.ModelViewSet):
-    queryset = ProductGroup.objects.order_by("-created_at")
+    queryset = ProductGroup.objects.all()
     serializer_class = ProductGroupSerializer

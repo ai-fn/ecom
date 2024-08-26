@@ -153,7 +153,7 @@ PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PROMO_REQUEST_EXAM
 )
 class PromoViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
-    queryset = Promo.objects.order_by("-created_at")
+    queryset = Promo.objects.all()
     serializer_class = PromoSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 

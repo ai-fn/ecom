@@ -14,7 +14,7 @@ class SimilarProducts(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ListMode
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
-    queryset = Product.objects.order_by("-priority")
+    queryset = Product.objects.all()
 
     @extend_schema(
         description="Получить список всех похожих продуктов",

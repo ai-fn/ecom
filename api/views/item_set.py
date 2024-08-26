@@ -157,7 +157,7 @@ ITEM_SET_PARTIAL_UPDATE_EXAMPLE = {
     tags=["Shop"]
 )
 class ItemSetViewSet(ModelViewSet):
-    queryset = ItemSet.objects.order_by("order")
+    queryset = ItemSet.objects.all()
     serializer_class = ItemSetSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 
@@ -276,6 +276,6 @@ class ItemSetViewSet(ModelViewSet):
     tags=["Shop"]
 )
 class ItemSetElementViewSet(ModelViewSet):
-    queryset = ItemSetElement.objects.order_by("order")
+    queryset = ItemSetElement.objects.all()
     serializer_class = ItemSetElementSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

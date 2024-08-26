@@ -107,6 +107,6 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 )
 @extend_schema(tags=["api"])
 class ProductFileViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
-    queryset = ProductFile.objects.order_by("-created_at")
+    queryset = ProductFile.objects.all()
     serializer_class = ProductFileSerializer
     permission_classes = [AllowAny]

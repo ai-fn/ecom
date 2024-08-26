@@ -48,6 +48,6 @@ from api.permissions import AllowCreateOrAdmin
     )
 )
 class FeedbackViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
-    queryset = Feedback.objects.order_by("-created_at")
+    queryset = Feedback.objects.all()
     serializer_class = FeedbackSerializer
     permission_classes = [AllowCreateOrAdmin]

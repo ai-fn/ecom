@@ -146,7 +146,7 @@ class ReviewViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewS
         viewsets (_type_): _description_
     """
 
-    queryset = Review.objects.order_by("-created_at")
+    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [ReadCreateOrAdminPermission]
     filter_backends = [filters.DjangoFilterBackend]

@@ -386,9 +386,9 @@ class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
     Возвращает товары с учетом цены в заданном городе.
     """
 
-    queryset = Product.objects.order_by("-priority")
+    queryset = Product.objects.all()
     permission_classes = [ReadOnlyOrAdminPermission]
-    characteristics_queryset = Characteristic.objects.order_by("-created_at")
+    characteristics_queryset = Characteristic.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProductFilter
 

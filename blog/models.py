@@ -36,6 +36,7 @@ class Feedback(TimeBasedModel):
     class Meta:
         verbose_name = _("Обратная связь")
         verbose_name_plural = _("Обратная связь")
+        ordering = ("-created_at",)
 
     def __str__(self) -> str:
         self.get_status_display()

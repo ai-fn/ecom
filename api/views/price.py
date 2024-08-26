@@ -136,7 +136,7 @@ PRICE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PRICE_REQUEST_EXAM
 )
 @extend_schema(tags=["Shop"])
 class PriceViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
-    queryset = Price.objects.order_by("-created_at")
+    queryset = Price.objects.all()
     serializer_class = PriceSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]

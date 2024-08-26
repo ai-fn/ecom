@@ -36,6 +36,7 @@ class Order(TimeBasedModel):
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
+        ordering = ("customer", "-created_at")
 
     def clean(self) -> None:
         if self.status not in OrderStatus.values:
@@ -63,6 +64,11 @@ class ProductsInOrder(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"Корзина {self.id}"
+    
+    class Meta:
+        verbose_name = _("Товар в заказе")
+        verbose_name_plural = _("Товары в заказе")
+        ordering = ("order", "-created_at")
 
 
 class CartItem(TimeBasedModel):

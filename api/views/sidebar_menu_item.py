@@ -107,6 +107,6 @@ SIDE_BAR_MENU_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(SIDE_
 @extend_schema(tags=["Shop"])
 class SideBarMenuItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
-    queryset = SideBarMenuItem.objects.order_by("-created_at")
+    queryset = SideBarMenuItem.objects.all()
     serializer_class = SideBarMenuItemSerializer
     permission_classes = (ReadOnlyOrAdminPermission,)

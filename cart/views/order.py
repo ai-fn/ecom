@@ -195,7 +195,7 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 @extend_schema(tags=["Order"])
 class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
-    queryset = Order.objects.all().order_by("-created_at")
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
     bitrix_api = Bitrix24API()

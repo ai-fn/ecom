@@ -159,6 +159,7 @@ class CityGroup(TimeBasedModel):
             models.Index(fields=["name"], name="citygroup_name_idx"),
             models.Index(fields=["main_city"], name="citygroup_main_city_idx"),
         ]
+        ordering = ("-created_at",)
 
     def __str__(self) -> str:
         return f"Группа {self.name}"

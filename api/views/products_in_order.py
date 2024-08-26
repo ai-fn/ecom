@@ -137,6 +137,6 @@ PRODUCTS_IN_ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PRODUC
 )
 @extend_schema(tags=["Cart"])
 class ProductsInOrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
-    queryset = ProductsInOrder.objects.order_by("-created_at")
+    queryset = ProductsInOrder.objects.all()
     serializer_class = ProductsInOrderSerializer
     permission_classes = [IsAuthenticated]

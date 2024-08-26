@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from rest_framework import serializers 
 from api.serializers.product_catalog import ProductCatalogSerializer
 from shop.models import ItemSet, ItemSetElement, Product
@@ -41,6 +42,6 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
         data["content_type"] = instance.content_type.model
         return data
     
-    def get_content_object(self, obj):
+    def get_content_object(self, obj) -> OrderedDict | None:
         if isinstance(obj.content_object, Product):
             return ProductCatalogSerializer(obj.content_object).data

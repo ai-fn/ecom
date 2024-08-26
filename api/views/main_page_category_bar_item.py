@@ -117,6 +117,6 @@ CATEGORY_BAR_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(CATEGO
 @extend_schema(tags=["Settings"])
 class MainPageCategoryBarItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
 
-    queryset = MainPageCategoryBarItem.objects.order_by("-created_at")
+    queryset = MainPageCategoryBarItem.objects.all()
     serializer_class = MainPageCategoryBarItemSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

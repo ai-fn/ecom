@@ -138,6 +138,6 @@ class CharacteristicViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, Mo
         viewsets (_type_): _description_
     """
 
-    queryset = Characteristic.objects.order_by("-created_at")
+    queryset = Characteristic.objects.all()
     serializer_class = CharacteristicSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

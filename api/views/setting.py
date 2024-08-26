@@ -175,6 +175,6 @@ class SettingViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
         viewsets (_type_): _description_
     """
 
-    queryset = Setting.objects.order_by("-created_at")
+    queryset = Setting.objects.all()
     serializer_class = SettingSerializer
     permission_classes = [IsAdminUser]

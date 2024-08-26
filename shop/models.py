@@ -25,7 +25,7 @@ class ThumbModel(TimeBasedModel):
     )
 
 
-class Category(ThumbModel, MPTTModel):
+class Category(MPTTModel, ThumbModel):
     name = models.CharField(
         max_length=255,
         verbose_name="Категория",
@@ -62,7 +62,7 @@ class Category(ThumbModel, MPTTModel):
         default=False,
     )
     order = models.BigIntegerField(
-        verbose_name="Порядковый номер категории", blank=True, null=True, unique=True
+        verbose_name="Порядковый номер категории", blank=True, null=True
     )
     opengraph_metadata = GenericRelation("OpenGraphMeta", related_query_name="category")
 
@@ -82,7 +82,7 @@ class Category(ThumbModel, MPTTModel):
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
-        ordering = ("-id",)
+        ordering = ("order", "-created_at")
         indexes = [
             models.Index(fields=["name"]),
             models.Index(fields=["slug"]),
@@ -100,6 +100,7 @@ class Brand(TimeBasedModel):
         indexes = [
             models.Index(fields=["name"]),
         ]
+        ordering = ("order", "name", "-created_at")
 
     name = models.CharField(
         verbose_name="Имя бренда",
@@ -117,7 +118,7 @@ class Brand(TimeBasedModel):
         unique=True,
         max_length=256,
     )
-    order = models.BigIntegerField(verbose_name="Порядковый номер бренда", unique=True, blank=True)
+    order = models.BigIntegerField(verbose_name="Порядковый номер бренда", blank=True)
 
     def __str__(self) -> str:
         return f"{self.name}"
@@ -214,7 +215,8 @@ class Product(ThumbModel):
             models.Index(fields=["category"]),
             models.Index(fields=["article"]),
         ]
-    
+        ordering = ("-priority", "title", "-created_at")
+
 
     def save(self, *args, **kwargs) -> None:
         if not self.slug:
@@ -250,6 +252,7 @@ class FavoriteProduct(TimeBasedModel):
         unique_together = ("user", "product")
         verbose_name = _("Избранный товар")
         verbose_name_plural = _("Избранные товары")
+        ordering = ("user", "-created_at")
 
     def __str__(self):
         return f"Избранный товар({self.user.username} - {self.product.title})"
@@ -272,6 +275,7 @@ class ProductFile(TimeBasedModel):
         verbose_name = _("Документация")
         verbose_name_plural = _("Документация")
         unique_together = (("product", "name"),)
+        ordering = ("product", "name", "-created_at")
 
 
 class ProductFrequenlyBoughtTogether(TimeBasedModel):
@@ -312,6 +316,7 @@ class ProductImage(ThumbModel):
     class Meta:
         verbose_name = "Изображение товара"
         verbose_name_plural = "Изображения товаров"
+        ordering = ("product", "name", "-created_at")
 
     def __str__(self):
         return f"Image for {self.product.title}"
@@ -321,6 +326,7 @@ class Promo(ThumbModel):
     class Meta:
         verbose_name = "Акция"
         verbose_name_plural = "Акции"
+        ordering = ("-created_at",)
 
     name = models.CharField(
         verbose_name="Название акции",
@@ -340,7 +346,6 @@ class Promo(ThumbModel):
         City,
         related_name="promos",
     )
-    is_active = models.BooleanField(verbose_name="Активна ли акция", default=False)
     active_to = models.DateField(verbose_name="До какого времени акция активна?")
 
     def __str__(self):
@@ -351,6 +356,7 @@ class Characteristic(TimeBasedModel):
     class Meta:
         verbose_name = "Характеристика"
         verbose_name_plural = "Характеристики"
+        ordering = ("name", "-created_at")
 
     name = models.CharField(max_length=255, verbose_name=_("Наименование"))
     slug = models.SlugField(_("Слаг"), unique=True, max_length=256)
@@ -375,6 +381,7 @@ class CharacteristicValue(TimeBasedModel):
         verbose_name = "Значение характеристики для товара"
         verbose_name_plural = "Значение характеристик для товара"
         unique_together = ("characteristic", "product")
+        ordering = ("-created_at",)
 
     product = models.ForeignKey(
         Product,
@@ -432,6 +439,7 @@ class Review(TimeBasedModel):
             models.Index(fields=["product"]),
             models.Index(fields=["rating"]),
         ]
+        ordering = ("product", "user", "-created_at")
 
     def __str__(self):
         return f"Комментарий {self.user.last_name} {self.user.first_name}"
@@ -466,8 +474,9 @@ class Price(TimeBasedModel):
         indexes = [
             models.Index(
                 fields=["product", "city_group"]
-            ),  # Compound index for common queries involving both fields
+            ),
         ]
+        ordering = ("product", "-created_at")
 
     def __str__(self):
         return f"{self.product.title} - {self.city_group.name}: {self.price}"
@@ -496,6 +505,7 @@ class Setting(TimeBasedModel):
     class Meta:
         verbose_name = "Настройка"
         verbose_name_plural = "Настройки"
+        ordering = ("-created_at", )
 
     type = models.CharField(
         verbose_name="Тип",
@@ -564,7 +574,7 @@ class FooterItem(TimeBasedModel):
     link = models.CharField(verbose_name="Ссылка", blank=False, null=False, default="#")
 
     class Meta:
-        ordering = ("order",)
+        ordering = ("column", "order", "-created_at")
         verbose_name = "Элемент Footer"
         verbose_name_plural = "Элементы Footer"
         unique_together = ("column", "order")
@@ -596,7 +606,7 @@ class MainPageSliderImage(ThumbModel):
     )
 
     class Meta:
-        ordering = ("order",)
+        ordering = ("order", "-created_at")
         verbose_name = "Изображение главной страницы"
         verbose_name_plural = "Изображения главной страницы"
 
@@ -606,12 +616,12 @@ class MainPageSliderImage(ThumbModel):
 
 class MainPageCategoryBarItem(TimeBasedModel):
 
-    order = models.IntegerField(verbose_name=_("Порядковый номер"), unique=True, blank=True)
+    order = models.IntegerField(verbose_name=_("Порядковый номер"), blank=True)
     link = models.CharField(verbose_name=_("Ссылка"), max_length=128)
     text = models.CharField(verbose_name=_("Текст"), max_length=100)
 
     class Meta:
-        ordering = ("order",)
+        ordering = ("order", "-created_at")
         verbose_name = "Категория для панели на главной странице"
         verbose_name_plural = "Категории для панели на главной странице"
 
@@ -622,7 +632,7 @@ class MainPageCategoryBarItem(TimeBasedModel):
 class SideBarMenuItem(TimeBasedModel):
 
     order = models.PositiveSmallIntegerField(
-        verbose_name="Порядковый номер", unique=True, blank=True
+        verbose_name="Порядковый номер", blank=True
     )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     link = models.CharField(max_length=255, verbose_name="Ссылка")
@@ -635,7 +645,7 @@ class SideBarMenuItem(TimeBasedModel):
     )
 
     class Meta:
-        ordering = ("order",)
+        ordering = ("order", "-created_at")
         verbose_name = "Элемент бокового меню"
         verbose_name_plural = "Элементы бокового меню"
 
@@ -656,7 +666,7 @@ class ProductGroup(TimeBasedModel):
     )
 
     class Meta:
-        ordering = ("name",)
+        ordering = ("name", "-created_at")
         verbose_name = "Грпппа продуктов"
         verbose_name_plural = "Грпппы продуктов"
 
@@ -742,6 +752,7 @@ class Page(TimeBasedModel):
     class Meta:
         verbose_name = _("Страница")
         verbose_name_plural = _("Страницы")
+        ordering = ("title", "-created_at")
 
     def __str__(self) -> str:
         return f"Страница {self.title}"
@@ -760,7 +771,7 @@ class SearchHistory(TimeBasedModel):
     class Meta:
         verbose_name = _("История поиска")
         verbose_name_plural = _("Истории поиска")
-        ordering = ("-created_at",)
+        ordering = ("user", "title", "-created_at",)
         unique_together = (("title", "user"),)
 
 
@@ -792,7 +803,7 @@ class ItemSetElement(TimeBasedModel):
         if self.content_type.model not in self.ALLOWED_MODELS:
             raise ValidationError(f'Model "{self.content_type.model}" is not allowed.')
 
-        # validate_object_exists(self.content_type, self.object_id)
+        validate_object_exists(self.content_type, self.object_id)
 
     class Meta:
         verbose_name = _("Элемент набора объектов")

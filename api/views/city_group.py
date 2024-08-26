@@ -139,6 +139,6 @@ class CityGroupViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVi
         viewsets (_type_): _description_
     """
 
-    queryset = CityGroup.objects.order_by("-created_at")
+    queryset = CityGroup.objects.all()
     serializer_class = CityGroupSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
