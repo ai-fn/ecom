@@ -1,6 +1,10 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import (
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    CacheResponse,
+)
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import (
     CategorySerializer,
@@ -258,7 +262,7 @@ CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Shop"])
-class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     queryset = Category.objects.order_by("order")
     serializer_class = CategorySerializer
     permission_classes = [ReadOnlyOrAdminPermission]

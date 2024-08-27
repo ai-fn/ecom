@@ -3,7 +3,12 @@ from django_filters import rest_framework as filters
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ProductSorting
+from api.mixins import (
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    ProductSorting,
+    CacheResponse,
+)
 from api.serializers.brand import BrandSerializer
 from shop.models import Brand, Category, CharacteristicValue, Price, Product, Characteristic, Review
 
@@ -387,7 +392,7 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
         responses={204: None},
     ),
 )
-class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """

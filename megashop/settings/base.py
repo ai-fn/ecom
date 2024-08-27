@@ -327,9 +327,11 @@ CACHES = {
         "LOCATION": CACHE_LOCATION,
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": CACHE_PREFIX,
+    },
+    "dev_env":{
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
 }
-CACHE_BACKEND = "default"
 
 # VERIFY EMAIL SETTINGS
 EMAIL_CACHE_PREFIX = os.getenv("EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")

@@ -9,3 +9,4 @@ from .integrity_error_handling_nixin import IntegrityErrorHandlingMixin
 from .active_admin import ActiveAdminMixin
 from .active_queryset import ActiveQuerysetMixin
 from .product_ordering import ProductSorting
+from .cache_response import CacheResponse
