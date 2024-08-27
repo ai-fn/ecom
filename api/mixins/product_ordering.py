@@ -49,13 +49,16 @@ class ProductSorting:
         ).distinct()
 
     def _sort_in_promo(self):
-        return self.queryset.annotate(
-            in_promo=Case(
-                When(prices__price__lt=F("prices__old_price"), then=True),
-                default=False,
-                output_field=BooleanField(),
-            )
-        ).order_by(f"{self.reversed_prefix}in_promo")
+        if self.city_domain:
+            return self.queryset.annotate(
+                in_promo=Case(
+                    When(prices__price__lt=F("prices__old_price"), then=True),
+                    default=False,
+                    output_field=BooleanField(),
+                )
+            ).order_by(f"{self.reversed_prefix}in_promo")
+        else:
+            return self.queryset
 
     def _sort_recommend(self):
         return self.queryset.order_by("-priority", "title", "-created_at")

@@ -107,14 +107,20 @@ class ProductSortingTestCase(TestCase):
         self.assertEqual(sorted_products[2].slug, "product2")
         self.assertEqual(len(sorted_products), Product.objects.count())
 
-    def test_sort_by_in_promo(self):
-        self.sorting.request = type('Request', (object,), {'query_params': {'order_by': '-in_promo'}})
+    def test_sort_by_in_promo_with_city_domain(self):
+        self.sorting.request = type('Request', (object,), {'query_params': {'order_by': '-in_promo', 'city_domain': self.city.domain}})
         sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
         sorted_products = list(sorted_queryset)
         self.assertEqual(sorted_products[0].slug, "product3")
         self.assertEqual(sorted_products[1].slug, "product1")
         self.assertEqual(sorted_products[2].slug, "product2")
         self.assertEqual(len(sorted_products), Product.objects.count())
+
+    def test_sort_by_in_promo_without_city_domain(self):
+        self.sorting.request = type('Request', (object,), {'query_params': {'order_by': '-in_promo'}})
+        sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
+        sorted_products = list(sorted_queryset)
+        self.assertEqual(sorted_products, list(Product.objects.all()))
 
     def test_sort_by_recommend(self):
         self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'recommend'}})
