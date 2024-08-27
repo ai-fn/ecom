@@ -17,6 +17,7 @@ class ProductSorting:
         if not ordering:
             return queryset
 
+        self.city_domain = self.request.query_params.get("city_domain")
         self.reversed_prefix = "-" if ordering.startswith("-") else ""
         ordering = ordering.lstrip("-")
         self.queryset = queryset
@@ -35,9 +36,12 @@ class ProductSorting:
             return queryset.order_by(f"{self.reversed_prefix}{ordering}")
 
     def _sort_price(self):
-        return self.queryset.order_by(
-            f"{self.reversed_prefix}prices__price"
-        ).distinct()
+        if self.city_domain:
+            return self.queryset.order_by(
+                f"{self.reversed_prefix}prices__price"
+            ).distinct()
+        else:
+            return self.queryset
 
     def _sort_rating(self):
         return self.queryset.order_by(

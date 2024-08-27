@@ -1,6 +1,6 @@
 from django.test import TestCase
 from shop.models import Product, Review, Price, Category
-from account.models import CityGroup, CustomUser
+from account.models import CityGroup, CustomUser, City
 from api.mixins import ProductSorting
 
 
@@ -17,6 +17,7 @@ class ProductSortingTestCase(TestCase):
             last_name="Иванов",
             email="testuser@example.com"
         )
+        self.city = City.get_default_city()
         self.city_group = CityGroup.get_default_city_group()
         self.products = [
             Product.objects.create(
@@ -82,14 +83,20 @@ class ProductSortingTestCase(TestCase):
         )
         self.sorting = ProductSorting()
 
-    def test_sort_by_price(self):
-        self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'price'}})
+    def test_sort_by_price_with_city_domain(self):
+        self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'price', 'city_domain': self.city.domain}})
         sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
         sorted_products = list(sorted_queryset)
         self.assertEqual(sorted_products[0].slug, "product2")
         self.assertEqual(sorted_products[1].slug, "product1")
         self.assertEqual(sorted_products[2].slug, "product3")
         self.assertEqual(len(sorted_products), Product.objects.count())
+
+    def test_sort_by_price_without_city_domain(self):
+        self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'price'}})
+        sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
+        sorted_products = list(sorted_queryset)
+        self.assertEqual(sorted_products, list(Product.objects.all()))
 
     def test_sort_by_rating(self):
         self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'rating'}})
