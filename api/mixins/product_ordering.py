@@ -9,7 +9,6 @@ class ProductSorting:
         "rating",
         "in_promo",
         "is_popular",
-        "recommend",
     )
 
     def sorted_queryset(self, queryset):
@@ -59,6 +58,3 @@ class ProductSorting:
             ).order_by(f"{self.reversed_prefix}in_promo")
         else:
             return self.queryset
-
-    def _sort_recommend(self):
-        return self.queryset.order_by("-priority", "title", "-created_at")
