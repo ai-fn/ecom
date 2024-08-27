@@ -155,6 +155,5 @@ class ReviewViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewS
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
-        print(request.query_params.get("product"))
         if request.query_params.get("product") is not None:
             self.pagination_class = CustomProductReviewPagination
