@@ -423,7 +423,7 @@ class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
         instance = self.get_object()
 
         self.queryset = instance.frequenly_bought_together.order_by(
-            "product_to__total_purchase_count"
+            "product_to__purchase_count"
         )
         return super().list(request, *args, **kwargs)
 
