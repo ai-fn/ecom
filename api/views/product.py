@@ -3,7 +3,7 @@ from django_filters import rest_framework as filters
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ProductSorting
 from api.serializers.brand import BrandSerializer
 from shop.models import Brand, Category, CharacteristicValue, Price, Product, Characteristic, Review
 
@@ -228,6 +228,12 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
                 description="Домен города для фильтрации цен",
             ),
             OpenApiParameter(
+                name="order_by",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Параметр сортировки",
+            ),
+            OpenApiParameter(
                 name="search",
                 type=str,
                 location=OpenApiParameter.QUERY,
@@ -381,7 +387,7 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
         responses={204: None},
     ),
 )
-class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
@@ -444,15 +450,17 @@ class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
         return qs
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(
-            self.get_queryset()
-            .select_related("category")
-            .prefetch_related(
-                Prefetch('reviews', queryset=Review.objects.all()),
-                Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
-                Prefetch('category__children'),
-                Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
-                Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
+        queryset = self.sorted_queryset(
+            self.filter_queryset(
+                self.get_queryset()
+                .select_related("category")
+                .prefetch_related(
+                    Prefetch('reviews', queryset=Review.objects.all()),
+                    Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
+                    Prefetch('category__children'),
+                    Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
+                    Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
+                )
             )
         )
         brands_queryset = Brand.objects.filter(id__in=queryset.values_list("brand", flat=True))
