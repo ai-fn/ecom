@@ -458,13 +458,19 @@ class Price(TimeBasedModel):
         on_delete=models.CASCADE,
         verbose_name="Группа городов",
     )
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Цена", 
+        validators=[MinValueValidator(1)],
+    )
     old_price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         verbose_name="Старая цена (для скидки)",
         null=True,
         blank=True,
+        validators=[MinValueValidator(1)]
     )
 
     class Meta:
