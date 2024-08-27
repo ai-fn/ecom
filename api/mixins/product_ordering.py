@@ -1,5 +1,5 @@
 from loguru import logger
-from django.db.models import Case, When, BooleanField, F
+from django.db.models import Case, When, BooleanField, F, Q
 
 
 class ProductSorting:
@@ -49,9 +49,14 @@ class ProductSorting:
 
     def _sort_in_promo(self):
         if self.city_domain:
+            condition = (
+                Q(prices__price__isnull=False)
+                & Q(prices__old_price__isnull=False)
+                & Q(prices__price__lt=F("prices__old_price"))
+            )
             return self.queryset.annotate(
                 in_promo=Case(
-                    When(prices__price__lt=F("prices__old_price"), then=True),
+                    When(condition, then=True),
                     default=False,
                     output_field=BooleanField(),
                 )
