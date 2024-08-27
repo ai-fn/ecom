@@ -1,5 +1,6 @@
 from loguru import logger
-from django.db.models import Case, When, BooleanField, F, Q
+from django.db.models.functions import Coalesce
+from django.db.models import Case, When, BooleanField, F, Q, Avg
 
 
 class ProductSorting:
@@ -43,9 +44,9 @@ class ProductSorting:
             return self.queryset
 
     def _sort_rating(self):
-        return self.queryset.order_by(
-            f"{self.reversed_prefix}reviews__rating"
-        ).distinct()
+        return self.queryset.annotate(
+            avg_rating=Coalesce(Avg("reviews__rating"), 0.0)
+        ).order_by(f"{self.reversed_prefix}avg_rating")
 
     def _sort_in_promo(self):
         if self.city_domain:
