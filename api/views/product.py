@@ -412,7 +412,7 @@ class ProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelView
                     "cart_items__quantity",
                     filter=F("cart_items__customer_id") == self.request.user.id,
                 )
-            )
+            ).order_by("-priority", "title", "-created_at")
 
         return self.queryset
 
