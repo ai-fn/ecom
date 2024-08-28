@@ -4,12 +4,18 @@ from rest_framework.serializers import SerializerMethodField
 
 
 class CharacteristicFilterSerializer(ActiveModelSerializer):
-    
+
     values = SerializerMethodField()
 
     class Meta:
         model = Characteristic
         fields = ["name", "slug", "values"]
-    
+
     def get_values(self, obj):
-        return obj.characteristicvalue_set.values("value", "slug").order_by("slug").distinct("slug")
+        queryset = self.context.get("queryset", tuple())
+        return (
+            obj.characteristicvalue_set.filter(product__in=queryset)
+            .values("value", "slug")
+            .order_by("slug")
+            .distinct("slug")
+        )

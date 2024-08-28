@@ -491,7 +491,7 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
                 {
                     "products": serializer.data,
                     "characteristics": CharacteristicFilterSerializer(
-                        characteristics_queryset, many=True
+                        characteristics_queryset, many=True, context={"queryset": queryset}
                     ).data,
                     "categories": categories_queryset.values("name", "slug"),
                     "brands": brands,
