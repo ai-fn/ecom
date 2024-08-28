@@ -7,10 +7,6 @@ from rest_framework import serializers
 
 
 class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModelSerializer):
-    images = ProductImageSerializer(
-        many=True,
-        read_only=True,
-    )
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
     category_slug = serializers.SerializerMethodField()
@@ -49,7 +45,6 @@ class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveMode
             "slug",
             "city_price",
             "old_price",
-            "images",
             "in_stock",
             "category_slug",
             "brand_slug",
