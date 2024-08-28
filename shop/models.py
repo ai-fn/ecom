@@ -593,7 +593,7 @@ class Banner(TimeBasedModel):
     order = models.PositiveIntegerField(
         _("Порядковый номер"), default=0
     )
-    link = models.URLField(_("Ссылка"), blank=True, null=True)
+    link = models.CharField(_("Ссылка"), blank=True, null=True, max_length=1024)
     title = models.CharField(
         _("Заголовок"), max_length=255, blank=True, null=True
     )
@@ -623,6 +623,43 @@ class Banner(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"Баннер-{self.id} {self.title}"
+
+
+class Slider(TimeBasedModel):
+
+    order = models.PositiveIntegerField(
+        _("Порядковый номер"), default=0
+    )
+    link = models.CharField(_("Ссылка"), blank=True, null=True, max_length=1024)
+    title = models.CharField(
+        _("Заголовок"), max_length=255, blank=True, null=True
+    )
+    description = models.TextField(
+        _("Описание"), max_length=1024, blank=True, null=True
+    )
+    button_text = models.CharField(
+        _("Текст на кнопке"), max_length=100, blank=True, null=True
+    )
+    image = models.ImageField(
+        upload_to="main/sliders",
+        verbose_name="Изображение",
+        validators=[FileSizeValidator(2), validate_image_file_extension]
+    )
+    tiny_image = models.ImageField(
+        _("Маленькое изображение"),
+        upload_to="main/sliders/tiny",
+        null=True,
+        blank=True,
+        validators=[FileSizeValidator(2), validate_image_file_extension]
+    )
+
+    class Meta:
+        ordering = ("order", "-created_at")
+        verbose_name = _("Слайдер")
+        verbose_name_plural = _("Слайдеры")
+    
+    def __str__(self) -> str:
+        return f"Слайдер-{self.id} {self.title}"
 
 
 class MainPageCategoryBarItem(TimeBasedModel):
@@ -791,7 +828,9 @@ class ItemSet(TimeBasedModel):
     class ItemSetType(models.TextChoices):
         PRODUCT = "product", _("Товар")
         BANNER = "banner", _("Баннер")
-    
+        PROMO = "promo", _("Акция")
+        CATEGORY = "category", _("Категория")
+
     class GridType(models.TextChoices):
         grid_type_1 = "grig-1", _("Тип таблицы 1")
         grid_type_2 = "grig-2", _("Тип таблицы 2")

@@ -3,8 +3,8 @@ from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExam
 
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.permissions import ReadOnlyOrAdminPermission
-from shop.models import Banner
-from api.serializers import BannerSerializer
+from shop.models import Slider
+from api.serializers import SliderSerializer
 
 SLIDER_IMAGE_REQUEST_EXAMPLE = {
     "order": 1,
@@ -26,10 +26,10 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     list=extend_schema(
         description="Получить список всех изображений слайдера на главной странице.",
         summary="Получить список всех изображений слайдера на главной странице",
-        responses={200: BannerSerializer(many=True)},
+        responses={200: SliderSerializer(many=True)},
         examples=[
             OpenApiExample(
-                name="List Banners Example",
+                name="List Sliders Example",
                 summary="Example of listing all main page slider images",
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             )
@@ -38,10 +38,10 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     retrieve=extend_schema(
         description="Получить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Получение конкретного изображения слайдера главной страницы",
-        responses={200: BannerSerializer()},
+        responses={200: SliderSerializer()},
         examples=[
             OpenApiExample(
-                name="Retrieve Banner Example",
+                name="Retrieve Slider Example",
                 summary="Пример извлечения конкретного изображения слайдера главной страницы",
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
                 response_only=True,
@@ -51,16 +51,16 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     create=extend_schema(
         description="Создать новое изображение слайдера главной страницы.",
         summary="Создание нового изображения слайдера главной страницы",
-        responses={201: BannerSerializer()},
+        responses={201: SliderSerializer()},
         examples=[
             OpenApiExample(
-                name="Create Banner Example",
+                name="Create Slider Example",
                 summary="Пример создания нового изображения слайдера главной страницы",
                 value=SLIDER_IMAGE_REQUEST_EXAMPLE,
                 request_only=True,
             ),
             OpenApiExample(
-                name="Create Banner Response Example",
+                name="Create Slider Response Example",
                 summary="Пример ответа после создания нового изображения слайдера главной страницы",
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             ),
@@ -69,17 +69,17 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     update=extend_schema(
         description="Обновить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Обновление конкретного изображения слайдера главной страницы",
-        request=BannerSerializer,
-        responses={200: BannerSerializer()},
+        request=SliderSerializer,
+        responses={200: SliderSerializer()},
         examples=[
             OpenApiExample(
-                name="Update Banner Example",
+                name="Update Slider Example",
                 summary="Пример обновления конкретного изображения слайдера главной страницы",
                 value=SLIDER_IMAGE_REQUEST_EXAMPLE,
                 request_only=True,
             ),
             OpenApiExample(
-                name="Update Banner Response Example",
+                name="Update Slider Response Example",
                 summary="Пример ответа после обновления конкретного изображения слайдера главной страницы",
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             ),
@@ -88,17 +88,17 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     partial_update=extend_schema(
         description="Частично обновить конкретное изображение слайдера главной страницы по его идентификатору.",
         summary="Частичное обновление конкретного изображения слайдера главной страницы",
-        request=BannerSerializer,
-        responses={200: BannerSerializer()},
+        request=SliderSerializer,
+        responses={200: SliderSerializer()},
         examples=[
             OpenApiExample(
-                name="Partial Update Banner Example",
+                name="Partial Update Slider Example",
                 summary="Пример частичного обновления конкретного изображения слайдера главной страницы",
                 value=SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE,
                 request_only=True,
             ),
             OpenApiExample(
-                name="Partial Update Banner Response Example",
+                name="Partial Update Slider Response Example",
                 summary="Пример ответа после частичного обновления конкретного изображения слайдера главной страницы",
                 value=SLIDER_IMAGE_RESPONSE_EXAMPLE,
             ),
@@ -110,7 +110,7 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         responses={204: None},
         examples=[
             OpenApiExample(
-                name="Delete Banner Example",
+                name="Delete Slider Example",
                 summary="Пример удаления конкретного изображения слайдера главной страницы",
                 value=None,
             )
@@ -118,7 +118,7 @@ SLIDER_IMAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Settings"])
-class BannerViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
-    queryset = Banner.objects.all()
-    serializer_class = BannerSerializer
+class SliderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+    queryset = Slider.objects.all()
+    serializer_class = SliderSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

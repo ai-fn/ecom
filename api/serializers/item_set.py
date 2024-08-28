@@ -1,7 +1,12 @@
 from typing import OrderedDict
 from rest_framework import serializers 
-from api.serializers.product_catalog import ProductCatalogSerializer
-from shop.models import ItemSet, ItemSetElement, Product
+from api.serializers import (
+    BannerSerializer,
+    PromoSerializer,
+    ProductCatalogSerializer,
+    CategorySerializer,
+)
+from shop.models import Banner, Category, ItemSet, ItemSetElement, Product, Promo
 
 
 class ItemSetSerializer(serializers.ModelSerializer):
@@ -46,3 +51,9 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
     def get_content_object(self, obj) -> OrderedDict | None:
         if isinstance(obj.content_object, Product):
             return ProductCatalogSerializer(obj.content_object).data
+        elif isinstance(obj.content_object, Banner):
+            return BannerSerializer(obj.content_object).data
+        elif isinstance(obj.content_object, Category):
+            return CategorySerializer(obj.content_object).data
+        elif isinstance(obj.content_object, Promo):
+            return PromoSerializer(obj.content_object).data

@@ -30,6 +30,7 @@ from shop.models import (
     SideBarMenuItem,
     ItemSet,
     ItemSetElement,
+    Slider,
 )
 from mptt.admin import DraggableMPTTAdmin
 
@@ -328,6 +329,20 @@ class FooterItemAdmin(ActiveAdminMixin, admin.ModelAdmin):
 
 @admin.register(Banner)
 class BannerAdmin(ActiveAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "id",
+        "title",
+        "description",
+        "button_text",
+        "link",
+        "order",
+        "image",
+    )
+    search_fields = ("title", "description", "link", "button_text")
+
+
+@admin.register(Slider)
+class SliderAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "title",

@@ -1,11 +1,11 @@
 from api.serializers import ActiveModelSerializer
-from shop.models import Banner
+from shop.models import Slider
 
 
-class BannerSerializer(ActiveModelSerializer):
+class SliderSerializer(ActiveModelSerializer):
 
     class Meta:
-        model = Banner
+        model = Slider
         fields = [
             "id",
             "order",

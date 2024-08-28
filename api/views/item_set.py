@@ -5,7 +5,9 @@ from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import ItemSetElementSerializer, ItemSetSerializer
 from api.mixins import CacheResponse, ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
-from api.views.main_page_slide_image import SLIDER_IMAGE_RESPONSE_EXAMPLE
+from api.views.banner import BANNER_IMAGE_RESPONSE_EXAMPLE
+from api.views.category import CATEGORY_RESPONSE_EXAMPLE
+from api.views.promo import PROMO_RESPONSE_EXAMPLE
 from shop.models import ItemSet, ItemSetElement
 
 
@@ -22,7 +24,15 @@ ITEM_SET_ELEMENT_RESPONSE_EXAMPLE = {
 }
 ITEM_SET_BANNER_ELEMENT_RESPONSE_EXAMPLE = {
     **ITEM_SET_ELEMENT_RESPONSE_EXAMPLE,
-    "content_object": SLIDER_IMAGE_RESPONSE_EXAMPLE,
+    "content_object": BANNER_IMAGE_RESPONSE_EXAMPLE,
+}
+ITEM_SET_CATEGORY_ELEMENT_RESPONSE_EXAMPLE = {
+    **ITEM_SET_ELEMENT_RESPONSE_EXAMPLE,
+    "content_object": CATEGORY_RESPONSE_EXAMPLE,
+}
+ITEM_SET_PROMO_ELEMENT_RESPONSE_EXAMPLE = {
+    **ITEM_SET_ELEMENT_RESPONSE_EXAMPLE,
+    "content_object": PROMO_RESPONSE_EXAMPLE,
 }
 ITEM_SET_ELEMENT_REQUEST_EXAMPLE = {
     "item_set": 1,
@@ -77,7 +87,15 @@ ITEM_SET_PARTIAL_UPDATE_EXAMPLE = {
                     OpenApiExample(
                         "Пример ответа для набора банеров",
                         value=ITEM_SET_BANNER_RESPONSE_EXAMPLE,
-                    )
+                    ),
+                    OpenApiExample(
+                        "Пример ответа для набора акций",
+                        value=ITEM_SET_PROMO_ELEMENT_RESPONSE_EXAMPLE,
+                    ),
+                    OpenApiExample(
+                        "Пример ответа для набора категорий",
+                        value=ITEM_SET_CATEGORY_ELEMENT_RESPONSE_EXAMPLE,
+                    ),
                 ]
             )
         }
