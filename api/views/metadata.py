@@ -8,8 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
-
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.serializers import OpenGraphMetaSerializer
 from shop.models import OpenGraphMeta, Product
 from shop.services.metadata_service import MetaDataService
@@ -35,7 +34,7 @@ OPEN_GRAPH_META_RESPONSE_EXAMPLE = {
 
 
 @extend_schema(tags=["Shop"])
-class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, GenericViewSet):
+class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, GenericViewSet):
     queryset = OpenGraphMeta.objects.all()
     permission_classes = [AllowAny]
     serializer_class = OpenGraphMetaSerializer

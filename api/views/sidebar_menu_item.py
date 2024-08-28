@@ -1,21 +1,21 @@
 from rest_framework.viewsets import ModelViewSet
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.serializers import SideBarMenuItemSerializer
 from shop.models import SideBarMenuItem
 from api.permissions import ReadOnlyOrAdminPermission
 
 
 SIDE_BAR_MENU_ITEM_REQEUST_EXAMPLE = {
-                    "order": 1,
-                    "title": "Dummy title",
-                    "icon": "delivery",
-                    "link": "/katalog/",
-                }
+    "order": 1,
+    "title": "Dummy title",
+    "icon": "delivery",
+    "link": "/katalog/",
+}
 SIDE_BAR_MENU_ITEM_RESPONSE_EXAMPLE = {
-                    "id": 1,
-**SIDE_BAR_MENU_ITEM_REQEUST_EXAMPLE,
+    "id": 1,
+    **SIDE_BAR_MENU_ITEM_REQEUST_EXAMPLE,
 }
 SIDE_BAR_MENU_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(SIDE_BAR_MENU_ITEM_REQEUST_EXAMPLE.items())[:2]}
 
@@ -105,7 +105,7 @@ SIDE_BAR_MENU_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(SIDE_
     ),
 )
 @extend_schema(tags=["Shop"])
-class SideBarMenuItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class SideBarMenuItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
 
     queryset = SideBarMenuItem.objects.all()
     serializer_class = SideBarMenuItemSerializer

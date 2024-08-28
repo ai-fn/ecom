@@ -1,4 +1,4 @@
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from shop.models import ProductImage
 from api.serializers import ProductImageSerializer
 
@@ -107,7 +107,7 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 @extend_schema(
     tags=["Shop"],
 )
-class ProductImageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class ProductImageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     queryset = ProductImage.objects.all()
     permission_classes = [
         ReadOnlyOrAdminPermission,

@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import PageNumberPagination
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import ItemSetElementSerializer, ItemSetSerializer
+from api.mixins import CacheResponse, ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
 from api.views.main_page_slide_image import SLIDER_IMAGE_RESPONSE_EXAMPLE
 from shop.models import ItemSet, ItemSetElement
@@ -292,7 +293,7 @@ class ItemSetViewSet(ModelViewSet):
 @extend_schema(
     tags=["Shop"]
 )
-class ItemSetElementViewSet(ModelViewSet):
+class ItemSetElementViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     queryset = ItemSetElement.objects.all()
     serializer_class = ItemSetElementSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

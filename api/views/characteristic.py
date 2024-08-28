@@ -1,5 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.characteristic import CharacteristicSerializer
 
@@ -131,7 +131,7 @@ CHARACTERISTIC_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(CHARACTER
     ),
 )
 @extend_schema(tags=["Shop"])
-class CharacteristicViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class CharacteristicViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     """Возвращает характеристики продукта
 
     Args:

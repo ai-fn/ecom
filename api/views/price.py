@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from api.filters import PriceFilter
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.price import PriceSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -135,7 +135,7 @@ PRICE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PRICE_REQUEST_EXAM
     ),
 )
 @extend_schema(tags=["Shop"])
-class PriceViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class PriceViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     queryset = Price.objects.all()
     serializer_class = PriceSerializer
     permission_classes = [ReadOnlyOrAdminPermission]

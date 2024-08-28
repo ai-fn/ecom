@@ -3,7 +3,7 @@ from django.db import transaction
 from django.db.models import F
 from loguru import logger
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.permissions import IsOwnerOrAdminPermission
 
 from rest_framework import status
@@ -193,7 +193,7 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Order"])
-class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
 
     queryset = Order.objects.all()
     serializer_class = OrderSerializer

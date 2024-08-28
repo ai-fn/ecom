@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from cart.models import CartItem
 from api.serializers import (
     CartItemSerializer,

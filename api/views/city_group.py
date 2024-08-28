@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 
 from account.models import CityGroup
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers.city_group import CityGroupSerializer
 
@@ -132,7 +132,7 @@ CITY_GROUP_PARTIAL_UPDATE_REQEUST_EXAMPLE = {k: v for k, v in list(CITY_GROUP_RE
     ),
 )
 @extend_schema(tags=["City"])
-class CityGroupViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class CityGroupViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     """Возвращает группы городов
 
     Args:

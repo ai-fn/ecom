@@ -1,7 +1,7 @@
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin
 from rest_framework import permissions, response, status
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.serializers import ProductCatalogSerializer
 from shop.models import Product
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
@@ -10,7 +10,7 @@ from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
 
 
 @extend_schema(tags=["Shop"])
-class SimilarProducts(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ListModelMixin, GenericViewSet):
+class SimilarProducts(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ListModelMixin, GenericViewSet):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer

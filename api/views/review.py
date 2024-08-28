@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import PageNumberPagination
 
 from api.filters.review import ReviewFilters
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.permissions import ReadCreateOrAdminPermission
 from api.serializers.review import ReviewSerializer
 
@@ -139,7 +139,7 @@ class CustomProductReviewPagination(PageNumberPagination):
     ),
 )
 @extend_schema(tags=["Reviews"])
-class ReviewViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class ReviewViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     """Возвращает отзывы
 
     Args:

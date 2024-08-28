@@ -8,7 +8,6 @@ from api.serializers import FeedbackSerializer
 from api.permissions import AllowCreateOrAdmin
 
 
-
 @extend_schema(
     tags=['blog']
 )

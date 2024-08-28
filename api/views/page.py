@@ -11,7 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 
 from api.permissions import ReadOnlyOrAdminPermission
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.serializers import PageSerializer
 from shop.models import Page
 from api.views.metadata import OPEN_GRAPH_META_RESPONSE_EXAMPLE
@@ -171,7 +171,7 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
         }
     ),
 )
-class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     queryset = Page.objects.all()
     permission_classes = [ReadOnlyOrAdminPermission]
     serializer_class = PageSerializer
