@@ -13,6 +13,7 @@ class ItemSetSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "itemset_type",
+            "grid_type",
             "order",
             "elements",
         ]

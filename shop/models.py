@@ -793,10 +793,10 @@ class ItemSet(TimeBasedModel):
         BANNER = "banner", _("Баннер")
     
     class GridType(models.TextChoices):
-        grid_type_1 = "grid_type_1", _("Тип таблицы 1")
-        grid_type_2 = "grid_type_2", _("Тип таблицы 2")
-        grid_type_3 = "grid_type_3", _("Тип таблицы 3")
-        grid_type_4 = "grid_type_4", _("Тип таблицы 4")
+        grid_type_1 = "grig-1", _("Тип таблицы 1")
+        grid_type_2 = "grig-2", _("Тип таблицы 2")
+        grid_type_3 = "grig-3", _("Тип таблицы 3")
+        grid_type_4 = "grig-4", _("Тип таблицы 4")
 
     title = models.CharField(_("Заголовок"), max_length=256, unique=True)
     description = models.TextField(_("Описание"), max_length=1024)

@@ -4,6 +4,7 @@ from rest_framework.pagination import PageNumberPagination
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import ItemSetElementSerializer, ItemSetSerializer
 from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
+from api.views.main_page_slide_image import SLIDER_IMAGE_RESPONSE_EXAMPLE
 from shop.models import ItemSet, ItemSetElement
 
 
@@ -17,6 +18,10 @@ ITEM_SET_ELEMENT_RESPONSE_EXAMPLE = {
     "order": 1,
     "item_set": 1,
     "content_object": UNAUTHORIZED_RESPONSE_EXAMPLE,
+}
+ITEM_SET_BANNER_ELEMENT_RESPONSE_EXAMPLE = {
+    **ITEM_SET_ELEMENT_RESPONSE_EXAMPLE,
+    "content_object": SLIDER_IMAGE_RESPONSE_EXAMPLE,
 }
 ITEM_SET_ELEMENT_REQUEST_EXAMPLE = {
     "item_set": 1,
@@ -33,13 +38,21 @@ ITEM_SET_RESPONSE_EXAMPLE = {
     "title": "dummy-title",
     "description": "dummy-description",
     "itemset_type": "product",
+    "grid_type": None,
     "order": 1,
     "elements": [ITEM_SET_ELEMENT_RESPONSE_EXAMPLE],
+}
+ITEM_SET_BANNER_RESPONSE_EXAMPLE = {
+    **ITEM_SET_RESPONSE_EXAMPLE,
+    "itemset_type": "banner",
+    "grid_type": "grid-1",
+    "elements": [ITEM_SET_BANNER_ELEMENT_RESPONSE_EXAMPLE]
 }
 ITEM_SET_REQUEST_EXAMPLE = {
     "title": "dummy-title",
     "description": "dummy-description",
     "itemset_type": "product",
+    "grid_type": "grid-1",
     "order": 1,
     "elements": [1, 2, 3],
 }
@@ -59,6 +72,10 @@ ITEM_SET_PARTIAL_UPDATE_EXAMPLE = {
                     OpenApiExample(
                         "Пример ответа",
                         value=ITEM_SET_RESPONSE_EXAMPLE,
+                    ),
+                    OpenApiExample(
+                        "Пример ответа для набора банеров",
+                        value=ITEM_SET_BANNER_RESPONSE_EXAMPLE,
                     )
                 ]
             )
