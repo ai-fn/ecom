@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, validate_image_file_extension
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -13,7 +13,7 @@ from unidecode import unidecode
 from account.models import City, CityGroup, CustomUser, TimeBasedModel
 from mptt.models import MPTTModel, TreeForeignKey
 
-from shop.validators import validate_object_exists
+from shop.validators import validate_object_exists, FileSizeValidator
 
 
 class ThumbModel(TimeBasedModel):
@@ -589,35 +589,40 @@ class FooterItem(TimeBasedModel):
         return f"Элемент Footer_{self.title}-{self.id}"
 
 
-class MainPageSliderImage(ThumbModel):
-    order = models.IntegerField(unique=True, verbose_name="Порядковый номер", blank=True)
-    link = models.URLField(blank=True, null=True, verbose_name="Ссылка")
+class Banner(TimeBasedModel):
+    order = models.PositiveIntegerField(
+        _("Порядковый номер"), default=0
+    )
+    link = models.URLField(_("Ссылка"), blank=True, null=True)
     title = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="Заголовок"
+        _("Заголовок"), max_length=255, blank=True, null=True
     )
     description = models.TextField(
-        max_length=1024, blank=True, null=True, verbose_name="Описание"
+        _("Описание"), max_length=1024, blank=True, null=True
     )
     button_text = models.CharField(
-        max_length=100, blank=True, null=True, verbose_name="Текст на кнопке"
+        _("Текст на кнопке"), max_length=100, blank=True, null=True
     )
     image = models.ImageField(
-        upload_to="main/sliders/",
+        upload_to="main/banners",
         verbose_name="Изображение",
+        validators=[FileSizeValidator(2), validate_image_file_extension]
     )
     tiny_image = models.ImageField(
-        upload_to="main/sliders/tiny",
-        verbose_name="Маленькое изображение",
+        _("Маленькое изображение"),
+        upload_to="main/banners/tiny",
         null=True,
+        blank=True,
+        validators=[FileSizeValidator(2), validate_image_file_extension]
     )
 
     class Meta:
         ordering = ("order", "-created_at")
-        verbose_name = "Изображение главной страницы"
-        verbose_name_plural = "Изображения главной страницы"
+        verbose_name = _("Баннер")
+        verbose_name_plural = _("Баннеры")
 
     def __str__(self) -> str:
-        return f"MainPageSliderImage_{self.id}"
+        return f"Баннер-{self.id} {self.title}"
 
 
 class MainPageCategoryBarItem(TimeBasedModel):
@@ -786,9 +791,16 @@ class ItemSet(TimeBasedModel):
     class ItemSetType(models.TextChoices):
         PRODUCT = "product", _("Товар")
         BANNER = "banner", _("Баннер")
+    
+    class GridType(models.TextChoices):
+        grid_type_1 = "grid_type_1", _("Тип таблицы 1")
+        grid_type_2 = "grid_type_2", _("Тип таблицы 2")
+        grid_type_3 = "grid_type_3", _("Тип таблицы 3")
+        grid_type_4 = "grid_type_4", _("Тип таблицы 4")
 
     title = models.CharField(_("Заголовок"), max_length=256, unique=True)
     description = models.TextField(_("Описание"), max_length=1024)
+    grid_type = models.CharField(_("Тип таблицы"), choices=GridType.choices, blank=True, null=True, help_text="Доступно только для объектов типа 'Баннер'")
     order = models.PositiveIntegerField(_("Порядковый номер"), default=0)
     itemset_type = models.CharField(_("Тип объектов набора"), choices=ItemSetType.choices, max_length=64, default=ItemSetType.PRODUCT)
 
@@ -796,6 +808,12 @@ class ItemSet(TimeBasedModel):
         if self.itemset_type not in self.ItemSetType.values:
             raise ValidationError(f'Model "{self.itemset_type}" is not allowed.')
         
+        if self.grid_type and self.itemset_type != "banner":
+            raise ValidationError(f'"grid_type" field allowed only for "banner" items type.')
+        
+        if self.grid_type not in self.GridType.values:
+            raise ValidationError(f"Invalid 'grid_type' value, expected one of '{self.GridType.values}'")
+
         return super().clean()
     
     def save(self, *args, **kwargs) -> None:

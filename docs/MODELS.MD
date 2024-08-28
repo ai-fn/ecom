@@ -425,7 +425,7 @@
 | unique_together     | ("column", "order") |
 
 
-## MainPageSliderImage
+## Banner
 
 | Field       | Type          | Options                                  | Description           |
 | ----------- | ------------- | ---------------------------------------- | --------------------- |

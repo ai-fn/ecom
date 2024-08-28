@@ -20,7 +20,7 @@ from .footer_settings import FooterItemViewSet
 from .feeds import FeedsView
 from .products_by_list import ProductsById
 from .similar_products import SimilarProducts
-from .main_page_slide_image import MainPageSliderImageViewSet
+from .main_page_slide_image import BannerViewSet
 from .main_page_category_bar_item import MainPageCategoryBarItemViewSet
 from .sidebar_menu_item import SideBarMenuItemViewSet
 from .metadata import MetadataViewSet

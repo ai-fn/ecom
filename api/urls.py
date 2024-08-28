@@ -18,7 +18,7 @@ from api.views import (
     VerifyConfirmCode,
     RobotsTxtView,
     FooterItemViewSet,
-    MainPageSliderImageViewSet,
+    BannerViewSet,
     MainPageCategoryBarItemViewSet,
     MetadataViewSet,
     UpdateIndex,
@@ -57,7 +57,7 @@ router.register(r"categories", CategoryViewSet)
 router.register(r"products-in-order", ProductsInOrderViewSet)
 router.register(r"brands", BrandView)
 router.register(r"footer-items", FooterItemViewSet)
-router.register(r"main-page-slider-image", MainPageSliderImageViewSet)
+router.register(r"main-page-slider-image", BannerViewSet)
 router.register(r"promos", PromoViewSet, basename="promo")
 router.register(r"category-bar-item", MainPageCategoryBarItemViewSet)
 router.register(r"sidebar-menu-item", SideBarMenuItemViewSet)

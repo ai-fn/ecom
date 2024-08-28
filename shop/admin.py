@@ -24,7 +24,7 @@ from shop.models import (
     SearchHistory,
     Setting,
     FooterItem,
-    MainPageSliderImage,
+    Banner,
     MainPageCategoryBarItem,
     ProductFrequenlyBoughtTogether,
     SideBarMenuItem,
@@ -326,8 +326,8 @@ class FooterItemAdmin(ActiveAdminMixin, admin.ModelAdmin):
     search_fields = ("title",)
 
 
-@admin.register(MainPageSliderImage)
-class MainPageSliderImageAdmin(ActiveAdminMixin, admin.ModelAdmin):
+@admin.register(Banner)
+class BannerAdmin(ActiveAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "title",
