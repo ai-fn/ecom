@@ -12,6 +12,7 @@ class ItemSetSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "description",
+            "itemset_type",
             "order",
             "elements",
         ]
@@ -36,12 +37,11 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
             "object_id",
             "content_object",
         ]
+        extra_kwargs = {
+            "content_type": {"write_only": True},
+            "object_id": {"write_only": True},
+        }
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["content_type"] = instance.content_type.model
-        return data
-    
     def get_content_object(self, obj) -> OrderedDict | None:
         if isinstance(obj.content_object, Product):
             return ProductCatalogSerializer(obj.content_object).data

@@ -16,8 +16,6 @@ ITEM_SET_ELEMENT_RESPONSE_EXAMPLE = {
     "id": 1,
     "order": 1,
     "item_set": 1,
-    "content_type": "product",
-    "object_id": 1,
     "content_object": UNAUTHORIZED_RESPONSE_EXAMPLE,
 }
 ITEM_SET_ELEMENT_REQUEST_EXAMPLE = {
@@ -34,12 +32,14 @@ ITEM_SET_RESPONSE_EXAMPLE = {
     "id": 1,
     "title": "dummy-title",
     "description": "dummy-description",
+    "itemset_type": "product",
     "order": 1,
     "elements": [ITEM_SET_ELEMENT_RESPONSE_EXAMPLE],
 }
 ITEM_SET_REQUEST_EXAMPLE = {
     "title": "dummy-title",
     "description": "dummy-description",
+    "itemset_type": "product",
     "order": 1,
     "elements": [1, 2, 3],
 }

@@ -1,5 +1,9 @@
+from typing import Any
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.fields.related import ForeignKey
+from django.forms.models import ModelChoiceField
+from django.http import HttpRequest
 
 from api.mixins import ActiveAdminMixin
 from shop.models import (
@@ -412,7 +416,12 @@ class ContentTypeFilter(admin.SimpleListFilter):
     parameter_name = 'content_type'
 
     def lookups(self, request, model_admin):
-        allowed_content_types = ContentType.objects.filter(model__in=model_admin.model.ALLOWED_MODELS)
+        allowed_content_types = ContentType.objects.filter(
+            model__in=model_admin.model.objects.values_list(
+                "item_set__itemset_type",
+                flat=True,
+            )
+        )
         return [(ct.id, ct.model) for ct in allowed_content_types]
 
     def queryset(self, request, queryset):
@@ -427,7 +436,11 @@ class ItemSetAdmin(ActiveAdminMixin, admin.ModelAdmin):
         "id",
         "title",
         "description",
+        "itemset_type",
         "order",
+    )
+    list_filter = (
+        "itemset_type",
     )
 
 @admin.register(ItemSetElement)
@@ -445,7 +458,6 @@ class ItemSetElementAdmin(ActiveAdminMixin, admin.ModelAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "content_type":
-            kwargs["queryset"] = ContentType.objects.filter(model__in=ItemSetElement.ALLOWED_MODELS)
+            kwargs["queryset"] = ContentType.objects.filter(model__in=ItemSet.ItemSetType.values)
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-

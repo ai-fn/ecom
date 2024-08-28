@@ -783,9 +783,25 @@ class SearchHistory(TimeBasedModel):
 
 class ItemSet(TimeBasedModel):
 
+    class ItemSetType(models.TextChoices):
+        PRODUCT = "product", _("Товар")
+        BANNER = "banner", _("Баннер")
+
     title = models.CharField(_("Заголовок"), max_length=256, unique=True)
     description = models.TextField(_("Описание"), max_length=1024)
     order = models.PositiveIntegerField(_("Порядковый номер"), default=0)
+    itemset_type = models.CharField(_("Тип объектов набора"), choices=ItemSetType.choices, max_length=64, default=ItemSetType.PRODUCT)
+
+    def clean(self):
+        if self.itemset_type not in self.ItemSetType.values:
+            raise ValidationError(f'Model "{self.itemset_type}" is not allowed.')
+        
+        return super().clean()
+    
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
 
     class Meta:
         verbose_name = _("Набор объектов")
@@ -797,19 +813,23 @@ class ItemSet(TimeBasedModel):
 
 
 class ItemSetElement(TimeBasedModel):
-    ALLOWED_MODELS = ("product",)
 
     item_set = models.ForeignKey(ItemSet, on_delete=models.CASCADE, verbose_name=_("Набор элементов"), related_name="elements")
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(_("Порядковый номер"), default=0)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(_("ID элемента"))
     content_object = GenericForeignKey('content_type', 'object_id')
-
-    def clean(self):
-        if self.content_type.model not in self.ALLOWED_MODELS:
-            raise ValidationError(f'Model "{self.content_type.model}" is not allowed.')
+    
+    def clean(self) -> None:
+        if self.content_type.model != self.item_set.itemset_type:
+            raise ValidationError(f"ItemSetElement object type do not match with ItemSet type, expected '{self.item_set.itemset_type}'")
 
         validate_object_exists(self.content_type, self.object_id)
+        return super().clean()
+    
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Элемент набора объектов")
