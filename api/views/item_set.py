@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiResponse
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiResponse, OpenApiParameter
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import PageNumberPagination
 from api.permissions import ReadOnlyOrAdminPermission
@@ -190,7 +190,15 @@ ITEM_SET_PARTIAL_UPDATE_EXAMPLE = {
     ),
 )
 @extend_schema(
-    tags=["Shop"]
+    tags=["Shop"],
+    parameters=[
+        OpenApiParameter(
+            "city_domain",
+            type=str,
+            required=False,
+            description="City domain"
+        )
+    ]
 )
 class ItemSetViewSet(ModelViewSet):
     queryset = ItemSet.objects.all()
@@ -201,6 +209,13 @@ class ItemSetViewSet(ModelViewSet):
         super().initial(request, *args, **kwargs)
         if not request.user.is_staff:
             self.pagination_class = ItemSetPaginate
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if cd := self.request.query_params.get("city_domain"):
+            context["city_domain"] = cd
+
+        return context
 
 
 @extend_schema_view(

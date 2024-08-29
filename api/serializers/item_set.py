@@ -34,7 +34,7 @@ class ItemSetSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['elements'] = ItemSetElementSerializer(instance.elements.all(), many=True).data
+        data['elements'] = ItemSetElementSerializer(instance.elements.all(), context=self.context, many=True).data
         return data
 
 
@@ -59,12 +59,18 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
 
     def get_content_object(self, obj) -> OrderedDict | None:
         if isinstance(obj.content_object, Product):
-            return ProductCatalogSerializer(obj.content_object).data
+
+            serializer_class = ProductCatalogSerializer
         elif isinstance(obj.content_object, Banner):
-            return BannerSerializer(obj.content_object).data
+            serializer_class = BannerSerializer
+
         elif isinstance(obj.content_object, Category):
-            return CategorySerializer(obj.content_object).data
+            serializer_class = CategorySerializer
+
         elif isinstance(obj.content_object, Promo):
-            return PromoSerializer(obj.content_object).data
+            serializer_class = PromoSerializer
+
         elif isinstance(obj.content_object, Slider):
-            return SliderSerializer(obj.content_object).data
+            serializer_class = SliderSerializer
+
+        return serializer_class(context=self.context, instance=obj.content_object).data
