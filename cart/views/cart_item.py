@@ -231,8 +231,11 @@ class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVie
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
 
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True).data
+        return Response(serializer, status=status.HTTP_200_OK)
 
 
     def get_serializer_context(self):
@@ -255,10 +258,9 @@ class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVie
 
 
     def get_queryset(self):
-        if self.action == "cartitems_detail":
-            return self.queryset
+        queryset = super().get_queryset()
 
-        return self.queryset.filter(customer=self.request.user)
+        return queryset.filter(customer=self.request.user)
 
 
     @action(methods=["post"], detail=False)
@@ -285,7 +287,7 @@ class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVie
 
     @action(methods=["delete"], detail=False)
     def delete_cart(self, request, *args, **kwargs):
-        queryset = CartItem.objects.filter(customer=request.user)
+        queryset = self.get_queryset()
 
         if queryset.exists():
             queryset.delete()
@@ -295,7 +297,7 @@ class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVie
 
     @action(detail=False, methods=["get"])
     def get_simple_prods(self, request, *args, **kwargs):
-        queryset = CartItem.objects.filter(customer=request.user)
+        queryset = self.get_queryset()
         if queryset.exists():
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -307,7 +309,7 @@ class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVie
 
 
     def create(self, request, *args, **kwargs):
-        existing_cart_items = CartItem.objects.filter(customer=request.user)
+        existing_cart_items = self.get_queryset()
 
         existing_cart_dict = {item.product.id: item for item in existing_cart_items}
 
@@ -333,7 +335,7 @@ class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVie
                     customer=request.user, product_id=product_id, quantity=new_quantity
                 )
 
-        updated_cart_items = CartItem.objects.filter(customer=request.user)
+        updated_cart_items = self.get_queryset()
         response_serializer = SimplifiedCartItemSerializer(
             updated_cart_items, many=True
         )
@@ -343,7 +345,7 @@ class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelVie
     @action(detail=False, methods=["get"])
     def cartitems_detail(self, request, *args, **kwargs):
         id_lists = list(
-            CartItem.objects.filter(customer=request.user).values_list(
+            self.get_queryset().values_list(
                 "product", flat=True
             )
         )
