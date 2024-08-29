@@ -830,6 +830,7 @@ class ItemSet(TimeBasedModel):
         BANNER = "banner", _("Баннер")
         PROMO = "promo", _("Акция")
         CATEGORY = "category", _("Категория")
+        SLIDER = "slider", _("Слайдер")
 
     class GridType(models.TextChoices):
         grid_type_1 = "grig-1", _("Тип таблицы 1")

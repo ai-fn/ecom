@@ -5,8 +5,17 @@ from api.serializers import (
     PromoSerializer,
     ProductCatalogSerializer,
     CategorySerializer,
+    SliderSerializer,
 )
-from shop.models import Banner, Category, ItemSet, ItemSetElement, Product, Promo
+from shop.models import (
+    Banner,
+    Category,
+    ItemSet,
+    ItemSetElement,
+    Product,
+    Promo,
+    Slider,
+)
 
 
 class ItemSetSerializer(serializers.ModelSerializer):
@@ -57,3 +66,5 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
             return CategorySerializer(obj.content_object).data
         elif isinstance(obj.content_object, Promo):
             return PromoSerializer(obj.content_object).data
+        elif isinstance(obj.content_object, Slider):
+            return SliderSerializer(obj.content_object).data
