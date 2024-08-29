@@ -847,14 +847,15 @@ class ItemSet(TimeBasedModel):
         if self.itemset_type not in self.ItemSetType.values:
             raise ValidationError(f'Model "{self.itemset_type}" is not allowed.')
         
-        if self.grid_type and self.itemset_type != "banner":
-            raise ValidationError(f'"grid_type" field allowed only for "banner" items type.')
-        
-        if self.grid_type not in self.GridType.values:
-            raise ValidationError(f"Invalid 'grid_type' value, expected one of '{self.GridType.values}'")
+        if self.grid_type:
+            if self.itemset_type != "banner":
+                raise ValidationError(f'"grid_type" field allowed only for "banner" items type.')
+
+            if self.grid_type not in self.GridType.values:
+                raise ValidationError(f"Invalid 'grid_type' value, expected one of '{self.GridType.values}'")
 
         return super().clean()
-    
+
     def save(self, *args, **kwargs) -> None:
         self.full_clean()
         return super().save(*args, **kwargs)
