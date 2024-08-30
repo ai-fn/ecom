@@ -27,8 +27,8 @@ class ImportTaskSerializer(ActiveModelSerializer):
 
     def to_representation(self, instance):
         data =  super().to_representation(instance)
-        if self.initial_data.get("import_setting"):
-            import_setting_serializer = ImportSettingSerializer(data=self.initial_data["import_setting"])
+        if hasattr(self, "initial_data") and (settings := self.initial_data.get("import_setting")):
+            import_setting_serializer = ImportSettingSerializer(data=settings)
             import_setting_serializer.is_valid(raise_exception=True)
             data["import_setting"] = import_setting_serializer.data
         else:
