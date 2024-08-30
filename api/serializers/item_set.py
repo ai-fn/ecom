@@ -6,6 +6,7 @@ from api.serializers import (
     ProductCatalogSerializer,
     CategorySerializer,
     SliderSerializer,
+    BrandSerializer,
 )
 from shop.models import (
     Banner,
@@ -15,6 +16,7 @@ from shop.models import (
     Product,
     Promo,
     Slider,
+    Brand,
 )
 
 
@@ -41,6 +43,14 @@ class ItemSetSerializer(serializers.ModelSerializer):
 class ItemSetElementSerializer(serializers.ModelSerializer):
 
     content_object = serializers.SerializerMethodField()
+    ALLOWED_MODELS = {
+        "product": ProductCatalogSerializer,
+        "brand": BrandSerializer,
+        "category": CategorySerializer,
+        "banner": BannerSerializer,
+        "slider": SliderSerializer,
+        "promo": PromoSerializer,
+    }
 
     class Meta:
         model = ItemSetElement
@@ -58,19 +68,9 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
         }
 
     def get_content_object(self, obj) -> OrderedDict | None:
-        if isinstance(obj.content_object, Product):
-
-            serializer_class = ProductCatalogSerializer
-        elif isinstance(obj.content_object, Banner):
-            serializer_class = BannerSerializer
-
-        elif isinstance(obj.content_object, Category):
-            serializer_class = CategorySerializer
-
-        elif isinstance(obj.content_object, Promo):
-            serializer_class = PromoSerializer
-
-        elif isinstance(obj.content_object, Slider):
-            serializer_class = SliderSerializer
+        obj_cls_name = obj.content_object.__class__.__name__.lower()
+        serializer_class = self.ALLOWED_MODELS.get(obj_cls_name)
+        if serializer_class is None:
+            return serializer_class
 
         return serializer_class(context=self.context, instance=obj.content_object).data
