@@ -81,18 +81,12 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
         query_params = getattr(self.context.get("request"), "query_params", {})
 
         city_domain = query_params.get("city_domain")
+        fields = ("title", "keywords", "description")
         kwargs = {"city_domain": city_domain}
 
-        if inst := self.context.get("instance"):
-            kwargs["instance"] = inst
-            data["content_type"] = inst._meta.model_name
-            data["object_id"] = inst.id
-        else:
-            kwargs["instance"] = instance.content_object
-
-        fields = ("title", "keywords", "description")
         kwargs["fields"] = fields
         kwargs["meta_obj"] = instance
+        kwargs["instance"] = instance.content_object
 
         result = MetaDataService.get_formatted_meta_tag_by_instance(**kwargs)
         for field in fields:

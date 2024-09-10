@@ -79,12 +79,6 @@ class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
         context = self.get_serializer_context()
 
         try:
-            if content_type == "product":
-                prod = Product.objects.get(slug=obj_slug)
-                obj_slug = prod.category.slug
-                content_type = prod.category._meta.model_name
-                context["instance"] = prod
-
             meta = MetaDataService.get_obj_by_slug(obj_slug, content_type)
         except Exception as e:
             return Response({"error": str(e)}, status=HTTP_400_BAD_REQUEST)

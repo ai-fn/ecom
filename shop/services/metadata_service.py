@@ -8,7 +8,22 @@ from shop.models import OpenGraphMeta
 
 
 _morph = MorphAnalyzer()
-_inflect_phrase = lambda phrase, case: _morph.parse(phrase)[0].inflect({case}).word.title()
+def _inflect_phrase(phrase, case):
+    words = phrase.split()
+    inflected_words = []
+
+    for idx, word in enumerate(words):
+
+        parsed = _morph.parse(word)[0]
+        inflected_word = parsed.inflect({case})
+        
+        word = inflected_word.word if inflected_word else word
+        if idx == 0:
+            word = word.title()
+        
+        inflected_words.append(word)
+    
+    return ' '.join(inflected_words)
 
 
 class MetaDataService:
@@ -21,12 +36,7 @@ class MetaDataService:
         """
         tp = ContentType.objects.get(model=content_type)
         model = tp.model_class()
-        if model._meta.model_name == "product":
-            product = model.objects.get(slug=slug)
-            instance = product.category
-            tp = ContentType.objects.get_for_model(instance._meta.model)
-        else:
-            instance = model.objects.get(slug=slug)
+        instance = model.objects.get(slug=slug)
 
         meta = OpenGraphMeta.objects.get(object_id=instance.pk, content_type=tp)
         return meta
@@ -59,7 +69,6 @@ class MetaDataService:
                     .values_list("price", flat=True)
                     .first()
                 )
-                price = int(price_value) if price_value is not None else "--"
                 products_count = instance.category.products.count() 
             elif instance._meta.model_name == "category":
                 price_value = (
@@ -68,15 +77,15 @@ class MetaDataService:
                     .values_list("prices__price", flat=True)
                     .first()
                 )
-                price = (
-                    f"от {int(price_value)}" if price_value is not None else "--"
-                )
                 products_count = instance.products.count()
-            
+
+            price = int(price_value) if price_value is not None else "--"
+
             kwargs = dict(object_name=object_name, price=price, city_group=city_group_name, count=products_count)
             cases = ("nomn", "gent", "datv", "accs", "ablt", "loct")
             for case in cases:
-                kwargs[case] = _inflect_phrase(city.name, case)
+                kwargs[f"c_{case}"] = _inflect_phrase(city.name, case)
+                kwargs[f"cg_{case}"] = _inflect_phrase(city.city_group.name, case)
 
             result[field] = value.format(**kwargs)
 

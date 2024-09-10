@@ -728,22 +728,22 @@ class OpenGraphMeta(TimeBasedModel):
         _("Заголовок"),
         max_length=1024,
         help_text="Шаблон заголовка объекта с подстановкой названия города в разных падежах:"
-        " 'Купить {object_name} в {loct} по цене {price}'\nВозможные переменные: object_name, city_group, price, count, nomn, gent, datv, accs, ablt, loct."
-        " (Наименование объекта, название области, цена, кол-во товаров в категории ...название города в падежах, начиная с именитольного)",
+        " 'Купить {object_name} в {c_loct} по цене {price}'\nВозможные переменные: object_name, price, count, c_nomn, c_gent, c_datv, c_accs, c_ablt, c_loct, cg_nomn, cg_gent, cg_datv, cg_accs, cg_ablt, cg_loct."
+        " (Наименование объекта, название области, цена, кол-во товаров в категории ...название города/группы городов в падежах (в формате [c - город / cg - группа городов]_[название падежа (nomn, gent, и т.д.)]), начиная с именитольного)",
     )
     description = models.TextField(
         _("Описание"),
         max_length=4096,
         help_text="Шаблон описания с подстановкой названия объекта и названия города в разных падежах ()"
-        "'Купить {object_name} в {city_group} по цене {price}'\nВозможные переменные: object_name, city_group, price, count, nomn, gent, datv, accs, ablt, loct."
-        "(Наименование объекта, название области, цена, кол-во товаров в категории ...название города в падежах, начиная с именитольного)",
+        "'Купить {object_name} в {cg_loct} по цене {price}'\nВозможные переменные: object_name, price, count, c_nomn, c_gent, c_datv, c_accs, c_ablt, c_loct, cg_nomn, cg_gent, cg_datv, cg_accs, cg_ablt, cg_loct."
+        "(Наименование объекта, название области, цена, кол-во товаров в категории ...название города/группы городов в падежах (в формате [c - город / cg - группа городов]_[название падежа (nomn, gent, и т.д.)]), начиная с именитольного)",
     )
     keywords = models.TextField(
         _("Ключевые слова"),
         max_length=4096,
         blank=True, null=True,
-        help_text="Ключевые слова: 'купить в {loct} по цене {price}, сайдинг в {city_group}, {object_name} в городе {nomn}'. nВозможные переменные: object_name, city_group, price, count, nomn, gent, datv, accs, ablt, loct."
-        " (Наименование объекта, название области, цена, кол-во товаров в категории ...название города в падежах, начиная с именитольного)",
+        help_text="Ключевые слова: 'купить в {c_loct} по цене {price}, сайдинг в {cg_loct}, {object_name} в городе {c_nomn}'. nВозможные переменные: object_name, price, count, c_nomn, c_gent, c_datv, c_accs, c_ablt, c_loct, cg_nomn, cg_gent, cg_datv, cg_accs, cg_ablt, cg_loct."
+        " (Наименование объекта, название области, цена, кол-во товаров в категории ...название города/группы городов в падежах (в формате [c - город / cg - группа городов]_[название падежа (nomn, gent, и т.д.)]), начиная с именитольного)",
     )
     url = models.CharField(
         verbose_name=_("Ссылка"),
