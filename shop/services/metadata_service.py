@@ -59,6 +59,7 @@ class MetaDataService:
         products_count = 0
         for field in fields:
             price = None
+            price_value = None
             value: str = getattr(meta_obj, field)
             object_name = getattr(instance, "title", None) or getattr(
                 instance, "name", None
