@@ -21,36 +21,6 @@ META_IMAGE_SIZE_REMINING_TIME = getattr(
 )  # время кеширования на сутки
 
 
-def get_meta_image_size_cache_key(img_name: str) -> str:
-    return f"META_IMAGE_SIZE_{img_name}"
-
-class ImageMetaDataSerializer(Serializer):
-    image = CharField()
-
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["image"] = path if (path := data["image"]) and path.startswith("/") else "/" + path
-        cache_key = get_meta_image_size_cache_key(data["image"])
-        
-        image_size = cache.get(cache_key)
-        if not image_size:
-
-            try:
-                image_path = settings.BASE_DIR / data["image"][1:]
-                with Image.open(image_path) as image:
-                    image_size = {"width": image.width, "height": image.height}
-                    cache.set(cache_key, image_size, META_IMAGE_SIZE_REMINING_TIME)
-
-            except Exception as e:
-                image_size = {"width": None, "height": None}
-                logger.error(f"Error while open openGraphMeta image: {str(e)}")
-        
-        data.update(image_size)
-
-        return data
-
-
 class OpenGraphMetaSerializer(ActiveModelSerializer):
 
     images = SerializerMethodField()
@@ -81,12 +51,12 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             img_attr = getattr(obj.content_object, img_field_name)
 
             if img_attr.name:
-                image = {"image": f"media/{img_attr.name}"}
+                image = f"media/{img_attr.name}"
         else:
             image = self.get_meta_image()
 
         if image:
-            result.append(ImageMetaDataSerializer(image).data)
+            result.append(image)
 
         return result
 
@@ -100,7 +70,7 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             if not meta_image_setting:
                 logger.info("Setting for openGraphMeta Image not found.")
             else:
-                result = {"image": meta_image_setting.value_string}
+                result = meta_image_setting.value_string
                 cache.set(
                     META_IMAGE_PATH_CACHE_KEY, result, META_IMAGE_SIZE_REMINING_TIME
                 )
