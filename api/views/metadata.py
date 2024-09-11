@@ -19,7 +19,7 @@ OPEN_GRAPH_META_RESPONSE_EXAMPLE = {
     "description": "Документация",
     "OpenGraph": {
         "url": "http://moskva.krov.market/dokumentaciya/",
-        "siteName": "Кров маркет",
+        "siteName": "Кров Маркет",
         "images": [
             {
                 "image": "/media/pages/image-70e50210-8678-4b3a-90f9-3626526c11cb_ZnnxbcK.webp",

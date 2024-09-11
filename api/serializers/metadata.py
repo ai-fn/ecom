@@ -1,3 +1,4 @@
+import os
 from PIL import Image
 
 from django.conf import settings
@@ -57,7 +58,8 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             "locale",
             "site_name",
         ]
-    
+
+
     def get_meta_image(self) -> dict[str, str] | None:
         result = None
         cached_data = cache.get(META_IMAGE_PATH_CACHE_KEY)
@@ -94,6 +96,8 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
 
         url = data.get("url")
         keywords = data.get("keywords").split(",")
+        site_name = data.get("site_name") or os.environ.get("SHOP_NAME", "site name")
+
         if keywords:
             keywords = [x.strip() for x in keywords]
         
@@ -108,7 +112,7 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             "keywords": keywords,
             "openGraph": {
                 "url": url,
-                "siteName": data.get("site_name"),
+                "siteName": site_name,
                 "images": images,
                 "locale": data.get("locale"),
                 "type": "website",

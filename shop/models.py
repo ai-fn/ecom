@@ -751,7 +751,7 @@ class OpenGraphMeta(TimeBasedModel):
         help_text="Ссылка на объект без указания домена пример: '/katalog/vodostochka/dummy-product-2234/'"
     )
     site_name = models.CharField(
-        verbose_name=_("Наименование сайта"), max_length=255, default="Кров маркет"
+        verbose_name=_("Наименование сайта"), max_length=255, blank=True, null=True
     )
     locale = models.CharField(
         verbose_name=_("Языковой код"),
