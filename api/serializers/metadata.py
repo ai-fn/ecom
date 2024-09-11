@@ -94,13 +94,17 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
         for field in fields:
             data[field] = result.get(field)
 
-        url = data.get("url")
+        if instance.content_type.model in ("product", "category"):
+            url = f"/{instance.content_object.get_absolute_url()}/"
+        else:
+            url = data.get("url")
+
         keywords = data.get("keywords").split(",")
         site_name = data.get("site_name") or os.environ.get("SHOP_NAME", "site name")
 
         if keywords:
             keywords = [x.strip() for x in keywords]
-        
+
         images = []
         meta_image_data = self.get_meta_image()
         if meta_image_data:
