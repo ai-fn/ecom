@@ -4,19 +4,21 @@ from api.serializers.price import PriceSerializer
 
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
-from shop.documents import BrandDocument, CategoryDocument, ProductDocument, ReviewDocument
-
-
-class ImageSerializer(serializers.Serializer):
-    image = serializers.ImageField()
+from shop.documents import BrandDocument, CategoryDocument, ProductDocument
 
 
 class CategoryDocumentSerializer(DocumentSerializer):
     image = serializers.ImageField()
+    description = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         document = CategoryDocument
-        fields = "__all__"
+        fields = [
+            "id",
+            "name",
+            "description",
+            "image",
+        ]
 
 
 class BrandDocumentSerializer(DocumentSerializer):
@@ -49,9 +51,3 @@ class ProductDocumentSerializer(DocumentSerializer):
     
     def get_search_image(self, obj):
         return obj.search_image.url if obj.search_image else None
-
-
-class ReviewDocumentSerializer(DocumentSerializer):
-    class Meta:
-        document = ReviewDocument
-        fields = "__all__"

@@ -1,5 +1,6 @@
-from django.db.models import F, Sum, Prefetch, Q
+from django.db.models import F, Sum, Prefetch, Q, Case, When, IntegerField, Value
 from django_filters import rest_framework as filters
+from rest_framework.pagination import PageNumberPagination
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
@@ -8,7 +9,10 @@ from api.mixins import (
     IntegrityErrorHandlingMixin,
     ProductSorting,
     CacheResponse,
+    GeneralSearchMixin,
 )
+from api.pagination import CustomProductPagination
+
 from api.serializers.brand import BrandSerializer
 from shop.models import Brand, Category, CharacteristicValue, Price, Product, Characteristic, Review
 
@@ -392,7 +396,7 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
         responses={204: None},
     ),
 )
-class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
@@ -402,13 +406,17 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
     characteristics_queryset = Characteristic.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProductFilter
+    pagination_class = CustomProductPagination
 
     def get_serializer_class(self):
         if self.action in ("list", "frequenly_bought", "popular_products"):
             return ProductCatalogSerializer
 
         return ProductDetailSerializer
-    
+
+    def paginate_queryset(self, queryset, count: int = 0):
+        return self.paginator.paginate_queryset(queryset, self.request, view=self, count=count)
+
     def get_queryset(self):
         self.domain = self.request.query_params.get("city_domain")
         self.queryset = super().get_queryset()
@@ -454,6 +462,39 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
 
         return qs
 
+    def filter_search(self, queryset, value: str):
+        domain = self.request.query_params.get("city_domain")
+        page = int(self.request.query_params.get("page", 1))
+
+        # TODO Elasticsearch need such more optimization
+        search_results, total_result = self.g_search(
+            value, domain, exclude_=("brands", "categories"), page=page
+        )
+        search_results = search_results["products"]
+        if search_results:
+            queryset = queryset.filter(
+                pk__in=[el.get("id", 0) for el in search_results]
+            )
+        else:
+            queryset = Product.objects.none()
+
+        relevance_criteria = Case(
+            When(title__iexact=value, then=Value(5)),
+            When(title__istartswith=value, then=Value(4)),
+            When(title__icontains=value, then=Value(3)),
+            When(description__startswith=value, then=Value(2)),
+            When(description__icontains=value, then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+
+        queryset = (
+            queryset
+            .annotate(relevance=relevance_criteria)
+            .order_by("-priority", "-relevance", "title", "-created_at")
+        )
+        return queryset, total_result
+
     def list(self, request, *args, **kwargs):
         queryset = self.sorted_queryset(
             self.filter_queryset(
@@ -468,6 +509,11 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
                 )
             )
         )
+        if value := self.request.query_params.get("search"):
+            queryset, total_result = self.filter_search(queryset, value)
+        else:
+            total_result = queryset.count()
+
         brands_queryset = Brand.objects.filter(id__in=queryset.values_list("brand", flat=True))
         brands = BrandSerializer(brands_queryset, many=True).data
 
@@ -484,7 +530,7 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
             .prefetch_related(Prefetch("categories", queryset=categories_queryset))
         )
 
-        page = self.paginate_queryset(queryset)
+        page = self.paginate_queryset(queryset, total_result)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(

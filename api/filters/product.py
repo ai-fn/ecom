@@ -1,7 +1,6 @@
 from django_filters import rest_framework as filters
-from django.db.models import Q, F, Min, Max
+from django.db.models import Q, Min, Max
 
-from api.mixins import GeneralSearchMixin
 from shop.models import Category, Product
 
 
@@ -12,8 +11,7 @@ class CustomFilter(filters.FilterSet):
         self.city_domain = city_domain
 
 
-class ProductFilter(GeneralSearchMixin, CustomFilter):
-    search = filters.CharFilter(method="filter_search")
+class ProductFilter(CustomFilter):
     price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr="lte")
     price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr="gte")
     brand_slug = filters.CharFilter(field_name="brand__slug", lookup_expr="icontains")
@@ -26,7 +24,6 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
     class Meta:
         model = Product
         fields = [
-            "search",
             "category",
             "brand_slug",
             "price_lte",
@@ -65,18 +62,6 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
 
         return queryset
 
-    def filter_search(self, queryset, name, value):
-        domain = self.request.query_params.get("city_domain")
-        search_results = self.g_search(
-            value, domain, exclude_=("review", "brand", "category")
-        )["products"]
-        if search_results:
-            queryset = queryset.filter(
-                pk__in=[el.get("id", 0) for el in search_results]
-            )
-        else:
-            queryset = Product.objects.none()
-        return queryset
 
     def filter_category(self, queryset, name, value):
         q = Q()
