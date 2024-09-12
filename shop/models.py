@@ -220,9 +220,12 @@ class Product(ThumbModel):
 
     def save(self, *args, **kwargs) -> None:
         if not self.slug:
-            self.slug = self.title
-            models.Model.save(self, *args, **kwargs)
+            if not self.id:
+                self.slug = self.title
+                models.Model.save(self, *args, **kwargs)
+
             self.slug = f"{slugify(unidecode(self.title))}-{self.id}"
+            return super().save(update_fields=["slug"])
 
         return super().save(*args, **kwargs)
 
