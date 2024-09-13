@@ -112,8 +112,8 @@ class ProductSortingTestCase(TestCase):
         sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
         sorted_products = list(sorted_queryset)
         self.assertEqual(sorted_products[0].slug, "product3")
-        self.assertEqual(sorted_products[1].slug, "product1")
-        self.assertEqual(sorted_products[2].slug, "product2")
+        self.assertEqual(sorted_products[1].slug, "product2")
+        self.assertEqual(sorted_products[2].slug, "product1")
         self.assertEqual(len(sorted_products), Product.objects.count())
 
     def test_sort_by_in_promo_without_city_domain(self):

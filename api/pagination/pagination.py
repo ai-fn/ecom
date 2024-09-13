@@ -27,7 +27,6 @@ class CustomPaginator(DjangoPaginator):
         return Page(*args, **kwargs)
 
     def page(self, number):
-        print(self.count, self.num_pages, self.per_page)
         """Return a Page object for the given 1-based page number."""
         number = self.validate_number(number)
         bottom = 0
@@ -49,7 +48,6 @@ class CustomProductPagination(PageNumberPagination):
         if not page_size:
             return None
 
-        print(page_size)
         paginator = self.django_paginator_class(queryset, page_size, count=count)
         page_number = self.get_page_number(request, paginator)
 

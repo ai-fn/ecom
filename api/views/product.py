@@ -464,54 +464,47 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
 
     def filter_search(self, queryset, value: str):
         domain = self.request.query_params.get("city_domain")
+        ordering = self.request.query_params.get("order_by")
         page = int(self.request.query_params.get("page", 1))
 
-        # TODO Elasticsearch need such more optimization
         search_results, total_result = self.g_search(
-            value, domain, exclude_=("brands", "categories"), page=page
+            value, domain, exclude_=("brands", "categories"), page=page, ordering=ordering
         )
         search_results = search_results["products"]
         if search_results:
-            queryset = queryset.filter(
-                pk__in=[el.get("id", 0) for el in search_results]
-            )
+            product_ids = [el.get("id", 0) for el in search_results]
+            return product_ids, total_result
         else:
-            queryset = Product.objects.none()
-
-        relevance_criteria = Case(
-            When(title__iexact=value, then=Value(5)),
-            When(title__istartswith=value, then=Value(4)),
-            When(title__icontains=value, then=Value(3)),
-            When(description__startswith=value, then=Value(2)),
-            When(description__icontains=value, then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        )
-
-        queryset = (
-            queryset
-            .annotate(relevance=relevance_criteria)
-            .order_by("-priority", "-relevance", "title", "-created_at")
-        )
-        return queryset, total_result
+            return [], 0
 
     def list(self, request, *args, **kwargs):
-        queryset = self.sorted_queryset(
-            self.filter_queryset(
-                self.get_queryset()
-                .select_related("category")
-                .prefetch_related(
-                    Prefetch('reviews', queryset=Review.objects.all()),
-                    Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
-                    Prefetch('category__children'),
-                    Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
-                    Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
-                )
+        queryset = self.filter_queryset(
+            self.get_queryset()
+            .select_related("category")
+            .prefetch_related(
+                Prefetch('reviews', queryset=Review.objects.all()),
+                Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
+                Prefetch('category__children'),
+                Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
+                Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
             )
         )
         if value := self.request.query_params.get("search"):
-            queryset, total_result = self.filter_search(queryset, value)
+            product_ids, total_result = self.filter_search(queryset, value)
+            if product_ids:
+
+                queryset = queryset.filter(pk__in=product_ids).annotate(
+                    sort_order=Case(
+                        *[When(pk=id, then=Value(idx)) for idx, id in enumerate(product_ids)],
+                        output_field=IntegerField()
+                    )
+                ).order_by('sort_order')
+                if self.domain:
+                    queryset = queryset.exclude(unavailable_in__domain=self.domain)
+            else:
+                queryset = Product.objects.none()
         else:
+            queryset = self.sorted_queryset(queryset)
             total_result = queryset.count()
 
         brands_queryset = Brand.objects.filter(id__in=queryset.values_list("brand", flat=True))

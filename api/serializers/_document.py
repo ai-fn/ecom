@@ -18,6 +18,7 @@ class CategoryDocumentSerializer(DocumentSerializer):
             "name",
             "description",
             "image",
+            "slug",
         ]
 
 
@@ -33,7 +34,7 @@ class ProductDocumentSerializer(DocumentSerializer):
         source="category.slug",
         read_only=True,
     )
-    price = PriceSerializer(many=True, read_only=True)
+    price = serializers.SerializerMethodField()
     search_image = serializers.SerializerMethodField()
 
     class Meta:
@@ -41,6 +42,7 @@ class ProductDocumentSerializer(DocumentSerializer):
         fields = [
             "id",
             "title",
+            "article",
             "description",
             "search_image",
             "thumb_img",
@@ -48,6 +50,15 @@ class ProductDocumentSerializer(DocumentSerializer):
             "slug",
             "price",
         ]
-    
+
     def get_search_image(self, obj):
         return obj.search_image.url if obj.search_image else None
+
+    def get_price(self, obj):
+        return PriceSerializer(
+            (
+                obj.prices.select_related("city_group__main_city")
+                .filter(city_group__main_city__domain=self.context.get("city_domain"))
+                .first()
+            )
+        ).data

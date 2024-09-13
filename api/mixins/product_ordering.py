@@ -33,12 +33,12 @@ class ProductSorting:
             queryset = func()
             return queryset
         else:
-            return queryset.order_by(f"{self.reversed_prefix}{ordering}")
+            return queryset.order_by(f"{self.reversed_prefix}{ordering}", "-priority")
 
     def _sort_price(self):
         if self.city_domain:
             return self.queryset.order_by(
-                f"{self.reversed_prefix}prices__price"
+                f"{self.reversed_prefix}prices__price", "-priority"
             ).distinct()
         else:
             return self.queryset
@@ -46,7 +46,7 @@ class ProductSorting:
     def _sort_rating(self):
         return self.queryset.annotate(
             avg_rating=Coalesce(Avg("reviews__rating"), 0.0)
-        ).order_by(f"{self.reversed_prefix}avg_rating")
+        ).order_by(f"{self.reversed_prefix}avg_rating", "-priority")
 
     def _sort_in_promo(self):
         if self.city_domain:
@@ -61,6 +61,6 @@ class ProductSorting:
                     default=False,
                     output_field=BooleanField(),
                 )
-            ).order_by(f"{self.reversed_prefix}in_promo")
+            ).order_by(f"{self.reversed_prefix}in_promo", "-priority")
         else:
             return self.queryset

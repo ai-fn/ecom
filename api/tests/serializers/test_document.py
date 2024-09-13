@@ -38,6 +38,7 @@ class CategoryDocumentSerializerTest(TestCase):
         data = serializer.data
         self.assertEqual(data['id'], self.category_data['id'])
         self.assertEqual(data['name'], self.category_data['name'])
+        self.assertEqual(data['slug'], self.category_data['slug'])
         self.assertTrue('image' in data)
 
     def test_deserialization(self):
@@ -82,6 +83,8 @@ class ProductDocumentSerializerTest(TestCase):
         data = serializer.data
         self.assertEqual(data['id'], self.product.id)
         self.assertEqual(data['title'], self.product.title)
+        self.assertEqual(data['slug'], self.product.slug)
+        self.assertEqual(data['article'], self.product.article)
         self.assertEqual(data['description'], self.product.description)
         self.assertEqual(data['category_slug'], self.product.category.slug)
 
@@ -89,6 +92,7 @@ class ProductDocumentSerializerTest(TestCase):
         data = {
             'id': self.product.id,
             'title': self.product.title,
+            'article': self.product.article,
             'description': self.product.description,
             'slug': f"{self.product.slug}-{self.product.id}",
             'category_slug': self.category.slug,
