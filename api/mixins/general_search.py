@@ -23,7 +23,7 @@ class GeneralSearchMixin:
         query: str,
         domain: str,
         exclude_: Iterable[str] = None,
-        page: int = 1,
+        page: int = None,
         per_page: int = 32,
         ordering: str = None,
     ) -> Dict[str, Any]:
@@ -84,8 +84,11 @@ class GeneralSearchMixin:
         if ordering is not None:
             search = self.sort_config(search, ordering)
 
-        from_ = (page - 1) * per_page
-        search = search[from_ : from_ + per_page]
+        if page is not None:
+            from_ = (page - 1) * per_page
+            search = search[from_ : from_ + per_page]
+        else:
+            search = search.extra(size=10)
 
         response = search.execute()
 
