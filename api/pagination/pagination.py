@@ -29,7 +29,11 @@ class CustomPaginator(DjangoPaginator):
     def page(self, number):
         """Return a Page object for the given 1-based page number."""
         number = self.validate_number(number)
-        bottom = 0
+        if len(self.object_list) > self.per_page:
+            bottom = (number - 1) * self.per_page
+        else:
+            bottom = 0
+
         top = bottom + self.per_page
         if top + self.orphans >= self.count:
             top = self.count
@@ -50,7 +54,6 @@ class CustomProductPagination(PageNumberPagination):
 
         paginator = self.django_paginator_class(queryset, page_size, count=count)
         page_number = self.get_page_number(request, paginator)
-
         try:
             self.page = paginator.page(page_number)
         except InvalidPage as exc:
