@@ -39,7 +39,8 @@ class GeneralSearchView(GeneralSearchMixin, APIView):
         query = self.request.query_params.get("q", "")
 
         try:
-            categorized_results, _ = self.g_search(query, domain)
+            result, _ = self.g_search(query, domain)
+            categorized_results = {index: result[index]["serialized"] for index in result}
         except ConnectionError as e:
             logger.error(str(e))
             return Response({"error": f"Error connecting to elasticsearch: {str(e)}"}, status=HTTP_503_SERVICE_UNAVAILABLE)

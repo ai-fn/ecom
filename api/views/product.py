@@ -470,12 +470,8 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
         search_results, total_result = self.g_search(
             value, domain, exclude_=("brands", "categories"), page=page, ordering=ordering
         )
-        search_results = search_results["products"]
-        if search_results:
-            product_ids = [el.get("id", 0) for el in search_results]
-            return product_ids, total_result
-        else:
-            return [], 0
+        queryset = search_results["products"]["queryset"]
+        return queryset, total_result
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(
@@ -490,19 +486,9 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
             )
         )
         if value := self.request.query_params.get("search"):
-            product_ids, total_result = self.filter_search(queryset, value)
-            if product_ids:
-
-                queryset = queryset.filter(pk__in=product_ids).annotate(
-                    sort_order=Case(
-                        *[When(pk=id, then=Value(idx)) for idx, id in enumerate(product_ids)],
-                        output_field=IntegerField()
-                    )
-                ).order_by('sort_order')
-                if self.domain:
-                    queryset = queryset.exclude(unavailable_in__domain=self.domain)
-            else:
-                queryset = Product.objects.none()
+            queryset, total_result = self.filter_search(queryset, value)
+            if self.domain:
+                queryset = queryset.exclude(unavailable_in__domain=self.domain)
         else:
             queryset = self.sorted_queryset(queryset)
             total_result = queryset.count()

@@ -1,3 +1,4 @@
+from django.db.models import Case, IntegerField, When, Value
 from typing import Iterable, Dict, Any
 from elasticsearch_dsl import Search, connections, Q
 from loguru import logger
@@ -136,7 +137,18 @@ class GeneralSearchMixin:
         ids = [hit.id for hit in hits]
         model = indexes[index]["model"]
         serializer = indexes[index]["serializer"]
-        queryset = model.objects.filter(pk__in=ids)
+        queryset = (
+            model.objects.filter(pk__in=ids)
+            .annotate(
+                score_order=Case(
+                    *[When(pk=id, then=Value(idx)) for idx, id in enumerate(ids)],
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("score_order")
+        )
 
-        data = serializer(queryset, context=context, many=True).data
-        categorized_results[index] = data
+        categorized_results[index] = {
+            "queryset": queryset,
+            "serialized": serializer(queryset, many=True).data,
+        }
