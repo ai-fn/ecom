@@ -1,12 +1,52 @@
 from loguru import logger
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_503_SERVICE_UNAVAILABLE
 
 from api.mixins import GeneralSearchMixin
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from drf_spectacular.types import OpenApiTypes
+from api.serializers import ProductDocumentSerializer
+from api.views.price import PRICE_RESPONSE_EXAMPLE
+
+
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiExample,
+    OpenApiResponse,
+    OpenApiParameter,
+)
 from elasticsearch import ConnectionError
+
+
+null_price_example = {key: None for key in PRICE_RESPONSE_EXAMPLE.keys() if key != "id"}
+
+product_document_serializer_example = {
+    "id": 2,
+    "title": "Dummy Title",
+    "article": "Dummy Article",
+    "description": "Dummy Description",
+    "search_image": "/media/catalog/products/search_images/search_image1.webp",
+    "category_slug": "Dummy Category Slug",
+    "slug": "Dummy Slug",
+    "price": PRICE_RESPONSE_EXAMPLE,
+}
+product_document_serializer_example_with_null_price = {
+    **product_document_serializer_example,
+    "price": null_price_example,
+}
+category_document_serializer_example = {
+    "id": 1,
+    "name": "Dummy Name",
+    "description": "Dummy Description",
+    "image": "/media/catalog/products/images/test_image_0SFY9TC.jpg",
+    "slug": "Dummy Slug",
+}
+brand_document_serializer_example = {
+    "id": 1,
+    "name": "Dummy Name",
+    "slug": "Dummy Slug",
+    "is_active": True,
+}
 
 
 @extend_schema(
@@ -16,23 +56,43 @@ from elasticsearch import ConnectionError
     parameters=[
         OpenApiParameter(
             name="q",
-            description="Search query to filter results by name, description, reviews, etc.",
+            description="Поисковый запрос позволяет отфильтровать результаты по названию, описанию и т. д.",
             required=False,
-            type=OpenApiTypes.STR,
+            type=str,
         ),
         OpenApiParameter(
             name="city_domain",
-            description="Domain to filter prices by city or region",
+            description="Домен для фильтрации цен по городу или региону",
             required=False,
-            type=OpenApiTypes.STR,
+            type=str,
         ),
     ],
     responses={
-        200: OpenApiTypes.OBJECT,
+        200: OpenApiResponse(
+            response=ProductDocumentSerializer(many=False),
+            examples=[
+                OpenApiExample(
+                    "Пример ответа",
+                    value={
+                        "products": [
+                            product_document_serializer_example,
+                            product_document_serializer_example_with_null_price,
+                        ],
+                        "categories": [
+                            category_document_serializer_example,
+                        ],
+                        "brands": [
+                            brand_document_serializer_example,
+                        ],
+                    },
+                )
+            ],
+        ),
     },
 )
 class GeneralSearchView(GeneralSearchMixin, APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
+    pagination_class = None
 
     def get(self, request, *args, **kwargs):
         domain = self.request.query_params.get("city_domain", "")
@@ -40,9 +100,14 @@ class GeneralSearchView(GeneralSearchMixin, APIView):
 
         try:
             result, _ = self.g_search(query, domain)
-            categorized_results = {index: result[index]["serialized"] for index in result}
+            categorized_results = {
+                index: result[index]["serialized"] for index in result
+            }
         except ConnectionError as e:
             logger.error(str(e))
-            return Response({"error": f"Error connecting to elasticsearch: {str(e)}"}, status=HTTP_503_SERVICE_UNAVAILABLE)
+            return Response(
+                {"error": f"Error connecting to elasticsearch: {str(e)}"},
+                status=HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
         return Response(categorized_results, status=HTTP_200_OK)
