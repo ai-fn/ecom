@@ -474,17 +474,7 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
         return queryset, total_result
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(
-            self.get_queryset()
-            .select_related("category")
-            .prefetch_related(
-                Prefetch('reviews', queryset=Review.objects.all()),
-                Prefetch('additional_categories', queryset=Category.objects.prefetch_related('children')),
-                Prefetch('category__children'),
-                Prefetch('characteristic_values', queryset=CharacteristicValue.objects.select_related('characteristic')),
-                Prefetch('prices', queryset=Price.objects.select_related('city_group').prefetch_related('city_group__cities'))
-            )
-        )
+        queryset = self.filter_queryset(self.get_queryset())
         if value := self.request.query_params.get("search"):
             queryset, total_result = self.filter_search(queryset, value)
             if self.domain:
@@ -493,12 +483,16 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
             queryset = self.sorted_queryset(queryset)
             total_result = queryset.count()
 
-        brands_queryset = Brand.objects.filter(id__in=queryset.values_list("brand", flat=True))
+        brands_queryset = Brand.objects.filter(
+            id__in=queryset.values_list("brand", flat=True).distinct(),
+            is_active=True,
+        )
         brands = BrandSerializer(brands_queryset, many=True).data
 
         categories_queryset = Category.objects.filter(
-            products__in=queryset, is_visible=True
-        ).distinct()
+            id__in=queryset.values_list("category", flat=True).distinct(),
+            is_visible=True,
+        )
         characteristics_queryset = (
             self.characteristics_queryset.filter(
                 Q(categories__children__in=categories_queryset)
@@ -506,7 +500,6 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
                 for_filtering=True,
             )
             .distinct()
-            .prefetch_related(Prefetch("categories", queryset=categories_queryset))
         )
 
         page = self.paginate_queryset(queryset, total_result)
