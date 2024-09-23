@@ -13,7 +13,14 @@ from shop.models import ItemSet, ItemSetElement
 
 # cutom pagination for item set viewset
 class ItemSetPaginate(PageNumberPagination):
+
     page_size = 1
+
+    def __init__(self, page_size: int = None) -> None:
+        if page_size is not None:
+            self.page_size = page_size
+
+        super().__init__()
 
 
 ITEM_SET_ELEMENT_RESPONSE_EXAMPLE = {
@@ -79,6 +86,13 @@ ITEM_SET_PARTIAL_UPDATE_EXAMPLE = {
     list=extend_schema(
         summary="Получение наборов объектов",
         description="Получение наборов объектов",
+        parameters=[
+            OpenApiParameter(
+                "limit",
+                type=int,
+                description="Result limit",
+            )
+        ],
         responses={
             200: OpenApiResponse(
                 response=ItemSetSerializer(many=True),
@@ -219,6 +233,11 @@ class ItemSetViewSet(ModelViewSet):
             context["city_domain"] = cd
 
         return context
+    
+    def list(self, request, *args, **kwargs):
+        limit = self.request.query_params.get("limit", 1)
+        self.paginator.page_size = limit
+        return super().list(request, *args, **kwargs)
 
 
 @extend_schema_view(
