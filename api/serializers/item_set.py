@@ -4,19 +4,13 @@ from api.serializers import (
     BannerSerializer,
     PromoSerializer,
     ProductCatalogSerializer,
-    CategorySerializer,
+    CategorySliderSerializer,
     SliderSerializer,
     BrandSerializer,
 )
 from shop.models import (
-    Banner,
-    Category,
     ItemSet,
     ItemSetElement,
-    Product,
-    Promo,
-    Slider,
-    Brand,
 )
 
 
@@ -46,7 +40,7 @@ class ItemSetElementSerializer(serializers.ModelSerializer):
     ALLOWED_MODELS = {
         "product": ProductCatalogSerializer,
         "brand": BrandSerializer,
-        "category": CategorySerializer,
+        "category": CategorySliderSerializer,
         "banner": BannerSerializer,
         "slider": SliderSerializer,
         "promo": PromoSerializer,

@@ -71,10 +71,15 @@ class CategorySimplifiedSerializer(ActiveModelSerializer):
             "id",
             "name",
             "slug",
-            "description",
-            "parents",
             "icon",
             "image",
+            "order",
+            "parent",
+            "parents",
+            "thumb_img",
+            "is_visible",
+            "is_popular",
+            "description",
         ]
     
     def to_representation(self, instance):
@@ -102,3 +107,24 @@ class CategorySimplifiedSerializer(ActiveModelSerializer):
         return list(
             reversed(parents)
         )
+
+class CategorySliderSerializer(ActiveModelSerializer):
+    
+    class Meta:
+        model = Category
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "order",
+            "icon",
+            "image",
+            "is_popular",
+            "thumb_img",
+]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['icon'] = instance.icon.url if instance.icon else None
+        data['image'] = instance.image.url if instance.image else None
+        return data

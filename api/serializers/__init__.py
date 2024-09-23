@@ -15,6 +15,7 @@ from .city_group import CityGroupSerializer
 from .category import (
     CategorySerializer,
     CategorySimplifiedSerializer,
+    CategorySliderSerializer,
 )
 from .characteristic import CharacteristicSerializer
 from .characteristic_value import (
