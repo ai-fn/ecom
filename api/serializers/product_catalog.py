@@ -10,10 +10,6 @@ class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveMode
     city_price = serializers.SerializerMethodField()
     old_price = serializers.SerializerMethodField()
     category_slug = serializers.SerializerMethodField()
-    brand_slug = serializers.SlugField(
-        source="brand.slug",
-        read_only=True
-    )
 
     cart_quantity = serializers.IntegerField(min_value=1, read_only=True)
     in_promo = serializers.SerializerMethodField()
@@ -47,7 +43,6 @@ class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveMode
             "old_price",
             "in_stock",
             "category_slug",
-            "brand_slug",
             "search_image",
             "catalog_image",
             "original_image",

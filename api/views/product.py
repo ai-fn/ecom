@@ -1,6 +1,5 @@
-from django.db.models import F, Sum, Prefetch, Q, Case, When, IntegerField, Value
+from django.db.models import F, Sum, Q
 from django_filters import rest_framework as filters
-from rest_framework.pagination import PageNumberPagination
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
 
@@ -14,7 +13,7 @@ from api.mixins import (
 from api.pagination import CustomProductPagination
 
 from api.serializers.brand import BrandSerializer
-from shop.models import Brand, Category, CharacteristicValue, Price, Product, Characteristic, Review
+from shop.models import Brand, Category, Product, Characteristic
 
 from api.filters import ProductFilter
 from api.permissions import ReadOnlyOrAdminPermission
@@ -26,6 +25,7 @@ from api.views.brand import BRAND_RESPONSE_EXAMPLE
 from api.views.productimage import PRODUCT_IMAGE_RESPONSE_EXAMPLE
 from api.views.productfile import PRODUCT_FILE_RESPONSE_EXAMPLE
 
+from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -504,29 +504,25 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
 
         page = self.paginate_queryset(queryset, total_result)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(
-                {
-                    "products": serializer.data,
-                    "characteristics": CharacteristicFilterSerializer(
-                        characteristics_queryset, many=True, context={"queryset": queryset}
-                    ).data,
-                    "categories": categories_queryset.values("name", "slug"),
-                    "brands": brands,
-                    "smallest_price": self.min_qs_price,
-                    "greatest_price": self.max_qs_price,
-                }
-            )
+            products = page
+            response = self.get_paginated_response
+        else:
+            products = queryset
+            response = Response
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(
-            {
-                "products": serializer.data,
-                "characteristics": CharacteristicFilterSerializer(
-                    characteristics_queryset, many=True
-                ).data,
-            }
-        )
+        serializer = self.get_serializer(products, many=True)
+        data = {
+            "products": serializer.data,
+            "characteristics": CharacteristicFilterSerializer(
+                characteristics_queryset, many=True, context={"queryset": queryset}
+            ).data,
+            "categories": categories_queryset.values("name", "slug"),
+            "brands": brands,
+            "smallest_price": self.min_qs_price,
+            "greatest_price": self.max_qs_price,
+        }
+
+        return response(data)
 
 
     @action(detail=True, methods=["get"])
