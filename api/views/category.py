@@ -10,6 +10,7 @@ from api.serializers import (
     CategorySerializer,
     CategorySimplifiedSerializer,
     CategoryDetailSerializer,
+    CategoryOrphanSerializer,
 )
 from django.shortcuts import get_object_or_404
 from shop.models import Category
@@ -270,6 +271,9 @@ class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
     def get_serializer_class(self):
         if self.action in ["retrieve", "popular_categories"]:
             return CategoryDetailSerializer
+        
+        elif self.action == "orphans_categories":
+            return CategoryOrphanSerializer
 
         elif self.action == "retrieve_by_slug":
             return CategorySimplifiedSerializer

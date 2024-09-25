@@ -128,3 +128,22 @@ class CategorySliderSerializer(ActiveModelSerializer):
         data['icon'] = instance.icon.url if instance.icon else None
         data['image'] = instance.image.url if instance.image else None
         return data
+
+
+class CategoryOrphanSerializer(CategorySliderSerializer):
+
+    children = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "children",
+            "icon",
+            "image",
+        ]
+
+    def get_children(self, obj) -> None | OrderedDict:
+        return obj.get_children().values("id", "name", "slug")

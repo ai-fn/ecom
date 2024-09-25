@@ -16,6 +16,7 @@ from .category import (
     CategorySerializer,
     CategorySimplifiedSerializer,
     CategorySliderSerializer,
+    CategoryOrphanSerializer,
 )
 from .characteristic import CharacteristicSerializer
 from .characteristic_value import (
