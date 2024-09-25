@@ -82,11 +82,13 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
             if name not in ["price_lte", "price_gte"] and value is not None:
                 queryset = self.filters[name].filter(queryset, value)
 
-        aggregates = queryset.aggregate(
+        domain = self.request.query_params.get("city_domain")
+        aggregates = queryset.prefetch_related("prices__city_group__citites").filter(prices__city_group__cities__domain=domain).aggregate(
             min_price=Min("prices__price"), max_price=Max("prices__price")
         )
-        self.min_price = aggregates["min_price"]
-        self.max_price = aggregates["max_price"]
+
+        self.min_price = aggregates["min_price"] or 0
+        self.max_price = aggregates["max_price"] or 0
 
         queryset = self.apply_price_filters(queryset)
 
