@@ -23,7 +23,7 @@ class CustomFilter(filters.FilterSet):
 class ProductFilter(GeneralSearchMixin, CustomFilter):
     price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr="lte")
     price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr="gte")
-    brand_slug = filters.CharFilter(field_name="brand__slug", lookup_expr="iexact")
+    brand_slug = filters.CharFilter(method="filter_brand_slug")
     category = filters.CharFilter(method="filter_category")
     characteristics = filters.CharFilter(
         method="filter_characteristics", label="Значения характеристик"
@@ -63,12 +63,16 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
         
         return self._count
     
+    def filter_brand_slug(self, queryset, name, value):
+        queryset = queryset.filter(brand__slug=value)
+        if not all((self.data.get("category"), self.data.get("search`"))):
+            self._chars = self._get_chars(queryset)
+        
+        return queryset
+    
     def filter_brand(self, queryset, name, value):
         brand_slugs = value.split(",")
         queryset = queryset.filter(brand__slug__in=brand_slugs)
-
-        if not all((self.data.get("category"), self.data.get("search`"))):
-            self._chars = self._get_chars(queryset)
 
         return queryset
 
