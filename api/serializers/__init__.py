@@ -22,7 +22,6 @@ from .characteristic_value import (
     CharacteristicValueSerializer,
     SimplifiedCharacteristicValueSerializer,
 )
-from .characteristic_filter import CharacteristicFilterSerializer
 from .product_image import ProductImageSerializer
 from .brand import BrandSerializer
 from .product_catalog import ProductCatalogSerializer

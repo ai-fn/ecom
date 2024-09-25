@@ -8,7 +8,6 @@ from api.mixins import (
     IntegrityErrorHandlingMixin,
     ProductSorting,
     CacheResponse,
-    GeneralSearchMixin,
 )
 from api.pagination import CustomProductPagination
 
@@ -17,7 +16,6 @@ from shop.models import Brand, Category, Product, Characteristic
 
 from api.filters import ProductFilter
 from api.permissions import ReadOnlyOrAdminPermission
-from api.serializers import CharacteristicFilterSerializer
 from api.serializers import ProductCatalogSerializer
 from api.serializers import ProductDetailSerializer
 from api.views.category import CATEGORY_RESPONSE_EXAMPLE
@@ -25,7 +23,6 @@ from api.views.brand import BRAND_RESPONSE_EXAMPLE
 from api.views.productimage import PRODUCT_IMAGE_RESPONSE_EXAMPLE
 from api.views.productfile import PRODUCT_FILE_RESPONSE_EXAMPLE
 
-from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -396,14 +393,13 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
         responses={204: None},
     ),
 )
-class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
 
     queryset = Product.objects.all()
     permission_classes = [ReadOnlyOrAdminPermission]
-    characteristics_queryset = Characteristic.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProductFilter
     pagination_class = CustomProductPagination
@@ -459,50 +455,29 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
         filterset = self.filterset_class(self.request.GET, queryset, request=self.request, city_domain=domain)
         qs = filterset.qs
         self.min_qs_price, self.max_qs_price = filterset.min_price, filterset.max_price
+        self.queryset_count = filterset.count
+        self.chars = filterset.chars
+        self.brand_ids = filterset.brands
 
         return qs
 
-    def filter_search(self, queryset, value: str):
-        domain = self.request.query_params.get("city_domain")
-        ordering = self.request.query_params.get("order_by")
-        page = int(self.request.query_params.get("page", 1))
-
-        search_results, total_result = self.g_search(
-            value, domain, exclude_=("brands", "categories"), page=page, ordering=ordering
-        )
-        queryset = search_results["products"]["queryset"]
-        return queryset, total_result
-
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        if value := self.request.query_params.get("search"):
-            queryset, total_result = self.filter_search(queryset, value)
-            if self.domain:
-                queryset = queryset.exclude(unavailable_in__domain=self.domain)
-        else:
-            queryset = self.sorted_queryset(queryset)
-            total_result = queryset.count()
 
-        brands_queryset = Brand.objects.filter(
-            id__in=queryset.values_list("brand", flat=True).distinct(),
+        if not self.request.query_params.get("search"):
+            queryset = self.sorted_queryset(queryset)
+
+        brands = Brand.objects.filter(
+            id__in=self.brand_ids,
             is_active=True,
-        )
-        brands = BrandSerializer(brands_queryset, many=True).data
+        ).values("name", "slug", "order")
 
         categories_queryset = Category.objects.filter(
             id__in=queryset.values_list("category", flat=True).distinct(),
             is_visible=True,
         )
-        characteristics_queryset = (
-            self.characteristics_queryset.filter(
-                Q(categories__children__in=categories_queryset)
-                | Q(categories__in=categories_queryset),
-                for_filtering=True,
-            )
-            .distinct()
-        )
 
-        page = self.paginate_queryset(queryset, total_result)
+        page = self.paginate_queryset(queryset, self.queryset_count)
         if page is not None:
             products = page
             response = self.get_paginated_response
@@ -513,9 +488,7 @@ class ProductViewSet(GeneralSearchMixin, ProductSorting, ActiveQuerysetMixin, In
         serializer = self.get_serializer(products, many=True)
         data = {
             "products": serializer.data,
-            "characteristics": CharacteristicFilterSerializer(
-                characteristics_queryset, many=True, context={"queryset": queryset}
-            ).data,
+            "characteristics": self.chars,
             "categories": categories_queryset.values("name", "slug"),
             "brands": brands,
             "smallest_price": self.min_qs_price,
