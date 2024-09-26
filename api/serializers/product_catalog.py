@@ -6,28 +6,27 @@ from shop.models import Product
 from rest_framework import serializers
 
 
-class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModelSerializer):
-    city_price = serializers.SerializerMethodField()
-    old_price = serializers.SerializerMethodField()
+class ProductCatalogSerializer(ActiveModelSerializer):
+    city_price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    old_price = serializers.DecimalField(max_digits=10, decimal_places=2)
     category_slug = serializers.SerializerMethodField()
 
     cart_quantity = serializers.IntegerField(min_value=1, read_only=True)
     in_promo = serializers.SerializerMethodField()
+    rating = serializers.FloatField()
+    reviews_count = serializers.IntegerField()
 
     def get_category_slug(self, obj) -> str:
         return obj.category.slug if obj.category else None
-    
+
     def get_in_promo(self, obj) -> bool:
-        if (price := self.get_city_price(obj)) and (old_price := self.get_old_price(obj)):
-            return price < old_price
-        return False
+        return True #
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        for attr in ("catalog_image", "search_image", "original_image"):
-            val = getattr(instance, attr, None)
-            data[attr] = val.url if val and hasattr(val, "url") else None
-
+        val = getattr(instance, "catalog_image", None)
+        data["catalog_image"] = val.url if val and hasattr(val, "url") else None
+        data["in_promo"] = data["city_price"] < data["old_price"]
         return data
 
     class Meta:
@@ -35,22 +34,17 @@ class ProductCatalogSerializer(RatingMixin, SerializerGetPricesMixin, ActiveMode
         fields = [
             "id",
             "title",
-            "brand",
-            "h1_tag",
             "article",
             "slug",
             "city_price",
             "old_price",
             "in_stock",
             "category_slug",
-            "search_image",
             "catalog_image",
-            "original_image",
             "cart_quantity",
             "is_popular",
             "is_new",
-            "thumb_img",
-            "description",
             "in_promo",
-            "priority",
+            "rating",
+            "reviews_count",
         ]

@@ -12,7 +12,6 @@ class BrandSerializer(ActiveModelSerializer):
             "id",
             "name",
             "icon",
-            "order",
             "h1_tag",
             "slug",
         ]

@@ -1,4 +1,4 @@
-from api.serializers import ActiveModelSerializer, CategorySerializer
+from api.serializers import ActiveModelSerializer
 
 from shop.models import Characteristic
 

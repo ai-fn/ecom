@@ -116,12 +116,11 @@ class CategorySliderSerializer(ActiveModelSerializer):
             "id",
             "name",
             "slug",
-            "order",
             "icon",
             "image",
             "is_popular",
             "thumb_img",
-]
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

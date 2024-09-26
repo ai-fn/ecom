@@ -1,7 +1,12 @@
-from django.db.models import F, Sum, Q
+from django.db.models import F, Sum, Q, Value, Avg, Count
 from django_filters import rest_framework as filters
 
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiParameter,
+    OpenApiExample,
+)
 
 from api.mixins import (
     ActiveQuerysetMixin,
@@ -11,8 +16,7 @@ from api.mixins import (
 )
 from api.pagination import CustomProductPagination
 
-from api.serializers.brand import BrandSerializer
-from shop.models import Brand, Category, Product, Characteristic
+from shop.models import Brand, Category, Product
 
 from api.filters import ProductFilter
 from api.permissions import ReadOnlyOrAdminPermission
@@ -31,20 +35,13 @@ from rest_framework.decorators import action
 BASE_PRODUCT_RESPONSE = {
     "id": 4883,
     "title": "TEST PRODUCT 2",
-    "brand": 1,
-    "h1_tag": "dummy-h1-tag",
     "article": "dummy-article",
     "slug": "test-product-4883",
     "city_price": 120.00,
     "old_price": 130.00,
     "category_slug": "krovelnye-materialy",
     "brand_slug": "tekhnonikol",
-    "search_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
     "catalog_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-    "original_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
-    "thumb_img": "dkjfdkfhkjshgfjkehskfbhjkasldewhefbcsdhecgfbhsewlfgbcsekhfesfdbvslhefglsefghdjlsehfcdegcsdjeu",
-    "description": "TEST PRODUCT 2 TEST PRODUCT 2 TEST PRODUCT 2 TEST PRODUCT 2 TEST PRODUCT 2",
-    "priority": 500,
     "is_popular": False,
     "is_new": False,
     "in_promo": False,
@@ -56,7 +53,6 @@ BASE_PRODUCT_RESPONSE = {
 
 UNAUTHORIZED_RESPONSE_EXAMPLE = {
     **BASE_PRODUCT_RESPONSE,
-    "images": [PRODUCT_IMAGE_RESPONSE_EXAMPLE],
 }
 
 AUTHORIZED_RESPONSE_EXAMPLE = {
@@ -91,8 +87,7 @@ UPDATE_REQUEST_EXAMPLE = {
 }
 
 PARTIAL_UPDATE_REQUEST_EXAMPLE = {
-    key: UPDATE_REQUEST_EXAMPLE[key]
-    for key in ["h1_tag", "category"]
+    key: UPDATE_REQUEST_EXAMPLE[key] for key in ["h1_tag", "category"]
 }
 
 RETRIEVE_RESPONSE_EXAMPLE = {
@@ -150,10 +145,10 @@ RETRIEVE_RESPONSE_EXAMPLE = {
                         ],
                         "is_selected": False,
                     }
-                ]
+                ],
             }
         ],
-    }
+    },
 }
 RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
 
@@ -393,7 +388,13 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
         responses={204: None},
     ),
 )
-class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+class ProductViewSet(
+    ProductSorting,
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    CacheResponse,
+    ModelViewSet,
+):
     """
     Возвращает товары с учетом цены в заданном городе.
     """
@@ -411,26 +412,18 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
         return ProductDetailSerializer
 
     def paginate_queryset(self, queryset, count: int = 0):
-        return self.paginator.paginate_queryset(queryset, self.request, view=self, count=count)
+        return self.paginator.paginate_queryset(
+            queryset, self.request, view=self, count=count
+        )
 
     def get_queryset(self):
-        self.domain = self.request.query_params.get("city_domain")
-        self.queryset = super().get_queryset()
+        domain = self.request.query_params.get("city_domain")
+        queryset = super().get_queryset()
 
-        if self.domain:
-            self.queryset = self.queryset.exclude(unavailable_in__domain=self.domain)
+        if domain:
+            self.queryset = queryset.exclude(unavailable_in__domain=domain)
 
-        # Annotate cart_quantity for products in the user's cart
-        if self.request.user.is_authenticated:
-            self.queryset = self.queryset.annotate(
-                cart_quantity=Sum(
-                    "cart_items__quantity",
-                    filter=F("cart_items__customer_id") == self.request.user.id,
-                )
-            ).order_by("-priority", "title", "-created_at")
-
-        return self.queryset
-
+        return queryset
 
     @action(detail=True, methods=["get"])
     def frequenly_bought(self, request, *args, **kwargs):
@@ -442,7 +435,6 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
         )
         return super().list(request, *args, **kwargs)
 
-
     @action(methods=["get"], detail=False)
     def popular_products(self, request, *args, **kwargs):
         self.queryset = self.filter_queryset(self.get_queryset()).filter(
@@ -451,8 +443,10 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
         return super().list(request, *args, **kwargs)
 
     def filter_queryset(self, queryset):
-        domain = getattr(self, "domain", None)
-        filterset = self.filterset_class(self.request.GET, queryset, request=self.request, city_domain=domain)
+        domain = self.request.query_params.get("city_domain")
+        filterset = self.filterset_class(
+            self.request.GET, queryset, request=self.request, city_domain=domain
+        )
         qs = filterset.qs
         self.min_qs_price, self.max_qs_price = filterset.min_price, filterset.max_price
         self.queryset_count = filterset.count
@@ -460,9 +454,57 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
         self.brand_ids = filterset.brands
 
         return qs
+    
+    def annotate_queryset(self, queryset):
+        fields = ("prices", "rating", "cart_quantity")
+        for field in fields:
+            method_name = f"_annotate_{field}"
+            if hasattr(self, method_name):
+                func = getattr(self, method_name)
+                queryset = func(queryset)
+
+        queryset = queryset.annotate(category_slug=F("category__slug"))
+        return queryset
+
+    def _annotate_cart_quantity(self, queryset):
+        if self.request.user.is_authenticated:
+            queryset = (
+                queryset.prefetch_related("cart_items")
+                .annotate(
+                    cart_quantity=Sum(
+                        "cart_items__quantity",
+                        filter=F("cart_items__customer_id") == self.request.user.id,
+                    )
+                )
+                .order_by("-priority", "title", "-created_at")
+            )
+        return queryset
+
+    def _annotate_prices(self, queryset):
+        domain = self.request.query_params.get("city_domain")
+        if not domain:
+            queryset = queryset.annotate(city_price=Value(0), old_price=Value(0))
+            return queryset
+
+        queryset = (
+            queryset.prefetch_related("prices")
+            .annotate(city_price=F("prices__price"), old_price=F("prices__old_price"))
+            .filter(Q(prices__city_group__cities__domain=domain))
+            .distinct()
+        )
+        return queryset
+
+    def _annotate_rating(self, queryset):
+        queryset = queryset.prefetch_related("reviews").annotate(
+            rating=Avg("reviews__rating"), reviews_count=Count("reviews")
+        )
+        return queryset
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .select_related("category")
+        )
 
         if not self.request.query_params.get("search"):
             queryset = self.sorted_queryset(queryset)
@@ -470,33 +512,33 @@ class ProductViewSet(ProductSorting, ActiveQuerysetMixin, IntegrityErrorHandling
         brands = Brand.objects.filter(
             id__in=self.brand_ids,
             is_active=True,
-        ).values("name", "slug", "order")
+        ).values("name", "slug")
 
         categories_queryset = Category.objects.filter(
             id__in=queryset.values_list("category", flat=True).distinct(),
             is_visible=True,
-        )
+        ).values("name", "slug")
 
         page = self.paginate_queryset(queryset, self.queryset_count)
         if page is not None:
-            products = page
+            products = queryset.filter(pk__in=map(lambda x: x.pk, page))
             response = self.get_paginated_response
         else:
             products = queryset
             response = Response
 
+        products = self.annotate_queryset(products)
         serializer = self.get_serializer(products, many=True)
         data = {
             "products": serializer.data,
             "characteristics": self.chars,
-            "categories": categories_queryset.values("name", "slug"),
+            "categories": categories_queryset,
             "brands": brands,
             "smallest_price": self.min_qs_price,
             "greatest_price": self.max_qs_price,
         }
 
         return response(data)
-
 
     @action(detail=True, methods=["get"])
     def productdetail(self, request, pk=None):
