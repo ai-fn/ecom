@@ -1,9 +1,9 @@
+from loguru import logger
 from api.serializers import ActiveModelSerializer
 
-from api.mixins import SerializerGetPricesMixin, RatingMixin
-from api.serializers import ProductImageSerializer
 from shop.models import Product
 from rest_framework import serializers
+from django.db.models import Sum
 
 
 class ProductCatalogSerializer(ActiveModelSerializer):
@@ -22,11 +22,46 @@ class ProductCatalogSerializer(ActiveModelSerializer):
     def get_in_promo(self, obj) -> bool:
         return True #
 
+    def check_price(self, instance):
+        fields = {"city_price": "price", "old_price": "old_price"}
+        domain = self.context.get("city_domain")
+        if not all([hasattr(instance, field) for field in fields.keys()]):
+            price = instance.prices.filter(city_group__cities__domain=domain).first()
+            for field in fields:
+                if not hasattr(instance, field):
+                    value = getattr(price, fields[field], None)
+                    setattr(instance, field, value)
+        
+ 
+    def check_rating(self, instance):
+        if not hasattr(instance, "reviews_count"):
+            setattr(instance, "reviews_count", instance.reviews.count())
+
+        if not hasattr(instance, "rating"):
+            value = 0
+            t_rating = instance.reviews.aggregate(sum_rating=Sum("rating"))["sum_rating"] or 0
+            if instance.reviews_count > 0:
+                value = t_rating / instance.reviews_count
+
+            setattr(instance, "rating", value)
+
+
     def to_representation(self, instance):
+        check_fields = ("price", "rating")
+        for field in check_fields:
+            func = getattr(self, f"check_{field}")
+            func(instance)
+
         data = super().to_representation(instance)
         val = getattr(instance, "catalog_image", None)
         data["catalog_image"] = val.url if val and hasattr(val, "url") else None
-        data["in_promo"] = data["city_price"] < data["old_price"]
+
+        in_promo = False
+        if (cp := data["city_price"]) and (op := data["old_price"]):
+            in_promo = cp < op
+
+        data["in_promo"] = in_promo
+
         return data
 
     class Meta:

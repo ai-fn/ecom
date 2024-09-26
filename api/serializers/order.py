@@ -1,20 +1,20 @@
 from typing import OrderedDict
-from api.serializers import ActiveModelSerializer
+
+from django.db.models import F
+from rest_framework import serializers
 
 from cart.models import Order, OrderStatus, ProductsInOrder
 from api.serializers import ProductsInOrderSerializer
 from api.mixins import ValidateAddressMixin
-
-from rest_framework import serializers
+from api.serializers import ActiveModelSerializer
 
 
 class OrderStatusSerializer(ActiveModelSerializer):
-    
+
     class Meta:
         model = OrderStatus
-        fields = [
-            "name"
-        ]
+        fields = ["name"]
+
 
 # TODO create ProductOrderSerializer
 class OrderSerializer(ValidateAddressMixin, ActiveModelSerializer):
@@ -34,7 +34,11 @@ class OrderSerializer(ValidateAddressMixin, ActiveModelSerializer):
         ]
 
     def get_products(self, obj) -> OrderedDict:
-        products_in_order = ProductsInOrder.objects.filter(order=obj)
+        products_in_order = (
+            ProductsInOrder.objects.filter(order=obj)
+            .prefetch_related("product__category")
+            .annotate(product__category_slug=F("product__category__slug"))
+        )
         return ProductsInOrderSerializer(products_in_order, many=True).data
 
     def create(self, validated_data):

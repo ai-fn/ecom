@@ -1,9 +1,10 @@
-from django.db import IntegrityError
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
+from loguru import logger
 from shop.models import Brand, Product, Price, City, CityGroup, Category
 from cart.models import CartItem
 from api.serializers import CartItemSerializer, SimplifiedCartItemSerializer
+
 
 User = get_user_model()
 
@@ -48,11 +49,12 @@ class CartItemSerializerTestCase(TestCase):
         self.city_group.cities.add(self.city)
 
     def test_cart_item_serializer_create(self):
+        dummy_domain = "voronezh.krov.market"
         data = {"product_id": self.product.id, "quantity": 2}
         request = self.factory.post("/cart/", data)
-        request.query_params = {"city_domain": "voronezh.krov.market"}
+        request.query_params = {"city_domain": dummy_domain}
         request.user = self.user
-        serializer = CartItemSerializer(data=data, context={"request": request})
+        serializer = CartItemSerializer(data=data, context={"request": request, "city_domain": dummy_domain})
 
         self.assertTrue(serializer.is_valid())
         cart_item = serializer.save()
@@ -61,12 +63,12 @@ class CartItemSerializerTestCase(TestCase):
         self.assertEqual(cart_item.product, self.product)
         self.assertEqual(cart_item.quantity, 2)
 
-        self.assertIsNone(serializer.data["product"].get("city_price"))
+        self.assertIsNone(serializer.data["product"]["city_price"])
         
-        Price.objects.create(product=self.product, city_group=self.city_group, price=100.99)
-        serializer = CartItemSerializer(data=data, context={"request": request, "city_domain": request.query_params.get("city_domain")})
-        serializer.is_valid()
-        self.assertIsNotNone(serializer.data["product"].get("city_price"))
+        price = Price.objects.create(product=self.product, city_group=self.city_group, price=100.99)
+        cart_item.refresh_from_db()
+        serializer = CartItemSerializer(instance=cart_item, context={"request": request, "city_domain": dummy_domain})
+        self.assertEqual(serializer.data["product"]["city_price"], str(price.price))
 
     def test_cart_item_serializer_update(self):
         cart_item = CartItem.objects.create(

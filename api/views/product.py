@@ -1,4 +1,3 @@
-from django.db.models import F, Sum, Q, Value, Avg, Count
 from django_filters import rest_framework as filters
 
 from drf_spectacular.utils import (
@@ -19,6 +18,7 @@ from api.pagination import CustomProductPagination
 from shop.models import Brand, Category, Product
 
 from api.filters import ProductFilter
+from api.mixins import AnnotateProductMixin
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import ProductCatalogSerializer
 from api.serializers import ProductDetailSerializer
@@ -389,6 +389,7 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
     ),
 )
 class ProductViewSet(
+    AnnotateProductMixin,
     ProductSorting,
     ActiveQuerysetMixin,
     IntegrityErrorHandlingMixin,
@@ -423,6 +424,7 @@ class ProductViewSet(
         if domain:
             self.queryset = queryset.exclude(unavailable_in__domain=domain)
 
+        queryset = queryset.order_by("-priority", "title", "-created_at")
         return queryset
 
     @action(detail=True, methods=["get"])
@@ -455,50 +457,6 @@ class ProductViewSet(
 
         return qs
     
-    def annotate_queryset(self, queryset):
-        fields = ("prices", "rating", "cart_quantity")
-        for field in fields:
-            method_name = f"_annotate_{field}"
-            if hasattr(self, method_name):
-                func = getattr(self, method_name)
-                queryset = func(queryset)
-
-        queryset = queryset.annotate(category_slug=F("category__slug"))
-        return queryset
-
-    def _annotate_cart_quantity(self, queryset):
-        if self.request.user.is_authenticated:
-            queryset = (
-                queryset.prefetch_related("cart_items")
-                .annotate(
-                    cart_quantity=Sum(
-                        "cart_items__quantity",
-                        filter=F("cart_items__customer_id") == self.request.user.id,
-                    )
-                )
-                .order_by("-priority", "title", "-created_at")
-            )
-        return queryset
-
-    def _annotate_prices(self, queryset):
-        domain = self.request.query_params.get("city_domain")
-        if not domain:
-            queryset = queryset.annotate(city_price=Value(0), old_price=Value(0))
-            return queryset
-
-        queryset = (
-            queryset.prefetch_related("prices")
-            .annotate(city_price=F("prices__price"), old_price=F("prices__old_price"))
-            .filter(Q(prices__city_group__cities__domain=domain))
-            .distinct()
-        )
-        return queryset
-
-    def _annotate_rating(self, queryset):
-        queryset = queryset.prefetch_related("reviews").annotate(
-            rating=Avg("reviews__rating"), reviews_count=Count("reviews")
-        )
-        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = (

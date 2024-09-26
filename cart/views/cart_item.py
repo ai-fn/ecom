@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, AnnotateProductMixin
 from cart.models import CartItem
 from api.serializers import (
     CartItemSerializer,
@@ -226,14 +226,14 @@ CART_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         )
     ],
 )
-class CartItemViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class CartItemViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
 
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.annotate_queryset(self.filter_queryset(self.get_queryset()), prefix="product__")
         serializer = self.get_serializer(queryset, many=True).data
         return Response(serializer, status=status.HTTP_200_OK)
 

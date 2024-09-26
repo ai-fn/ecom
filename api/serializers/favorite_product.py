@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 
 class FavoriteProductSerializer(ActiveModelSerializer):
-    product = ProductCatalogSerializer(read_only=True)
+    product = serializers.SerializerMethodField()
     product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), source='product', write_only=True)
     user_id = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), source="user")
 
@@ -18,3 +18,6 @@ class FavoriteProductSerializer(ActiveModelSerializer):
             "product",
             "product_id"
         ]
+    
+    def get_product(self, obj):
+        return ProductCatalogSerializer(obj.product, context=self.context).data

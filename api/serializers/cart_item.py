@@ -4,7 +4,8 @@ from api.serializers import ProductCatalogSerializer, ActiveModelSerializer
 
 
 class CartItemSerializer(ActiveModelSerializer):
-    product = ProductCatalogSerializer(read_only=True)
+
+    product = serializers.SerializerMethodField()
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), write_only=True, source="product"
     )
@@ -14,6 +15,9 @@ class CartItemSerializer(ActiveModelSerializer):
         model = CartItem
         fields = ["id", "product", "product_id", "quantity", ]
         read_only_fields = ("id",)
+
+    def get_product(self, obj):
+        return ProductCatalogSerializer(obj.product, context=self.context).data
 
     def create(self, validated_data):
         request = self.context.get("request", None)

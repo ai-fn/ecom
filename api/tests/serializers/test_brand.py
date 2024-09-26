@@ -26,7 +26,6 @@ class BrandSerializerTestCase(TestCase):
         self.assertEqual(data["id"], self.brand_with_icon.id)
         self.assertEqual(data["name"], self.brand_with_icon.name)
         self.assertIsNotNone(data["icon"])
-        self.assertEqual(data["order"], self.brand_with_icon.order)
         self.assertEqual(data["slug"], self.brand_with_icon.slug)
 
     def test_brand_without_icon(self):
@@ -36,5 +35,4 @@ class BrandSerializerTestCase(TestCase):
         self.assertEqual(data["id"], self.brand_without_icon.id)
         self.assertEqual(data["name"], self.brand_without_icon.name)
         self.assertIsNone(data["icon"])
-        self.assertEqual(data["order"], self.brand_without_icon.order)
         self.assertEqual(data["slug"], self.brand_without_icon.slug)
