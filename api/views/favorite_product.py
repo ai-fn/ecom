@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import viewsets
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
+from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, AnnotateProductMixin
 from shop.models import FavoriteProduct
 from api.serializers import FavoriteProductSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiParameter, OpenApiResponse
@@ -156,13 +156,18 @@ FAVORITE_PRODUCT_RESPONSE_EXAMPLE = {
         ),
     ]
 )
-class FavoriteProductViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, viewsets.ModelViewSet):
+class FavoriteProductViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["city_domain"] = self.request.query_params.get("city_domain")
+        return context
+
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
+        return self.annotate_queryset(super().get_queryset().filter(user=self.request.user), prefix="product__")
 
     def create(self, request, *args, **kwargs):
         products_ids: list[int] = request.data.get("products_ids")
