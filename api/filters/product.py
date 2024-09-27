@@ -93,14 +93,14 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
     def apply_price_filters(self, queryset):
         gte_data = self.data.get("price_gte")
         lte_data = self.data.get("price_lte")
-        
+
         price_filter = Q(prices__city_group__cities__domain=self.city_domain)
-        
+
         if lte_data is not None:
             price_filter &= Q(prices__price__lte=lte_data)
         if gte_data is not None:
             price_filter &= Q(prices__price__gte=gte_data)
-        
+
         return queryset.filter(price_filter)
 
     def filter_search(self, queryset, name, value):
@@ -130,16 +130,11 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
     def _get_chars(self, queryset):
         result = []
         category_ids = queryset.values_list("category", flat=True)
-        characteristics_queryset = (
-            Characteristic.objects
-            .filter(
-                Q(categories__children__in=category_ids)
-                | Q(categories__in=category_ids),
-                for_filtering=True,
-                is_active=True,
-            )
-            .distinct()
-        )
+        characteristics_queryset = Characteristic.objects.filter(
+            Q(categories__children__in=category_ids) | Q(categories__in=category_ids),
+            for_filtering=True,
+            is_active=True,
+        ).distinct()
         for char in characteristics_queryset:
             values = (
                 char.characteristicvalue_set.filter(
@@ -157,20 +152,15 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
     def filter_category(self, queryset, name, value):
         q = Q()
         category_slugs = set(map(lambda x: x.strip(), value.split(",")))
-        ctgs = Category.objects.filter(
-            is_active=True,
-            is_visible=True,
-            slug__in=category_slugs,
-        )
-        for ctg in ctgs:
-
-            q |= Q(category=ctg)
-            q |= Q(additional_categories=ctg)
-            q |= Q(
-                category__in=ctg.get_descendants().filter(
-                    is_active=True, is_visible=True
-                )
+        for ctg in Category.objects.filter(slug__in=category_slugs):
+            category_slugs.update(
+                ctg.get_descendants()
+                .filter(is_active=True, is_visible=True)
+                .values_list("slug", flat=True)
             )
+
+        q |= Q(category__slug__in=category_slugs)
+        q |= Q(additional_categories__slug=category_slugs)
 
         queryset = queryset.filter(q).distinct()
         if not self.data.get("search"):
