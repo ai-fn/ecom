@@ -268,6 +268,10 @@ class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
     serializer_class = CategorySerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        return queryset.filter(is_visible=True)
+
     def get_serializer_class(self):
         if self.action in ["retrieve", "popular_categories"]:
             return CategoryDetailSerializer

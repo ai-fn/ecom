@@ -1,11 +1,20 @@
 from django_filters import rest_framework as filters
 from django.db.models import Q, Min, Max
 
-from shop.models import Category, Characteristic, Product, CharacteristicValue
+from shop.models import Category, Characteristic, Product
 from api.mixins import GeneralSearchMixin
 
 
-class CustomFilter(filters.FilterSet):
+class ProductFilter(GeneralSearchMixin, filters.FilterSet):
+    price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr="lte")
+    price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr="gte")
+    brand_slug = filters.CharFilter(method="filter_brand_slug")
+    category = filters.CharFilter(method="filter_category")
+    characteristics = filters.CharFilter(
+        method="filter_characteristics", label="Значения характеристик"
+    )
+    brand_filter = filters.CharFilter(method="filter_brand")
+    search = filters.CharFilter(method="filter_search")
 
     def __init__(
         self,
@@ -18,18 +27,6 @@ class CustomFilter(filters.FilterSet):
     ):
         super().__init__(data, queryset, request=request, prefix=prefix)
         self.city_domain = city_domain
-
-
-class ProductFilter(GeneralSearchMixin, CustomFilter):
-    price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr="lte")
-    price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr="gte")
-    brand_slug = filters.CharFilter(method="filter_brand_slug")
-    category = filters.CharFilter(method="filter_category")
-    characteristics = filters.CharFilter(
-        method="filter_characteristics", label="Значения характеристик"
-    )
-    brand_filter = filters.CharFilter(method="filter_brand")
-    search = filters.CharFilter(method="filter_search")
 
     class Meta:
         model = Product
@@ -60,30 +57,29 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
     def count(self):
         if not getattr(self, "_count", None):
             self._count = self.qs.count()
-        
+
         return self._count
-    
+
     def filter_brand_slug(self, queryset, name, value):
         queryset = queryset.filter(brand__slug=value)
         if not all((self.data.get("category"), self.data.get("search`"))):
             self._chars = self._get_chars(queryset)
-        
+
         return queryset
-    
+
     def filter_brand(self, queryset, name, value):
         brand_slugs = value.split(",")
         queryset = queryset.filter(brand__slug__in=brand_slugs)
 
         return queryset
 
-
     def filter_queryset(self, queryset):
+        queryset = queryset.filter(prices__city_group__cities__domain=self.city_domain)
         for name, value in self.form.cleaned_data.items():
-            if name not in ["price_lte", "price_gte"] and value is not None:
+            if name not in ("price_lte", "price_gte") and value is not None:
                 queryset = self.filters[name].filter(queryset, value)
 
-        domain = self.request.query_params.get("city_domain")
-        aggregates = queryset.prefetch_related("prices__city_group__citites").filter(prices__city_group__cities__domain=domain).aggregate(
+        aggregates = queryset.aggregate(
             min_price=Min("prices__price"), max_price=Max("prices__price")
         )
 
@@ -97,28 +93,23 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
     def apply_price_filters(self, queryset):
         gte_data = self.data.get("price_gte")
         lte_data = self.data.get("price_lte")
-
+        
+        price_filter = Q(prices__city_group__cities__domain=self.city_domain)
+        
         if lte_data is not None:
-            queryset = queryset.filter(
-                prices__price__lte=lte_data,
-                prices__city_group__cities__domain=self.city_domain,
-            )
+            price_filter &= Q(prices__price__lte=lte_data)
         if gte_data is not None:
-            queryset = queryset.filter(
-                prices__price__gte=gte_data,
-                prices__city_group__cities__domain=self.city_domain,
-            )
-
-        return queryset
+            price_filter &= Q(prices__price__gte=gte_data)
+        
+        return queryset.filter(price_filter)
 
     def filter_search(self, queryset, name, value):
-        domain = self.request.query_params.get("city_domain")
         ordering = self.request.query_params.get("order_by")
         page = int(self.request.query_params.get("page", 1))
 
         search_results, total_result = self.g_search(
             value,
-            domain,
+            self.city_domain,
             exclude_=("brands", "categories"),
             page=page,
             ordering=ordering,
@@ -138,10 +129,9 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
 
     def _get_chars(self, queryset):
         result = []
-        queryset = queryset.prefetch_related("characteristic_values__characteristic")
         category_ids = queryset.values_list("category", flat=True)
         characteristics_queryset = (
-            Characteristic.objects.prefetch_related("characteristicvalue_set")
+            Characteristic.objects
             .filter(
                 Q(categories__children__in=category_ids)
                 | Q(categories__in=category_ids),
@@ -159,12 +149,8 @@ class ProductFilter(GeneralSearchMixin, CustomFilter):
                 .order_by("slug")
                 .distinct("slug")
             )
-            if len(values) >= 1:
-                result.append({
-                    "name": char.name,
-                    "slug": char.slug,
-                    "values": values
-                })
+            if values.exists():
+                result.append({"name": char.name, "slug": char.slug, "values": values})
 
         return result
 

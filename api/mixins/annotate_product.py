@@ -1,4 +1,4 @@
-from django.db.models import F, Sum, Count, Avg, Value, Q
+from django.db.models import F, Sum, Count, Avg, Value, Q, Case, When, DecimalField
 
 
 class AnnotateProductMixin:
@@ -41,7 +41,9 @@ class AnnotateProductMixin:
         queryset = (
             queryset.prefetch_related(f"{prefix}prices")
             .annotate(**fields)
-            .filter(Q(**{f"{prefix}prices__city_group__cities__domain": domain}))
+            .filter(
+                Q(**{f"{prefix}prices__city_group__cities__domain": domain})
+            )
             .distinct()
         )
         return queryset

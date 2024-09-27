@@ -1,3 +1,4 @@
+from typing import Any
 from django_filters import rest_framework as filters
 
 from drf_spectacular.utils import (
@@ -406,6 +407,10 @@ class ProductViewSet(
     filterset_class = ProductFilter
     pagination_class = CustomProductPagination
 
+    def initial(self, request, *args, **kwargs):
+        self.city_domain = self.request.query_params.get("city_domain")
+        return super().initial(request, *args, **kwargs)
+
     def get_serializer_class(self):
         if self.action in ("list", "frequenly_bought", "popular_products"):
             return ProductCatalogSerializer
@@ -418,11 +423,10 @@ class ProductViewSet(
         )
 
     def get_queryset(self):
-        domain = self.request.query_params.get("city_domain")
         queryset = super().get_queryset()
 
-        if domain:
-            self.queryset = queryset.exclude(unavailable_in__domain=domain)
+        if self.city_domain:
+            self.queryset = queryset.exclude(unavailable_in__domain=self.city_domain)
 
         queryset = queryset.order_by("-priority", "title", "-created_at")
         return queryset
@@ -445,9 +449,8 @@ class ProductViewSet(
         return super().list(request, *args, **kwargs)
 
     def filter_queryset(self, queryset):
-        domain = self.request.query_params.get("city_domain")
         filterset = self.filterset_class(
-            self.request.GET, queryset, request=self.request, city_domain=domain
+            self.request.GET, queryset, request=self.request, city_domain=self.city_domain
         )
         qs = filterset.qs
         self.min_qs_price, self.max_qs_price = filterset.min_price, filterset.max_price
@@ -473,8 +476,9 @@ class ProductViewSet(
         ).values("name", "slug")
 
         categories_queryset = Category.objects.filter(
-            id__in=queryset.values_list("category", flat=True).distinct(),
+            id__in=queryset.values_list("category", flat=True).order_by("slug").distinct("slug"),
             is_visible=True,
+            is_active=True,
         ).values("name", "slug")
 
         page = self.paginate_queryset(queryset, self.queryset_count)
