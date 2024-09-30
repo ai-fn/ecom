@@ -476,7 +476,7 @@ class ProductViewSet(
         ).values("name", "slug")
 
         categories_queryset = Category.objects.filter(
-            id__in=queryset.values_list("category", flat=True).order_by("slug").distinct("slug"),
+            id__in=queryset.values_list("category", flat=True).distinct(),
             is_visible=True,
             is_active=True,
         ).values("name", "slug")
@@ -499,7 +499,6 @@ class ProductViewSet(
             "smallest_price": self.min_qs_price,
             "greatest_price": self.max_qs_price,
         }
-
         return response(data)
 
     @action(detail=True, methods=["get"])
