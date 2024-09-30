@@ -171,6 +171,5 @@ class SearchHistoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, Mod
     @action(detail=False, methods=["delete"])
     def clear_history(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        headers = self.get_success_headers()
         queryset.delete()
-        return Response(headers=headers, status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_204_NO_CONTENT)
