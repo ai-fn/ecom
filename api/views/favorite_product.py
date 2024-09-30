@@ -1,3 +1,4 @@
+from typing import Iterable
 from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -171,12 +172,12 @@ class FavoriteProductViewSet(AnnotateProductMixin, ActiveQuerysetMixin, Integrit
 
     def create(self, request, *args, **kwargs):
         products_ids: list[int] = request.data.get("products_ids")
-        if not products_ids:
+        if products_ids is None or not isinstance(products_ids, Iterable):
             return Response({"detail": "products_ids is required"}, status=HTTP_400_BAD_REQUEST)
 
         if not (user_id := request.data.get("user_id")):
             user_id = self.request.user.pk
-        
+
         existing_fav_prods = set(self.filter_queryset(self.get_queryset()).values_list("product__id", flat=True))
         difference = set(products_ids).difference(existing_fav_prods)
 
