@@ -12,6 +12,7 @@ class CharacteristicValueFilters(filters.FilterSet):
     
     def unique_filter(self, queryset, name, value):
         if value:
-            return queryset.distinct()
+            # return queryset.order_by("slug").distinct("slug")
+            return queryset.order_by("slug").distinct("slug")
         
         return queryset
