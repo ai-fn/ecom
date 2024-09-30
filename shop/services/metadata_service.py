@@ -135,8 +135,9 @@ class MetaDataService:
             )
             cases = ("nomn", "gent", "datv", "accs", "ablt", "loct")
             for case in cases:
+                cg_name = getattr(city.city_group, "name", "")
                 kwargs[f"c_{case}"] = _inflect_phrase(city.name, case)
-                kwargs[f"cg_{case}"] = _inflect_phrase(city.city_group.name, case)
+                kwargs[f"cg_{case}"] = _inflect_phrase(cg_name, case)
 
             result[field] = value.format(**kwargs)
 
