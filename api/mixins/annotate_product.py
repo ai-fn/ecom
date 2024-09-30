@@ -1,4 +1,4 @@
-from django.db.models import F, Sum, Count, Avg, Value, Q, Case, When, DecimalField
+from django.db.models import F, Sum, Count, Avg, Value, Q
 
 
 class AnnotateProductMixin:

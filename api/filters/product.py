@@ -74,7 +74,6 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset
 
     def filter_queryset(self, queryset):
-        queryset = queryset.filter(prices__city_group__cities__domain=self.city_domain)
         for name, value in self.form.cleaned_data.items():
             if name not in ("price_lte", "price_gte") and value is not None:
                 queryset = self.filters[name].filter(queryset, value)
@@ -93,8 +92,11 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
     def apply_price_filters(self, queryset):
         gte_data = self.data.get("price_gte")
         lte_data = self.data.get("price_lte")
+        price_filter = Q()
 
-        price_filter = Q(prices__city_group__cities__domain=self.city_domain)
+        if not (self.request.user.is_authenticated and self.request.user.is_staff):
+
+            price_filter &= Q(prices__city_group__cities__domain=self.city_domain)
 
         if lte_data is not None:
             price_filter &= Q(prices__price__lte=lte_data)
