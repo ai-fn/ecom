@@ -14,7 +14,7 @@ class ExportSettingsSerializer(ModelSerializer):
     def __init__(self, instance=None, data=empty, **kwargs):
         super().__init__(instance, data, **kwargs)
         if not self.context.get("save_settings"):
-            self.fields["name"] = CharField(max_length=256)
+            self.fields["name"] = CharField(required=False, max_length=256)
             self.fields["slug"] = SlugField(required=False, max_length=256)
 
 
