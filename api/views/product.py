@@ -415,6 +415,8 @@ class ProductViewSet(
     def get_serializer_class(self):
         if self.action not in ("list", "frequenly_bought", "popular_products"):
             return ProductDetailSerializer
+        
+        return super().get_serializer_class()
 
     def paginate_queryset(self, queryset, count: int = 0):
         return self.paginator.paginate_queryset(
