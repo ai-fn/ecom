@@ -1,11 +1,25 @@
+from typing import List
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import AllowAny
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
+from api.permissions import ReadOnlyOrAdminPermission
+from api.mixins import (
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    CacheResponse,
+    DeleteSomeMixin,
+)
 from api.serializers import ProductFileSerializer
 from shop.models import ProductFile
 
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiExample,
+    OpenApiResponse,
+)
 
 
 PRPODUCT_FILE_REQUEST_EXAMPLE = {
@@ -21,6 +35,7 @@ PRODUCT_FILE_RESPONSE_EXAMPLE = {
 PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     k: v for k, v in list(PRPODUCT_FILE_REQUEST_EXAMPLE.items())[:2]
 }
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -104,9 +119,37 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
             )
         ],
     ),
+    delete_some=extend_schema(
+        summary="Удаление нескольких файлов товара по id",
+        description="Удаление нескольких файлов товара по id",
+        responses={
+            status.HTTP_204_NO_CONTENT: None,
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response=ProductFileSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={"detail": "'ids' field is required."},
+                        response_only=True,
+                    ),
+                ],
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                "Пример запроса", request_only=True, value={"ids": [1, 2, 3]}
+            ),
+        ],
+    ),
 )
 @extend_schema(tags=["api"])
-class ProductFileViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+class ProductFileViewSet(
+    DeleteSomeMixin,
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    CacheResponse,
+    ModelViewSet,
+):
     queryset = ProductFile.objects.all()
     serializer_class = ProductFileSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [ReadOnlyOrAdminPermission]

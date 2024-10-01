@@ -10,7 +10,12 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, AnnotateProductMixin
+from api.mixins import (
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    AnnotateProductMixin,
+    DeleteSomeMixin,
+)
 from cart.models import CartItem
 from api.serializers import (
     CartItemSerializer,
@@ -18,7 +23,13 @@ from api.serializers import (
     ProductDetailSerializer,
 )
 from shop.models import Product
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+)
 from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE, RETRIEVE_RESPONSE_EXAMPLE
 
 
@@ -29,7 +40,7 @@ CART_ITEM_REQUEST_EXAMPLE = {
 CART_ITEM_RESPONSE_EXAMPLE = {
     "id": 1,
     "product": UNAUTHORIZED_RESPONSE_EXAMPLE,
-    "quantity": 20
+    "quantity": 20,
 }
 CART_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     k: v for k, v in list(CART_ITEM_REQUEST_EXAMPLE.items())[:2]
@@ -158,25 +169,24 @@ CART_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         summary="Удаление всех элементов из корзины",
     ),
     delete_some=extend_schema(
-        description="Удалить несколько товаров из корзины (необходимо передавать id товаров)",
-        summary="Удалить несколько товаров из корзины",
+        summary="Удаление нескольких элементов из корзины по id",
+        description="Удаление нескольких элементов из корзины по id",
+        responses={
+            status.HTTP_204_NO_CONTENT: None,
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response=CartItemSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={"detail": "'ids' field is required."},
+                        response_only=True,
+                    ),
+                ],
+            ),
+        },
         examples=[
             OpenApiExample(
-                name="Delete Some Example",
-                value={"cartitem_ids": [46, 47, 48]},
-                request_only=True,
-            ),
-            OpenApiExample(
-                name="Delete Some Example",
-                response_only=True,
-                value={"message": "Objects successfully deleted"},
-                status_codes=[200],
-            ),
-            OpenApiExample(
-                name="Delete Some Example",
-                response_only=True,
-                value={"message": "Nothing to delete"},
-                status_codes=[400],
+                "Пример запроса", request_only=True, value={"ids": [1, 2, 3]}
             ),
         ],
     ),
@@ -226,23 +236,28 @@ CART_ITEM_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
         )
     ],
 )
-class CartItemViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+class CartItemViewSet(
+    DeleteSomeMixin,
+    AnnotateProductMixin,
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    ModelViewSet,
+):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
 
-
     def list(self, request, *args, **kwargs):
-        queryset = self.annotate_queryset(self.filter_queryset(self.get_queryset()), prefix="product__")
+        queryset = self.annotate_queryset(
+            self.filter_queryset(self.get_queryset()), prefix="product__"
+        )
         serializer = self.get_serializer(queryset, many=True).data
         return Response(serializer, status=status.HTTP_200_OK)
-
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context["city_domain"] = self.request.query_params.get("city_domain")
         return context
-
 
     def get_serializer_class(self):
         if self.action == "cartitems_detail":
@@ -252,38 +267,13 @@ class CartItemViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorH
 
         return super().get_serializer_class()
 
-
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
-
 
     def get_queryset(self):
         queryset = super().get_queryset()
 
         return queryset.filter(customer=self.request.user)
-
-
-    @action(methods=["post"], detail=False)
-    def delete_some(self, request, *args, **kwargs):
-        ids_list = request.data.get("cartitem_ids", [])
-        if not ids_list:
-            return Response(
-                {"message": "IDs is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        queryset = self.filter_queryset(self.get_queryset()).filter(
-            id__in=ids_list
-        )
-        if not queryset:
-            return Response(
-                {"message": "Nothing to delete"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        queryset.delete()
-        return Response(
-            {"message": "Objects successfully deleted"}, status=status.HTTP_200_OK
-        )
-
 
     @action(methods=["delete"], detail=False)
     def delete_cart(self, request, *args, **kwargs):
@@ -293,7 +283,6 @@ class CartItemViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorH
             queryset.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
     @action(detail=False, methods=["get"])
     def get_simple_prods(self, request, *args, **kwargs):
@@ -306,7 +295,6 @@ class CartItemViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorH
             {"error": "Cart items for provided user not found"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-
 
     def create(self, request, *args, **kwargs):
         existing_cart_items = self.get_queryset()
@@ -341,17 +329,11 @@ class CartItemViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorH
         )
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
-
     @action(detail=False, methods=["get"])
     def cartitems_detail(self, request, *args, **kwargs):
-        id_lists = list(
-            self.get_queryset().values_list(
-                "product", flat=True
-            )
-        )
+        id_lists = list(self.get_queryset().values_list("product", flat=True))
         self.queryset = Product.objects.filter(id__in=id_lists)
         return super().list(request, *args, **kwargs)
-
 
     def partial_update(self, request, *args, **kwargs):
         product_id = kwargs.get("pk")
@@ -359,7 +341,6 @@ class CartItemViewSet(AnnotateProductMixin, ActiveQuerysetMixin, IntegrityErrorH
         cart_item = get_object_or_404(CartItem, product=product, customer=request.user)
         kwargs["pk"], self.kwargs["pk"] = cart_item.pk, cart_item.pk
         return super().partial_update(request, *args, **kwargs)
-
 
     @action(detail=True, methods=["delete"])
     def delete_by_prod(self, request, *args, **kwargs):

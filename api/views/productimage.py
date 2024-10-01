@@ -1,10 +1,21 @@
-from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
-from shop.models import ProductImage
+from api.mixins import (
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    CacheResponse,
+    DeleteSomeMixin,
+)
 from api.serializers import ProductImageSerializer
+from shop.models import ProductImage
 
+from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from api.permissions import ReadOnlyOrAdminPermission
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiExample,
+    OpenApiResponse,
+)
 
 
 PRODUCT_IMAGE_REQUEST_EXAMPLE = {
@@ -20,6 +31,7 @@ PRODUCT_IMAGE_RESPONSE_EXAMPLE = {
 PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     k: v for k, v in list(PRODUCT_IMAGE_REQUEST_EXAMPLE.items())[:2]
 }
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -103,13 +115,39 @@ PARTIAL_UPDATE_REQUEST_EXAMPLE = {
             ),
         ],
     ),
+    delete_some=extend_schema(
+        summary="Удаление нескольких изображений товара по id",
+        description="Удаление нескольких изображений товара по id",
+        responses={
+            status.HTTP_204_NO_CONTENT: None,
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response=ProductImageSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={"detail": "'ids' field is required."},
+                        response_only=True,
+                    ),
+                ],
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                "Пример запроса", request_only=True, value={"ids": [1, 2, 3]}
+            ),
+        ],
+    ),
 )
 @extend_schema(
     tags=["Shop"],
 )
-class ProductImageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+class ProductImageViewSet(
+    DeleteSomeMixin,
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    CacheResponse,
+    ModelViewSet,
+):
     queryset = ProductImage.objects.all()
-    permission_classes = [
-        ReadOnlyOrAdminPermission,
-    ]
+    permission_classes = [ReadOnlyOrAdminPermission]
     serializer_class = ProductImageSerializer

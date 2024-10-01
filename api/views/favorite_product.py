@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import List
 from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -171,8 +171,8 @@ class FavoriteProductViewSet(AnnotateProductMixin, ActiveQuerysetMixin, Integrit
         return self.annotate_queryset(super().get_queryset().filter(user=self.request.user), prefix="product__")
 
     def create(self, request, *args, **kwargs):
-        products_ids: list[int] = request.data.get("products_ids")
-        if products_ids is None or not isinstance(products_ids, Iterable):
+        products_ids = request.data.get("products_ids")
+        if products_ids is None or not isinstance(products_ids, List):
             return Response({"detail": "products_ids is required"}, status=HTTP_400_BAD_REQUEST)
 
         if not (user_id := request.data.get("user_id")):

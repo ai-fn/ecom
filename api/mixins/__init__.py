@@ -11,3 +11,4 @@ from .active_queryset import ActiveQuerysetMixin
 from .product_ordering import ProductSorting
 from .cache_response import CacheResponse
 from .annotate_product import AnnotateProductMixin
+from .delete_some_mixin import DeleteSomeMixin
