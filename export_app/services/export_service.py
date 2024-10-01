@@ -33,9 +33,9 @@ class ExportService:
         data = dict()
         for ct in cts:
             model = ct.model_class()
-            model_fields = set(model_fields.get(ct.model))
+            fields = set(model_fields.get(ct.model))
 
-            reg_fields, m2m_fields = ExportService.prepare_data(model, model_fields)
+            reg_fields, m2m_fields = ExportService.prepare_data(model, fields)
 
             if len(m2m_fields) > 0:
                 instances = model.objects.prefetch_related(*m2m_fields).all()
@@ -56,7 +56,7 @@ class ExportService:
                     append_data = ', '.join([str(x) for x in getattr(obj, field_name).values_list("pk", flat=True)])
                     data.setdefault(key, []).append(append_data)
 
-        df = pd.DataFrame(data)
+        df = pd.DataFrame({k: pd.Series(v) for k, v in data.items()})
         return df
 
     @staticmethod
