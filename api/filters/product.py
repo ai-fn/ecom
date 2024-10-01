@@ -3,6 +3,7 @@ from django.db.models import Q, Min, Max
 
 from shop.models import Category, Characteristic, Product
 from api.mixins import GeneralSearchMixin
+from api.serializers import ProductCatalogSerializer
 
 
 class ProductFilter(GeneralSearchMixin, filters.FilterSet):
@@ -23,10 +24,12 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         *,
         request=None,
         prefix=None,
-        city_domain: str = None
+        city_domain: str = None,
+        view=None,
     ):
         super().__init__(data, queryset, request=request, prefix=prefix)
         self.city_domain = city_domain
+        self.view = view
 
     class Meta:
         model = Product
@@ -94,7 +97,10 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         lte_data = self.data.get("price_lte")
         price_filter = Q()
 
-        if not (self.request.user.is_authenticated and self.request.user.is_staff):
+        if (
+            not (self.request.user.is_authenticated and self.request.user.is_staff)
+            and self.view.get_serializer_class() == ProductCatalogSerializer
+        ):
 
             price_filter &= Q(prices__city_group__cities__domain=self.city_domain)
 

@@ -405,6 +405,7 @@ class ProductViewSet(
     permission_classes = [ReadOnlyOrAdminPermission]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProductFilter
+    serializer_class = ProductCatalogSerializer
     pagination_class = CustomProductPagination
 
     def initial(self, request, *args, **kwargs):
@@ -412,10 +413,8 @@ class ProductViewSet(
         return super().initial(request, *args, **kwargs)
 
     def get_serializer_class(self):
-        if self.action in ("list", "frequenly_bought", "popular_products"):
-            return ProductCatalogSerializer
-
-        return ProductDetailSerializer
+        if self.action not in ("list", "frequenly_bought", "popular_products"):
+            return ProductDetailSerializer
 
     def paginate_queryset(self, queryset, count: int = 0):
         return self.paginator.paginate_queryset(
@@ -430,6 +429,22 @@ class ProductViewSet(
 
         queryset = queryset.order_by("-priority", "title", "-created_at")
         return queryset
+
+    def filter_queryset(self, queryset):
+        filterset = self.filterset_class(
+            self.request.GET,
+            queryset,
+            request=self.request,
+            city_domain=self.city_domain,
+            view=self,
+        )
+        qs = filterset.qs
+        self.min_qs_price, self.max_qs_price = filterset.min_price, filterset.max_price
+        self.queryset_count = filterset.count
+        self.chars = filterset.chars
+        self.brand_ids = filterset.brands
+
+        return qs
 
     @action(detail=True, methods=["get"])
     def frequenly_bought(self, request, *args, **kwargs):
@@ -448,24 +463,15 @@ class ProductViewSet(
         )
         return super().list(request, *args, **kwargs)
 
-    def filter_queryset(self, queryset):
-        filterset = self.filterset_class(
-            self.request.GET, queryset, request=self.request, city_domain=self.city_domain
-        )
-        qs = filterset.qs
-        self.min_qs_price, self.max_qs_price = filterset.min_price, filterset.max_price
-        self.queryset_count = filterset.count
-        self.chars = filterset.chars
-        self.brand_ids = filterset.brands
+    @action(detail=True, methods=["get"])
+    def productdetail(self, request, pk=None):
+        product = self.get_object()
 
-        return qs
-    
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = (
-            self.filter_queryset(self.get_queryset())
-            .select_related("category")
-        )
+        queryset = self.filter_queryset(self.get_queryset()).select_related("category")
 
         if not self.request.query_params.get("search"):
             queryset = self.sorted_queryset(queryset)
@@ -500,10 +506,3 @@ class ProductViewSet(
             "greatest_price": self.max_qs_price,
         }
         return response(data)
-
-    @action(detail=True, methods=["get"])
-    def productdetail(self, request, pk=None):
-        product = self.get_object()
-
-        serializer = self.get_serializer(product)
-        return Response(serializer.data)
