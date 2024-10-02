@@ -8,6 +8,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
 )
 
+from shop.models import Brand, Category, Product
 from api.mixins import (
     ActiveQuerysetMixin,
     IntegrityErrorHandlingMixin,
@@ -15,9 +16,6 @@ from api.mixins import (
     CacheResponse,
 )
 from api.pagination import CustomProductPagination
-
-from shop.models import Brand, Category, Product
-
 from api.filters import ProductFilter
 from api.mixins import AnnotateProductMixin
 from api.permissions import ReadOnlyOrAdminPermission
@@ -28,6 +26,7 @@ from api.views.brand import BRAND_RESPONSE_EXAMPLE
 from api.views.productimage import PRODUCT_IMAGE_RESPONSE_EXAMPLE
 from api.views.productfile import PRODUCT_FILE_RESPONSE_EXAMPLE
 
+from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -202,7 +201,6 @@ RETRIEVE_RESPONSE_EXAMPLE.pop("characteristic_values")
                 type=str,
                 default="msk.krov.market",
                 location=OpenApiParameter.QUERY,
-                required=True,
             )
         ],
     ),
@@ -415,19 +413,22 @@ class ProductViewSet(
     def get_serializer_class(self):
         if self.action not in ("list", "frequenly_bought", "popular_products"):
             return ProductDetailSerializer
-        
+
         return super().get_serializer_class()
 
-    def paginate_queryset(self, queryset, count: int = 0):
+    def paginate_queryset(self, queryset, count: int = None):
+        if count is None:
+            if hasattr(queryset, "count"):
+                count = queryset.count()
+            else:
+                count = len(queryset)
+
         return self.paginator.paginate_queryset(
             queryset, self.request, view=self, count=count
         )
 
     def get_queryset(self):
         queryset = super().get_queryset()
-
-        if self.city_domain:
-            self.queryset = queryset.exclude(unavailable_in__domain=self.city_domain)
 
         queryset = queryset.order_by("-priority", "title", "-created_at")
         return queryset
@@ -446,24 +447,44 @@ class ProductViewSet(
         self.chars = filterset.chars
         self.brand_ids = filterset.brands
 
+        if self.city_domain:
+            self.queryset = queryset.exclude(unavailable_in__domain=self.city_domain)
+
         return qs
+
+    def get_products(self, page, queryset):
+        if page is not None:
+            queryset = queryset.filter(pk__in=map(lambda x: x.pk, page))
+
+        queryset = self.annotate_queryset(queryset)
+        return queryset
+
+    def get_response(self, queryset):
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            response = self.get_paginated_response
+        else:
+            response = Response
+
+        products = self.get_products(page, queryset)
+        serializer = self.get_serializer(products, many=True)
+
+        return response(serializer.data)
 
     @action(detail=True, methods=["get"])
     def frequenly_bought(self, request, *args, **kwargs):
-
         instance = self.get_object()
-
-        self.queryset = instance.frequenly_bought_together.order_by(
-            "product_to__purchase_count"
+        queryset = self.filter_queryset(
+            instance.frequenly_bought_together.order_by("product_to__purchase_count")
         )
-        return super().list(request, *args, **kwargs)
+        response = self.get_response(queryset)
+        return response
 
     @action(methods=["get"], detail=False)
     def popular_products(self, request, *args, **kwargs):
-        self.queryset = self.filter_queryset(self.get_queryset()).filter(
-            is_popular=True
-        )
-        return super().list(request, *args, **kwargs)
+        queryset = self.filter_queryset(self.get_queryset()).filter(is_popular=True)
+        response = self.get_response(queryset)
+        return response
 
     @action(detail=True, methods=["get"])
     def productdetail(self, request, pk=None):
@@ -473,7 +494,7 @@ class ProductViewSet(
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).select_related("category")
+        queryset = self.filter_queryset(self.get_queryset())
 
         if not self.request.query_params.get("search"):
             queryset = self.sorted_queryset(queryset)
@@ -489,22 +510,16 @@ class ProductViewSet(
             is_active=True,
         ).values("name", "slug")
 
-        page = self.paginate_queryset(queryset, self.queryset_count)
-        if page is not None:
-            products = queryset.filter(pk__in=map(lambda x: x.pk, page))
-            response = self.get_paginated_response
-        else:
-            products = queryset
-            response = Response
+        response = self.get_response(queryset)
+        products = response.data["results"]
 
-        products = self.annotate_queryset(products)
-        serializer = self.get_serializer(products, many=True)
         data = {
-            "products": serializer.data,
+            "products": products,
             "characteristics": self.chars,
             "categories": categories_queryset,
             "brands": brands,
             "smallest_price": self.min_qs_price,
             "greatest_price": self.max_qs_price,
         }
-        return response(data)
+        response.data["results"] = data
+        return response
