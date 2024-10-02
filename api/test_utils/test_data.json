@@ -1,0 +1,2226 @@
+{
+    "Docke": {
+        "order": 1,
+        "category": {
+            "Гибкая черепица": {
+                "order": 1,
+                "is_visible": true,
+                "is_popular": true,
+                "products": [
+                    {
+                        "title": "Гибкая черепица Docke Eurasia, Лабиринт, Зелёный",
+                        "description": "<div>\n  <h3>Клеится накрепко</h3>\n    <p><strong>Запатентованная битумная сварка гонтов</strong> обладает повышенной силой склеивания. Клеевые поверхности образуют единую молекулярную систему — как при сварке металла.</p>\n</div>\n<div>\n    <h3>Долго служит</h3>\n    <p><strong>Прочность на разрыв</strong>, устойчивость к УФ-излучению и гибкость битумного основания соответствуют ГОСТ 32806–2014. Гарантия на гибкую черепицу серии EURASIA составляет 10 лет.</p>\n</div>\n<div>\n    <h3>Не тускнеет</h3>\n    <p><strong>Посыпка</strong> окрашивается методом обжига и практически не меняет цвет в процессе эксплуатации.</p>\n</div>",
+                        "priority": 500,
+                        "article": "ZRKP-1025",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "1075.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес одной упаковки брутто",
+                                "slug": "ves-odnoi-upakovki-brutto",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "23 кг",
+                                        "slug": "23-kg"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Вес поддона брутто,",
+                                "slug": "ves-poddona-brutto",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "966 кг",
+                                        "slug": "966-kg"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Длина",
+                                "slug": "dlina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1000 мм",
+                                        "slug": "1000-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Кол-во в упаковке",
+                                "slug": "kol-vo-v-upakovke",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "22 шт",
+                                        "slug": "22-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Покрываемая поверхность из одной упаковки",
+                                "slug": "pokryvaemaia-poverkhnost-iz-odnoi-upakovki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "3 м2",
+                                        "slug": "3-m2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Посыпка",
+                                "slug": "posypka",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Микс: антрацит, базальт",
+                                        "slug": "miks-antratsit-bazalt"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Потеря гранул или чешуек посыпки, г на образец, не более",
+                                "slug": "poteria-granul-ili-cheshuek-posypki-g-na-obrazets-ne-bolee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2",
+                                        "slug": "2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Стойкость к образованию вздутий",
+                                "slug": "stoikost-k-obrazovaniiu-vzdutii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Устойчив",
+                                        "slug": "ustoichiv"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна производителя",
+                                "slug": "strana-proizvoditelia",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип битума",
+                                "slug": "tip-bituma",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Окисленный битум",
+                                        "slug": "okislennyi-bitum"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Толщина гонта",
+                                "slug": "tolshchina-gonta",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2.5 мм",
+                                        "slug": "25-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Упаковок на поддоне",
+                                "slug": "upakovok-na-poddone",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "42 шт",
+                                        "slug": "42-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Форма нарезки",
+                                "slug": "forma-narezki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Иррегулярная",
+                                        "slug": "irreguliarnaia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет",
+                                "slug": "tsvet",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Зелёный",
+                                        "slug": "zelionyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Ширина",
+                                "slug": "shirina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "318+-3 мм",
+                                        "slug": "318-3-mm"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Гибкая черепица Docke Eurasia, Лабиринт, Коричневый",
+                        "description": "<div>\n    <h3>Клеится накрепко</h3>\n    <p><strong>Запатентованная битумная сварка гонтов</strong> обладает повышенной силой склеивания. Клеевые поверхности образуют единую молекулярную систему — как при сварке металла.</p>\n</div>\n<div>\n    <h3>Долго служит</h3>\n    <p><strong>Прочность на разрыв, устойчивость к УФ-излучению и гибкость битумного основания</strong> соответствуют ГОСТ 32806–2014. Гарантия на гибкую черепицу серии EURASIA составляет 10 лет.</p>\n</div>\n<div>\n    <h3>Не тускнеет</h3>\n    <p><strong>Посыпка окрашивается методом обжига</strong> и практически не меняет цвет в процессе эксплуатации.</p>\n</div>",
+                        "priority": 500,
+                        "article": "ZRKP-1023",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "1075.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес одной упаковки брутто",
+                                "slug": "ves-odnoi-upakovki-brutto",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "23 кг",
+                                        "slug": "23-kg"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Вес поддона брутто,",
+                                "slug": "ves-poddona-brutto",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "966 кг",
+                                        "slug": "966-kg"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Длина",
+                                "slug": "dlina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1000 мм",
+                                        "slug": "1000-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Кол-во в упаковке",
+                                "slug": "kol-vo-v-upakovke",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "22 шт",
+                                        "slug": "22-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Покрываемая поверхность из одной упаковки",
+                                "slug": "pokryvaemaia-poverkhnost-iz-odnoi-upakovki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "3 м2",
+                                        "slug": "3-m2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Посыпка",
+                                "slug": "posypka",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Микс: антрацит, базальт",
+                                        "slug": "miks-antratsit-bazalt"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Потеря гранул или чешуек посыпки, г на образец, не более",
+                                "slug": "poteria-granul-ili-cheshuek-posypki-g-na-obrazets-ne-bolee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2",
+                                        "slug": "2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Стойкость к образованию вздутий",
+                                "slug": "stoikost-k-obrazovaniiu-vzdutii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Устойчив",
+                                        "slug": "ustoichiv"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна производителя",
+                                "slug": "strana-proizvoditelia",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип битума",
+                                "slug": "tip-bituma",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Окисленный битум",
+                                        "slug": "okislennyi-bitum"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Толщина гонта",
+                                "slug": "tolshchina-gonta",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2.5 мм",
+                                        "slug": "25-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Упаковок на поддоне",
+                                "slug": "upakovok-na-poddone",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "42 шт",
+                                        "slug": "42-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Форма нарезки",
+                                "slug": "forma-narezki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Иррегулярная",
+                                        "slug": "irreguliarnaia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет",
+                                "slug": "tsvet",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Коричневый",
+                                        "slug": "korichnevyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Ширина",
+                                "slug": "shirina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "318+-3 мм",
+                                        "slug": "318-3-mm"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "Ламинированная черепица": {
+                "order": 2,
+                "is_visible": true,
+                "is_popular": true,
+                "products": [
+                    {
+                        "title": "Ламинированная черепица Docke Dragon Premium, вагаси",
+                        "description": "<div><h3>БОЛЬШОЙ</h3><p><strong>Ламинированная черепица Dӧcke PIE DRAGON</strong> имеет большой широкий гонт, который на 20% больше по площади, чем стандартный гонт нарезки «зуб дракона» для большинства производителей. Зубы или лепестки гонта Dӧcke PIE DRAGON – самые большие в своей категории!</p></div>\n\n<div><h3>ГИБКИЙ</h3><p><strong>Ламинированная черепица Dӧcke PIE DRAGON</strong> изготавливается из СБС-модифицированного битума, что обеспечивает повышенную гибкость гонта, его надежность и увеличенный срок службы. Гибкость гарантирует, что при транспортировке, переноске и монтаже гонт не сломается и не потрескается.</p></div>\n\n<div><h3>РОСКОШНЫЙ</h3><p>Большой гонт придает особую красоту черепице, так как черепица более крупных форм выглядит на крыше значительно выигрышнее и привлекательнее.</p></div>\n\n<div><h3>Форма гонтов</h3><p>Каждый гонт в упаковке является индивидуальным и неповторимым, что создает на скате кровли красивый неповторяющийся рисунок.</p></div>\n\n<div><h3>Разнообразие и практичность</h3><p>Цвет “Вагаси” с оттенками коричневого и серого хорошо сочетается с большим количеством цветов из разных спектров, предлагаемых в конструкторе. Черепица устойчива к выгоранию на солнце.</p></div>",
+                        "priority": 500,
+                        "article": "ZRLH-1162",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "2279.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес поддона брутто,",
+                                "slug": "ves-poddona-brutto",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1431 кг",
+                                        "slug": "1431-kg"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Длина",
+                                "slug": "dlina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1000 мм",
+                                        "slug": "1000-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Кол-во в упаковке",
+                                "slug": "kol-vo-v-upakovke",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "14 шт",
+                                        "slug": "14-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Покрываемая поверхность из одной упаковки",
+                                "slug": "pokryvaemaia-poverkhnost-iz-odnoi-upakovki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2,38 м2",
+                                        "slug": "238-m2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Посыпка",
+                                "slug": "posypka",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Базальт",
+                                        "slug": "bazalt"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Потеря гранул или чешуек посыпки, г на образец, не более",
+                                "slug": "poteria-granul-ili-cheshuek-posypki-g-na-obrazets-ne-bolee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1",
+                                        "slug": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Стойкость к образованию вздутий",
+                                "slug": "stoikost-k-obrazovaniiu-vzdutii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Устойчив",
+                                        "slug": "ustoichiv"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна производителя",
+                                "slug": "strana-proizvoditelia",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип битума",
+                                "slug": "tip-bituma",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "СБС-модифицированный",
+                                        "slug": "sbs-modifitsirovannyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Толщина гонта",
+                                "slug": "tolshchina-gonta",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2.8 ± 0.2 (одного слоя) мм",
+                                        "slug": "28-02-odnogo-sloia-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Упаковок на поддоне",
+                                "slug": "upakovok-na-poddone",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "45 шт",
+                                        "slug": "45-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Форма нарезки",
+                                "slug": "forma-narezki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Драконий зуб",
+                                        "slug": "drakonii-zub"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет",
+                                "slug": "tsvet",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Вагаси",
+                                        "slug": "vagasi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Ширина",
+                                "slug": "shirina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "391+-3 мм",
+                                        "slug": "391-3-mm"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Ламинированная черепица Docke Dragon Premium, ежевика",
+                        "description": "<div><h3>Особенности ламинированной черепицы Dӧcke PIE DRAGON</h3></div>\n\n<div><h4>БОЛЬШОЙ</h4><p><strong>Большой гонт</strong> выделяет ламинированную черепицу Dӧcke PIE DRAGON среди аналогичной продукции. Черепица не только выглядит привлекательно, но и легка в монтаже.</p></div>\n\n<div><h4>ГИБКИЙ</h4><p><strong>Ламинированная черепица Dӧcke PIE DRAGON</strong> обеспечивает надежность и долговечность крыши благодаря использованию СБС-модифицированного битума, который придает гибкость и прочность.</p></div>\n\n<div><h4>РОСКОШНЫЙ</h4><p><strong>Неповторимый рисунок</strong> крыши, покрытой ламинированной черепицей Dӧcke PIE DRAGON, становится уникальным преимуществом благодаря большому гонту. Такая крыша прослужит десятилетия.</p></div>\n\n<div><h4>Форма гонтов</h4><p>Форма гонтов в упаковке различается, каждый гонт индивидуален и неповторим, что позволяет создать на скате кровли красивый уникальный рисунок.</p></div>\n\n<div><h4>Универсальный и брутальный</h4><p>Цвет 'Ежевика' является самым близким к черному в коллекции. Черный цвет гармонирует с различными оттенками, что открывает возможности для выбора фасадного цвета.</p></div>",
+                        "priority": 500,
+                        "article": "ZRLH-1206",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "2279.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес поддона брутто,",
+                                "slug": "ves-poddona-brutto",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1431 кг",
+                                        "slug": "1431-kg"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Длина",
+                                "slug": "dlina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1000 мм",
+                                        "slug": "1000-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Кол-во в упаковке",
+                                "slug": "kol-vo-v-upakovke",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "14 шт",
+                                        "slug": "14-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Покрываемая поверхность из одной упаковки",
+                                "slug": "pokryvaemaia-poverkhnost-iz-odnoi-upakovki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2,38 м2",
+                                        "slug": "238-m2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Посыпка",
+                                "slug": "posypka",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Базальт",
+                                        "slug": "bazalt"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Потеря гранул или чешуек посыпки, г на образец, не более",
+                                "slug": "poteria-granul-ili-cheshuek-posypki-g-na-obrazets-ne-bolee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1",
+                                        "slug": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Стойкость к образованию вздутий",
+                                "slug": "stoikost-k-obrazovaniiu-vzdutii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Устойчив",
+                                        "slug": "ustoichiv"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна производителя",
+                                "slug": "strana-proizvoditelia",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип битума",
+                                "slug": "tip-bituma",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "СБС-модифицированный",
+                                        "slug": "sbs-modifitsirovannyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Толщина гонта",
+                                "slug": "tolshchina-gonta",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2.8 ± 0.2 (одного слоя) мм",
+                                        "slug": "28-02-odnogo-sloia-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Упаковок на поддоне",
+                                "slug": "upakovok-na-poddone",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "45 шт",
+                                        "slug": "45-sht"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Форма нарезки",
+                                "slug": "forma-narezki",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Драконий зуб",
+                                        "slug": "drakonii-zub"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет",
+                                "slug": "tsvet",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Ежевика",
+                                        "slug": "ezhevika"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Ширина",
+                                "slug": "shirina",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "391+-3 мм",
+                                        "slug": "391-3-mm"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "ISOBOX": {
+        "order": 2,
+        "category": {
+            "Гидро-ветрозащита и пароизоляция": {
+                "order": 3,
+                "is_visible": true,
+                "is_popular": true,
+                "products": [
+                    {
+                        "title": "Ветро-влагозащитная пленка ISOBOX А (1,6 x 43,75 м)",
+                        "description": "<p>Изготовлен из полипропиленового нетканого материала, этот ветро-влагозащитный паропроницаемый материал обладает устойчивостью к плесени и бактериям. Он сохраняет теплоизоляционные свойства утеплителя, что способствует увеличению срока службы всей конструкции.</p>",
+                        "priority": 500,
+                        "article": "TN-105762",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "6.71",
+                                        "slug": "6_71"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Вид конструкции",
+                                "slug": "vid-konstruktsii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Вентилируемый фасад, Каркасная стена",
+                                        "slug": "ventiliruemyi-fasad-karkasnaia-stena"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Группа воспламеняемости",
+                                "slug": "gruppa-vosplameniaemosti",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "В3",
+                                        "slug": "v3"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Группа горючести",
+                                "slug": "gruppa-goriuchesti",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Г4",
+                                        "slug": "g4"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диапазон температур для эксплуатации, °С",
+                                "slug": "diapazon-temperatur-dlia-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "от -40°С до +80°С",
+                                        "slug": "ot-40degs-do-80degs"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Максимальная сила растяжения вдоль, Н/50 мм",
+                                "slug": "maksimalnaia-sila-rastiazheniia-vdol-n50-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "150",
+                                        "slug": "150"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Максимальная сила растяжения поперек, Н/50 мм",
+                                "slug": "maksimalnaia-sila-rastiazheniia-poperek-n50-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "90",
+                                        "slug": "90"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Наличие самоклеящихся полос",
+                                "slug": "nalichie-samokleiashchikhsia-polos",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1",
+                                        "slug": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Объем, м3",
+                                "slug": "obem-m3",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.04",
+                                        "slug": "0_04"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Основной компонент",
+                                "slug": "osnovnoi-komponent",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "полипропиленовое полотно высокой плотности",
+                                        "slug": "polipropilenovoe-polotno-vysokoi-plotnosti"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Площадь, м2",
+                                "slug": "ploshchad-m2",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "70",
+                                        "slug": "70"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Поверхностная плотность, г/м²",
+                                "slug": "poverkhnostnaia-plotnost-gm2",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "90",
+                                        "slug": "90"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Размер, мм",
+                                "slug": "razmer-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Длина- 43,75 м Ширина- 1,6 м",
+                                        "slug": "dlina-4375-m-shirina-16-m"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Срок хранения, мес",
+                                "slug": "srok-khraneniia-mes",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "12 месяцев",
+                                        "slug": "12-mesiatsev"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип армирования рулонного материала",
+                                "slug": "tip-armirovaniia-rulonnogo-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Отсутствует",
+                                        "slug": "otsutstvuet"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип продукции",
+                                "slug": "tip-produktsii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Ветро-влагозащитная пленка",
+                                        "slug": "vetro-vlagozashchitnaia-plenka"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "рулон",
+                                        "slug": "rulon"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Ветро-влагозащитная пленка ISOBOX А+ (1,6 x 43,75 м)",
+                        "description": "<p>Данный материал является ветро-влагозащитным и паропроницаемым. Он изготовлен из полипропиленового нетканого материала, который обладает устойчивостью к плесени и бактериям. Этот материал способствует сохранению теплоизоляционных свойств утеплителя и продлевает срок службы всей конструкции. Кроме того, материал оснащен клеевой полосой с одной стороны полотна для удобства монтажа.</p>",
+                        "priority": 500,
+                        "article": "TN-105781",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "6.71",
+                                        "slug": "6_71"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Вид конструкции",
+                                "slug": "vid-konstruktsii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Вентилируемый фасад, Каркасная стена",
+                                        "slug": "ventiliruemyi-fasad-karkasnaia-stena"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Группа воспламеняемости",
+                                "slug": "gruppa-vosplameniaemosti",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "В3",
+                                        "slug": "v3"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Группа горючести",
+                                "slug": "gruppa-goriuchesti",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Г4",
+                                        "slug": "g4"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диапазон температур для эксплуатации, °С",
+                                "slug": "diapazon-temperatur-dlia-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "от -40°С до +80°С",
+                                        "slug": "ot-40degs-do-80degs"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Класс водонепроницаемости",
+                                "slug": "klass-vodonepronitsaemosti",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "W1",
+                                        "slug": "w1"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Максимальная сила растяжения вдоль, Н/50 мм",
+                                "slug": "maksimalnaia-sila-rastiazheniia-vdol-n50-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "150",
+                                        "slug": "150"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Максимальная сила растяжения поперек, Н/50 мм",
+                                "slug": "maksimalnaia-sila-rastiazheniia-poperek-n50-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "90",
+                                        "slug": "90"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Наличие самоклеящихся полос",
+                                "slug": "nalichie-samokleiashchikhsia-polos",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1",
+                                        "slug": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Объем, м3",
+                                "slug": "obem-m3",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.04",
+                                        "slug": "0_04"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Основной компонент",
+                                "slug": "osnovnoi-komponent",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "полипропиленовое полотно высокой плотности",
+                                        "slug": "polipropilenovoe-polotno-vysokoi-plotnosti"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Площадь, м2",
+                                "slug": "ploshchad-m2",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "70",
+                                        "slug": "70"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Поверхностная плотность, г/м²",
+                                "slug": "poverkhnostnaia-plotnost-gm2",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "90",
+                                        "slug": "90"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Размер, мм",
+                                "slug": "razmer-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Длина- 43,75 м Ширина- 1,6 м",
+                                        "slug": "dlina-4375-m-shirina-16-m"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Срок хранения, мес",
+                                "slug": "srok-khraneniia-mes",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "12 месяцев",
+                                        "slug": "12-mesiatsev"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип армирования рулонного материала",
+                                "slug": "tip-armirovaniia-rulonnogo-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Отсутствует",
+                                        "slug": "otsutstvuet"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип продукции",
+                                "slug": "tip-produktsii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Ветро-влагозащитная пленка",
+                                        "slug": "vetro-vlagozashchitnaia-plenka"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "рулон",
+                                        "slug": "rulon"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "Герметики": {
+                "order": 4,
+                "is_visible": true,
+                "is_popular": true,
+                "products": [
+                    {
+                        "title": "Герметик ISOBOX Акриловый для межпанельных швов (белый), 7кг",
+                        "description": "<p>Герметик ISOBOX предназначен для герметизации стыков, щелей и трещин на фасадах зданий. Он обладает высокой адгезией к различным материалам, включая бетон, пенобетон, кирпич, камень, штукатурку, ПВХ, дерево и металл.</p> <ul> <li>Предназначен для межпанельных швов</li> <li>Отличная адгезия к различным поверхностям</li> <li>Идеально подходит для фасадов зданий</li> </ul>",
+                        "priority": 500,
+                        "article": "TN-002570",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "7.2",
+                                        "slug": "7_2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диапазон температур для эксплуатации, °С",
+                                "slug": "diapazon-temperatur-dlia-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "от -25°С до +35°С",
+                                        "slug": "ot-25degs-do-35degs"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Назначение",
+                                "slug": "naznachenie",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Межпанельные швы",
+                                        "slug": "mezhpanelnye-shvy"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Объем, м3",
+                                "slug": "obem-m3",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.01",
+                                        "slug": "0_01"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Прочность сцепления (адгезия) с металлом, МПа, не менее",
+                                "slug": "prochnost-stsepleniia-adgeziia-s-metallom-mpa-ne-menee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1",
+                                        "slug": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Состав",
+                                "slug": "sostav",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Акриловая дисперсия",
+                                        "slug": "akrilovaia-dispersiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Срок хранения, мес",
+                                "slug": "srok-khraneniia-mes",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "24",
+                                        "slug": "24"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Условная прочность, МПа, не менее",
+                                "slug": "uslovnaia-prochnost-mpa-ne-menee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0,2",
+                                        "slug": "02"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет материала",
+                                "slug": "tsvet-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Белый",
+                                        "slug": "belyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Герметик ISOBOX Акриловый для межпанельных швов (серый), 7кг",
+                        "description": "<p>ISOBOX - акриловый герметик, предназначенный для заполнения межпанельных швов на фасадах зданий. Обеспечивает надежную герметизацию стыков, щелей и трещин. Обладает высокой адгезией к различным поверхностям, включая бетон, пенобетон, кирпич, камень, штукатурку, ПВХ, дерево и металл.</p>",
+                        "priority": 500,
+                        "article": "TN-694233",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "7.2",
+                                        "slug": "7_2"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диапазон температур для эксплуатации, °С",
+                                "slug": "diapazon-temperatur-dlia-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "от -25°С до +35°С",
+                                        "slug": "ot-25degs-do-35degs"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Назначение",
+                                "slug": "naznachenie",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Межпанельные швы",
+                                        "slug": "mezhpanelnye-shvy"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Объем, м3",
+                                "slug": "obem-m3",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.01",
+                                        "slug": "0_01"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Прочность сцепления (адгезия) с металлом, МПа, не менее",
+                                "slug": "prochnost-stsepleniia-adgeziia-s-metallom-mpa-ne-menee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "1",
+                                        "slug": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Состав",
+                                "slug": "sostav",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Акриловый",
+                                        "slug": "akrilovyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Срок хранения, мес",
+                                "slug": "srok-khraneniia-mes",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "24",
+                                        "slug": "24"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Условная прочность, МПа, не менее",
+                                "slug": "uslovnaia-prochnost-mpa-ne-menee",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0,2",
+                                        "slug": "02"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет материала",
+                                "slug": "tsvet-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Серый",
+                                        "slug": "seryi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "ТехноНИКОЛЬ": {
+        "order": 3,
+        "category": {
+            "Композитная черепица": {
+                "order": 5,
+                "is_visible": true,
+                "is_popular": true,
+                "products": [
+                    {
+                        "title": "LUXARD Вентиляционная лента, коричневая, шт.",
+                        "description": null,
+                        "priority": 500,
+                        "article": "TN-375517",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.4",
+                                        "slug": "0_4"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Масса продукта, кг",
+                                "slug": "massa-produkta-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0,3 кг/кв.м.",
+                                        "slug": "03-kgkvm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Основной компонент",
+                                "slug": "osnovnoi-komponent",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "ПВХ",
+                                        "slug": "pvkh"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Размер, мм",
+                                "slug": "razmer-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "100x5000 мм",
+                                        "slug": "100x5000-mm"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Германия",
+                                        "slug": "germaniia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип кровли",
+                                "slug": "tip-krovli",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Скатная",
+                                        "slug": "skatnaia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет материала",
+                                "slug": "tsvet-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "коричневый",
+                                        "slug": "korichnevyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "LUXARD Зажим ендовы (скобка), шт.",
+                        "description": "<p>Данные крепежные элементы предназначены для надежного крепления гибких желобов и композитных элементов ендов к подкровельной конструкции. Их цвет – красный, вес составляет всего 0,01 кг. Рекомендуемая норма расхода: 8 штук на 1 элемент ендовы и 6 штук на 1 элемент ребристого желобка.</p>",
+                        "priority": 500,
+                        "article": "TN-375515",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Основной компонент",
+                                "slug": "osnovnoi-komponent",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Алюминий",
+                                        "slug": "aliuminii"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Германия",
+                                        "slug": "germaniia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип кровли",
+                                "slug": "tip-krovli",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Скатная",
+                                        "slug": "skatnaia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет материала",
+                                "slug": "tsvet-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "красный",
+                                        "slug": "krasnyi"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "Крепления": {
+                "order": 6,
+                "is_visible": true,
+                "is_popular": true,
+                "products": [
+                    {
+                        "title": "ТН МВС Стандарт 125/90 мм, заглушка универсальная, коричневый, шт.",
+                        "description": "<p>Универсальный водосток предназначен для закрытия торцов желоба и направления дождевой воды к воронке. Он оснащен резиновым уплотнителем, что обеспечивает надежную защиту от протечек.</p> <ul> <li>Изготовлен из стали толщиной 0,5 мм.</li> <li>Цинковое покрытие весом 180 г/м2 обеспечивает долговечность и защиту от коррозии.</li> <li>Двухстороннее полиэфирное покрытие толщиной не менее 25 мкм придает водостоку эстетичный внешний вид.</li> <li>Общая толщина с покрытием составляет приблизительно 0,54 мм.</li> </ul>",
+                        "priority": 500,
+                        "article": "TN-063897",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.06",
+                                        "slug": "0_06"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Гарантийный срок службы, лет",
+                                "slug": "garantiinyi-srok-sluzhby-let",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "5 лет",
+                                        "slug": "5-let"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диаметр желоба, мм",
+                                "slug": "diametr-zheloba-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "125",
+                                        "slug": "125"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диаметр трубы, мм",
+                                "slug": "diametr-truby-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "90",
+                                        "slug": "90"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Максимальная температура эксплуатации, °С",
+                                "slug": "maksimalnaia-temperatura-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "100",
+                                        "slug": "100"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Минимальная температура эксплуатации, °С",
+                                "slug": "minimalnaia-temperatura-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "-60",
+                                        "slug": "-60"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Размер, мм",
+                                "slug": "razmer-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "160*6,5*80",
+                                        "slug": "1606580"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Срок хранения, мес",
+                                "slug": "srok-khraneniia-mes",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "24 месяца со дня изготовления.",
+                                        "slug": "24-mesiatsa-so-dnia-izgotovleniia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип продукции",
+                                "slug": "tip-produktsii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Водосточные системы для скатных крыш",
+                                        "slug": "vodostochnye-sistemy-dlia-skatnykh-krysh"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет материала",
+                                "slug": "tsvet-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Коричневый RAL 8017",
+                                        "slug": "korichnevyi-ral-8017"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "ТН МВС Стандарт 125/90 мм, кронштейн желоба короткий, коричневый, шт.",
+                        "description": "<p>Продукт предназначен для установки желоба на крыше с необходимым уклоном. Водосток изготовлен из стали толщиной 0,5 мм, покрытой цинком толщиной 180 г/м2 и двухсторонним полиэфирным слоем не менее 25 мкм. Общая толщина с покрытием составляет примерно 0,54 мм.</p>",
+                        "priority": 500,
+                        "article": "TN-063889",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.19",
+                                        "slug": "0_19"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Гарантийный срок службы, лет",
+                                "slug": "garantiinyi-srok-sluzhby-let",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "5 лет",
+                                        "slug": "5-let"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диаметр желоба, мм",
+                                "slug": "diametr-zheloba-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "125",
+                                        "slug": "125"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диаметр трубы, мм",
+                                "slug": "diametr-truby-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "90",
+                                        "slug": "90"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Максимальная температура эксплуатации, °С",
+                                "slug": "maksimalnaia-temperatura-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "100",
+                                        "slug": "100"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Минимальная температура эксплуатации, °С",
+                                "slug": "minimalnaia-temperatura-ekspluatatsii-degs",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "-60",
+                                        "slug": "-60"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Размер, мм",
+                                "slug": "razmer-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "147*151*25",
+                                        "slug": "14715125"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Срок хранения, мес",
+                                "slug": "srok-khraneniia-mes",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "24 месяца со дня изготовления.",
+                                        "slug": "24-mesiatsa-so-dnia-izgotovleniia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип продукции",
+                                "slug": "tip-produktsii",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Водосточные системы для скатных крыш",
+                                        "slug": "vodostochnye-sistemy-dlia-skatnykh-krysh"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цвет материала",
+                                "slug": "tsvet-materiala",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Коричневый RAL 8017",
+                                        "slug": "korichnevyi-ral-8017"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "Yoshi": {
+        "order": 4,
+        "category": {
+            "Инструменты": {
+                "order": 7,
+                "is_visible": true,
+                "is_popular": true,
+                "products": [
+                    {
+                        "title": "Пневмоинструмент кровельный Yoshi CRN45",
+                        "description": "<p>Инструмент специально разработан для быстрого монтажа мягкой кровли. Он легкий и хорошо сбалансированный, что обеспечивает максимальный комфорт работнику. С использованием кровельного инструмента Yoshi CRN45, время на монтаж мягкой кровли сокращается более чем в 3 раза.</p>",
+                        "priority": 500,
+                        "article": "TN-466071",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "2.5",
+                                        "slug": "2_5"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Давление рабочее, бар",
+                                "slug": "davlenie-rabochee-bar",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "5-8",
+                                        "slug": "5-8"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Диаметр стержня, мм",
+                                "slug": "diametr-sterzhnia-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "3,0-3,1",
+                                        "slug": "30-31"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Длина стержня, мм",
+                                "slug": "dlina-sterzhnia-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "19-45",
+                                        "slug": "19-45"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Емкость магазина, шт.",
+                                "slug": "emkost-magazina-sht",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "120",
+                                        "slug": "120"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Объем, м3",
+                                "slug": "obem-m3",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.03",
+                                        "slug": "0_03"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Расход воздуха (при 6 барах), Нл/выстрел",
+                                "slug": "raskhod-vozdukha-pri-6-barakh-nlvystrel",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0,92",
+                                        "slug": "092"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип кровли",
+                                "slug": "tip-krovli",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Скатная",
+                                        "slug": "skatnaia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Шланг армированный  на катушке Yoshi 8х12х30м, шт.",
+                        "description": "<p>Прямой армированный шланг из полиуретана с полимерной оплеткой. Поставляется на металлической катушке и установлен на вращающейся опоре. В комплекте имеется штекер и муфта БРС.</p>",
+                        "priority": 500,
+                        "article": "TN-488344",
+                        "is_new": false,
+                        "is_popular": false,
+                        "is_active": true,
+                        "prices": [
+                            {
+                                "price": "999.00",
+                                "old_price": null,
+                                "city_group__name": "Московская область"
+                            }
+                        ],
+                        "chars": [
+                            {
+                                "name": "Вес, кг",
+                                "slug": "ves-kg",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "8",
+                                        "slug": "8"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Максимальное давление, бар",
+                                "slug": "maksimalnoe-davlenie-bar",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "до 15 при 25°С",
+                                        "slug": "do-15-pri-25degs"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Объем, м3",
+                                "slug": "obem-m3",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "0.06",
+                                        "slug": "0_06"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Основной компонент",
+                                "slug": "osnovnoi-komponent",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Полиуретан",
+                                        "slug": "poliuretan"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Рабочая длина, м",
+                                "slug": "rabochaia-dlina-m",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "30",
+                                        "slug": "30"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Сечение, мм",
+                                "slug": "sechenie-mm",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "8х12",
+                                        "slug": "8kh12"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Страна происхождения",
+                                "slug": "strana-proishozhdeniya",
+                                "for_filtering": true,
+                                "values": [
+                                    {
+                                        "value": "Россия",
+                                        "slug": "rossiia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Тип кровли",
+                                "slug": "tip-krovli",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "Скатная",
+                                        "slug": "skatnaia"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Цена за единицу",
+                                "slug": "cena-za-edinicu",
+                                "for_filtering": false,
+                                "values": [
+                                    {
+                                        "value": "штуку",
+                                        "slug": "shtuku"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

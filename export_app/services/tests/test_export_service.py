@@ -107,8 +107,8 @@ class ExportServiceTest(TestCase):
         }
         expected_df = pd.DataFrame(expected_data)
 
-        df = df.applymap(str)
-        expected_df = expected_df.applymap(str)
+        df = df.map(str)
+        expected_df = expected_df.map(str)
 
         assert df.equals(expected_df), "DataFrames are not equal"
 
