@@ -135,8 +135,6 @@ class ProductDetailSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModel
 
 class ProductFileSerializer(ActiveModelSerializer):
 
-    file = serializers.SerializerMethodField()
-
     class Meta:
         model = ProductFile
         exclude = [
@@ -144,5 +142,7 @@ class ProductFileSerializer(ActiveModelSerializer):
             "updated_at",
         ]
 
-    def get_file(self, obj) -> str | None:
-        return obj.file.url if obj.file else None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["file"] = instance.file.url if instance.file else None
+        return data
