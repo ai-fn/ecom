@@ -76,7 +76,7 @@ class ExportService:
                 logger.error(str(e))
                 continue
 
-            if isinstance(field, models.ManyToManyField):
+            if type(field) in (models.ManyToManyField, models.ManyToOneRel, models.ManyToManyRel):
                 m2m_fields.append(field_name)
             else:
                 reg_fields.append(field_name)
