@@ -8,10 +8,11 @@ from api.serializers import ProductCatalogSerializer
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 from shop.models import Product
 from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
+from api.mixins import AnnotateProductMixin
 
 
 @extend_schema(tags=["Shop"])
-class ProductsById(GenericAPIView):
+class ProductsById(GenericAPIView, AnnotateProductMixin):
 
     permission_classes = [permissions.AllowAny]
     serializer_class = ProductCatalogSerializer
@@ -55,12 +56,13 @@ class ProductsById(GenericAPIView):
                 {"error": "ID's list is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        self.queryset = self.queryset.filter(pk__in=ids_list)
+        queryset = self.queryset.filter(pk__in=ids_list)
 
-        page = self.paginate_queryset(self.queryset)
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            queryset = queryset.filter(id__in=map(lambda x: x.id, page))
+            serializer = self.get_serializer(self.annotate_queryset(queryset), many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(self.queryset, many=True)
+        serializer = self.get_serializer(self.annotate_queryset(queryset), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -19,7 +19,7 @@ services:
 
   web:
     build: .
-    command: [ "./wait-for-it.sh", "db:${POSTGRES_PORT}", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=unix:/code/gunicorn.sock", "megashop.wsgi:application" ]
+    command: [ "./wait-for-it.sh", "db:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=unix:/code/gunicorn.sock", "megashop.wsgi:application" ]
     restart: always
     volumes:
       - .:/code
