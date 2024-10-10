@@ -1,9 +1,8 @@
 from django_filters import rest_framework as filters
-from django.db.models import Q, Min, Max
+from django.db.models import Q, Min, Max, QuerySet
 
 from shop.models import Category, Characteristic, Product
 from api.mixins import GeneralSearchMixin
-from api.serializers import ProductCatalogSerializer
 
 
 class ProductFilter(GeneralSearchMixin, filters.FilterSet):
@@ -45,14 +44,14 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
     @property
     def chars(self):
         if not getattr(self, "_chars", None):
-            self._chars = self._get_chars(self.qs)
+            self._chars = self._get_chars()
 
         return self._chars
 
     @property
     def brands(self):
         if not getattr(self, "_brands", None):
-            self._brands = self._get_brands(self.qs)
+            self._brands = self._get_brands()
 
         return self._brands
 
@@ -97,13 +96,6 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         lte_data = self.data.get("price_lte")
         price_filter = Q()
 
-        if (
-            not (self.request.user.is_authenticated and self.request.user.is_staff)
-            and self.view.get_serializer_class() == ProductCatalogSerializer
-        ):
-
-            price_filter &= Q(prices__city_group__cities__domain=self.city_domain)
-
         if lte_data is not None:
             price_filter &= Q(prices__price__lte=lte_data)
         if gte_data is not None:
@@ -132,10 +124,16 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
 
         return queryset
 
-    def _get_brands(self, queryset):
+    def _get_brands(self, queryset: QuerySet = None):
+        if queryset is None:
+            queryset = self.qs
+
         return queryset.values_list("brand", flat=True).distinct()
 
-    def _get_chars(self, queryset):
+    def _get_chars(self, queryset: QuerySet = None):
+        if queryset is None:
+            queryset = self.qs
+
         result = []
         category_ids = queryset.values_list("category", flat=True)
         characteristics_queryset = Characteristic.objects.filter(

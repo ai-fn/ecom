@@ -17,9 +17,9 @@ from api.views.product import UNAUTHORIZED_RESPONSE_EXAMPLE
 PROMO_REQUEST_EXAMPLE = {
     "name": "Test",
     "is_active": True,
-    "products_id": [1, 2, 3],
-    "cities_id": [1, 2, 3],
-    "categories_id": [1, 2, 3],
+    "products": [1, 2, 3],
+    "cities": [1, 2, 3],
+    "categories": [1, 2, 3],
     "active_to": "2024-04-05",
     "image": "/media/promo/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
     "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma",
@@ -31,10 +31,6 @@ PROMO_RESPONSE_EXAMPLE = {
     "products": [UNAUTHORIZED_RESPONSE_EXAMPLE],
     "cities": [CITY_RESPONSE_EXAMPLE],
 }
-PROMO_RESPONSE_EXAMPLE.pop("products_id")
-PROMO_RESPONSE_EXAMPLE.pop("categories_id")
-PROMO_RESPONSE_EXAMPLE.pop("cities_id")
-
 PROMO_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PROMO_REQUEST_EXAMPLE.items())[:2]}
 
 
@@ -157,6 +153,13 @@ class PromoViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
     serializer_class = PromoSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if cd := self.request.query_params.get("city_domain"):
+            context["city_domain"] = cd
+
+        return context
+
     def get_permissions(self):
         if self.action == "active_promos":
             return [AllowAny()]
@@ -164,7 +167,7 @@ class PromoViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
         return super().get_permissions()
 
     def get_queryset(self):
-        self.domain = self.request.query_params.get("domain")
+        self.domain = self.request.query_params.get("city_domain")
         return self.queryset.filter(cities__domain=self.domain).distinct()
 
     @action(methods=["get"], detail=False)

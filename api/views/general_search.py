@@ -1,10 +1,12 @@
+from django.db.models import QuerySet
+
 from loguru import logger
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_503_SERVICE_UNAVAILABLE
 
-from api.mixins import GeneralSearchMixin
+from api.mixins import GeneralSearchMixin, PriceFilterMixin
 from api.serializers import ProductDocumentSerializer
 from api.views.price import PRICE_RESPONSE_EXAMPLE
 
@@ -90,7 +92,7 @@ brand_document_serializer_example = {
         ),
     },
 )
-class GeneralSearchView(GeneralSearchMixin, APIView):
+class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin):
     permission_classes = [AllowAny]
     pagination_class = None
 
@@ -100,9 +102,6 @@ class GeneralSearchView(GeneralSearchMixin, APIView):
 
         try:
             result, _ = self.g_search(query, domain)
-            categorized_results = {
-                index: result[index]["serialized"] for index in result
-            }
         except ConnectionError as e:
             logger.error(str(e))
             return Response(
@@ -110,4 +109,13 @@ class GeneralSearchView(GeneralSearchMixin, APIView):
                 status=HTTP_503_SERVICE_UNAVAILABLE,
             )
 
+        if (p := result.get('products')):
+            if (q := p.get("queryset")) and isinstance(q, QuerySet):
+                serializer = result["products"]["serializer"]
+                result["products"]["queryset"] = serializer(self.get_products_only_with_price(q, domain), many=True).data
+
+        categorized_results = {
+            index: result[index]["queryset"] for index in result
+        }
+        
         return Response(categorized_results, status=HTTP_200_OK)

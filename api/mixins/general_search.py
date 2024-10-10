@@ -153,5 +153,5 @@ class GeneralSearchMixin:
 
         categorized_results[index] = {
             "queryset": queryset,
-            "serialized": serializer(queryset, context=context, many=True).data,
+            "serializer": serializer,
         }

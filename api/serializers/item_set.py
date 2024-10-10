@@ -8,13 +8,14 @@ from api.serializers import (
     SliderSerializer,
     BrandSerializer,
 )
+from api.mixins import PriceFilterMixin
 from shop.models import (
     ItemSet,
     ItemSetElement,
 )
 
 
-class ItemSetSerializer(serializers.ModelSerializer):
+class ItemSetSerializer(serializers.ModelSerializer, PriceFilterMixin):
 
     class Meta:
         model = ItemSet
@@ -28,9 +29,13 @@ class ItemSetSerializer(serializers.ModelSerializer):
             "elements",
         ]
 
-    def to_representation(self, instance):
+    def to_representation(self, instance: ItemSet):
         data = super().to_representation(instance)
-        data['elements'] = ItemSetElementSerializer(instance.elements.all(), context=self.context, many=True).data
+        elems = instance.elements.all()
+        if instance.itemset_type == ItemSet.ItemSetType.PRODUCT:
+            elems = self.get_products_only_with_price(elems, domain=self.context.get("city_domain", ""), prefix="products__")
+
+        data['elements'] = ItemSetElementSerializer(elems, context=self.context, many=True).data
         return data
 
 

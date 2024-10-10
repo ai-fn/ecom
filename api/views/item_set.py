@@ -352,3 +352,10 @@ class ItemSetElementViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, Ca
     queryset = ItemSetElement.objects.all()
     serializer_class = ItemSetElementSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if cd := self.request.query_params.get("city_domain"):
+            context["city_domain"] = cd
+
+        return context

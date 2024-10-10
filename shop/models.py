@@ -205,6 +205,7 @@ class Product(ThumbModel):
     )
     unavailable_in = models.ManyToManyField(City, related_query_name="product", verbose_name=_("Недоступен в городах"), blank=True)
     opengraph_metadata = GenericRelation("OpenGraphMeta", related_query_name="product")
+    itemset_element = GenericRelation("ItemSetElement", related_query_name="products")
 
     class Meta:
         verbose_name = "Товар"

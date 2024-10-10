@@ -1,5 +1,5 @@
-from typing import Any
 from django_filters import rest_framework as filters
+from django.db.models import Q
 
 from drf_spectacular.utils import (
     extend_schema_view,
@@ -14,6 +14,7 @@ from api.mixins import (
     IntegrityErrorHandlingMixin,
     ProductSorting,
     CacheResponse,
+    PriceFilterMixin,
 )
 from api.pagination import CustomProductPagination
 from api.filters import ProductFilter
@@ -26,7 +27,6 @@ from api.views.brand import BRAND_RESPONSE_EXAMPLE
 from api.views.productimage import PRODUCT_IMAGE_RESPONSE_EXAMPLE
 from api.views.productfile import PRODUCT_FILE_RESPONSE_EXAMPLE
 
-from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -394,6 +394,7 @@ class ProductViewSet(
     IntegrityErrorHandlingMixin,
     CacheResponse,
     ModelViewSet,
+    PriceFilterMixin,
 ):
     """
     Возвращает товары с учетом цены в заданном городе.
@@ -448,25 +449,25 @@ class ProductViewSet(
         self.brand_ids = filterset.brands
 
         if self.city_domain:
-            self.queryset = queryset.exclude(unavailable_in__domain=self.city_domain)
+            qs = qs.exclude(unavailable_in__domain=self.city_domain)
 
         return qs
 
-    def get_products(self, page, queryset):
+    def _get_products(self, page, queryset):
         if page is not None:
             queryset = queryset.filter(pk__in=map(lambda x: x.pk, page))
 
         queryset = self.annotate_queryset(queryset)
         return queryset
 
-    def get_response(self, queryset):
+    def get_response(self, queryset) -> Response:
         page = self.paginate_queryset(queryset)
         if page is not None:
             response = self.get_paginated_response
         else:
             response = Response
 
-        products = self.get_products(page, queryset)
+        products = self._get_products(page, queryset)
         serializer = self.get_serializer(products, many=True)
 
         return response(serializer.data)
@@ -474,15 +475,25 @@ class ProductViewSet(
     @action(detail=True, methods=["get"])
     def frequenly_bought(self, request, *args, **kwargs):
         instance = self.get_object()
-        queryset = self.filter_queryset(
-            instance.frequenly_bought_together.order_by("product_to__purchase_count")
+        queryset = self.get_products_only_with_price(
+            self.filter_queryset(
+                instance.frequenly_bought_together.order_by(
+                    "product_to__purchase_count"
+                ),
+            ),
+            self.city_domain,
         )
         response = self.get_response(queryset)
         return response
 
     @action(methods=["get"], detail=False)
     def popular_products(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).filter(is_popular=True)
+        queryset = self.get_products_only_with_price(
+            self.filter_queryset(
+                self.get_queryset(),
+            ).filter(is_popular=True),
+            self.city_domain,
+        )
         response = self.get_response(queryset)
         return response
 
@@ -494,7 +505,12 @@ class ProductViewSet(
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.get_products_only_with_price(
+            self.filter_queryset(
+                self.get_queryset(),
+            ),
+            self.city_domain
+        )
 
         if not self.request.query_params.get("search"):
             queryset = self.sorted_queryset(queryset)
