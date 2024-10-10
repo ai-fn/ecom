@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from shop.models import Promo
-from api.mixins import PriceFilterMixin
+from api.mixins import AnnotateProductMixin, PriceFilterMixin
 from api.serializers import (
     ActiveModelSerializer,
     CategoryDetailSerializer,
@@ -9,7 +9,7 @@ from api.serializers import (
 )
 
 
-class PromoSerializer(ActiveModelSerializer, PriceFilterMixin):
+class PromoSerializer(ActiveModelSerializer, PriceFilterMixin, AnnotateProductMixin):
     products = ProductCatalogSerializer(many=True, read_only=True)
     categories = CategoryDetailSerializer(many=True, read_only=True)
     cities = CitySerializer(many=True, read_only=True)
@@ -29,12 +29,15 @@ class PromoSerializer(ActiveModelSerializer, PriceFilterMixin):
             "is_active",
             "thumb_img",
         ]
-
+    
     def to_representation(self, instance):
+        self.request = getattr(self.context.get("view"), "request", None)
         data = super().to_representation(instance)
 
-        products = self.get_products_only_with_price(
-            instance.products.all(), self.context.get("city_domain", "")
+        products = self.annotate_queryset(
+            self.get_products_only_with_price(
+                instance.products.all(), self.context.get("city_domain", "")
+            )
         )
 
         data["cities"] = CitySerializer(instance.cities.all(), many=True).data

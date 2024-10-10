@@ -14,7 +14,7 @@ class AnnotateProductMixin:
         return queryset
 
     def _annotate_cart_quantity(self, queryset, prefix: str = ""):
-        if self.request.user.is_authenticated:
+        if hasattr(self, "request") and self.request.user.is_authenticated:
             queryset = (
                 queryset.prefetch_related(f"{prefix}cart_items")
                 .annotate(
@@ -27,8 +27,11 @@ class AnnotateProductMixin:
         return queryset
 
     def _annotate_prices(self, queryset, prefix: str = ""):
+        if not hasattr(self, "request"):
+            return queryset
+
         domain = self.request.query_params.get("city_domain")
-        if not domain:
+        if  not domain:
             queryset = queryset.annotate(
                 **{f"{prefix}city_price": Value(0), f"{prefix}old_price": Value(0)}
             )
