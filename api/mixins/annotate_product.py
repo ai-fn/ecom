@@ -1,9 +1,12 @@
+from typing import List
 from django.db.models import F, Sum, Count, Avg, Value, Q
 
 
 class AnnotateProductMixin:
-    def annotate_queryset(self, queryset, prefix: str = ""):
-        fields = ("prices", "rating", "cart_quantity")
+    def annotate_queryset(self, queryset, prefix: str = "", fields: List[str] = None):
+        if fields is None:
+            fields = ("prices", "rating", "cart_quantity")
+
         for field in fields:
             method_name = f"_annotate_{field}"
             if hasattr(self, method_name):
@@ -44,9 +47,6 @@ class AnnotateProductMixin:
         queryset = (
             queryset.prefetch_related(f"{prefix}prices")
             .annotate(**fields)
-            .filter(
-                Q(**{f"{prefix}prices__city_group__cities__domain": domain})
-            )
             .distinct()
         )
         return queryset

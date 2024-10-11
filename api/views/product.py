@@ -457,7 +457,7 @@ class ProductViewSet(
         if page is not None:
             queryset = queryset.filter(pk__in=map(lambda x: x.pk, page))
 
-        queryset = self.annotate_queryset(queryset)
+        queryset = self.get_products_only_with_price(self.annotate_queryset(queryset))
         return queryset
 
     def get_response(self, queryset) -> Response:
@@ -475,7 +475,7 @@ class ProductViewSet(
     @action(detail=True, methods=["get"])
     def frequenly_bought(self, request, *args, **kwargs):
         instance = self.get_object()
-        queryset = self.get_products_only_with_price(
+        queryset = (
             self.filter_queryset(
                 instance.frequenly_bought_together.order_by(
                     "product_to__purchase_count"
@@ -488,12 +488,9 @@ class ProductViewSet(
 
     @action(methods=["get"], detail=False)
     def popular_products(self, request, *args, **kwargs):
-        queryset = self.get_products_only_with_price(
-            self.filter_queryset(
-                self.get_queryset(),
-            ).filter(is_popular=True),
-            self.city_domain,
-        )
+        queryset = self.filter_queryset(
+            self.get_queryset(),
+        ).filter(is_popular=True)
         response = self.get_response(queryset)
         return response
 
@@ -505,11 +502,8 @@ class ProductViewSet(
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_products_only_with_price(
-            self.filter_queryset(
-                self.get_queryset(),
-            ),
-            self.city_domain
+        queryset = self.filter_queryset(
+            self.get_queryset(),
         )
 
         if not self.request.query_params.get("search"):

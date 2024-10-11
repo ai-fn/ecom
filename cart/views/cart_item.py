@@ -249,7 +249,9 @@ class CartItemViewSet(
 
     def list(self, request, *args, **kwargs):
         queryset = self.annotate_queryset(
-            self.filter_queryset(self.get_queryset()), prefix="product__"
+            self.filter_queryset(self.get_queryset()),
+            prefix="product__",
+            fields=["prices"],
         )
         serializer = self.get_serializer(queryset, many=True).data
         return Response(serializer, status=status.HTTP_200_OK)

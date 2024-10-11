@@ -10,10 +10,11 @@ class CartItemSerializer(ActiveModelSerializer):
         queryset=Product.objects.all(), write_only=True, source="product"
     )
     quantity = serializers.IntegerField(max_value=999999, min_value=1)
+    allow_to_order = serializers.BooleanField(read_only=True, required=False)
 
     class Meta:
         model = CartItem
-        fields = ["id", "product", "product_id", "quantity", ]
+        fields = ["id", "product", "product_id", "quantity", "allow_to_order"]
         read_only_fields = ("id",)
 
     def get_product(self, obj):
