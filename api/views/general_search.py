@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_503_SERVICE_UNAVAILABLE
 
-from api.mixins import GeneralSearchMixin, PriceFilterMixin
+from api.mixins import GeneralSearchMixin, PriceFilterMixin, AnnotateProductMixin
 from api.serializers import ProductDocumentSerializer
 from api.views.price import PRICE_RESPONSE_EXAMPLE
 
@@ -92,7 +92,7 @@ brand_document_serializer_example = {
         ),
     },
 )
-class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin):
+class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateProductMixin):
     permission_classes = [AllowAny]
     pagination_class = None
 
@@ -109,13 +109,18 @@ class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin):
                 status=HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        if (p := result.get('products')):
+        if p := result.get("products"):
             if (q := p.get("queryset")) and isinstance(q, QuerySet):
                 serializer = result["products"]["serializer"]
-                result["products"]["queryset"] = serializer(self.get_products_only_with_price(q, domain), many=True).data
+                result["products"]["queryset"] = self.get_products_only_with_price(
+                    self.annotate_queryset(q), domain
+                )
 
-        categorized_results = {
-            index: result[index]["queryset"] for index in result
-        }
-        
+        categorized_results = {index: result[index]["queryset"] for index in result}
+        for index in result:
+            r_d = result[index]
+            serializer = r_d["serializer"]
+            queryset = r_d["queryset"]
+            categorized_results[index] = serializer(queryset, many=True).data
+
         return Response(categorized_results, status=HTTP_200_OK)

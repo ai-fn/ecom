@@ -34,7 +34,7 @@ class ProductDocumentSerializer(DocumentSerializer):
         source="category.slug",
         read_only=True,
     )
-    price = serializers.SerializerMethodField()
+    price = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, source="city_price")
     search_image = serializers.SerializerMethodField()
 
     class Meta:
@@ -48,17 +48,8 @@ class ProductDocumentSerializer(DocumentSerializer):
             "thumb_img",
             "category_slug",
             "slug",
-            "price",
+            "city_price",
         ]
 
     def get_search_image(self, obj):
         return obj.search_image.url if obj.search_image else None
-
-    def get_price(self, obj):
-        return PriceSerializer(
-            (
-                obj.prices.select_related("city_group__main_city")
-                .filter(city_group__main_city__domain=self.context.get("city_domain"))
-                .first()
-            )
-        ).data
