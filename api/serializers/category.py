@@ -145,4 +145,4 @@ class CategoryOrphanSerializer(CategorySliderSerializer):
         ]
 
     def get_children(self, obj) -> None | OrderedDict:
-        return obj.get_children().values("id", "name", "slug")
+        return obj.get_children().filter(products__isnull=False).values("id", "name", "slug").distinct()

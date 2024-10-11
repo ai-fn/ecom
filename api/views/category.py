@@ -306,8 +306,8 @@ class CategoryViewSet(
     def orphans_categories(self, request, *args, **kwargs):
         self.queryset = self.filter_queryset(
             self.get_queryset().filter(
-                products__isnull=False,
-                products__prices__city_group__cities__domain=self.domain,
+                children__products__isnull=False,
+                children__products__prices__city_group__cities__domain=self.domain,
             )
         ).distinct()
         return super().list(request, *args, **kwargs)
