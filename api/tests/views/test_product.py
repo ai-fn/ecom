@@ -6,13 +6,15 @@ from django.urls import reverse
 from api.test_utils import SetupTestData
 from shop.models import Category, Price, Product
 
+from django.conf import settings
+
 
 class TestProductViewSet(TestCase):
 
     def setUp(self):
         self.s = SetupTestData()
         self.s.setup_test_data()
-        self.c = self.s.setup_city("Москва", domain="krov.market")
+        self.c = self.s.setup_city("Москва", domain=settings.BASE_DOMAIN)
         self.cg = self.s.setup_city_group("Московская область")
         self.cg.cities.add(self.c)
 
