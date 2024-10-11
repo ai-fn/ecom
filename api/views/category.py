@@ -22,6 +22,7 @@ from drf_spectacular.utils import (
     extend_schema,
     OpenApiExample,
     OpenApiResponse,
+    OpenApiParameter,
 )
 
 
@@ -74,23 +75,28 @@ CATEGORY_RESPONSE_EXAMPLE = {
     ],
 }
 CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
-  "id": 650,
-  "name": "Кровельные материалы",
-  "slug": "krovelnye-materialy",
-  "description": "dummy_description",
-  "parents": [
+    "id": 650,
+    "name": "Кровельные материалы",
+    "slug": "krovelnye-materialy",
+    "description": "dummy_description",
+    "parents": [
         ["Кровельные материалы", "krovelnye-materialy"],
         ["Вентиляционные системы", "ventiliatsionnye-sistemy"],
         ["Аэраторы", "aeratory"],
-  ],
-  "icon": "/media/catalog/categories/images/some-image.webp",
-  "image": "/media/catalog/categories/images/some-image.webp",
-  "is_active": True,
+    ],
+    "icon": "/media/catalog/categories/images/some-image.webp",
+    "image": "/media/catalog/categories/images/some-image.webp",
+    "is_active": True,
 }
 
 
 @extend_schema_view(
     orphans_categories=extend_schema(
+        parameters=[OpenApiParameter(
+            "city_domain",
+            type=str,
+            required=False,
+        )],
         description="Получение списка категорий без родительской категории (доступно для всех пользователей)",
         summary="Получение списка без родительской категории",
         responses={
@@ -263,10 +269,16 @@ CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
     ),
 )
 @extend_schema(tags=["Shop"])
-class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+class CategoryViewSet(
+    ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet
+):
     queryset = Category.objects.order_by("order")
     serializer_class = CategorySerializer
     permission_classes = [ReadOnlyOrAdminPermission]
+
+    def initial(self, request, *args, **kwargs):
+        self.domain = request.query_params.get("city_domain", "")
+        return super().initial(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
@@ -275,7 +287,7 @@ class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
     def get_serializer_class(self):
         if self.action in ["retrieve", "popular_categories"]:
             return CategoryDetailSerializer
-        
+
         elif self.action == "orphans_categories":
             return CategoryOrphanSerializer
 
@@ -293,8 +305,11 @@ class CategoryViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
     @action(detail=False, methods=["get"], url_path="orphans-categories")
     def orphans_categories(self, request, *args, **kwargs):
         self.queryset = self.filter_queryset(
-            self.get_queryset().filter(parent__isnull=True)
-        )
+            self.get_queryset().filter(
+                products__isnull=False,
+                products__prices__city_group__cities__domain=self.domain,
+            )
+        ).distinct()
         return super().list(request, *args, **kwargs)
 
     @action(detail=False, methods=["get"])
