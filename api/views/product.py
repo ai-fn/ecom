@@ -420,8 +420,8 @@ class ProductViewSet(
     def paginate_queryset(self, queryset, count: int = None):
         if count is not None:
             return self.paginator.paginate_queryset(
-            queryset, self.request, view=self, count=count
-        )
+                queryset, self.request, view=self, count=count
+            )
         return super().paginate_queryset(queryset)
 
     def get_queryset(self):
@@ -461,19 +461,16 @@ class ProductViewSet(
         else:
             response = Response
 
-        serializer = self.get_serializer(products, many=True)
+        serializer = self.get_serializer(page, many=True)
         return response(serializer.data)
 
     @action(detail=True, methods=["get"])
     def frequenly_bought(self, request, *args, **kwargs):
         instance = self.get_object()
-        queryset = (
-            self.filter_queryset(
-                instance.frequenly_bought_together.order_by(
-                    "product_to__purchase_count"
-                ),
-            ),
-            self.city_domain,
+        queryset = self.filter_queryset(
+            instance.frequenly_bought_together.order_by(
+                "product_to__purchase_count"
+            )
         )
         response = self.get_response(queryset)
         return response
@@ -494,11 +491,14 @@ class ProductViewSet(
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
+        count = None
         queryset = self.filter_queryset(
             self.get_queryset(),
         )
         if not self.request.query_params.get("search"):
             queryset = self.sorted_queryset(queryset)
+        else:
+            count = self.queryset_count
 
         brands = Brand.objects.filter(
             id__in=self.brand_ids,
@@ -511,7 +511,7 @@ class ProductViewSet(
             is_active=True,
         ).values("name", "slug")
 
-        response = self.get_response(queryset, self.queryset_count)
+        response = self.get_response(queryset, count)
         products = response.data["results"]
         data = {
             "products": products,

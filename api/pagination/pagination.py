@@ -41,10 +41,8 @@ class CustomPaginator(DjangoPaginator):
         top = bottom + self.per_page
         if top + self.orphans >= self.count:
             top = self.count
+        
         return self._get_page(self.object_list[bottom:top], number, self)
-
-    def validate_number(self, number: int | float | str | None) -> int:
-        return super().validate_number(number)
 
 class CustomProductPagination(PageNumberPagination):
     django_paginator_class = CustomPaginator

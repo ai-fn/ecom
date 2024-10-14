@@ -395,7 +395,6 @@ class OpenGraphMetaAdmin(ActiveAdminMixin, admin.ModelAdmin):
         "url",
         "site_name",
         "locale",
-        "content_type",
     )
     list_filter = ("locale",)
 
