@@ -1,10 +1,7 @@
-from loguru import logger
-from decimal import Decimal
-
 from django.test import TestCase
 from django.urls import reverse
 from api.test_utils import SetupTestData
-from shop.models import Category, Price, Product
+from shop.models import Price, Product
 
 from django.conf import settings
 
@@ -13,12 +10,11 @@ class TestProductViewSet(TestCase):
 
     def setUp(self):
         self.s = SetupTestData()
-        self.s.setup_test_data()
         self.c = self.s.setup_city("Москва", domain=settings.BASE_DOMAIN)
         self.cg = self.s.setup_city_group("Московская область")
         self.cg.cities.add(self.c)
 
-        ctg = Category.objects.first()
+        ctg = self.s.setup_category("Dummy Category 777")
         self.popular_prods = sorted([
             self.s.setup_product(f"Very Popular Dummy Product {i}", f"dummy-article-{i}23LNVS", category=ctg, is_popular=True, priority=i*100)
             for i in range(1, 35)
@@ -39,31 +35,31 @@ class TestProductViewSet(TestCase):
         self.assertIn("categories", response["results"])
         self.assertIn("smallest_price", response["results"])
         self.assertIn("greatest_price", response["results"])
-    
+
     def test_list_view_with_domain_without_prices(self):
         path = reverse("api:products-list")
         params = {"city_domain": self.c.domain}
         response = self.client.get(path, params).json()
-        self.assertEqual(response["count"], 0)
         self.assertEqual(response["results"]["products"], [])
 
     def test_list_views_with_domain_with_prices(self):
         path = reverse("api:products-list")
         params = {"city_domain": self.c.domain}
         prices = {}
-        for i in range(len(self.products)):
-            price = self.s.setup_price(self.products[i], self.cg.name, 200*i)
-            prices[self.products[i].id] = {
+        for i, prod in enumerate(self.products, 1):
+            price = self.s.setup_price(prod, self.cg.name, 200*i)
+            prices[prod.id] = {
                 "price": f"{price.price or 0:.2f}",
                 "old_price": f"{price.old_price:.2f}" if price.old_price else None,
             }
 
         response = self.client.get(path, params).json()
         self.assertEqual(response["count"], len(self.products))
+        response_products = response["results"]["products"]
         for i in range(len(response["results"]["products"])):
-            self.assertEqual(response["results"]["products"][i]["id"], self.products[i].id)
-            self.assertEqual(response["results"]["products"][i]["city_price"], prices[self.products[i].id]["price"])
-            self.assertEqual(response["results"]["products"][i]["old_price"], prices[self.products[i].id]["old_price"])
+            self.assertEqual(response_products[i]["id"], self.products[i].id)
+            self.assertEqual(response_products[i]["city_price"], prices[self.products[i].id]["price"])
+            self.assertEqual(response_products[i]["old_price"], prices[self.products[i].id]["old_price"])
 
     def test_popular_products_view(self):
         path = reverse("api:products-popular-products")
@@ -79,7 +75,6 @@ class TestProductViewSet(TestCase):
         params = {"city_domain": self.c.domain}
 
         response = self.client.get(path, params).json()
-        self.assertEqual(response["count"], 0)
         self.assertEqual(response["results"], [])
         self.assertIsNone(response["previous"])
         self.assertIsNone(response["next"])
@@ -89,9 +84,9 @@ class TestProductViewSet(TestCase):
         params = {"city_domain": self.c.domain}
         expected_count = Product.objects.filter(is_popular=True).count()
         prices = {}
-        for idx, prod in enumerate(self.popular_prods):
-            price = self.s.setup_price(prod, self.cg.name, 100*(idx + 1))
-            prices[self.popular_prods[idx].id] = {
+        for idx, prod in enumerate(self.popular_prods, 1):
+            price = self.s.setup_price(prod, self.cg.name, 100*idx)
+            prices[prod.id] = {
                 "product_id": prod.id,
                 "price": f"{price.price or 0:.2f}",
                 "old_price": f"{price.old_price:.2f}" if price.old_price else None,

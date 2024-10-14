@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_503_SERVICE_UNAVAILABLE
 
-from api.mixins import GeneralSearchMixin, PriceFilterMixin, AnnotateProductMixin
+from api.mixins import GeneralSearchMixin, PriceFilterMixin, AnnotateProductMixin, GetOrphanCategories
 from api.serializers import ProductDocumentSerializer
 from api.views.price import PRICE_RESPONSE_EXAMPLE
 
@@ -92,7 +92,7 @@ brand_document_serializer_example = {
         ),
     },
 )
-class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateProductMixin):
+class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateProductMixin, GetOrphanCategories):
     permission_classes = [AllowAny]
     pagination_class = None
 
@@ -111,10 +111,12 @@ class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateP
 
         if p := result.get("products"):
             if (q := p.get("queryset")) and isinstance(q, QuerySet):
-                serializer = result["products"]["serializer"]
                 result["products"]["queryset"] = self.get_products_only_with_price(
                     self.annotate_queryset(q), domain
                 )
+        elif p := result.get("categories"):
+            if (q := p.get("queryset")) and isinstance(q, QuerySet):
+                result["products"]["queryset"] = self.get_orphan_categories(q, domain)
 
         categorized_results = {index: result[index]["queryset"] for index in result}
         for index in result:

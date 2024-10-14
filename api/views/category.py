@@ -4,6 +4,7 @@ from api.mixins import (
     ActiveQuerysetMixin,
     IntegrityErrorHandlingMixin,
     CacheResponse,
+    GetOrphanCategories,
 )
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import (
@@ -92,11 +93,13 @@ CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
 
 @extend_schema_view(
     orphans_categories=extend_schema(
-        parameters=[OpenApiParameter(
-            "city_domain",
-            type=str,
-            required=False,
-        )],
+        parameters=[
+            OpenApiParameter(
+                "city_domain",
+                type=str,
+                required=False,
+            )
+        ],
         description="Получение списка категорий без родительской категории (доступно для всех пользователей)",
         summary="Получение списка без родительской категории",
         responses={
@@ -270,7 +273,11 @@ CATEGORY_SIMPLIFIED_RESPONSE_EXAMPLE = {
 )
 @extend_schema(tags=["Shop"])
 class CategoryViewSet(
-    ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
+    CacheResponse,
+    ModelViewSet,
+    GetOrphanCategories,
 ):
     queryset = Category.objects.order_by("order")
     serializer_class = CategorySerializer
@@ -305,10 +312,7 @@ class CategoryViewSet(
     @action(detail=False, methods=["get"], url_path="orphans-categories")
     def orphans_categories(self, request, *args, **kwargs):
         self.queryset = self.filter_queryset(
-            self.get_queryset().filter(
-                children__products__isnull=False,
-                children__products__prices__city_group__cities__domain=self.domain,
-            )
+            self.get_orphan_categories(self.get_queryset(), self.domain),
         ).distinct()
         return super().list(request, *args, **kwargs)
 

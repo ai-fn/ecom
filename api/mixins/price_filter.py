@@ -8,7 +8,7 @@ class PriceFilterMixin:
         try:
             q = {f"{prefix}city_price__gt": 0}
             queryset = queryset.filter(**q)
-        except FieldError as field_err:
+        except FieldError:
             q = {f"{prefix}prices__city_group__cities__domain": domain}
             queryset = queryset.filter(**q)
         except Exception as err:

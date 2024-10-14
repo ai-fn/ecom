@@ -8,14 +8,18 @@ from django.core.paginator import Page, Paginator as DjangoPaginator
 
 class CustomPaginator(DjangoPaginator):
 
-    def __init__(self, *args, count: int = 0, **kwargs) -> None:
+    def __init__(self, *args, count: int = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._count = count
+        if count is not None:
+            self._count = count
 
     @cached_property
     def count(self):
         """Return the total number of objects, across all pages."""
-        return self._count
+        if hasattr(self, "_count"):
+            return self._count
+        
+        return super().count
 
     def _get_page(self, *args, **kwargs):
         """
@@ -39,11 +43,13 @@ class CustomPaginator(DjangoPaginator):
             top = self.count
         return self._get_page(self.object_list[bottom:top], number, self)
 
+    def validate_number(self, number: int | float | str | None) -> int:
+        return super().validate_number(number)
 
 class CustomProductPagination(PageNumberPagination):
     django_paginator_class = CustomPaginator
 
-    def paginate_queryset(self, queryset, request, view=None, count=0):
+    def paginate_queryset(self, queryset, request, view=None, count=None):
         """
         Paginate a queryset if required, either returning a
         page object, or `None` if pagination is not configured for this view.
@@ -67,3 +73,6 @@ class CustomProductPagination(PageNumberPagination):
 
         self.request = request
         return list(self.page)
+    
+    def get_paginated_response(self, data):
+        return super().get_paginated_response(data)

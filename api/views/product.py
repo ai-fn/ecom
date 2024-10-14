@@ -418,15 +418,11 @@ class ProductViewSet(
         return super().get_serializer_class()
 
     def paginate_queryset(self, queryset, count: int = None):
-        if count is None:
-            if hasattr(queryset, "count"):
-                count = queryset.count()
-            else:
-                count = len(queryset)
-
-        return self.paginator.paginate_queryset(
+        if count is not None:
+            return self.paginator.paginate_queryset(
             queryset, self.request, view=self, count=count
         )
+        return super().paginate_queryset(queryset)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -453,23 +449,19 @@ class ProductViewSet(
 
         return qs
 
-    def _get_products(self, page, queryset):
-        if page is not None:
-            queryset = queryset.filter(pk__in=map(lambda x: x.pk, page))
-
+    def _get_products(self, queryset):
         queryset = self.get_products_only_with_price(self.annotate_queryset(queryset))
         return queryset
 
-    def get_response(self, queryset) -> Response:
-        page = self.paginate_queryset(queryset)
+    def get_response(self, queryset, count: int = None) -> Response:
+        products = self._get_products(queryset)
+        page = self.paginate_queryset(products, count=count)
         if page is not None:
             response = self.get_paginated_response
         else:
             response = Response
 
-        products = self._get_products(page, queryset)
         serializer = self.get_serializer(products, many=True)
-
         return response(serializer.data)
 
     @action(detail=True, methods=["get"])
@@ -505,7 +497,6 @@ class ProductViewSet(
         queryset = self.filter_queryset(
             self.get_queryset(),
         )
-
         if not self.request.query_params.get("search"):
             queryset = self.sorted_queryset(queryset)
 
@@ -520,9 +511,8 @@ class ProductViewSet(
             is_active=True,
         ).values("name", "slug")
 
-        response = self.get_response(queryset)
+        response = self.get_response(queryset, self.queryset_count)
         products = response.data["results"]
-
         data = {
             "products": products,
             "characteristics": self.chars,
