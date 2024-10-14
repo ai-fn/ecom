@@ -27,19 +27,17 @@ class CategorySerializer(ActiveModelSerializer):
             "is_popular",
             "thumb_img",
         ]
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['icon'] = instance.icon.url if instance.icon else None
-        data['image'] = instance.image.url if instance.image else None
+        data["icon"] = instance.icon.url if instance.icon else None
+        data["image"] = instance.image.url if instance.image else None
         return data
-    
 
     def get_children(self, obj) -> None | OrderedDict:
         if obj.is_leaf_node():
             return None
         return CategorySerializer(obj.get_children(), many=True).data
-
 
     def get_parents(self, obj) -> list:
         """
@@ -57,9 +55,7 @@ class CategorySerializer(ActiveModelSerializer):
                 )
             )
             current_parent = current_parent.parent
-        return list(
-            reversed(parents)
-        )
+        return list(reversed(parents))
 
 
 class CategorySimplifiedSerializer(ActiveModelSerializer):
@@ -81,11 +77,11 @@ class CategorySimplifiedSerializer(ActiveModelSerializer):
             "is_popular",
             "description",
         ]
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['icon'] = instance.icon.url if instance.icon else None
-        data['image'] = instance.image.url if instance.image else None
+        data["icon"] = instance.icon.url if instance.icon else None
+        data["image"] = instance.image.url if instance.image else None
         return data
 
     def get_parents(self, obj) -> list:
@@ -104,12 +100,11 @@ class CategorySimplifiedSerializer(ActiveModelSerializer):
                 )
             )
             current_parent = current_parent.parent
-        return list(
-            reversed(parents)
-        )
+        return list(reversed(parents))
+
 
 class CategorySliderSerializer(ActiveModelSerializer):
-    
+
     class Meta:
         model = Category
         fields = [
@@ -124,8 +119,8 @@ class CategorySliderSerializer(ActiveModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['icon'] = instance.icon.url if instance.icon else None
-        data['image'] = instance.image.url if instance.image else None
+        data["icon"] = instance.icon.url if instance.icon else None
+        data["image"] = instance.image.url if instance.image else None
         return data
 
 
@@ -145,4 +140,15 @@ class CategoryOrphanSerializer(CategorySliderSerializer):
         ]
 
     def get_children(self, obj) -> None | OrderedDict:
-        return obj.get_children().filter(products__isnull=False).values("id", "name", "slug").distinct()
+        domain = self.context.get("city_domain", "")
+        return (
+            obj.get_children()
+            .filter(
+                is_active=True,
+                is_visible=True,
+                products__isnull=False,
+                products__prices__city_group__cities__domain=domain,
+            )
+            .values("id", "name", "slug")
+            .distinct()
+        )

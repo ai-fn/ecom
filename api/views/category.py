@@ -308,6 +308,11 @@ class CategoryViewSet(
             return [AllowAny()]
 
         return super().get_permissions()
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["city_domain"] = self.domain
+        return context
 
     @action(detail=False, methods=["get"], url_path="orphans-categories")
     def orphans_categories(self, request, *args, **kwargs):
