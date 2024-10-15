@@ -38,28 +38,61 @@ class GeneralSearchMixin:
             ProductDocument._index._name: {
                 "model": ProductDocument.Django.model,
                 "serializer": ProductDocumentSerializer,
-                "queries": (
-                    Q("match_phrase", title=query),
-                    Q("match_phrase", description=query),
-                    Q("wildcard", title=f"*{query}*"),
-                    Q("wildcard", description=f"*{query}*"),
-                    Q("term", article=query),
+                "queries": Q(
+                    "bool",
+                    must=[
+                        Q(
+                            "nested",
+                            path="price",
+                            query=Q("term", price__domain=domain),
+                        ),
+                        Q("term", _index=ProductDocument._index._name),
+                    ],
+                    should=(
+                        Q("term", article={"value": query, "boost": 5.0}),
+                        Q("fuzzy", title={"value": query, "fuzziness": "AUTO", "boost": 5.0}),
+                        Q("wildcard", title={"value": f"*{query}*", "boost": 2.5}),
+                        Q("wildcard", description={"value": f"*{query}*", "boost": 1.5}),
+                        Q("match_phrase", title=query),
+                        Q("match_phrase", description=query),
+                    ),
+                    minimum_should_match=1,
                 ),
             },
             CategoryDocument._index._name: {
                 "model": CategoryDocument.Django.model,
                 "serializer": CategoryDocumentSerializer,
-                "queries": (
-                    Q("wildcard", name=f"*{query}*"),
-                    Q("match_phrase", name=query),
+                "queries": Q(
+                    # "match_all",
+                    "bool",
+                    must=[
+                        Q("term", is_visible=True),
+                        Q("term", products_exist=True),
+                        Q("term", _index=CategoryDocument._index._name),
+                    ],
+                    should=(
+                        Q("term", name={"value": query, "boost": 4.0}),
+                        Q("fuzzy", name={"value": query, "fuzziness": "AUTO", "boost": 4.0}),
+                        Q("wildcard", name={"value": f"*{query}*", "boost": 2.7}),
+                        Q("match", name=query),
+                        Q("match_phrase", name=query),
+                    ),
+                    minimum_should_match=1,
                 ),
             },
             BrandDocument._index._name: {
                 "model": BrandDocument.Django.model,
                 "serializer": BrandDocumentSerializer,
-                "queries": (
-                    Q("wildcard", name=f"*{query}*"),
-                    Q("match_phrase", name=query),
+                "queries": Q(
+                    "bool",
+                    must=[Q("term", _index=BrandDocument._index._name)],
+                    should=[
+                        Q("term", name={"value": query, "boost": 3.0}),
+                        Q("fuzzy", name={"value": query, "fuzziness": "AUTO", "boost": 3.0}),
+                        Q("wildcard", name={"value": f"*{query}*", "boost": 2.6}),
+                        Q("match_phrase", name=query),
+                    ],
+                    minimum_should_match=1,
                 ),
             },
         }
@@ -74,7 +107,7 @@ class GeneralSearchMixin:
         search = Search(using=client)
 
         for index in indexes.values():
-            shoulds.extend(index["queries"])
+            shoulds.append(index["queries"])
 
         queries = Q("bool", should=shoulds)
 

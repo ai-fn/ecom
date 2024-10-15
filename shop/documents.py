@@ -7,6 +7,7 @@ from .models import Category, Product, Brand
 @registry.register_document
 class CategoryDocument(Document):
     id = fields.IntegerField(attr="id")
+    products_exist = fields.BooleanField()
 
     class Index:
         name = "categories"
@@ -26,7 +27,14 @@ class CategoryDocument(Document):
             "description",
             "slug",
             "is_active",
+            "is_visible",
         ]
+
+    def prepare_products_exist(self, instance):
+        return instance.products.filter(
+            is_active=True,
+            prices__isnull=False,
+        ).exists()
 
 
 @registry.register_document

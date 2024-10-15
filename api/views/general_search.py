@@ -109,15 +109,6 @@ class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateP
                 status=HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        if p := result.get("products"):
-            if (q := p.get("queryset")) and isinstance(q, QuerySet):
-                result["products"]["queryset"] = self.get_products_only_with_price(
-                    self.annotate_queryset(q), domain
-                )
-        elif p := result.get("categories"):
-            if (q := p.get("queryset")) and isinstance(q, QuerySet):
-                result["products"]["queryset"] = self.get_categories_with_products(q, domain)
-
         categorized_results = {index: result[index]["queryset"] for index in result}
         for index in result:
             r_d = result[index]
