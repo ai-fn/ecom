@@ -116,7 +116,7 @@ class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateP
                 )
         elif p := result.get("categories"):
             if (q := p.get("queryset")) and isinstance(q, QuerySet):
-                result["products"]["queryset"] = self.get_orphan_categories(q, domain)
+                result["products"]["queryset"] = self.get_categories_with_products(q, domain)
 
         categorized_results = {index: result[index]["queryset"] for index in result}
         for index in result:
