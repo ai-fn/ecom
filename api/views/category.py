@@ -4,7 +4,7 @@ from api.mixins import (
     ActiveQuerysetMixin,
     IntegrityErrorHandlingMixin,
     CacheResponse,
-    GetOrphanCategories,
+    CategoriesWithProductsMixin,
 )
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import (
@@ -277,7 +277,7 @@ class CategoryViewSet(
     IntegrityErrorHandlingMixin,
     CacheResponse,
     ModelViewSet,
-    GetOrphanCategories,
+    CategoriesWithProductsMixin,
 ):
     queryset = Category.objects.order_by("order")
     serializer_class = CategorySerializer
@@ -316,8 +316,10 @@ class CategoryViewSet(
 
     @action(detail=False, methods=["get"], url_path="orphans-categories")
     def orphans_categories(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset().filter(level=0)
+
         self.queryset = self.filter_queryset(
-            self.get_orphan_categories(self.get_queryset(), self.domain),
+            self.get_categories_with_products(self.queryset, self.domain),
         ).distinct()
         return super().list(request, *args, **kwargs)
 

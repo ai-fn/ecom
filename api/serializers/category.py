@@ -1,7 +1,9 @@
 from typing import OrderedDict
+from django.db.models import Q
 from api.serializers import ActiveModelSerializer
 from rest_framework import serializers
 from shop.models import Category
+from api.mixins import CategoriesWithProductsMixin
 
 
 class CategorySerializer(ActiveModelSerializer):
@@ -124,7 +126,7 @@ class CategorySliderSerializer(ActiveModelSerializer):
         return data
 
 
-class CategoryOrphanSerializer(CategorySliderSerializer):
+class CategoryOrphanSerializer(CategorySliderSerializer, CategoriesWithProductsMixin):
 
     children = serializers.SerializerMethodField()
 
@@ -146,7 +148,7 @@ class CategoryOrphanSerializer(CategorySliderSerializer):
             pk__in=[
                 c.id
                 for c in childrens
-                if c.get_descendants()
+                if c.get_descendants(include_self=True)
                 .filter(
                     is_visible=True,
                     is_active=True,

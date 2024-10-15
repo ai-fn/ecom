@@ -12,5 +12,5 @@ from .product_ordering import ProductSorting
 from .cache_response import CacheResponse
 from .annotate_product import AnnotateProductMixin
 from .delete_some_mixin import DeleteSomeMixin
+from .orphans_categories import CategoriesWithProductsMixin
 from .general_search import GeneralSearchMixin
-from .orphans_categories import GetOrphanCategories

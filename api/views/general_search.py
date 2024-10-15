@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_503_SERVICE_UNAVAILABLE
 
-from api.mixins import GeneralSearchMixin, PriceFilterMixin, AnnotateProductMixin, GetOrphanCategories
+from api.mixins import GeneralSearchMixin, PriceFilterMixin, AnnotateProductMixin, CategoriesWithProductsMixin
 from api.serializers import ProductDocumentSerializer
 from api.views.price import PRICE_RESPONSE_EXAMPLE
 
@@ -92,7 +92,7 @@ brand_document_serializer_example = {
         ),
     },
 )
-class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateProductMixin, GetOrphanCategories):
+class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateProductMixin, CategoriesWithProductsMixin):
     permission_classes = [AllowAny]
     pagination_class = None
 
