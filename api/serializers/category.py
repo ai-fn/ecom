@@ -141,14 +141,18 @@ class CategoryOrphanSerializer(CategorySliderSerializer):
 
     def get_children(self, obj) -> None | OrderedDict:
         domain = self.context.get("city_domain", "")
-        return (
-            obj.get_descendants()
-            .filter(
-                is_active=True,
-                is_visible=True,
-                products__isnull=False,
-                products__prices__city_group__cities__domain=domain,
-            )
-            .values("id", "name", "slug")
-            .distinct()
-        )
+        childrens = obj.children.all()
+        return childrens.filter(
+            pk__in=[
+                c.id
+                for c in childrens
+                if c.get_descendants()
+                .filter(
+                    is_visible=True,
+                    is_active=True,
+                    products__isnull=False,
+                    products__prices__city_group__cities__domain=domain,
+                )
+                .exists()
+            ]
+        ).values("id", "name", "slug")
