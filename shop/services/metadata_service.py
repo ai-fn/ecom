@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from pymorphy2 import MorphAnalyzer
 
 from account.models import City, CityGroup
-from shop.models import OpenGraphMeta
+from shop.models import OpenGraphMeta, Setting, SettingChoices
 
 
 _morph = MorphAnalyzer()
@@ -41,10 +41,9 @@ class MetaDataService:
         instance = model.objects.get(slug=slug)
         kwargs = dict(object_id=instance.pk, content_type=tp)
 
-        if content_type in ("product", "category"):
+        meta = OpenGraphMeta.objects.filter(**kwargs).first()
+        if not meta:
             meta = OpenGraphMeta(pk=999, **kwargs)
-        else:
-            meta = OpenGraphMeta.objects.get(**kwargs)
 
         return meta
 
@@ -72,22 +71,6 @@ class MetaDataService:
         fields: Iterable[Literal["title", "description", "keywords"]],
         city_domain: str = None,
     ):
-        default_templates = {
-            "category": {
-                "title": os.environ.get("PRODUCT_TITLE_META")
-                or "{object_name} в {c_loct} купить по низкой цене с доставкой в каталоге интернет-магазина Кров Маркет",
-                "description": os.environ.get("PRODUCT_DESCRIPTION_META")
-                or "{object_name} в {c_loct} по выгодной цене в интернет-магазине Кров Маркет. Быстрая доставка. Широкий выбор — {count} в наличии. Высокое качество.",
-                "keywords": os.environ.get("CATEGORY_KEYWORDS_META", ""),
-            },
-            "product": {
-                "title": os.environ.get("CATEGORY_TITLE_META")
-                or "{object_name} купить по цене {price} ₽/шт. в {c_loct} с доставкой в интернет-магазине Кров Маркет",
-                "description": os.environ.get("CATEGORY_DESCRIPTION_META")
-                or "{object_name} купить по лучшей цене в {c_loct} за {price} ₽/шт. в интернет-магазине Кров Маркет. Гарантия качества. Быстрая доставка. Читайте отзывы и характеристики, смотрите фото товара.",
-                "keywords": os.environ.get("PRODUCT_KEYWORDS_META", ""),
-            },
-        }
         city = (
             City.objects.filter(domain=city_domain).first() or City.get_default_city()
         )
@@ -102,12 +85,21 @@ class MetaDataService:
         for field in fields:
             price = None
             price_value = None
-            value: str = getattr(meta_obj, field)
+            value: str = getattr(meta_obj, field, None)
             object_name = getattr(instance, "title", None) or getattr(
                 instance, "name", None
             )
+
+            print(value)
+            if not value:
+                key = f"DEFAULT_META_{field.upper()}_TEMPLATE"
+                template = Setting.objects.filter(predefined_key=getattr(SettingChoices, key)).first()
+                if not template:
+                    raise ValueError(f"Template for {meta_obj.content_object} not found.")
+
+                value = template.value_string
+
             if instance._meta.model_name == "product":
-                value = default_templates["product"][field]
                 price_value = (
                     instance.prices.filter(city_group__name=city_group_name)
                     .values_list("price", flat=True)
@@ -115,7 +107,6 @@ class MetaDataService:
                 )
                 products_count = instance.category.products.count()
             elif instance._meta.model_name == "category":
-                value = default_templates["category"][field]
                 price_value = (
                     instance.products.prefetch_related("prices")
                     .order_by("prices__price")

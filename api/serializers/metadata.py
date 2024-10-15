@@ -104,7 +104,7 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
         else:
             url += data.get("url")
 
-        keywords = data.get("keywords").split(",")
+        keywords = data.get("keywords").split(";")
         site_name = data.get("site_name") or os.environ.get("SHOP_NAME", "site name")
 
         if keywords:

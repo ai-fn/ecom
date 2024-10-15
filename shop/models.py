@@ -499,9 +499,11 @@ class SettingChoices(models.TextChoices):
     MULTIDOMAINS_ENABLED = "multidomains_enabled", "Включен ли Multidomains"
     ROBOTS_TXT = "robots_txt", "Наполнение для robots.txt"
     OPEN_GRAPH_META_IMAGE = "openGraphMeta_image", "Путь до openGraphMeta изображения от корня директории сайта"
+    DEFAULT_META_TITLE_TEMPLATE = "default_meta_title_template", "Шаблон по умолчанию для заголовка метаданных"
+    DEFAULT_META_DESCRIPTION_TEMPLATE = "default_meta_description_template", "Шаблон по умолчанию для описания метаданных"
+    DEFAULT_META_KEYWORDS_TEMPLATE = "default_meta_keywords_template", "Шаблон по умолчанию для ключевых слов метаданных"
     # TODO добавить настройки платежных систем
     # TODO добавить доступность прямой оплаты
-    # TODO добавить настройки водяного знака на изображение
     # TODO включение CMS режима
 
 
@@ -777,6 +779,7 @@ class OpenGraphMeta(TimeBasedModel):
     class Meta:
         verbose_name = _("Метаданные")
         verbose_name_plural = _("Метаданные")
+        unique_together = ("content_type", "object_id")
 
 
 class Page(TimeBasedModel):
