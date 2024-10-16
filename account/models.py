@@ -207,7 +207,7 @@ class CustomUser(AbstractUser):
             models.Index(fields=["phone"], name="customuser_phone_idx"),
             models.Index(fields=["address"], name="customuser_address_idx"),
         ]
-    
+
     def __str__(self) -> str:
         return f"CustomUser({self.phone})"
 

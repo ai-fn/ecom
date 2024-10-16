@@ -63,7 +63,6 @@ class GeneralSearchMixin:
                 "model": CategoryDocument.Django.model,
                 "serializer": CategoryDocumentSerializer,
                 "queries": Q(
-                    # "match_all",
                     "bool",
                     must=[
                         Q("term", is_visible=True),
@@ -157,19 +156,17 @@ class GeneralSearchMixin:
             if hit.meta.index in hits:
                 hits[hit.meta.index].append(hit)
 
-        context = {"city_domain": domain}
         for index_name in hits:
             self.process_index(
                 indexes,
                 index_name,
                 hits[index_name],
                 categorized_results,
-                context=context,
             )
 
         return categorized_results
 
-    def process_index(self, indexes, index, hits, categorized_results, context):
+    def process_index(self, indexes, index, hits, categorized_results):
         ids = [hit.id for hit in hits]
         model = indexes[index]["model"]
         serializer = indexes[index]["serializer"]

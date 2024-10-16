@@ -114,6 +114,16 @@ class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateP
             r_d = result[index]
             serializer = r_d["serializer"]
             queryset = r_d["queryset"]
+
+            func_name = f"_process_{index}"
+            func = getattr(self, func_name, None)
+            if func and callable(func):
+                queryset = func(queryset)
+
             categorized_results[index] = serializer(queryset, many=True).data
 
         return Response(categorized_results, status=HTTP_200_OK)
+    
+    def _process_products(self, queryset):
+        queryset = self.annotate_queryset(queryset, fields=["prices"])
+        return queryset

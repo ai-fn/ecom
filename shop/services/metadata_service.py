@@ -90,7 +90,6 @@ class MetaDataService:
                 instance, "name", None
             )
 
-            print(value)
             if not value:
                 key = f"DEFAULT_META_{field.upper()}_TEMPLATE"
                 template = Setting.objects.filter(predefined_key=getattr(SettingChoices, key)).first()
