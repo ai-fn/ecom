@@ -9,6 +9,7 @@ from api.mixins import ActiveAdminMixin
 from shop.models import (
     Brand,
     Category,
+    CategoryTag,
     Characteristic,
     CharacteristicValue,
     FavoriteProduct,
@@ -475,3 +476,18 @@ class ItemSetElementAdmin(ActiveAdminMixin, admin.ModelAdmin):
             kwargs["queryset"] = ContentType.objects.filter(model__in=ItemSet.ItemSetType.values)
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(CategoryTag)
+class CategoryTagAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "parent",
+        "category_slug",
+        "is_active",
+    )
+    list_filter = (
+        "is_active",
+        "parent",
+    )

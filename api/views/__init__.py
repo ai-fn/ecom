@@ -36,3 +36,4 @@ from .feedback import FeedbackViewSet
 from .page import PageViewSet
 from .product_group import ProductGroupViewSet
 from .item_set import ItemSetViewSet, ItemSetElementViewSet
+from .category_tag import CategoryTagViewSet

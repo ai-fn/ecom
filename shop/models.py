@@ -906,3 +906,18 @@ class ItemSetElement(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"{self.content_object} in {self.item_set}"
+
+
+class CategoryTag(TimeBasedModel):
+    parent = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_("Родительская категория"), related_name="category_tags")
+    name = models.CharField(_("Наименование"), max_length=256)
+    category_slug = models.SlugField(_("Слаг целевой категории"), max_length=256)
+    order = models.PositiveIntegerField(_("Порядковый номер"), blank=True, null=True)
+
+    class Meta:
+        ordering = ("name",)
+        verbose_name = _("Тег категории")
+        verbose_name_plural = _("Теги категорий")
+
+    def __str__(self) -> str:
+        return f"Тэг категории '{self.name}'"
