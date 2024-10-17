@@ -1,6 +1,5 @@
-import os
-
 from typing import Any
+from django.core.cache import cache
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -163,6 +162,17 @@ class CityGroup(TimeBasedModel):
 
     def __str__(self) -> str:
         return f"Группа {self.name}"
+
+    @staticmethod
+    def get_main_city_domain(domain: str) -> str | None:
+        key = f"GET_MAIN_CITY_DOMAIN_{domain.upper()}"
+        cached_data = cache.get(key)
+        if not cached_data:
+            cg = CityGroup.objects.filter(cities__domain=domain).first()
+            cached_data = cg.main_city.domain if cg and cg.main_city else None
+            cache.set(key, cached_data, timeout=60*60*24)
+
+        return cached_data
 
     @staticmethod
     def get_default_city_group() -> "CityGroup":

@@ -1,11 +1,10 @@
-from django.db.models import QuerySet
-
 from loguru import logger
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_503_SERVICE_UNAVAILABLE
 
+from account.models import CityGroup
 from api.mixins import GeneralSearchMixin, PriceFilterMixin, AnnotateProductMixin, CategoriesWithProductsMixin
 from api.serializers import ProductDocumentSerializer
 from api.views.price import PRICE_RESPONSE_EXAMPLE
@@ -100,8 +99,10 @@ class GeneralSearchView(GeneralSearchMixin, APIView, PriceFilterMixin, AnnotateP
         domain = self.request.query_params.get("city_domain", "")
         query = self.request.query_params.get("q", "")
 
+        cg_domain = CityGroup.get_main_city_domain(domain=domain)
+
         try:
-            result, _ = self.g_search(query, domain)
+            result, _ = self.g_search(query, cg_domain)
         except ConnectionError as e:
             logger.error(str(e))
             return Response(

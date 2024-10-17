@@ -39,13 +39,10 @@ class GeneralSearchMixin:
                 "model": ProductDocument.Django.model,
                 "serializer": ProductDocumentSerializer,
                 "queries": Q(
+                    # "match_all",
                     "bool",
                     must=[
-                        Q(
-                            "nested",
-                            path="price",
-                            query=Q("term", price__domain=domain),
-                        ),
+                        Q("match", prices__cg_domain=domain),
                         Q("term", _index=ProductDocument._index._name),
                     ],
                     should=(
@@ -100,7 +97,7 @@ class GeneralSearchMixin:
             try:
                 del indexes[index]
             except KeyError:
-                logger.info(f"SEARCH: tring to del unexpected index: {index}")
+                logger.info(f"SEARCH: trying to del unexpected index: {index}")
 
         client = connections.get_connection()
         search = Search(using=client)

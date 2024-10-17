@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
 from django.db.models import Q, Min, Max, QuerySet
 
+from account.models import CityGroup
 from shop.models import Category, Characteristic, Product
 from api.mixins import GeneralSearchMixin
 
@@ -107,9 +108,11 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         ordering = self.request.query_params.get("order_by")
         page = int(self.request.query_params.get("page", 1))
 
+        cg_domain = CityGroup.get_main_city_domain(domain=self.city_domain)
+
         search_results, total_result = self.g_search(
             value,
-            self.city_domain,
+            cg_domain,
             exclude_=("brands", "categories"),
             page=page,
             ordering=ordering,
