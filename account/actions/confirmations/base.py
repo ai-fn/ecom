@@ -26,6 +26,12 @@ class SendCodeBaseAction(GenerateCodeMixin):
         prefix = getattr(settings, "CONFIRM_CODE_PREFIX", "CONFIRM_CODE_PREFIX")
         return f"{prefix}_{salt}"
 
+    def _invalidate_cache(self, salt):
+        cache.delete(self._get_code_cache_key(salt))
+
+    def _send_message(self, request, code: str, cache_key: str) -> bool:
+        raise NotImplementedError("Method must be implemented!")
+
     def execute(self, request):
         serializer_instance = self.serializer_class(data=request.data)
         if not serializer_instance.is_valid():
@@ -70,11 +76,4 @@ class SendCodeBaseAction(GenerateCodeMixin):
             },
             timeout=self.code_lifetime,
         )
-        print(cache.get(self._get_code_cache_key(salt)))
         return et
-
-    def _invalidate_cache(self, salt):
-        cache.delete(self._get_code_cache_key(salt))
-
-    def _send_message(self, request, code: str, cache_key: str) -> bool:
-        raise NotImplementedError("Method must be implemented!")

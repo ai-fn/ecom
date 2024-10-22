@@ -21,7 +21,9 @@ class GenerateCodeMixin:
 class SendVerifyEmailMixin(GenerateCodeMixin):
 
     _EMAIL_CACHE_LIFE_TIME = getattr(settings, "EMAIL_CACHE_LIFE_TIME", 60 * 60)
-    _EMAIL_CACHE_REMAINING_TIME = getattr(settings, "EMAIL_CACHE_REMAINING_TIME", 60 * 2)
+    _EMAIL_CACHE_REMAINING_TIME = getattr(
+        settings, "EMAIL_CACHE_REMAINING_TIME", 60 * 2
+    )
 
     def _get_code_cache_key(self, salt: str):
         return f"CODE_CACHE_{salt}"
@@ -31,6 +33,21 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
 
     def _invalidate_cache(self, email: str) -> None:
         cache.delete(self._get_code_cache_key(email))
+
+    def _get_expiration_time(self):
+        return time.time() + self._EMAIL_CACHE_REMAINING_TIME
+
+    def _set_cache(self, cache_key: str, code: str):
+        et = self._get_expiration_time()
+        cache.set(
+            key=cache_key,
+            value={
+                "expiration_time": et,
+                "code": code,
+            },
+            timeout=self._EMAIL_CACHE_LIFE_TIME,
+        )
+        return et
 
     def _generate_message(
         self,
@@ -53,12 +70,24 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
         return context
 
     def _send_confirm_email(
-        self, request, user, email, email_template_name="email/register_code.html", cache_key: str = None, set_cache: bool = True, code: str = None,
+        self,
+        request,
+        user,
+        email,
+        code: str = None,
+        topik: str = None,
+        cache_key: str = None,
+        set_cache: bool = True,
+        email_template_name: str ="email/register_code.html",
     ):
         if not cache_key:
             cache_key = self._get_code_cache_key(email)
+
         if not code:
             code = self._generate_code(length=settings.REGISTER_CODE_LENGTH)
+        
+        if not topik:
+            topik = _(f"Подтверждение почты {settings.BASE_DOMAIN}")
 
         cached_data = cache.get(cache_key)
         if cached_data:
@@ -66,12 +95,12 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
             remaining_time = expiration_time - time.time()
             if remaining_time >= 0:
                 return Response(
-                        {
-                            "message": f"Please wait. Time remaining: {int(remaining_time) // 60:02d}:{int(remaining_time) % 60:02d}",
-                            "expiration_time": expiration_time
-                        },
-                        status=HTTP_400_BAD_REQUEST,
-                    )
+                    {
+                        "message": f"Please wait. Time remaining: {int(remaining_time) // 60:02d}:{int(remaining_time) % 60:02d}",
+                        "expiration_time": expiration_time,
+                    },
+                    status=HTTP_400_BAD_REQUEST,
+                )
 
         context = self._generate_message(user, email, code)
 
@@ -83,8 +112,8 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
         body = render_to_string(email_template_name, context)
 
         result = send_mail(
-            _("Confrim email"),
-            "",
+            topik,
+            "", 
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[email],
             fail_silently=True,
@@ -95,24 +124,10 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
 
         if result:
             return Response(
-                {"message": "Message sent successfully", "expiration_time": et}, status=HTTP_200_OK
+                {"message": "Message sent successfully", "expiration_time": et},
+                status=HTTP_200_OK,
             )
         else:
             return Response(
                 {"error": "Message sent failed"}, status=HTTP_400_BAD_REQUEST
             )
-    
-    def _set_cache(self, cache_key: str, code: str):
-        et = self._get_expiration_time()
-        cache.set(
-            key=cache_key,
-            value={
-                "expiration_time": et,
-                "code": code,
-            },
-            timeout=self._EMAIL_CACHE_LIFE_TIME,
-        )
-        return et
-
-    def _get_expiration_time(self):
-        return time.time() + self._EMAIL_CACHE_REMAINING_TIME

@@ -1,6 +1,4 @@
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
 
 from api.mixins import SendVerifyEmailMixin, ActiveQuerysetMixin, IntegrityErrorHandlingMixin
 from api.serializers.user import UserDetailInfoSerializer
@@ -20,9 +18,9 @@ from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExam
 RESPONSE_EXAMPLE = {
     "first_name": "Админ",
     "last_name": "Админов",
-    "email": "parovozikdima@gmail.com",
+    "email": "example@gmail.com",
     "middle_name": None,
-    "phone": "+7(993)6746657",
+    "phone": "+79978954783456",
     "address": None,
     "is_active": True,
     "email_confirmed": True,
@@ -129,7 +127,6 @@ class AccountInfoViewSet(
         )
 
     @action(methods=["get"], detail=False)
-    @method_decorator(cache_page(SendVerifyEmailMixin._EMAIL_CACHE_REMAINING_TIME))
     def resend_verify_email(self, request, *args, **kwargs):
         email = request.user.email
         if not email:

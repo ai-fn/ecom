@@ -1,11 +1,10 @@
 import time
 import requests
 from loguru import logger
-from rest_framework.response import Response
-from rest_framework import status
-from account.actions import SendCodeBaseAction
 from django.conf import settings
 from django.core.cache import cache
+from rest_framework.response import Response
+from account.actions import SendCodeBaseAction
 
 
 class SendCodeToTelegramAction(SendCodeBaseAction):

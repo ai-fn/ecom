@@ -1,5 +1,5 @@
 from account.models import CustomUser
-from account.actions import SendCodeToEmailAction, SendCodeToTelegramAction
+from account.actions import SendCodeToEmailAction
 
 from django.conf import settings
 from django.core.cache import cache
@@ -23,17 +23,22 @@ remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
 @extend_schema_view(
     send_code=extend_schema(
         tags=["Account"],
-        parameters=[OpenApiParameter(
-            "city_domain",
-            type=str,
-            required=True,
-        )],
-        description=f"Отпарвка СМС сообщения. Кэширование запроса на {code_lifetime} секунд.",
-        summary="Отпарвка СМС сообщения",
+        description=f"Отпарвка сообщения c кодом. Кэширование запроса на {code_lifetime} секунд.",
+        summary="Отпарвка сообщения c кодом",
         examples=[
-            OpenApiExample(name="Пример запроса (Email)", value={"email": "example@gmail.com"}, request_only=True),
-            OpenApiExample(name="Пример запроса (Phone)", value={"phone": "+79889889898"}, request_only=True),
-            OpenApiExample(name="Response Example", value={"success": True}, response_only=True),
+            OpenApiExample(
+                name="Пример запроса (Email)",
+                value={"email": "example@gmail.com"},
+                request_only=True,
+            ),
+            OpenApiExample(
+                name="Пример запроса (Phone)",
+                value={"phone": "+79889889898"},
+                request_only=True,
+            ),
+            OpenApiExample(
+                name="Response Example", value={"success": True}, response_only=True
+            ),
         ],
     ),
     verify_code=extend_schema(
@@ -42,9 +47,7 @@ remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
         summary="Проверка кода подтверждения",
         examples=[
             OpenApiExample(
-                name="Пример запроса",
-                value={"phone": "+79889889898", "code": "4378"},
-                request_only=True
+                name="Пример запроса", value={"code": "4378"}, request_only=True
             ),
             OpenApiExample(
                 name="Response Example",
@@ -55,24 +58,20 @@ remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
                     "access_expired_at": 1717680884.4001374,
                     "refresh_expired_at": 1718976584.4001443,
                 },
-                response_only=True
+                response_only=True,
             ),
         ],
     ),
 )
 class ConfirmCodesViewSet(GenericViewSet):
-    send_code_class = SendCodeToEmailAction
+    send_code_action = SendCodeToEmailAction()
     queryset = CustomUser.objects.all()
     permission_classes = [AllowAny]
     serializer_class = ConfirmCodeSerializer
 
-    def initial(self, request, *args, **kwargs):
-        self.send_action = self.send_code_class()
-        return super().initial(request, *args, **kwargs)
-
     @action(detail=False, methods=["post"], url_path="send-code")
     def send_code(self, request, *args, **kwargs) -> Response:
-        return self.send_code_class().execute(request)
+        return self.send_code_action.execute(request)
 
     @action(detail=False, methods=["post"], url_path="verify_code")
     def verify_code(self, request, *args, **kwargs) -> Response:
@@ -82,25 +81,33 @@ class ConfirmCodesViewSet(GenericViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         ip = request.META.get("REMOTE_ADDR")
-        cached_key = self.send_action._get_code_cache_key(ip)
+        cached_key = self.send_code_action._get_code_cache_key(ip)
         cached_data = cache.get(cached_key)
         if not cached_data:
-            return Response({"error": "No confirmation codes for you."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No confirmation codes for you."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         cached_code = cached_data.get("code")
 
-        if not cached_data or serializer.validated_data["code"] != cached_code:
+        if serializer.validated_data["code"] != cached_code:
             return Response(
                 {"message": "Invalid confirmation code"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        lookup_value = cached_data.get(self.send_action.lookup_field)
-        l_kwargs = {self.send_action.lookup_field: lookup_value}
-        self.send_action._invalidate_cache(ip)
+        lookup_value = cached_data.get(self.send_code_action.lookup_field)
+        l_kwargs = {self.send_code_action.lookup_field: lookup_value}
+        self.send_code_action._invalidate_cache(ip)
 
         user, created = CustomUser.objects.get_or_create(
-            **l_kwargs, defaults={"username": lookup_value, "is_active": True}
+            **l_kwargs,
+            defaults={
+                "username": lookup_value,
+                "is_active": True,
+                "email_confirmed": True,
+            },
         )
 
         if created:

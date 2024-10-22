@@ -1,10 +1,8 @@
 import requests
 from loguru import logger
 from rest_framework.response import Response
-from rest_framework import status
 from account.actions import SendCodeBaseAction
 from django.conf import settings
-from django.core.cache import cache
 
 
 class SendCodeToSmsAction(SendCodeBaseAction):
