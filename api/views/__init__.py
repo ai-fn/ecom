@@ -12,10 +12,7 @@ from .product import ProductViewSet
 from .products_in_order import ProductsInOrderViewSet
 from .review import ReviewViewSet
 from .setting import SettingViewSet, RobotsTxtView
-from .confirm_register import (
-    SendSMSView,
-    VerifyConfirmCode
-)
+from .confirm_register import ConfirmCodesViewSet
 from .footer_settings import FooterItemViewSet
 from .feeds import FeedsView
 from .products_by_list import ProductsById

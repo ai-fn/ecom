@@ -1,193 +1,109 @@
-from datetime import datetime, timedelta
-import time
-from drf_spectacular.utils import OpenApiExample
-import requests
-import random as rd
-
-from string import digits
+from account.models import CustomUser
+from account.actions import SendCodeToEmailAction
 
 from django.conf import settings
 from django.core.cache import cache
 
-from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import AllowAny
 
-from ..serializers._jwt import MyTokenObtainPairSerializer
-from ..serializers.phone import PhoneSerializer
-from ..serializers.confirm_code import ConfirmCodeSerializer
-from account.models import CustomUser
-from drf_spectacular.utils import extend_schema
+from api.serializers._jwt import MyTokenObtainPairSerializer
+from api.serializers.confirm_code import ConfirmCodeSerializer
+
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60 * 30))
 remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
 
 
-@extend_schema(
-    tags=["Account"],
-    description=f"Отпарвка СМС сообщения. Кэширование запроса на {code_lifetime} секунд.",
-    summary="Отпарвка СМС сообщения",
-    examples=[
-        OpenApiExample(name="Пример запроса", value={"phone_number": "+79889889898"}),
-        OpenApiExample(name="Response Example", value={"success": True}),
-    ],
+@extend_schema_view(
+    send_code=extend_schema(
+        tags=["Account"],
+        parameters=[OpenApiParameter(
+            "city_domain",
+            type=str,
+            required=True,
+        )],
+        description=f"Отпарвка СМС сообщения. Кэширование запроса на {code_lifetime} секунд.",
+        summary="Отпарвка СМС сообщения",
+        examples=[
+            OpenApiExample(name="Пример запроса (Email)", value={"email": "example@gmail.com"}, request_only=True),
+            OpenApiExample(name="Пример запроса (Phone)", value={"phone": "+79889889898"}, request_only=True),
+            OpenApiExample(name="Response Example", value={"success": True}, response_only=True),
+        ],
+    ),
+    verify_code=extend_schema(
+        tags=["Account"],
+        description="Проверка кода подтверждения.",
+        summary="Проверка кода подтверждения",
+        examples=[
+            OpenApiExample(
+                name="Пример запроса",
+                value={"phone": "+79889889898", "code": "4378"},
+                request_only=True
+            ),
+            OpenApiExample(
+                name="Response Example",
+                value={
+                    "message": "User successfully activated",
+                    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxODk3NjU4NCwiaWF0IjoxNzE3NjgwNTg0LCJqdGkiOiIxMWU1NjFhMDU1NGY0ZTYyYWYwODdlZjI1ODdiYTBlOCIsInVzZXJfaWQiOjcsInVzZXJuYW1lIjoiKzc5ODg5ODg5ODk4In0.XaVP2bCuzRW2hk_zcZbdObIUHpi6ynu4uDsT66A1OLY",
+                    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzE3NjgwODg0LCJpYXQiOjE3MTc2ODA1ODQsImp0aSI6IjE4NzRmZDliMzdmNTRiOWZiY2YxNzI3ZGE1OGNhN2E5IiwidXNlcl9pZCI6NywidXNlcm5hbWUiOiIrNzk4ODk4ODk4OTgifQ.4y5LOdHwHtfrspvzbAWH9DUwqhJxUZBuByv3rmQaFZ4",
+                    "access_expired_at": 1717680884.4001374,
+                    "refresh_expired_at": 1718976584.4001443,
+                },
+                response_only=True
+            ),
+        ],
+    ),
 )
-class SendSMSView(GenericAPIView):
-
-    permission_classes = [AllowAny]
-    serializer_class = PhoneSerializer
-
-    def post(self, request):
-        """
-        Отправляет SMS сообщение через сервис SMS.ru.
-
-        Args:
-            phone_number (str): Номер телефона в международном формате.
-        """
-
-        bot_token = settings.TG_BOT_TOKEN
-        send_to_telegram = settings.SEND_TO_TELEGRAM
-        chat_id = settings.CHAT_ID
-
-        serializer_instance = self.serializer_class(data=request.data)
-        serializer_instance.is_valid(raise_exception=True)
-        phone_number: str = serializer_instance.data.get("phone_number")
-
-        if not phone_number:
-            return Response(
-                {"error": "Missing phone number"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        cache_prefix = getattr(settings, "SMS_CACHE_PREFIX", "SMS_CACHE")
-        cache_key = f"{cache_prefix}_{phone_number}"
-        cached_data = cache.get(cache_key)
-
-        if cached_data:
-            ren_time = cached_data.get("expiration_time") - time.time()
-            if ren_time >= 0:
-                return Response(
-                    {
-                        "message": f"Please wait. Time remaining: {int(ren_time) // 60:02d} seconds"
-                    },
-                    status=status.HTTP_409_CONFLICT,
-                )
-
-        code = "".join(rd.choices(digits, k=4))
-        message = f"Ваш код: {code}. Никому не сообщайте его!"
-        api_key = getattr(settings, "SMS_RU_TOKEN", "default")
-
-        try:
-            sms_link = "https://sms.ru/sms/send"
-            sms_params = {
-                "api_id": api_key,
-                "to": phone_number,
-                "msg": message,
-                "json": 1,  # to receive response in JSON format
-            }
-
-            tg_link = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-            tg_params = {
-                "chat_id": chat_id,
-                "text": message,
-                "json": 1,  # to receive response in JSON format
-            }
-
-            if not send_to_telegram:
-                response = requests.get(sms_link, params=sms_params)
-            else:
-                response = requests.post(tg_link, params=tg_params)
-
-            response_data = response.json()
-
-            if response_data.get("status") == "OK" or response_data.get("ok"):
-                cache.set(
-                    cache_key,
-                    {
-                        "expiration_time": time.time() + remaining_time,
-                        "code": code,
-                    },
-                    timeout=code_lifetime,
-                )
-                return Response({"success": True}, status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    {
-                        "error": (
-                            response_data.get(
-                                "status_text",
-                                "%s: %s"
-                                % (
-                                    response_data.get("error_code"),
-                                    response_data.get("description"),
-                                ),
-                            )
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_200_OK)
-
-
-@extend_schema(
-    tags=["Account"],
-    description="Проверка кода подтверждения.",
-    summary="Проверка кода подтверждения",
-    examples=[
-        OpenApiExample(
-            name="Пример запроса",
-            value={"phone_number": "+79889889898", "code": "4378"},
-            request_only=True
-        ),
-        OpenApiExample(
-            name="Response Example",
-            value={
-                "message": "User successfully activated",
-                "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxODk3NjU4NCwiaWF0IjoxNzE3NjgwNTg0LCJqdGkiOiIxMWU1NjFhMDU1NGY0ZTYyYWYwODdlZjI1ODdiYTBlOCIsInVzZXJfaWQiOjcsInVzZXJuYW1lIjoiKzc5ODg5ODg5ODk4In0.XaVP2bCuzRW2hk_zcZbdObIUHpi6ynu4uDsT66A1OLY",
-                "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzE3NjgwODg0LCJpYXQiOjE3MTc2ODA1ODQsImp0aSI6IjE4NzRmZDliMzdmNTRiOWZiY2YxNzI3ZGE1OGNhN2E5IiwidXNlcl9pZCI6NywidXNlcm5hbWUiOiIrNzk4ODk4ODk4OTgifQ.4y5LOdHwHtfrspvzbAWH9DUwqhJxUZBuByv3rmQaFZ4",
-                "access_expired_at": 1717680884.4001374,
-                "refresh_expired_at": 1718976584.4001443,
-            },
-            response_only=True
-        ),
-    ],
-)
-class VerifyConfirmCode(GenericAPIView):
+class ConfirmCodesViewSet(GenericViewSet):
+    send_code_class = SendCodeToEmailAction
+    queryset = CustomUser.objects.all()
     permission_classes = [AllowAny]
     serializer_class = ConfirmCodeSerializer
 
-    def post(self, request):
+    @action(detail=False, methods=["post"], url_path="send-code")
+    def send_code(self, request, *args, **kwargs) -> Response:
+        return self.send_code_class.execute(request)
 
-        phone_number = request.data.get("phone_number")
-        phone_serializer = PhoneSerializer(data={"phone_number": phone_number})
-        phone_serializer.is_valid(raise_exception=True)
+    @action(detail=False, methods=["post"], url_path="verify_code")
+    def verify_code(self, request, *args, **kwargs) -> Response:
 
-        code = request.data.get("code")
-        serializer = self.serializer_class(data={"code": code})
-        serializer.is_valid(raise_exception=True)
+        serializer = ConfirmCodeSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        cached_key = f"{settings.SMS_CACHE_PREFIX}_{phone_number}"
-        cached_data = cache.get(cached_key, {})
+        ip = request.META.get("REMOTE_ADDR")
+        cached_key = self._get_code_cache_key(ip)
+        cached_data = cache.get(cached_key)
+        if not cached_data:
+            return Response({"error": "No confirmation codes for you."}, status=status.HTTP_400_BAD_REQUEST)
+
         cached_code = cached_data.get("code")
 
-        if not cached_data or code != cached_code:
+        if not cached_data or serializer.validated_data["code"] != cached_code:
             return Response(
                 {"message": "Invalid confirmation code"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        lookup_value = cached_data.get(self.lookup_field)
+        l_kwargs = {self.lookup_field: lookup_value}
+        self._invalidate_cache(ip)
+
         user, created = CustomUser.objects.get_or_create(
-            phone=phone_number, defaults={"username": phone_number, "is_active": True}
+            **l_kwargs, defaults={"username": lookup_value, "is_active": True}
         )
 
         if created:
-            user.set_password(phone_number)
+            user.set_password(lookup_value)
             user.save()
 
-        serialized_tokens = MyTokenObtainPairSerializer().validate(
-            {"username": user.username, "password": user.phone}
-        )
+        serialized_tokens = MyTokenObtainPairSerializer.get_response(user)
         return Response(
             {"message": "User successfully activated", **serialized_tokens},
             status=status.HTTP_200_OK,

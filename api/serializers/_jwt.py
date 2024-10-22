@@ -14,6 +14,15 @@ class MyTokenObtainPairSerializer(TokenExpiredTimeMixin, TokenObtainPairSerializ
 
         token["username"] = user.username
         return token
+    
+    @classmethod
+    def get_response(cls, user):
+        token = cls.get_token(user)
+        token["username"] = user.username
+        
+        data = {"refresh": str(token), "access": str(token.access_token)}
+        data = cls._set_time_fields(data)
+        return data
 
 
 class MyTokenRefreshSerializer(TokenExpiredTimeMixin, TokenRefreshSerializer):

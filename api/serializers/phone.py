@@ -1,8 +1,7 @@
-from api.serializers import ActiveModelSerializer
-from api.mixins import ValidatePhoneNumberMixin
 from rest_framework import serializers
+from api.mixins import ValidatePhoneNumberMixin
 
 
-class PhoneSerializer(serializers.Serializer, ValidatePhoneNumberMixin):
+class PhoneSerializer(ValidatePhoneNumberMixin, serializers.Serializer):
     
-    phone_number = serializers.CharField(max_length=16)
+    phone = serializers.CharField(max_length=16)

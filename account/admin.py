@@ -13,7 +13,7 @@ class CustomUserValidation(ValidatePhoneNumberMixin):
 
     def clean_phone(self):
         try:
-            return self.validate_phone_number(self.cleaned_data.get('phone'))
+            return self.validate_phone(self.cleaned_data.get('phone'))
         except ValidationError as e:
             self.add_error("phone", _(str(e.detail[0])))
 

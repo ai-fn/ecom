@@ -15,7 +15,6 @@ from api.views import (
     ProductsInOrderViewSet,
     ReviewViewSet,
     SettingViewSet,
-    VerifyConfirmCode,
     RobotsTxtView,
     FooterItemViewSet,
     BannerViewSet,
@@ -34,9 +33,9 @@ from api.views import (
     ItemSetViewSet,
     ItemSetElementViewSet,
     CategoryTagViewSet,
+    ConfirmCodesViewSet,
 )
 from api.views import (
-    SendSMSView,
     PromoViewSet,
     SideBarMenuItemViewSet
 )
@@ -71,6 +70,7 @@ router.register(r"pages", PageViewSet)
 router.register(r"product-groups", ProductGroupViewSet)
 router.register(r"itemsets", ItemSetViewSet)
 router.register(r"itemset-elements", ItemSetElementViewSet)
+router.register(r"confirm-codes", ConfirmCodesViewSet)
 
 
 app_name= "api"
@@ -86,8 +86,6 @@ urlpatterns = [
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
     path("get_robots_txt", RobotsTxtView.as_view(), name="get_robots_txt"),
-    path("send_verify_sms/", SendSMSView.as_view(), name="send_verify_sms"),
-    path("verify_confirmation_code/", VerifyConfirmCode.as_view(), name="verify_confirmation_code"),
     path("search/", GeneralSearchView.as_view(), name="general-search"),
     path("products_by_id_list/", ProductsById.as_view(), name="products_bu_id_list"),
     path("update_index/", UpdateIndex.as_view(), name="update_index"),

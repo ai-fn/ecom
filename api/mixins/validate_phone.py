@@ -2,16 +2,29 @@ import phonenumbers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from account.models import CustomUser
+
 
 class ValidatePhoneNumberMixin:
 
-    def validate_phone_number(self, value):
-        phone_number = value
+    def validate_phone(self, value):
+        print(self.instance)
+        if instance := getattr(self, "instance", None):
+            if getattr(instance, "phone", None) == value:
+                raise ValidationError(_("Phone already confirmed"))
+
+        phone = value
         try:
-            parsed_number = phonenumbers.parse(phone_number, None)
+            parsed_number = phonenumbers.parse(phone, None)
             if not phonenumbers.is_valid_number(parsed_number):
                 raise ValidationError(_("Invalid phone number."))
         except phonenumbers.phonenumberutil.NumberParseException:
             raise ValidationError(_("Invalid phone number."))
+        try:
+            CustomUser.objects.get(phone=phone)
+        except CustomUser.DoesNotExist:
+            pass
+        else:
+            raise ValidationError(_(f"User with phone '{phone}' alredy exists."))
 
         return value

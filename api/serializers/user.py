@@ -85,7 +85,7 @@ class UserRegistrationSerializer(ActiveModelSerializer, ValidatePhoneNumberMixin
 class UserDetailInfoSerializer(
     ValidateAddressMixin, ValidatePhoneNumberMixin, ActiveModelSerializer
 ):
-    phone = serializers.CharField(max_length=16, read_only=True)
+    phone = serializers.CharField(max_length=16)
     is_active = serializers.BooleanField(read_only=True)
 
     class Meta:

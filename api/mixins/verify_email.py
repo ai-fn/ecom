@@ -1,14 +1,13 @@
 import time
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
 
-from loguru import logger
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+
 
 class GenerateCodeMixin:
 
@@ -21,55 +20,47 @@ class GenerateCodeMixin:
 
 class SendVerifyEmailMixin(GenerateCodeMixin):
 
-    _EMAIL_CACHE_PREFIX = getattr(settings, "EMAIL_CACHE_PREFIX", "EMAIL_CACHE_PREFIX")
     _EMAIL_CACHE_LIFE_TIME = getattr(settings, "EMAIL_CACHE_LIFE_TIME", 60 * 60)
     _EMAIL_CACHE_REMAINING_TIME = getattr(settings, "EMAIL_CACHE_REMAINING_TIME", 60 * 2)
 
+    def _get_code_cache_key(self, salt: str):
+        return f"CODE_CACHE_{salt}"
 
     def _get_code(self, email: str):
-        return cache.get(key=self._get_cache_key(email))
-
-    def _get_cache_key(self, email: str) -> str:
-        return f"{self._EMAIL_CACHE_PREFIX}_{email}"
+        return cache.get(key=self._get_code_cache_key(email))
 
     def _invalidate_cache(self, email: str) -> None:
-        cache.delete(self._get_cache_key(email))
+        cache.delete(self._get_code_cache_key(email))
 
     def _generate_message(
         self,
-        request,
         user,
         email,
+        code: str = None,
     ):
-        current_site = get_current_site(request)
-        site_name = current_site.name
-        domain = current_site.domain
+        if not code:
+            code = self._generate_code()
 
-        code = self._generate_code()
-        expiration_time = time.time() + self._EMAIL_CACHE_REMAINING_TIME
-        cache.set(
-            key=self._get_cache_key(email),
-            value={
-                "expiration_time": expiration_time,
-                "code": code,
-            },
-            timeout=self._EMAIL_CACHE_LIFE_TIME,
-        )
-
+        domain = getattr(settings, "BASE_DOMAIN")
         context = {
             "email": email,
             "domain": domain,
-            "site_name": site_name,
+            "site_name": domain,
             "user": user,
             "code": code,
             "protocol": ["https", "http"][settings.DEBUG],
         }
-        return context, expiration_time
+        return context
 
     def _send_confirm_email(
-        self, request, user, email, email_template_name="email/index.html"
+        self, request, user, email, email_template_name="email/register_code.html", cache_key: str = None, set_cache: bool = True, code: str = None,
     ):
-        cached_data = self._get_code(email)
+        if not cache_key:
+            cache_key = self._get_code_cache_key(email)
+        if not code:
+            code = self._generate_code(length=settings.REGISTER_CODE_LENGTH)
+
+        cached_data = cache.get(cache_key)
         if cached_data:
             expiration_time = cached_data.get("expiration_time")
             remaining_time = expiration_time - time.time()
@@ -82,7 +73,13 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
                         status=HTTP_400_BAD_REQUEST,
                     )
 
-        context, expiration_time = self._generate_message(request, user, email)
+        context = self._generate_message(user, email, code)
+
+        if set_cache:
+            et = self._set_cache(cache_key, code)
+        else:
+            et = self._get_expiration_time()
+
         body = render_to_string(email_template_name, context)
 
         result = send_mail(
@@ -95,11 +92,27 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
             auth_password=settings.EMAIL_HOST_PASSWORD,
             html_message=body,
         )
+
         if result:
             return Response(
-                {"message": "Message sent successfully", "expiration_time": expiration_time}, status=HTTP_200_OK
+                {"message": "Message sent successfully", "expiration_time": et}, status=HTTP_200_OK
             )
         else:
             return Response(
                 {"error": "Message sent failed"}, status=HTTP_400_BAD_REQUEST
             )
+    
+    def _set_cache(self, cache_key: str, code: str):
+        et = self._get_expiration_time()
+        cache.set(
+            key=cache_key,
+            value={
+                "expiration_time": et,
+                "code": code,
+            },
+            timeout=self._EMAIL_CACHE_LIFE_TIME,
+        )
+        return et
+
+    def _get_expiration_time(self):
+        return time.time() + self._EMAIL_CACHE_REMAINING_TIME

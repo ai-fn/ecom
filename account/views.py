@@ -93,11 +93,12 @@ RESPONSE_EXAMPLE = {
     ),
 )
 class AccountInfoViewSet(
-    ActiveQuerysetMixin, IntegrityErrorHandlingMixin,
-    viewsets.GenericViewSet,
+    ActiveQuerysetMixin,
+    IntegrityErrorHandlingMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     SendVerifyEmailMixin,
+    viewsets.GenericViewSet,
 ):
     serializer_class = UserDetailInfoSerializer
     permission_classes = [UserInfoPermission, IsAuthenticated]
@@ -147,7 +148,6 @@ class AccountInfoViewSet(
         Частичное изменение информации о пользователе.
         """
         self.kwargs["pk"] = request.user.pk
-
         response = super().partial_update(request, *args, **kwargs)
         if 200 <= response.status_code < 400 and "email" in request.data:
             user = self.get_object()
