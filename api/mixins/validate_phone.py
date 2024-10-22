@@ -19,11 +19,5 @@ class ValidatePhoneNumberMixin:
                 raise ValidationError(_("Invalid phone number."))
         except phonenumbers.phonenumberutil.NumberParseException:
             raise ValidationError(_("Invalid phone number."))
-        try:
-            CustomUser.objects.get(phone=phone)
-        except CustomUser.DoesNotExist:
-            pass
-        else:
-            raise ValidationError(_(f"User with phone '{phone}' alredy exists."))
 
         return value

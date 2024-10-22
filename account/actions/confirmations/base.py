@@ -1,6 +1,4 @@
 import time
-import random as rd
-from string import digits
 
 from django.conf import settings
 from django.core.cache import cache
@@ -15,6 +13,7 @@ from api.mixins import GenerateCodeMixin
 class SendCodeBaseAction(GenerateCodeMixin):
     link: str = None
     api_key: str = None
+    kwargs = dict()
     lookup_field: str = "phone"
     permission_classes = [AllowAny]
     serializer_class = PhoneSerializer
@@ -71,6 +70,7 @@ class SendCodeBaseAction(GenerateCodeMixin):
             },
             timeout=self.code_lifetime,
         )
+        print(cache.get(self._get_code_cache_key(salt)))
         return et
 
     def _invalidate_cache(self, salt):

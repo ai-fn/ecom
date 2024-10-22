@@ -1,5 +1,5 @@
 from account.models import CustomUser
-from account.actions import SendCodeToEmailAction
+from account.actions import SendCodeToEmailAction, SendCodeToTelegramAction
 
 from django.conf import settings
 from django.core.cache import cache
@@ -66,6 +66,10 @@ class ConfirmCodesViewSet(GenericViewSet):
     permission_classes = [AllowAny]
     serializer_class = ConfirmCodeSerializer
 
+    def initial(self, request, *args, **kwargs):
+        self.send_action = self.send_code_class()
+        return super().initial(request, *args, **kwargs)
+
     @action(detail=False, methods=["post"], url_path="send-code")
     def send_code(self, request, *args, **kwargs) -> Response:
         return self.send_code_class().execute(request)
@@ -78,7 +82,7 @@ class ConfirmCodesViewSet(GenericViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         ip = request.META.get("REMOTE_ADDR")
-        cached_key = self._get_code_cache_key(ip)
+        cached_key = self.send_action._get_code_cache_key(ip)
         cached_data = cache.get(cached_key)
         if not cached_data:
             return Response({"error": "No confirmation codes for you."}, status=status.HTTP_400_BAD_REQUEST)
@@ -91,9 +95,9 @@ class ConfirmCodesViewSet(GenericViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        lookup_value = cached_data.get(self.lookup_field)
-        l_kwargs = {self.lookup_field: lookup_value}
-        self._invalidate_cache(ip)
+        lookup_value = cached_data.get(self.send_action.lookup_field)
+        l_kwargs = {self.send_action.lookup_field: lookup_value}
+        self.send_action._invalidate_cache(ip)
 
         user, created = CustomUser.objects.get_or_create(
             **l_kwargs, defaults={"username": lookup_value, "is_active": True}
