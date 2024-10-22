@@ -68,7 +68,7 @@ class ConfirmCodesViewSet(GenericViewSet):
 
     @action(detail=False, methods=["post"], url_path="send-code")
     def send_code(self, request, *args, **kwargs) -> Response:
-        return self.send_code_class.execute(request)
+        return self.send_code_class().execute(request)
 
     @action(detail=False, methods=["post"], url_path="verify_code")
     def verify_code(self, request, *args, **kwargs) -> Response:

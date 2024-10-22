@@ -8,7 +8,6 @@ from account.models import CustomUser
 class ValidatePhoneNumberMixin:
 
     def validate_phone(self, value):
-        print(self.instance)
         if instance := getattr(self, "instance", None):
             if getattr(instance, "phone", None) == value:
                 raise ValidationError(_("Phone already confirmed"))
