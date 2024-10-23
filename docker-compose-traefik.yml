@@ -37,7 +37,7 @@ services:
       - "traefik.http.services.megashop.loadbalancer.server.port=8000"
       - "traefik.http.routers.megashop.rule=Host(`${BACKEND_HOST}`)"
       - "traefik.http.routers.megashop.entrypoints=http"
-      - "traefik.http.routers.megashop-secure.rule=Host(`BACKEND_HOST`)"
+      - "traefik.http.routers.megashop-secure.rule=Host(`${BACKEND_HOST}`)"
       - "traefik.http.routers.megashop-secure.entrypoints=https"
       - "traefik.http.routers.megashop-secure.tls.certresolver=traefik-resolver"
       - "traefik.http.middlewares.megashop-ratelimit.rateLimit.average=30"
