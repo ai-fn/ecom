@@ -355,3 +355,4 @@ DEFAULT_CITY_NAME = os.getenv("DEFAULT_CITY_NAME", "Москва")
 
 LOGIN_CODE_LENGTH = int(os.getenv("LOGIN_CODE_LENGTH", "4"))
 REGISTER_CODE_LENGTH = int(os.getenv("REGISTER_CODE_LENGTH", "4"))
+FEEDS_PATH = os.path.join(STATIC_ROOT, "feeds")

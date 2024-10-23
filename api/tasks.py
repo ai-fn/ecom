@@ -31,6 +31,12 @@ def update_promo_status():
 
     expired_promos.update(is_active=False)
 
+@shared_task
+def collect_xml_feeds():
+    from shop.services import FeedsService
+    FeedsService.collect_feeds()
+    return "Feeds successfully collected"
+
 
 @shared_task
 def update_cities():
