@@ -38,7 +38,7 @@ services:
   
   celery:
     build: .
-    command: celery -A celery_config worker --loglevel=info --pool=solo
+    command: celery -A megashop worker --loglevel=info --beat
     restart: always
     volumes:
       - .:/code
@@ -53,7 +53,7 @@ services:
 
   celerybeat:
     build: .
-    command: celery -A celery_config beat --loglevel=debug
+    command: celery -A megashop beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     restart: always
     volumes:
       - .:/code
