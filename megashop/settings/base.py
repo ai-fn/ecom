@@ -275,8 +275,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 
-STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 LOGIN_URL = "/admin/login/"
 MEDIA_URL = "/media/"
@@ -357,3 +360,5 @@ DEFAULT_CITY_NAME = os.getenv("DEFAULT_CITY_NAME", "Москва")
 LOGIN_CODE_LENGTH = int(os.getenv("LOGIN_CODE_LENGTH", "4"))
 REGISTER_CODE_LENGTH = int(os.getenv("REGISTER_CODE_LENGTH", "4"))
 FEEDS_PATH = os.path.join(STATIC_ROOT, "feeds")
+
+LOGO_URL = os.getenv("LOGO_PATH", "logos/logo.png")

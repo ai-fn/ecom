@@ -1,24 +1,55 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подтверждение Email</title>
+    <title>Код регистрации {{ site_name }}</title>
 </head>
 <body style="font-family: Arial, sans-serif;">
 
-    <h2>Подтверждение Email</h2>
-
-    <p>Здравствуйте, {{ user.last_name }} {{ user.first_name }}</p>
-
-    <p>Благодарим вас за регистрацию на {{ site_name }}. Пожалуйста, введите код, представленный ниже, для подтверждения вашего адреса электронной почты:</p>
-
-    Код подтверждения: <b>{{ code }}</b>
-
-    <p>Если вы не регистрировались на сайте {{ site_name }}, пожалуйста, проигнорируйте это письмо и обратитесь в поддержку.</p>
-
-    <p>С наилучшими пожеланиями,<br> Команда Сайта {{ site_name }}</p>
+<div style="background-color:#f7f7f7;color:#333;font-family:'pt sans','arial','helvetica',sans-serif!important;line-height:100%;margin:0;min-width:100%;padding:0">
+    <div style="color:#f7f7f7;display:none!important;font-size:0;height:0;margin:0;max-height:0;opacity:0;overflow:hidden;padding:0;width:0">
+        Введите его на сайте <a href="http://{{ site_name }}" target="_blank" data-saferedirecturl="https://www.google.com/url?q=http://{{ site_name }}&amp;source=gmail&amp;ust=1729770055142000&amp;usg=AOvVaw1SvzTzETAZADMnv0L4F2GZ">{{ site_name }}</a>
+    </div>
+    <div align="center" style="background-color:#f7f7f7;line-height:normal;margin:0;padding:0;table-layout:fixed;word-break:normal">
+        <table border="0" cellpadding="0" cellspacing="0" style="border-spacing:0;margin:0;padding:0 10px 0 10px"><tbody><tr style="margin:0;padding:0"><td align="center" style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:0">
+                    <div style="margin:0;max-width:640px;overflow:hidden;padding:0">
+                        <table align="left" border="0" cellpadding="0" cellspacing="0" style="border-spacing:0;margin:0;max-width:640px;min-width:480px;padding:0"><tbody><tr style="height:40px;margin:0;padding:0"><td style="font-family:'pt sans','arial','helvetica',sans-serif!important;height:40px;margin:0;padding:0"></td></tr><tr style="margin:0;padding:0"><td align="left" style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:0 0 5px 0;width:45%">
+                                    <img alt="{{ site_name }}" border="0" src="{% static logo_url %}" width="90" style="display:block;line-height:23px;margin:0;padding:0 5px 0 0;width:90px" class="CToWUd" data-bit="iit">
+                                </td></tr><tr style="margin:0;padding:0"><td height="24" style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:0"></td></tr></tbody></table>
+                    </div>
+                </td></tr><tr style="margin:0;padding:0"><td style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:0">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f7f7f7;border-spacing:0;margin:0;padding:0"><tbody style="margin:0;padding:0"><tr style="margin:0;padding:0"><td style="background-color:#fff;border:1px solid #eee;border-radius:8px;font-family:'pt sans','arial','helvetica',sans-serif!important;font-size:16px;font-weight:normal;line-height:24px;margin:0;padding:0">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;border-spacing:0;margin:0;max-width:622px;min-width:480px;padding:0"><tbody><tr style="margin:0;padding:0"><td align="center" width="100%" style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:32px 0 16px 0">
+                                            <span style="color:#333;font-size:24px;font-weight:bold;line-height:31px;margin:0;padding:0">
+                                                Код подтверждения:
+                                            </span>
+                                        </td></tr><tr style="margin:0;padding:0"><td align="center" style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:0 0 32px 0">
+                                            <table align="center" cellpadding="0" cellspacing="0" style="border-spacing:0;color:#000;font-size:16px;line-height:18px;margin:0;padding:0"><tbody><tr align="center" style="margin:0;padding:0"><td style="background-color:#f2f2f2;border-radius:8px;font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:13px 26px 13px 26px">
+                                                        <div style="color:#4e4e4e;display:inline-block;font-family:'pt sans','arial','helvetica',sans-serif;font-size:32px;font-weight:700;line-height:35px;margin:0;padding:0">
+                                                            {{ code }}
+                                                        </div>
+                                                    </td></tr></tbody></table>
+                                        </td></tr></tbody></table>
+                            </td></tr></tbody></table>
+                </td></tr><tr style="margin:0;padding:0"><td style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:0 0 58px 0">
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-spacing:0;margin:0;max-width:640px;padding:0;vertical-align:top"><tbody><tr style="margin:0;padding:0"><td style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:16px 0 0 0">
+                                <span style="color:#8c8c8c;display:block;font-size:12px;line-height:16px;margin:0;padding:0">
+                                    Это письмо сформировано автоматически. Пожалуйста, не отвечайте на него. Вы получили это письмо, потому что зарегистрировали аккаунт на сайте {{ site_name }}.
+                                </span>
+                            </td></tr><tr style="margin:0;padding:0"><td style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:12px 0 0 0">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-spacing:0;color:#8c8c8c;font-size:14px;line-height:20px;margin:0;max-width:640px;min-width:480px;padding:0;vertical-align:top"><tbody><tr style="margin:0;padding:0"><td align="left" style="font-family:'pt sans','arial','helvetica',sans-serif!important;margin:0;padding:0">
+                                            <span style="margin:0;padding:0">
+                                                © {{ site_name }}
+                                            </span>
+                                        </td></tr></tbody></table>
+                            </td></tr></tbody></table>
+                </td></tr></tbody></table>
+    </div>
+    </div>
 
 </body>
 </html>

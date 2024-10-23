@@ -9,6 +9,7 @@ db.json
 .venv
 media/*
 static/*
+staticfiles/*
 calls/
 results.sql
 ssl/live

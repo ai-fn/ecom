@@ -59,10 +59,12 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
             code = self._generate_code()
 
         domain = getattr(settings, "BASE_DOMAIN")
+        logo = getattr(settings, "LOGO_URL", None)
         context = {
             "code": code,
             "email": email,
             "domain": domain,
+            "logo_url": logo,
             "site_name": domain,
             "protocol": ["https", "http"][settings.DEBUG],
             "name": f"{user.first_name} {user.last_name}" if user.is_authenticated and any([user.first_name, user.last_name]) else "уважаемый клиент",
