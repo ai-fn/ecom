@@ -21,7 +21,7 @@ services:
 
   web:
     build: .
-    command: [ "./wait-for-it.sh", "db:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=0.0.0.0:${DJANGO_PORT}", "megashop.wsgi:application"]
+    command: [ "./wait-for-it.sh", "${POSTGRES_HOST}:5432", "--strict", "--timeout=30", "--", "gunicorn", "--workers=3", "--bind=0.0.0.0:8000", "megashop.wsgi:application"]
     restart: always
     volumes:
       - .:/code
@@ -34,10 +34,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
-      - "traefik.http.services.megashop.loadbalancer.server.port=${DJANGO_PORT}"
-      - "traefik.http.routers.megashop.rule=Host(`dev-api-shop.altawest.ru`)"
+      - "traefik.http.services.megashop.loadbalancer.server.port=8000"
+      - "traefik.http.routers.megashop.rule=Host(`${BACKEND_HOST}`)"
       - "traefik.http.routers.megashop.entrypoints=http"
-      - "traefik.http.routers.megashop-secure.rule=Host(`dev-api-shop.altawest.ru`)"
+      - "traefik.http.routers.megashop-secure.rule=Host(`BACKEND_HOST`)"
       - "traefik.http.routers.megashop-secure.entrypoints=https"
       - "traefik.http.routers.megashop-secure.tls.certresolver=traefik-resolver"
       - "traefik.http.middlewares.megashop-ratelimit.rateLimit.average=30"

@@ -28,18 +28,21 @@ SECRET_KEY = os.getenv("SECRET_KEY") or "dummy_secret_key"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-CSRF_TRUSTED_ORIGINS = ["https://dev-api-shop.altawest.ru", "https://*.127.0.0.1"]
-ALLOWED_HOSTS = ["127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["https://*.127.0.0.1"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 # TODO попробовать убрать ALLOW_ALL
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://188.235.34.60:3000",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://api.zadarma.com",
-    "https://dev-api-shop.altawest.ru",
 ]
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -300,8 +303,6 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # SMS settings
-# SMS_LOGIN = os.getenv("SMS_LOGIN", "DEFAULT")
-# SMS_PASSWORD = os.getenv("SMS_PASSWORD", "DEFAULT")
 SMS_RU_TOKEN = os.getenv("SMS_RU_TOKEN", "DEFAULT")
 
 CONFIRM_CODE_LIFE_TIME = os.getenv("CONFIRM_CODE_LIFE_TIME", 60)

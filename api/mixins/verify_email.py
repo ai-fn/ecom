@@ -60,12 +60,12 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
 
         domain = getattr(settings, "BASE_DOMAIN")
         context = {
+            "code": code,
             "email": email,
             "domain": domain,
             "site_name": domain,
-            "user": user,
-            "code": code,
             "protocol": ["https", "http"][settings.DEBUG],
+            "name": f"{user.first_name} {user.last_name}" if user.is_authenticated and any([user.first_name, user.last_name]) else "уважаемый клиент",
         }
         return context
 

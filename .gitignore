@@ -2,6 +2,7 @@ db.sqlite3
 __pycache__
 celerybeat-schedule
 data/cache/dump.rdb
+./config/nginx/*.template
 .env
 data.json
 db.json

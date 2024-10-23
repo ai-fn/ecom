@@ -1,14 +1,8 @@
 from .base import *
 
 DEBUG = True
+CORS_ORIGIN_ALLOW_ALL = False
 
-ALLOWED_HOSTS = [
-    "phone.altawest.ru",
-    "94.241.142.109",
-    "0.0.0.0",
-    "127.0.0.1",
-    "dev-api-shop.altawest.ru",
-    "web",
-    "mail.altawest.ru",
-    "80.242.57.47"
-]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(";")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(";")
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(";")
