@@ -1,8 +1,9 @@
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import AbstractUser
 from api.mixins import SendVerifyEmailMixin
 from api.serializers import EmailSerializer
 from account.actions import SendCodeBaseAction
-from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
 
 class SendCodeToEmailAction(SendCodeBaseAction, SendVerifyEmailMixin):
@@ -22,3 +23,11 @@ class SendCodeToEmailAction(SendCodeBaseAction, SendVerifyEmailMixin):
             email_template_name="email/login_code.html",
         )
         return 200 <= response.status_code < 400
+    
+    def verify(self, code: str, cache_salt: str) -> AbstractUser | None:
+        user, message = super().verify(code, cache_salt)
+        if user and not getattr(user, "email_confirmed"):
+            user.email_confirmed = True
+            user.save()
+
+        return user, message

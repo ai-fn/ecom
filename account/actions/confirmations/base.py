@@ -2,12 +2,16 @@ import time
 
 from django.conf import settings
 from django.core.cache import cache
+from django.contrib.auth.models import AbstractUser
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from api.serializers.phone import PhoneSerializer
+
+from account.models import CustomUser
 from api.mixins import GenerateCodeMixin
+from api.serializers.phone import PhoneSerializer
+from api.serializers.confirm_code import ConfirmCodeSerializer
 
 
 class SendCodeBaseAction(GenerateCodeMixin):
@@ -31,6 +35,38 @@ class SendCodeBaseAction(GenerateCodeMixin):
 
     def _send_message(self, request, code: str, cache_key: str) -> bool:
         raise NotImplementedError("Method must be implemented!")
+
+    def _is_code_valid(self, code: str, cache_salt: str):
+
+        cached_key = self._get_code_cache_key(cache_salt)
+        cached_data = cache.get(cached_key)
+        if not cached_data:
+            return False, "No confirmation codes for you."
+
+        cached_code = cached_data.get("code")
+
+        if code != cached_code:
+            return False, "Invalid confirmation code"
+
+        return True, "Valid code"
+
+    def verify(self, code: str, cache_salt: str) -> AbstractUser | None:
+        user = None
+        is_valid, message = self._is_code_valid(code, cache_salt)
+        if is_valid:
+            cached_data = cache.get(self._get_code_cache_key(cache_salt))
+            lookup_value = cached_data.get(self.lookup_field)
+            user, created = CustomUser.objects.get_or_create(
+                **{self.lookup_field: lookup_value},
+                defaults={"is_active": True, "username": lookup_value},
+            )
+            if created:
+                user.set_password(lookup_value)
+                user.save()
+
+        self._invalidate_cache(cache_salt)
+
+        return user, message
 
     def execute(self, request):
         serializer_instance = self.serializer_class(data=request.data)
@@ -61,7 +97,9 @@ class SendCodeBaseAction(GenerateCodeMixin):
         if result:
             et = self._set_cache(ip, code)
 
-            return Response({"success": True, "expiration_time": et}, status=status.HTTP_200_OK)
+            return Response(
+                {"success": True, "expiration_time": et}, status=status.HTTP_200_OK
+            )
 
         return Response({"error": "Failed"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -72,7 +110,7 @@ class SendCodeBaseAction(GenerateCodeMixin):
             {
                 "expiration_time": et,
                 "code": code,
-                self.lookup_field: self.kwargs[self.lookup_field]
+                self.lookup_field: self.kwargs[self.lookup_field],
             },
             timeout=self.code_lifetime,
         )

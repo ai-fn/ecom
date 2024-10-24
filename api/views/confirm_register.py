@@ -1,5 +1,5 @@
 from account.models import CustomUser
-from account.actions import SendCodeToEmailAction
+from account.actions import SendCodeToEmailAction, SendCodeToTelegramAction
 
 from django.conf import settings
 from django.core.cache import cache
@@ -64,7 +64,7 @@ remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
     ),
 )
 class ConfirmCodesViewSet(GenericViewSet):
-    send_code_action = SendCodeToEmailAction()
+    send_code_action = SendCodeToTelegramAction()
     queryset = CustomUser.objects.all()
     permission_classes = [AllowAny]
     serializer_class = ConfirmCodeSerializer
@@ -80,42 +80,12 @@ class ConfirmCodesViewSet(GenericViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        ip = request.META.get("REMOTE_ADDR")
-        cached_key = self.send_code_action._get_code_cache_key(ip)
-        cached_data = cache.get(cached_key)
-        if not cached_data:
-            return Response(
-                {"error": "No confirmation codes for you."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        cache_salt = request.META.get("REMOTE_ADDR")
+        user, message = self.send_code_action.verify(serializer.validated_data["code"], cache_salt)
+        data = {"message": message}
+        if user:
+            serialized_tokens = MyTokenObtainPairSerializer.get_response(user)
+            data.update(**serialized_tokens)
+            return Response(data, status=status.HTTP_200_OK)
 
-        cached_code = cached_data.get("code")
-
-        if serializer.validated_data["code"] != cached_code:
-            return Response(
-                {"message": "Invalid confirmation code"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        lookup_value = cached_data.get(self.send_code_action.lookup_field)
-        l_kwargs = {self.send_code_action.lookup_field: lookup_value}
-        self.send_code_action._invalidate_cache(ip)
-
-        user, created = CustomUser.objects.get_or_create(
-            **l_kwargs,
-            defaults={
-                "username": lookup_value,
-                "is_active": True,
-                "email_confirmed": True,
-            },
-        )
-
-        if created:
-            user.set_password(lookup_value)
-            user.save()
-
-        serialized_tokens = MyTokenObtainPairSerializer.get_response(user)
-        return Response(
-            {"message": "User successfully activated", **serialized_tokens},
-            status=status.HTTP_200_OK,
-        )
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
