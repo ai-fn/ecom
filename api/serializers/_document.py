@@ -51,5 +51,5 @@ class ProductDocumentSerializer(DocumentSerializer):
             "city_price",
         ]
 
-    def get_search_image(self, obj):
+    def get_search_image(self, obj) -> str | None:
         return obj.search_image.url if obj.search_image else None

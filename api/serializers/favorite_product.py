@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from account.models import CustomUser
 from api.serializers import ProductCatalogSerializer
 from shop.models import FavoriteProduct, Product
@@ -19,5 +20,5 @@ class FavoriteProductSerializer(ActiveModelSerializer):
             "product_id"
         ]
     
-    def get_product(self, obj):
+    def get_product(self, obj) -> OrderedDict:
         return ProductCatalogSerializer(obj.product, context=self.context).data

@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from rest_framework import serializers
 from cart.models import CartItem, Product
 from api.serializers import ProductCatalogSerializer, ActiveModelSerializer
@@ -17,7 +18,7 @@ class CartItemSerializer(ActiveModelSerializer):
         fields = ["id", "product", "product_id", "quantity", "allow_to_order"]
         read_only_fields = ("id",)
 
-    def get_product(self, obj):
+    def get_product(self, obj) -> OrderedDict:
         return ProductCatalogSerializer(obj.product, context=self.context).data
 
     def create(self, validated_data):

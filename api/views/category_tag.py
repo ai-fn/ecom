@@ -10,7 +10,7 @@ from drf_spectacular.utils import (
 )
 
 from api.serializers import CategoryTagSerializer, CategoryTagDetailSerializer
-from shop.models import CategoryTag
+from shop.models import Category, CategoryTag
 
 
 CATEGORY_TAG_REQUEST = {
@@ -168,7 +168,12 @@ class CategoryTagViewSet(ModelViewSet):
 
         return super().get_serializer_class()
 
-    @action(detail=False, methods=["get"], url_path="by-slug/(?P<slug>[^/.]+)")
+    @action(detail=False, methods=["get"], url_path="by-slug/(?P<category_slug>[^/.]+)")
     def get_by_slug(self, request, *args, slug: str = None, **kwargs):
-        self.queryset = self.get_queryset().filter(parent__slug=slug)
+        ctg = Category.objects.filter(slug=slug).first()
+        if not ctg:
+            self.queryset = self.queryset.none()
+        else:
+            self.queryset = ctg.category_tags.all()
+
         return super().list(request, *args, **kwargs)
