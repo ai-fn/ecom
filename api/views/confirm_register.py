@@ -1,5 +1,5 @@
 from account.models import CustomUser
-from account.actions import SendCodeToEmailAction, SendCodeToTelegramAction
+from account.actions import SendCodeToEmailAction
 
 from django.conf import settings
 from django.core.cache import cache
@@ -64,7 +64,7 @@ remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
     ),
 )
 class ConfirmCodesViewSet(GenericViewSet):
-    send_code_action = SendCodeToTelegramAction()
+    send_code_action = SendCodeToEmailAction()
     queryset = CustomUser.objects.all()
     permission_classes = [AllowAny]
     serializer_class = ConfirmCodeSerializer
