@@ -1,12 +1,11 @@
 import time
 from django.conf import settings
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
 
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from shop.services import EmailService
 
 
 class GenerateCodeMixin:
@@ -49,8 +48,9 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
         )
         return et
 
-    def _generate_message(
+    def _get_context(
         self,
+        request,
         user,
         email,
         code: str = None,
@@ -59,12 +59,11 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
             code = self._generate_code()
 
         domain = getattr(settings, "BASE_DOMAIN")
-        logo = getattr(settings, "LOGO_URL", None)
+
         context = {
             "code": code,
             "email": email,
             "domain": domain,
-            "logo_url": logo,
             "site_name": domain,
             "protocol": ["https", "http"][settings.DEBUG],
             "name": f"{user.first_name} {user.last_name}" if user.is_authenticated and any([user.first_name, user.last_name]) else "уважаемый клиент",
@@ -104,25 +103,18 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
                     status=HTTP_400_BAD_REQUEST,
                 )
 
-        context = self._generate_message(user, email, code)
+        context = self._get_context(request, user, email, code)
 
         if set_cache:
             et = self._set_cache(cache_key, code)
         else:
             et = self._get_expiration_time()
 
-        body = render_to_string(email_template_name, context)
-
-        result = send_mail(
-            topik,
-            "", 
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[email],
-            fail_silently=True,
-            auth_user=settings.EMAIL_HOST_USER,
-            auth_password=settings.EMAIL_HOST_PASSWORD,
-            html_message=body,
-        )
+        logo = getattr(settings, "LOGO_URL", None)
+        attach_data = EmailService.get_attach_data(logo, "Content-ID", "<logo>")
+        message = EmailService.build_message(email, topik, email_template_name, context)
+        message.attach(attach_data)
+        result = EmailService.send(message, fail_silently=True)
 
         if result:
             return Response(
