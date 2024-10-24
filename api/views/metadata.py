@@ -5,6 +5,8 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_404_NO
 from rest_framework.decorators import action
 
 from django.utils.translation import gettext_lazy as _
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
@@ -72,6 +74,7 @@ class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
             ),
         ],
     )
+    @method_decorator(cache_page(120 * 60))
     @action(detail=False, methods=["get"])
     def metadata(self, request, *args, **kwargs):
         content_type = request.query_params.get("content_type")

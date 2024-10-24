@@ -10,7 +10,7 @@ from loguru import logger
 from account.models import City
 from api.serializers import ActiveModelSerializer
 
-from rest_framework.serializers import Serializer, CharField, SerializerMethodField
+from rest_framework.serializers import SerializerMethodField
 
 from shop.models import OpenGraphMeta, Setting, SettingChoices
 from shop.services.metadata_service import MetaDataService
@@ -104,7 +104,7 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
         else:
             url += data.get("url")
 
-        keywords = data.get("keywords").split(";")
+        keywords = (data.get("keywords") or "").split(";")
         site_name = data.get("site_name") or os.environ.get("SHOP_NAME", "site name")
 
         if keywords:

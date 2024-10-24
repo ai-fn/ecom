@@ -74,6 +74,7 @@ class MetaDataService:
         city = (
             City.objects.filter(domain=city_domain).first() or City.get_default_city()
         )
+        key_template = "DEFAULT_META_{field}_TEMPLATE"
 
         if city.city_group is not None:
             city_group_name = city.city_group.name
@@ -82,21 +83,24 @@ class MetaDataService:
 
         result = {}
         products_count = 0
-        for field in fields:
+        object = meta_obj
+        values = [getattr(object, field, None) for field in fields]
+
+        if not any(values):
+            keys = [key_template.format(field=field.upper()) for field in fields]
+            setting_templates = Setting.objects.filter(predefined_key__in=[getattr(SettingChoices, key) for key in keys])
+            if not setting_templates.exists():
+                raise ValueError(f"Template for {meta_obj.content_object} not found.")
+
+            values = [getattr(template, "value_string", None) for template in setting_templates]
+
+        for field, value in zip(fields, values):
             price = None
             price_value = None
-            value: str = getattr(meta_obj, field, None)
+
             object_name = getattr(instance, "title", None) or getattr(
                 instance, "name", None
             )
-
-            if not value:
-                key = f"DEFAULT_META_{field.upper()}_TEMPLATE"
-                template = Setting.objects.filter(predefined_key=getattr(SettingChoices, key)).first()
-                if not template:
-                    raise ValueError(f"Template for {meta_obj.content_object} not found.")
-
-                value = template.value_string
 
             if instance._meta.model_name == "product":
                 price_value = (
