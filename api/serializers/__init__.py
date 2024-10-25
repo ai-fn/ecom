@@ -60,3 +60,5 @@ from .page import PageSerializer
 from .item_set import ItemSetSerializer, ItemSetElementSerializer
 from .category_tag import CategoryTagSerializer, CategoryTagDetailSerializer
 from .pickup_point import PickupPointSerializer, PickupPointDetailSerializer, PickupPointScheduleSerializer
+from .schedule import ScheduleSerializer
+from .store import StoreSerializer
