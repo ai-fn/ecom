@@ -1,12 +1,17 @@
 import time
 
+from loguru import logger
+
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Q
+from django.db.utils import IntegrityError
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import ValidationError
 
 from account.models import CustomUser
 from api.mixins import GenerateCodeMixin
@@ -56,13 +61,25 @@ class SendCodeBaseAction(GenerateCodeMixin):
         if is_valid:
             cached_data = cache.get(self._get_code_cache_key(cache_salt))
             lookup_value = cached_data.get(self.lookup_field)
-            user, created = CustomUser.objects.get_or_create(
-                **{self.lookup_field: lookup_value},
-                defaults={"is_active": True, "username": lookup_value},
-            )
-            if created:
+            fields = {self.lookup_field: lookup_value}
+
+            q = Q(**fields)
+            if self.lookup_field != "username":
+                q |= Q(username=lookup_value)
+
+            user = CustomUser.objects.filter(q).first()
+            if not user:
+                user = CustomUser.objects.create(**fields, is_active=True)
                 user.set_password(lookup_value)
                 user.save()
+            
+            if getattr(user, self.lookup_field, None) != lookup_value:
+                try:
+                    setattr(user, self.lookup_field, lookup_value)
+                    user.save()
+                except IntegrityError as err:
+                    logger.error(f"Error on code confirmation: {str(err)}")
+                    raise ValidationError(str(err))
 
         self._invalidate_cache(cache_salt)
 

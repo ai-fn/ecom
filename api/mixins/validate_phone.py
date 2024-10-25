@@ -6,10 +6,6 @@ from django.utils.translation import gettext_lazy as _
 class ValidatePhoneNumberMixin:
 
     def validate_phone(self, value):
-        if instance := getattr(self, "instance", None):
-            if getattr(instance, "phone", None) == value:
-                raise ValidationError(_("Телефон уже подтверждён"))
-
         phone = value
         try:
             parsed_number = phonenumbers.parse(phone, None)

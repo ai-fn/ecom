@@ -87,6 +87,7 @@ class UserDetailInfoSerializer(
 ):
     phone = serializers.CharField(max_length=16)
     is_active = serializers.BooleanField(read_only=True)
+    confirm_message_error = "Provided {field} already confirmed"
 
     class Meta:
         model = CustomUser
@@ -104,6 +105,8 @@ class UserDetailInfoSerializer(
     def validate_email(self, value):
         if self.instance:
             if self.instance.email == value and self.instance.email_confirmed:
-                raise ValidationError("Provided email already confirmed")
+                raise ValidationError(self.confirm_message_error.format(field="email"))
+            if self.instance.phone == value:
+                raise ValidationError(self.confirm_message_error.format(field="phone"))
 
         return value
