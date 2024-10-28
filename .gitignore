@@ -9,7 +9,7 @@ db.json
 .venv
 media/*
 static/*
-staticfiles/*
+megashop/static/*
 calls/
 results.sql
 ssl/live

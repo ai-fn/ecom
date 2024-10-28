@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "mptt",  # Древовидное меню
     "debug_toolbar",  # Дебаг тулбар
     "api.apps.ApiConfig",
+    "storages",
 ]
 
 IMPORT_EXPORT_APPS = [
@@ -362,3 +363,17 @@ REGISTER_CODE_LENGTH = int(os.getenv("REGISTER_CODE_LENGTH", "4"))
 FEEDS_PATH = os.path.join(STATIC_ROOT, "feeds")
 
 LOGO_URL = os.getenv("LOGO_PATH", "logos/logo.png")
+
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_ENDPOINT_URL = 'https://s3.timeweb.cloud'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.timeweb.cloud' % AWS_STORAGE_BUCKET_NAME
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'megashop/static'),
+]
+
+STATICFILES_STORAGE = 'megashop.storages.botoS3.StaticStorage'
+DEFAULT_FILE_STORAGE = 'megashop.storages.botoS3.MediaStorage'
