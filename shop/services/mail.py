@@ -1,10 +1,11 @@
+import urllib.request
+from loguru import logger
+from django.conf import settings
 from functools import lru_cache
 from email.mime.image import MIMEImage
-from django.conf import settings
-from django.contrib.staticfiles import finders
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from loguru import logger
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 class EmailService:
@@ -40,8 +41,10 @@ class EmailService:
     @classmethod
     @lru_cache()
     def get_attach_data(cls, static_path: str, header_name: str, header_value: str):
-        with open(finders.find(static_path), 'rb') as f:
-            attach_data = f.read()
+
+        url = staticfiles_storage.url(static_path)
+        with urllib.request.urlopen(url) as response:
+            attach_data = response.read()
 
         attach = MIMEImage(attach_data)
         attach.add_header(header_name, header_value)
