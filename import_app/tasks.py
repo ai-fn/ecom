@@ -1,9 +1,9 @@
 import os
-from loguru import logger
+import urllib
+import urllib.request
 import pandas as pd
-
+from loguru import logger
 from celery import shared_task
-
 
 from tempfile import NamedTemporaryFile
 
@@ -23,10 +23,10 @@ def handle_file_task(import_task_data: dict, replace_existing_m2m_elems: bool = 
     import_task = ImportTask.objects.get(id=import_task_id)
     
     task_service = ImportTaskService(replace_existing_m2m_elems=replace_existing_m2m_elems)
-    file_path = import_task.file.path
+    file_url = import_task.file.url
 
     try:
-        with open(file_path, "rb") as file_obj:
+        with urllib.request.urlopen(file_url) as file_obj:
             
             _, format = os.path.splitext(import_task.file.name)
 

@@ -64,7 +64,7 @@ class ImportTaskService:
     def process_dataframe(self, df, import_settings: dict):
 
         self.path_to_images = import_settings.get(
-            "path_to_images", "/tmp/import_images/"
+            "path_to_images", "import_images/"
         )
         mapping = import_settings.get("fields", {})
 

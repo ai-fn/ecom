@@ -17,7 +17,7 @@ def delete_image_file(sender, instance, **kwargs):
         paths = []
         
         if hasattr(instance, "image") and instance.image:
-            paths.append(instance.image.path)
+            paths.append(instance.image.url)
 
         if hasattr(instance, "tiny_image") and instance.tiny_image:
             paths.append(instance.tiny_image.path)
@@ -42,9 +42,9 @@ def set_thumb(sender, instance, created, **kwargs):
     if issubclass(sender, ThumbModel) and not instance.thumb_img:
         image_path = None
         if hasattr(instance, "image") and instance.image:
-            image_path = instance.image.path
+            image_path = instance.image.url
         elif hasattr(instance, "catalog_image") and instance.catalog_image:
-            image_path = instance.catalog_image.path
+            image_path = instance.catalog_image.url
 
         if image_path and os.path.isfile(image_path):
             try:

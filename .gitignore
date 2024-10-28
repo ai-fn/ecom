@@ -10,6 +10,9 @@ db.json
 media/*
 static/*
 megashop/static/*
+!megashop/static/.gitkeep
+staticfiles/*
+!staticfiles/.gitkeep
 calls/
 results.sql
 ssl/live

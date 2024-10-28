@@ -278,9 +278,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
 
 LOGIN_URL = "/admin/login/"
 MEDIA_URL = "/media/"
@@ -372,7 +369,7 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.timeweb.cloud' % AWS_STORAGE_BUCKET_NAME
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'megashop/static'),
+    os.path.join(BASE_DIR, 'megashop', 'static'),
 ]
 
 STATICFILES_STORAGE = 'megashop.storages.botoS3.StaticStorage'
