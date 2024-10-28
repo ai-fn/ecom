@@ -1,7 +1,6 @@
-from rest_framework.response import Response
+from loguru import logger
 from rest_framework import status
-from rest_framework.views import APIView
-APIView.dispatch
+from rest_framework.response import Response
 
 
 class IntegrityErrorHandlingMixin:
@@ -9,7 +8,8 @@ class IntegrityErrorHandlingMixin:
         try:
             return super().dispatch(request, *args, **kwargs)
         except Exception as err:
-            response = Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.exception("An error occurred: {}", err)
+            response = Response({"error": "Unexpected server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             if isinstance(response, Response):
                 if not getattr(request, 'accepted_renderer', None):
