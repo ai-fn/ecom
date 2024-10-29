@@ -98,7 +98,6 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
         fields = ("title", "keywords", "description")
         kwargs["fields"] = fields
         kwargs["meta_obj"] = instance
-        kwargs["instance"] = instance.content_object
 
         result = MetaDataService.get_formatted_meta_tag_by_instance(**kwargs)
         for field in fields:
