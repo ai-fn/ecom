@@ -319,7 +319,7 @@ class CategoryViewSet(
         self.queryset = self.get_queryset().filter(level=0)
 
         self.queryset = self.filter_queryset(
-            self.get_categories_with_products(self.queryset, self.domain),
+            self.get_categories_with_products(self.domain, queryset=self.queryset),
         ).distinct()
         return super().list(request, *args, **kwargs)
 

@@ -83,12 +83,12 @@ class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
 
         return context
 
-    @method_decorator(cache_page(120 * 60))
+    # @method_decorator(cache_page(120 * 60))
     @action(detail=False, methods=["get"])
     def metadata(self, request, *args, **kwargs):
-        content_type = request.query_params.get("content_type")
-        obj_slug = request.query_params.get("slug")
         context = self.get_serializer_context()
+        obj_slug = request.query_params.get("slug")
+        content_type = request.query_params.get("content_type")
 
         try:
             meta = MetaDataService.get_obj_by_slug(obj_slug, content_type)
