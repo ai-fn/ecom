@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0054_categorytag'),
+        ('shop', '0053_alter_setting_predefined_key_and_more'),
     ]
 
     operations = [

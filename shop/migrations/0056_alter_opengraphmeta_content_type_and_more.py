@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0055_alter_opengraphmeta_description_and_more'),
+        ('shop', '0054_categorytag'),
     ]
 
     operations = [
