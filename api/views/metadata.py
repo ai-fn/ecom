@@ -83,7 +83,7 @@ class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
 
         return context
 
-    # @method_decorator(cache_page(120 * 60))
+    @method_decorator(cache_page(120 * 60))
     @action(detail=False, methods=["get"])
     def metadata(self, request, *args, **kwargs):
         context = self.get_serializer_context()
