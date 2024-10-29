@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.serializers import OpenGraphMetaSerializer
@@ -36,12 +36,8 @@ OPEN_GRAPH_META_RESPONSE_EXAMPLE = {
 
 
 @extend_schema(tags=["Shop"])
-class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, GenericViewSet):
-    queryset = OpenGraphMeta.objects.all()
-    permission_classes = [AllowAny]
-    serializer_class = OpenGraphMetaSerializer
-
-    @extend_schema(
+@extend_schema_view(
+    metadata=extend_schema(
         description="Получение метаданных",
         summary="Получение метаданных",
         examples=[
@@ -74,6 +70,19 @@ class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
             ),
         ],
     )
+)
+class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, GenericViewSet):
+    queryset = OpenGraphMeta.objects.all()
+    permission_classes = [AllowAny]
+    serializer_class = OpenGraphMetaSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if domain := self.request.query_params.get("city_domain"):
+            context["city_domain"] = domain
+
+        return context
+
     @method_decorator(cache_page(120 * 60))
     @action(detail=False, methods=["get"])
     def metadata(self, request, *args, **kwargs):
@@ -86,12 +95,10 @@ class MetadataViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRes
         except Exception as e:
             return Response({"error": str(e)}, status=HTTP_400_BAD_REQUEST)
 
-        serializer = self.get_serializer(meta, context=context)
-        return Response(serializer.data, status=HTTP_200_OK)
+        try:
+            serializer = self.get_serializer(meta, context=context)
+            data = serializer.data
+        except FileNotFoundError as err:
+            return Response({"error": str(err)}, status=HTTP_404_NOT_FOUND)
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        if domain := self.request.query_params.get("city_domain"):
-            context["city_domain"] = domain
-
-        return context
+        return Response(data, status=HTTP_200_OK)

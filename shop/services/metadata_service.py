@@ -84,55 +84,58 @@ class MetaDataService:
         result = {}
         products_count = 0
         object = meta_obj
-        values = [getattr(object, field, None) for field in fields]
+        values = dict()
+        for field in fields:
+            if value := getattr(object, field, None):
+                values[field] = value
+            else:
+                key = key_template.format(field=field.upper())
+                setting = Setting.objects.filter(predefined_key=getattr(SettingChoices, key)).first()
+                if setting is not None:
+                    values[field] = setting.value_string
 
-        if not any(values):
-            keys = [key_template.format(field=field.upper()) for field in fields]
-            setting_templates = Setting.objects.filter(predefined_key__in=[getattr(SettingChoices, key) for key in keys])
-            if not setting_templates.exists():
-                raise ValueError(f"Template for {meta_obj.content_object} not found.")
+        if len(values) < 1:
+            raise FileNotFoundError(f"Template for object '{meta_obj.content_object}' not found.")
 
-            values = [getattr(template, "value_string", None) for template in setting_templates]
+        price = None
+        price_value = None
 
-        for field, value in zip(fields, values):
-            price = None
-            price_value = None
+        object_name = getattr(instance, "title", None) or getattr(
+            instance, "name", None
+        )
 
-            object_name = getattr(instance, "title", None) or getattr(
-                instance, "name", None
+        if instance._meta.model_name == "product":
+            price_value = (
+                instance.prices.filter(city_group__name=city_group_name)
+                .values_list("price", flat=True)
+                .first()
             )
-
-            if instance._meta.model_name == "product":
-                price_value = (
-                    instance.prices.filter(city_group__name=city_group_name)
-                    .values_list("price", flat=True)
-                    .first()
-                )
-                products_count = instance.category.products.count()
-            elif instance._meta.model_name == "category":
-                price_value = (
-                    instance.products.prefetch_related("prices")
-                    .order_by("prices__price")
-                    .values_list("prices__price", flat=True)
-                    .first()
-                )
-                products_count = instance.products.count()
-
-            count_str = MetaDataService.correct_ending(products_count)
-            price = int(price_value) if price_value is not None else "--"
-
-            kwargs = dict(
-                object_name=object_name,
-                price=price,
-                city_group=city_group_name,
-                count=count_str,
+            products_count = instance.category.products.count()
+        elif instance._meta.model_name == "category":
+            price_value = (
+                instance.products.prefetch_related("prices")
+                .order_by("prices__price")
+                .values_list("prices__price", flat=True)
+                .first()
             )
-            cases = ("nomn", "gent", "datv", "accs", "ablt", "loct")
-            for case in cases:
-                cg_name = getattr(city.city_group, "name", "")
-                kwargs[f"c_{case}"] = _inflect_phrase(city.name, case)
-                kwargs[f"cg_{case}"] = _inflect_phrase(cg_name, case)
+            products_count = instance.products.count()
 
+        count_str = MetaDataService.correct_ending(products_count)
+        price = int(price_value) if price_value is not None else "--"
+
+        kwargs = dict(
+            object_name=object_name,
+            price=price,
+            city_group=city_group_name,
+            count=count_str,
+        )
+        cases = ("nomn", "gent", "datv", "accs", "ablt", "loct")
+        for case in cases:
+            cg_name = getattr(city.city_group, "name", "")
+            kwargs[f"c_{case}"] = _inflect_phrase(city.name, case)
+            kwargs[f"cg_{case}"] = _inflect_phrase(cg_name, case)
+
+        for field, value in values.items():
             result[field] = value.format(**kwargs)
 
         return result
