@@ -76,7 +76,7 @@ class FeedsService(Feed):
 
         url = ET.SubElement(shop, "url")
         if base_domain := get_base_domain():
-            url.text = f"https://{getattr(base_domain, "value_string")}/"
+            url.text = f"https://{getattr(base_domain, 'value_string')}/"
 
         offers = ET.SubElement(shop, "offers")
         categories_elements = ET.SubElement(shop, "categories")

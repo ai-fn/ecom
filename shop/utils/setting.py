@@ -1,9 +1,9 @@
 from datetime import timedelta
-from shop.models import Setting, SettingChoices
 from django.core.cache import cache
 
 
 def get_base_domain() -> str | None:
+    from shop.models import Setting, SettingChoices
     cache_key = "SETTING_BASE_DOMAIN_CACHE"
     cached_data = cache.get(cache_key)
     if cached_data:

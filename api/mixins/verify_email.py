@@ -114,7 +114,9 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
         logo = getattr(settings, "LOGO_URL", None)
         attach_data = EmailService.get_attach_data(logo, "Content-ID", "<logo>")
         message = EmailService.build_message(email, topik, email_template_name, context)
-        message.attach(attach_data)
+        if attach_data is not None:
+            message.attach(attach_data)
+
         result = EmailService.send(message, fail_silently=True)
 
         if result:
