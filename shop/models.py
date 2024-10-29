@@ -1,5 +1,6 @@
 import os
 
+from typing import Optional, Union
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -730,6 +731,17 @@ class ProductGroup(TimeBasedModel):
 
 class OpenGraphMeta(TimeBasedModel):
 
+    class MetaDataType(models.TextChoices):
+        PAGE = "PAGE", _("Страница")
+        BRAND = "BRAND", _("Бренд")
+        PRODUCT = "PRODUCT", _("Товар")
+        CATEGORY = "CATEGORY", _("Категория")
+        PAGE_DEFAULT = "PAGE_DEFAULT", _("Страница по умолчанию")
+        BRAND_DEFAULT = "BRAND_DEFAULT", _("Бренд по умолчанию")
+        PRODUCT_DEFAULT = "PRODUCT_DEFAULT", _("Товар по умолчанию")
+        CATEGORY_DEFAULT = "CATEGORY_DEFAULT", _("Категория по умолчанию")
+
+
     title = models.CharField(
         _("Заголовок"),
         max_length=1024,
@@ -767,19 +779,54 @@ class OpenGraphMeta(TimeBasedModel):
         null=True,
         blank=True,
     )
-    content_type = models.ForeignKey(
-        ContentType, on_delete=models.CASCADE, verbose_name=_("Тип объекта")
-    )
-    object_id = models.PositiveIntegerField(verbose_name=_("ID объекта"))
-    content_object = GenericForeignKey("content_type", "object_id")
-
-    def __str__(self) -> str:
-        return f"Метаданные для {self.content_object}"
+    content_type = models.CharField(_("Тип объекта метаданных"), choices=MetaDataType.choices, max_length=128)
+    object_id = models.PositiveIntegerField(verbose_name=_("ID объекта"), blank=True, null=True)
 
     class Meta:
         verbose_name = _("Метаданные")
         verbose_name_plural = _("Метаданные")
         unique_together = ("content_type", "object_id")
+
+    def __str__(self) -> str:
+        for_ = f"'{self.content_type}'"
+        if self.object_id:
+            for_ += f" #{self.object_id}"
+
+        return f"Метаданные для {for_}"
+
+    def _clean_object_id(self):
+        model = ContentType.objects.get(model__iexact=self.content_type)
+        model.model_class().objects.get(pk=self.object_id)
+
+    def clean(self) -> None:
+        if not "default" in self.content_type.lower():
+            self._clean_object_id()
+
+        return super().clean()
+
+    def save(self, *args, **kwargs) -> None:
+        ctl = self.content_type.lower()
+        if "default" in ctl and self.object_id:
+            raise ValidationError(_(f"'{self.content_type}' could not have object_id."))
+
+        elif "default" not in ctl and not self.object_id:
+            raise ValidationError(_(f"'{self.content_type}' must have object_id."))
+
+        self.clean()
+        return super().save(*args, **kwargs)
+
+    def get_content_object(self) -> TimeBasedModel | None:
+        if "default" in self.content_type.lower():
+            return
+
+        model = ContentType.objects.filter(model__iexact=self.content_type).first()
+        if not model:
+            return
+
+        return model.model_class().objects.get(pk=self.object_id)
+    
+    def get_default_template(self) -> Optional["OpenGraphMeta"]:
+        return self._meta.default_manager.filter(content_type=f"{self.content_type.upper()}_DEFAULT").first()
 
 
 class Page(TimeBasedModel):

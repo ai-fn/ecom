@@ -387,6 +387,8 @@ class OpenGraphMetaAdmin(ActiveAdminMixin, admin.ModelAdmin):
 
     list_display = (
         "id",
+        "content_type",
+        "object_id",
         "title",
         "url",
     )
@@ -397,7 +399,7 @@ class OpenGraphMetaAdmin(ActiveAdminMixin, admin.ModelAdmin):
         "site_name",
         "locale",
     )
-    list_filter = ("locale",)
+    list_filter = ("locale", "content_type")
 
 
 @admin.register(Page)

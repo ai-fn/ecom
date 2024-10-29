@@ -38,7 +38,7 @@ class MetaDataService:
         tp = ContentType.objects.get(model=content_type)
         model = tp.model_class()
         instance = model.objects.get(slug=slug)
-        kwargs = dict(object_id=instance.pk, content_type=tp)
+        kwargs = dict(object_id=instance.pk, content_type=content_type.upper())
 
         meta = OpenGraphMeta.objects.filter(**kwargs).first()
         if not meta:
@@ -93,7 +93,6 @@ class MetaDataService:
         return (
             City.objects.filter(domain=city_domain).first() or City.get_default_city()
         )
-        key_template = "DEFAULT_META_{field}_TEMPLATE"
 
     @classmethod
     def _get_city_group_name(cls, city: City) -> str:

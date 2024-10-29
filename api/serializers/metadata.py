@@ -37,10 +37,10 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             "site_name",
         ]
 
-    def get_images(self, obj) -> list:
+    def get_images(self, obj: OpenGraphMeta) -> list:
         image = None
         result = []
-        if (model := obj.content_type.model) and model in ("product", "category", "brand"):
+        if (model := obj.content_type.lower()) and model in ("product", "category", "brand"):
             if model == "product":
                 img_field_name = "catalog_image"
             elif model == "brand":
@@ -48,7 +48,8 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             else:
                 img_field_name = "image"
             
-            img_attr = getattr(obj.content_object, img_field_name)
+            instance = obj.get_content_object()
+            img_attr = getattr(instance, img_field_name)
 
             if img_attr.name:
                 image = f"media/{img_attr.name}"
@@ -87,6 +88,14 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
         fields = ("title", "keywords", "description")
         kwargs = {"city_domain": city_domain}
 
+        if inst := self.context.get("instance"):
+            kwargs["instance"] = inst
+            data["content_type"] = inst._meta.model_name
+            data["object_id"] = inst.id
+        else:
+            kwargs["instance"] = instance.get_content_object()
+
+        fields = ("title", "keywords", "description")
         kwargs["fields"] = fields
         kwargs["meta_obj"] = instance
         kwargs["instance"] = instance.content_object
@@ -99,8 +108,8 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             city_domain = City.get_default_city().domain
 
         url = f"https://{city_domain}"
-        if instance.content_type.model in ("product", "category"):
-            url += f"/{instance.content_object.get_absolute_url()}/"
+        if instance.content_type.lower() in ("product", "category"):
+            url += f"/{instance.get_content_object().get_absolute_url()}/"
         else:
             url += data.get("url")
 
