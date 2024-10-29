@@ -4,21 +4,25 @@ import xml.etree.ElementTree as ET
 from django.utils import timezone
 from django.contrib.syndication.views import Feed
 from django.conf import settings
-from shop.models import Category, Price, Product
+from shop.models import Category, Product, Setting, SettingChoices
+from shop.utils import get_base_domain
 
 
 class FeedsService(Feed):
 
+    city_group_name = None
+
     @classmethod
-    def collect_feeds(cls, xml_filname: str = "feeds.xml"):
+    def collect_feeds(cls, city_group_name: str, xml_filname: str = "feeds.xml"):
+        cls.city_group_name = city_group_name
         products = Product.objects.all()
         categories = Category.objects.values("id", "parent", "name")
         result = cls.item_xml(products, categories)
-        feeds_path = settings.FEEDS_PATH
+        feeds_path = os.path.join(settings.FEEDS_PATH, city_group_name)
 
         xml_path = os.path.join(feeds_path, xml_filname)
         if not os.path.exists(xml_path):
-            os.makedirs(feeds_path, exist_ok=True)
+            os.makedirs(feeds_path, exist_ok=False)
 
         with open(xml_path, "w") as file:
             file.write(result)
@@ -27,52 +31,32 @@ class FeedsService(Feed):
 
     @classmethod
     def item_extra_kwargs(cls, item):
-        return {
+        data = {
+            "delivery": True,
             "name": item.title,
             "available": item.is_active,
-            "description": item.description,
-            "sales_notes": "Минимальная партия заказа - 1 шт.",  # Условия продаж
-            "categoryId": item.category.id,
-            "picture": (
-                item.catalog_image.url
-                if item.catalog_image and hasattr(item.catalog_image, "url")
-                else "Ссылка на изображение"
-            ),
-            "vendor": item.brand.name if item.brand else "Бренд",
-            "vendorCode": item.article,  # Код производителя
-            "country_of_origin": "Россия",
-            "barcode": "barcode",  # Штрихкод
-            "weight": 0.5,  # Масса товара
-            "manufacturer_warranty": True,  # Гарантия от производителя
             "pickup": True,  # Самовывоз
-            "cpa": 1,  # участвует ли предложение в программе "Заказ на Маркете"
-            "store": True,  # Возможность покупки товара в розничном магазине
+            "country_of_origin": "Россия",
+            "weight": 0.5,  # Масса товара
+            "categoryId": item.category.id,
+            "description": item.description,
+            "barcode": "barcode",  # Штрихкод
+            "vendorCode": item.article,  # Код производителя
+            "vendor": item.brand.name if item.brand else "Бренд",
+            "manufacturer_warranty": True,  # Гарантия от производителя
             "dimensions": "10.0/20.0/30.0",  # Габариты (длина ширина высота)
-            "delivery": True,
-            "price_info": cls.item_price_info(item),
+            "store": True,  # Возможность покупки товара в розничном магазине
+            "cpa": 1,  # участвует ли предложение в программе "Заказ на Маркете"
+            "sales_notes": "Минимальная партия заказа - 1 шт.",  # Условия продаж
         }
+        if item.catalog_image and hasattr(item.catalog_image, "url"):
+            data['picture'] = item.catalog_image.url
 
-    @classmethod
-    def item_price_info(cls, item):
-        return [
-            {
-                "city": (
-                    price.city_group.cities.first().name
-                    if price.city_group.cities.exists()
-                    else "Город"
-                ),
-                "address": (
-                    i.address
-                    if (i := price.city_group.cities.first()) and i.address
-                    else "Адрес магазина"
-                ),
-                "price": float(price.price),
-                "old_price": price.old_price,
-                "currency": "RUB",
-                "instock": item.in_stock,
-            }
-            for price in Price.objects.filter(product=item)
-        ]
+        if p := item.prices.filter(city_group__name=cls.city_group_name).first():
+            data["price"] = float(p.price)
+            data["currencyId"] = "RUB"
+
+        return data
 
     @classmethod
     def item_xml(cls, products, categories):
@@ -82,13 +66,17 @@ class FeedsService(Feed):
         shop = ET.SubElement(yml_catalog, "shop")
 
         name = ET.SubElement(shop, "name")
-        name.text = settings.SHOP_NAME
-
         company = ET.SubElement(shop, "company")
-        company.text = settings.COMPANY_NAME
+
+        if (shop_name := Setting.objects.filter(predefined_key=SettingChoices.SHOP_NAME)).first():
+            name.text = getattr(shop_name, "value_string")
+
+        if (company_name := Setting.objects.filter(predefined_key=SettingChoices.COMPANY_NAME)).first():
+            company.text = getattr(company_name, "value_string")
 
         url = ET.SubElement(shop, "url")
-        url.text = f"https://{settings.BASE_DOMAIN}/"
+        if base_domain := get_base_domain():
+            url.text = f"https://{getattr(base_domain, "value_string")}/"
 
         offers = ET.SubElement(shop, "offers")
         categories_elements = ET.SubElement(shop, "categories")
@@ -111,7 +99,6 @@ class FeedsService(Feed):
             ET.SubElement(offer, "name").text = item.title
             ET.SubElement(offer, "url").text = item.get_absolute_url()
             ET.SubElement(offer, "categoryId").text = str(item.category.id)
-            ET.SubElement(offer, "picture").text = item_extra_kwargs["picture"]
             ET.SubElement(offer, "vendor").text = item_extra_kwargs["vendor"]
             ET.SubElement(offer, "description").text = item.description
 
@@ -141,20 +128,5 @@ class FeedsService(Feed):
                 item_extra_kwargs["pickup"]
             ).lower()
             ET.SubElement(offer, "store").text = str(item_extra_kwargs["store"]).lower()
-
-            outlets = ET.SubElement(offer, "outlets")
-            for price in item_extra_kwargs["price_info"]:
-                outlet = ET.SubElement(
-                    outlets,
-                    "outlet",
-                    id=str(price["city"]),
-                    instock=str(price["instock"]).lower(),
-                    price=str(price["price"]),
-                )
-                ET.SubElement(outlet, "city").text = price["city"]
-                ET.SubElement(outlet, "address").text = price["address"]
-                if price["old_price"]:
-                    ET.SubElement(outlet, "oldprice").text = str(price["old_price"])
-                ET.SubElement(outlet, "currencyId").text = price["currency"]
 
         return ET.tostring(yml_catalog, encoding="utf-8").decode("utf-8")

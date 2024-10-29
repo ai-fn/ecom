@@ -6,6 +6,7 @@ from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from shop.services import EmailService
+from shop.utils import get_base_domain
 
 
 class GenerateCodeMixin:
@@ -58,7 +59,7 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
         if not code:
             code = self._generate_code()
 
-        domain = getattr(settings, "BASE_DOMAIN")
+        domain = get_base_domain()
 
         context = {
             "code": code,
@@ -88,7 +89,7 @@ class SendVerifyEmailMixin(GenerateCodeMixin):
             code = self._generate_code(length=settings.REGISTER_CODE_LENGTH)
         
         if not topik:
-            topik = _(f"Подтверждение почты {settings.BASE_DOMAIN}")
+            topik = _(f"Подтверждение почты {get_base_domain()}")
 
         cached_data = cache.get(cache_key)
         if cached_data:

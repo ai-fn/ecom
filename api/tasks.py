@@ -1,22 +1,15 @@
-import csv
-import os
-import subprocess
-from celery import shared_task
-
-from django.conf import settings
-from django.db import transaction
-from django.core.mail import EmailMessage
-
 from loguru import logger
 
+from unidecode import unidecode
+from celery import group, shared_task
+
+from django.conf import settings
 from django.utils import timezone
+from django.core.mail import EmailMessage
 from django.utils.text import slugify as django_slugify
 
-from shop.models import (
-    City,
-    Promo,
-)
-from unidecode import unidecode
+from shop.models import Promo
+from account.models import CityGroup
 
 
 def custom_slugify(value):
@@ -32,65 +25,17 @@ def update_promo_status():
     expired_promos.update(is_active=False)
 
 @shared_task
-def collect_xml_feeds():
+def collect_single_feed_xml(city_group_name: str):
     from shop.services import FeedsService
-    FeedsService.collect_feeds()
-    return "Feeds successfully collected"
+    FeedsService.collect_feeds(city_group_name)
+    return f"Feeds for {city_group_name} successfully collected"
 
 
 @shared_task
-def update_cities():
-    repo_url = "https://github.com/hflabs/city.git"
-    repo_dir = "city_repo"
-
-    try:
-        subprocess.run(["git", "clone", repo_url, repo_dir], check=True)
-        logger.debug("Repository cloned successfully.")
-    except subprocess.CalledProcessError as e:
-        logger.debug("Error:", e)
-        return
-
-    city_csv_path = os.path.join(repo_dir, "city.csv")
-
-    try:
-        with open(city_csv_path, newline="", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-            city_names = {}
-            for row in reader:
-                p = int(row["population"])
-
-                if row["city"] != "":
-                    city_names[row["city"]] = p
-                elif row["region_type"] == "г":
-                    city_names[row["region"]] = p
-                elif row["area_type"] == "г":
-                    city_names[row["area"]] = p
-                else:
-                    continue
-
-    except FileNotFoundError:
-        logger.debug("city.csv not found.")
-    except Exception as e:
-        logger.debug("Error occurred while extracting city names:", e)
-    finally:
-        try:
-            subprocess.run(["rm", "-rf", repo_dir], check=True)
-        except subprocess.CalledProcessError as e:
-            logger.debug("Error cleaning up:", e)
-
-    current_cities = City.objects.values_list("name")
-    diff = set(city_names.keys()).difference(set(current_cities))
-
-    if len(diff) > 0:
-        with transaction.atomic():
-            for c in diff:
-                p = city_names[c]
-                c, created = City.objects.get_or_create(name=c, defaults={"population": p})
-                if not created and c.population != p:
-                    c.population = p
-                    c.save()
-
-        logger.debug("Cities successfully created")
+def collect_feed_xml_files():
+    tasks = group(collect_single_feed_xml.s(cg.name) for cg in CityGroup.objects.all())
+    result = tasks.apply_async()
+    return result
 
 
 def send_email_with_attachment(email_to, file_path):

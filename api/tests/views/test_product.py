@@ -1,16 +1,16 @@
-from django.test import TestCase
 from django.urls import reverse
-from api.test_utils import SetupTestData
+from django.test import TestCase
 from shop.models import Price, Product
+from api.test_utils import SetupTestData
 
-from django.conf import settings
+from shop.utils.setting import get_base_domain
 
 
 class TestProductViewSet(TestCase):
 
     def setUp(self):
         self.s = SetupTestData()
-        self.c = self.s.setup_city("Москва", domain=settings.BASE_DOMAIN)
+        self.c = self.s.setup_city("Москва", domain=get_base_domain() or "base_domain")
         self.cg = self.s.setup_city_group("Московская область")
         self.cg.cities.add(self.c)
 

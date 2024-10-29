@@ -14,7 +14,6 @@ from api.permissions import ReadOnlyOrAdminPermission
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.serializers import PageSerializer
 from shop.models import Page
-from api.views.metadata import OPEN_GRAPH_META_RESPONSE_EXAMPLE
 
 
 PAGE_REQUEST_EXAMPLE = {
@@ -33,7 +32,6 @@ PAGE_REQUEST_EXAMPLE = {
 PAGE_RESPONSE_EXAMPLE = {
     "id": 1,
     **PAGE_REQUEST_EXAMPLE,
-    "opengraph_metadata": OPEN_GRAPH_META_RESPONSE_EXAMPLE,
 }
 PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPLE.items())[:2]}
 

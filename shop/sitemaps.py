@@ -5,13 +5,14 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
 from shop.models import Product, Category
+from shop.utils import get_base_domain
 
 
 class CustomSitemap:
 
     def __init__(self, domain=None) -> None:
         self.catalog_url = "katalog"
-        self.base_domain = getattr(settings, "BASE_DOMAIN", "krov.market") + "/"
+        self.base_domain = get_base_domain() + "/"
         if domain is not None:
             self.domain = domain
         

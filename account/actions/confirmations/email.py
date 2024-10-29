@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from api.mixins import SendVerifyEmailMixin
 from api.serializers import EmailSerializer
 from account.actions import SendCodeBaseAction
+from shop.utils import get_base_domain
 
 
 class SendCodeToEmailAction(SendCodeBaseAction, SendVerifyEmailMixin):
@@ -19,7 +20,7 @@ class SendCodeToEmailAction(SendCodeBaseAction, SendVerifyEmailMixin):
             code=code,
             set_cache=False,
             cache_key=cache_key,
-            topik=_(f"Авторизация {settings.BASE_DOMAIN}"),
+            topik=_(f"Авторизация {get_base_domain()}"),
             email_template_name="email/login_code.html",
         )
         return 200 <= response.status_code < 400

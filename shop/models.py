@@ -494,12 +494,17 @@ class Price(TimeBasedModel):
 
 
 class SettingChoices(models.TextChoices):
-    MAINTENANCE = "maintenance", "Тех. работы"
-    CDN_ENABLED = "cdn_enabled", "Включен ли CDN"
-    CDN_ADDRESS = "cdn_address", "Адрес CDN"
-    MULTIDOMAINS_ENABLED = "multidomains_enabled", "Включен ли Multidomains"
-    ROBOTS_TXT = "robots_txt", "Наполнение для robots.txt"
-    OPEN_GRAPH_META_IMAGE = "openGraphMeta_image", "Путь до openGraphMeta изображения от корня директории сайта"
+    CDN_ADDRESS = "cdn_address", _("Адрес CDN")
+    MAINTENANCE = "maintenance", _("Тех. работы")
+    BASE_DOMAIN = "base_domain", _("Базовый домен")
+    CDN_ENABLED = "cdn_enabled", _("Включен ли CDN")
+    COMPANY_NAME = "company_name", _("Наименование компании")
+    ROBOTS_TXT = "robots_txt", _("Наполнение для robots.txt")
+    SHOP_NAME = "shop_name", _("Наименование интернет-магазина")
+    DEFAULT_META_TITLE_TEMPLATE = "default_meta_title_template", _("Шаблон по умолчанию для заголовка метаданных")
+    OPEN_GRAPH_META_IMAGE = "openGraphMeta_image", _("Путь до openGraphMeta изображения от корня директории сайта")
+    DEFAULT_META_KEYWORDS_TEMPLATE = "default_meta_keywords_template", _("Шаблон по умолчанию для ключевых слов метаданных")
+    DEFAULT_META_DESCRIPTION_TEMPLATE = "default_meta_description_template", _("Шаблон по умолчанию для описания метаданных")
     # TODO добавить настройки платежных систем
     # TODO добавить доступность прямой оплаты
     # TODO включение CMS режима

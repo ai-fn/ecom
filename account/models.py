@@ -8,6 +8,8 @@ from django.utils.text import slugify
 
 from unidecode import unidecode
 
+from shop.utils import get_base_domain
+
 
 class TimeBasedModel(models.Model):
     class Meta:
@@ -120,7 +122,7 @@ class City(TimeBasedModel):
     
     def save(self, *args, **kwargs):
         if not self.domain:
-            self.domain = f'{slugify(unidecode(self.name))}.{getattr(settings, "BASE_DOMAIN", "krov.market")}'
+            self.domain = f'{slugify(unidecode(self.name))}.{get_base_domain()}'
 
         return super().save(*args, **kwargs)
 
