@@ -73,10 +73,10 @@ class FeedsService(Feed):
         name = ET.SubElement(shop, "name")
         company = ET.SubElement(shop, "company")
 
-        if (shop_name := Setting.objects.filter(predefined_key=SettingChoices.SHOP_NAME)).first():
+        if shop_name := Setting.objects.filter(predefined_key=SettingChoices.SHOP_NAME).first():
             name.text = getattr(shop_name, "value_string")
 
-        if (company_name := Setting.objects.filter(predefined_key=SettingChoices.COMPANY_NAME)).first():
+        if company_name := Setting.objects.filter(predefined_key=SettingChoices.COMPANY_NAME).first():
             company.text = getattr(company_name, "value_string")
 
         url = ET.SubElement(shop, "url")

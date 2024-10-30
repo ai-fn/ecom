@@ -1,3 +1,4 @@
+import subprocess
 from loguru import logger
 
 from unidecode import unidecode
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.mail import EmailMessage
 from django.utils.text import slugify as django_slugify
+from django.core.management import call_command
 
 from shop.models import Promo
 from account.models import CityGroup
@@ -35,6 +37,8 @@ def collect_single_feed_xml(city_group_name: str):
 def collect_feed_xml_files():
     tasks = group(collect_single_feed_xml.s(cg.name) for cg in CityGroup.objects.all())
     result = tasks.apply_async()
+    command_result = call_command("collectstatic", "--no-input")
+    logger.info(command_result)
     return result
 
 
