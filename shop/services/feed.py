@@ -53,8 +53,8 @@ class FeedsService(Feed):
             data['picture'] = item.catalog_image.url
 
         if p := item.prices.filter(city_group__name=cls.city_group_name).first():
-            data["price"] = float(p.price)
             data["currencyId"] = "RUB"
+            data["price"] = float(p.price)
 
         return data
 
@@ -78,8 +78,8 @@ class FeedsService(Feed):
         if base_domain := get_base_domain():
             url.text = f"https://{getattr(base_domain, 'value_string')}/"
 
-        offers = ET.SubElement(shop, "offers")
         categories_elements = ET.SubElement(shop, "categories")
+        offers = ET.SubElement(shop, "offers")
 
         for category in categories:
             ctg_kwargs = {"id": str(category["id"])}
@@ -102,23 +102,32 @@ class FeedsService(Feed):
             ET.SubElement(offer, "vendor").text = item_extra_kwargs["vendor"]
             ET.SubElement(offer, "description").text = item.description
 
-            if sales_notes := item_extra_kwargs.get("sales_notes"):
-                ET.SubElement(offer, "sales_notes").text = sales_notes
+            if value := item_extra_kwargs.get("sales_notes"):
+                ET.SubElement(offer, "sales_notes").text = value
 
-            if vendorCode := item_extra_kwargs.get("vendorCode"):
-                ET.SubElement(offer, "vendorCode").text = vendorCode
+            if value := item_extra_kwargs.get("vendorCode"):
+                ET.SubElement(offer, "vendorCode").text = value
 
-            if country_of_origin := item_extra_kwargs.get("country_of_origin"):
-                ET.SubElement(offer, "country_of_origin").text = country_of_origin
+            if value := item_extra_kwargs.get("country_of_origin"):
+                ET.SubElement(offer, "country_of_origin").text = value
 
-            if barcode := item_extra_kwargs.get("barcode"):
-                ET.SubElement(offer, "barcode").text = barcode
+            if value := item_extra_kwargs.get("barcode"):
+                ET.SubElement(offer, "barcode").text = value
 
-            if weight := item_extra_kwargs.get("weight"):
-                ET.SubElement(offer, "weight").text = str(weight)
+            if value := item_extra_kwargs.get("weight"):
+                ET.SubElement(offer, "weight").text = str(value)
 
-            if dimensions := item_extra_kwargs.get("dimensions"):
-                ET.SubElement(offer, "dimensions").text = dimensions
+            if value := item_extra_kwargs.get("price"):
+                ET.SubElement(offer, "price").text = str(value)
+
+            if value := item_extra_kwargs.get("picture"):
+                ET.SubElement(offer, "picture").text = str(value)
+
+            if value := item_extra_kwargs.get("currencyId"):
+                ET.SubElement(offer, "currencyId").text = str(value)
+
+            if value := item_extra_kwargs.get("dimensions"):
+                ET.SubElement(offer, "dimensions").text = value
 
             ET.SubElement(offer, "cpa").text = str(item_extra_kwargs["cpa"]).lower()
             ET.SubElement(offer, "manufacturer_warranty").text = str(
