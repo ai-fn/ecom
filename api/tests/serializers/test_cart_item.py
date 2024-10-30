@@ -45,11 +45,11 @@ class CartItemSerializerTestCase(TestCase):
             article="TEST2"
         )
         self.city_group = CityGroup.objects.create(name="Воронеж Group")
-        self.city = City.objects.create(name="Воронеж", domain="voronezh.krov.market")
+        self.city = City.objects.create(name="Воронеж", domain="voronezh.domain.com")
         self.city_group.cities.add(self.city)
 
     def test_cart_item_serializer_create(self):
-        dummy_domain = "voronezh.krov.market"
+        dummy_domain = "voronezh.domain.com"
         data = {"product_id": self.product.id, "quantity": 2}
         request = self.factory.post("/cart/", data)
         request.query_params = {"city_domain": dummy_domain}

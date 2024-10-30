@@ -58,7 +58,7 @@ OPEN_GRAPH_META_RESPONSE_EXAMPLE = {
             OpenApiParameter(
                 name="city_domain",
                 description="Домен города",
-                default="moskva.krov.market",
+                default="moskva.domain.com",
                 required=True,
                 type=str,
             ),

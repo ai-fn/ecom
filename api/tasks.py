@@ -1,4 +1,3 @@
-import subprocess
 from loguru import logger
 
 from unidecode import unidecode
@@ -8,7 +7,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.mail import EmailMessage
 from django.utils.text import slugify as django_slugify
-from django.core.management import call_command
 
 from shop.models import Promo
 from account.models import CityGroup
@@ -21,9 +19,7 @@ def custom_slugify(value):
 @shared_task
 def update_promo_status():
     one_day_ago = timezone.now().date() + timezone.timedelta(days=1)
-
     expired_promos = Promo.objects.filter(active_to__lte=one_day_ago)
-
     expired_promos.update(is_active=False)
 
 @shared_task
@@ -31,6 +27,23 @@ def collect_single_feed_xml(city_group_name: str):
     from shop.services import FeedsService
     FeedsService.collect_feeds(city_group_name)
     return f"Feeds for {city_group_name} successfully collected"
+
+@shared_task
+def collect_sitemap_xml(cg_name: str):
+    from shop.services import SitemapSerivie
+    from shop.sitemaps import ProductSitemap, CategorySitemap
+
+    sitemaps = {
+        "products": ProductSitemap,
+        "categories": CategorySitemap,
+    }
+    SitemapSerivie.collect(cg_name, sitemaps, save_to_file=True)
+
+@shared_task
+def collect_sitemaps():
+    tasks = group(collect_sitemap_xml.s(cg.name) for cg in CityGroup.objects.all())
+    result = tasks.apply_async()
+    return result
 
 
 @shared_task

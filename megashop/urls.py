@@ -33,8 +33,7 @@ from api.views.feeds import FeedsView
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 
-from shop.views import CustomSitemap, sitemaps
-
+from shop.views import SitemapView
 
 
 @login_required
@@ -54,22 +53,15 @@ def custom_schema_view(request, *args, **kwargs):
 
 urlpatterns = (
     [
-        path("account/", include("account.urls", namespace="account")),
         path("admin/", admin.site.urls),
-        path("feeds.xml/", FeedsView.as_view(), name="product_feed"),
-
-        path(
-            "sitemap.xml",
-            sitemap,
-            {"sitemaps": sitemaps},
-            name="django.contrib.sitemaps.views.sitemap",
-        ),
-        path("custom/sitemap.xml", view=CustomSitemap.as_view(), name="custom-sitemap"),
         path("api/", include("api.urls")),
+        path("", include("django_prometheus.urls")),
+        path("feeds.xml/", FeedsView.as_view(), name="product_feed"),
+        path("account/", include("account.urls", namespace="account")),
+        path("api/redoc/", never_cache(custom_redoc_view), name="redoc"),
         path("api/schema/", never_cache(custom_schema_view), name="schema"),
         path("api/swagger/", never_cache(custom_swagger_view), name="swagger-ui"),
-        path("api/redoc/", never_cache(custom_redoc_view), name="redoc"),
-        path("", include("django_prometheus.urls")),
+        path("custom/sitemap.xml", view=SitemapView.as_view(), name="custom-sitemap"),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

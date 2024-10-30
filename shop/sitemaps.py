@@ -10,15 +10,16 @@ class CustomSitemap:
 
     def __init__(self, domain=None) -> None:
         self.catalog_url = "katalog"
-        self.base_domain = get_base_domain() + "/"
+        self.base_domain = get_base_domain().strip("/") + "/"
         if domain is not None:
             self.domain = domain
-        
-    def get_domain(self, site=None):
-        if domain := getattr(self, "domain", None):
-            return domain
 
-        return self.base_domain
+    def get_domain(self, site=None):
+        domain = self.base_domain
+        if city_domain := getattr(self, "domain", None):
+             domain = city_domain
+
+        return f"{domain.strip('/')}/"
 
     def get_abs_path(self, link):
         return os.path.join(self.catalog_url, *link.split("/")[3:])

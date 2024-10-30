@@ -13,9 +13,9 @@ server {
 # HTTPS Server
 server {
     listen 443 ssl;
-    ssl_certificate /code/ssl/live/shop.ru/fullchain.pem;  # Wildcard certificate if available
-    ssl_certificate_key /code/ssl/live/shop.ru/privkey.pem;
-    server_name .shop.ru;  # Wildcard for all subdomains
+    ssl_certificate /code/ssl/live/dev-domain.com/fullchain.pem;
+    ssl_certificate_key /code/ssl/live/dev-domain.com/privkey.pem;
+    server_name dev-domain.com;
 
     error_log stderr warn;
     access_log /dev/stdout main;

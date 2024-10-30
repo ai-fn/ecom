@@ -27,7 +27,7 @@ from django.views.decorators.cache import cache_page
 <shop>
     <name>КровМаркет</name>
     <company>alta-profil</company>
-    <url>https://krov.market/</url>
+    <url>https://domain.com/</url>
     <offers>
         <offer id="6" available="true">
             <name>Гидро-ветрозащитая диффузионная мембрана ТехноНИКОЛЬ Альфа ВЕНТ 130 ТПУ</name>

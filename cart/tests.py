@@ -25,7 +25,7 @@ class OrderViewSetTests(APITestCase):
             email="dummy@gmail.com", password="dummy", username="dummy-users"
         )
         self.city_group = CityGroup.objects.create(name="Москва")
-        self.city = City.objects.create(name="Москва", domain="moskva.krov.market")
+        self.city = City.objects.create(name="Москва", domain="moskva.domain.com")
         self.city_group.cities.add(self.city)
 
         self.category = Category.objects.create(name="dummy category", order=1)
@@ -58,7 +58,7 @@ class OrderViewSetTests(APITestCase):
     def test_create_order_from_cart(self, mock_create_lead_for_order):
         mock_create_lead_for_order.return_value = {'result': {'ID': '12345'}}, 200
 
-        query_params = {"city_domain": "voronezh.krov.market"}
+        query_params = {"city_domain": "voronezh.domain.com"}
         url = (
             reverse("api:cart:orders-list")
             + "?"
@@ -72,7 +72,7 @@ class OrderViewSetTests(APITestCase):
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        query_params = {"city_domain": "moskva.krov.market"}
+        query_params = {"city_domain": "moskva.domain.com"}
         url = (
             reverse("api:cart:orders-list")
             + "?"
