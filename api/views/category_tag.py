@@ -169,8 +169,8 @@ class CategoryTagViewSet(ModelViewSet):
         return super().get_serializer_class()
 
     @action(detail=False, methods=["get"], url_path="by-slug/(?P<category_slug>[^/.]+)")
-    def get_by_slug(self, request, *args, slug: str = None, **kwargs):
-        ctg = Category.objects.filter(slug=slug).first()
+    def get_by_slug(self, request, *args, category_slug: str = None, **kwargs):
+        ctg = Category.objects.filter(slug=category_slug).first()
         if not ctg:
             self.queryset = self.queryset.none()
         else:
