@@ -1,8 +1,6 @@
 import os
-from django.conf import settings
 from django.db.models.base import Model
 from django.contrib.sitemaps import Sitemap
-from django.urls import reverse
 
 from shop.models import Product, Category
 from shop.utils import get_base_domain
@@ -17,9 +15,9 @@ class CustomSitemap:
             self.domain = domain
         
     def get_domain(self, site=None):
-        if getattr(self, "domain", None):
-            return f"{self.domain}.{self.base_domain}"
-        
+        if domain := getattr(self, "domain", None):
+            return domain
+
         return self.base_domain
 
     def get_abs_path(self, link):
