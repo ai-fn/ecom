@@ -1,15 +1,20 @@
 import os
 import xml.etree.ElementTree as ET
 
+from urllib.parse import urljoin
+
+from django.conf import settings
 from django.utils import timezone
 from django.contrib.syndication.views import Feed
-from django.conf import settings
-from shop.models import Category, Product, Setting, SettingChoices
+
+from account.models import City, CityGroup
 from shop.utils import get_base_domain
+from shop.models import Category, Product, Setting, SettingChoices
 
 
 class FeedsService(Feed):
 
+    schema = "https"
     city_group_name = None
 
     @classmethod
@@ -17,7 +22,7 @@ class FeedsService(Feed):
         cls.city_group_name = city_group_name
         products = Product.objects.all()
         categories = Category.objects.values("id", "parent", "name")
-        result = cls.item_xml(products, categories)
+        result = cls.item_xml(products, categories, city_group_name)
         feeds_path = os.path.join(settings.FEEDS_PATH, city_group_name)
 
         xml_path = os.path.join(feeds_path, xml_filname)
@@ -59,7 +64,7 @@ class FeedsService(Feed):
         return data
 
     @classmethod
-    def item_xml(cls, products, categories):
+    def item_xml(cls, products, categories, city_group_name):
         yml_catalog = ET.Element(
             "yml_catalog", date=timezone.localtime(timezone.now()).date().isoformat()
         )
@@ -75,9 +80,17 @@ class FeedsService(Feed):
             company.text = getattr(company_name, "value_string")
 
         url = ET.SubElement(shop, "url")
-        if base_domain := get_base_domain():
-            url.text = f"https://{getattr(base_domain, 'value_string')}/"
 
+        base_url = f"{cls.schema}://"
+        cg = CityGroup.objects.filter(name=city_group_name).first()
+        if all((cg is not None, cg.main_city is not None)):
+            city_domain = getattr(cg.main_city, "domain", None) or City.get_default_city().domain
+            base_url = f"{cls.schema}://{city_domain}/"
+        else:
+            base_domain = get_base_domain() or City.get_default_city().domain
+            base_url = f"{cls.schema}://{base_domain}/"
+
+        url.text = base_url
         categories_elements = ET.SubElement(shop, "categories")
         offers = ET.SubElement(shop, "offers")
 
@@ -97,10 +110,13 @@ class FeedsService(Feed):
             offer = ET.SubElement(offers, "offer", id=str(item.id), available="true")
 
             ET.SubElement(offer, "name").text = item.title
-            ET.SubElement(offer, "url").text = item.get_absolute_url()
+
+            item_url = urljoin(base_url, item.get_absolute_url())
+
+            ET.SubElement(offer, "url").text = item_url
+            ET.SubElement(offer, "description").text = item.description
             ET.SubElement(offer, "categoryId").text = str(item.category.id)
             ET.SubElement(offer, "vendor").text = item_extra_kwargs["vendor"]
-            ET.SubElement(offer, "description").text = item.description
 
             if value := item_extra_kwargs.get("sales_notes"):
                 ET.SubElement(offer, "sales_notes").text = value
