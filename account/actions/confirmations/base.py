@@ -16,7 +16,6 @@ from rest_framework.exceptions import ValidationError
 from account.models import CustomUser
 from api.mixins import GenerateCodeMixin
 from api.serializers.phone import PhoneSerializer
-from api.serializers.confirm_code import ConfirmCodeSerializer
 
 
 class SendCodeBaseAction(GenerateCodeMixin):
@@ -66,6 +65,7 @@ class SendCodeBaseAction(GenerateCodeMixin):
             q = Q(**fields)
             if self.lookup_field != "username":
                 q |= Q(username=lookup_value)
+                fields["username"] = lookup_value
 
             user = CustomUser.objects.filter(q).first()
             if not user:
@@ -81,7 +81,7 @@ class SendCodeBaseAction(GenerateCodeMixin):
                     logger.error(f"Error on code confirmation: {str(err)}")
                     raise ValidationError(str(err))
 
-        self._invalidate_cache(cache_salt)
+            self._invalidate_cache(cache_salt)
 
         return user, message
 
