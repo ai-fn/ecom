@@ -143,7 +143,7 @@ class MetaDataService:
             products_count = instance.category.products.count()
         elif instance._meta.model_name == "category":
             ctgs = (
-                instance.get_descendants()
+                instance.get_descendants(include_self=True)
                 .filter(
                     is_visible=True,
                     is_active=True,
