@@ -253,7 +253,7 @@ class ImportTaskService:
                 f"Error while updating '{model._meta.model_name}' instance: {str(e)}"
             )
             self.errors.append(
-                f"Ошбика обновления объекта '{model._meta.model_name}': {str(e)}"
+                f"Ошибка обновления объекта '{model._meta.model_name}': {str(e)}"
             )
 
     def get_notna_items(self, fields: dict, row: dict) -> dict:
