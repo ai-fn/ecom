@@ -34,15 +34,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
-      - "traefik.http.services.megashop.loadbalancer.server.port=8000"
-      - "traefik.http.routers.megashop.rule=Host(`${BACKEND_HOST}`)"
-      - "traefik.http.routers.megashop.entrypoints=http"
-      - "traefik.http.routers.megashop-secure.rule=Host(`${BACKEND_HOST}`)"
-      - "traefik.http.routers.megashop-secure.entrypoints=https"
-      - "traefik.http.routers.megashop-secure.tls.certresolver=traefik-resolver"
-      - "traefik.http.middlewares.megashop-ratelimit.rateLimit.average=30"
-      - "traefik.http.middlewares.megashop-ratelimit.rateLimit.burst=40"
-      - "traefik.http.routers.megashop.middlewares=megashop-ratelimit"
+      - "traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=8000"
+      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${BACKEND_HOST}`)"
+      - "traefik.http.routers.${PROJECT_NAME}.entrypoints=http"
+      - "traefik.http.routers.${PROJECT_NAME}-secure.rule=Host(`${BACKEND_HOST}`)"
+      - "traefik.http.routers.${PROJECT_NAME}-secure.entrypoints=https"
+      - "traefik.http.routers.${PROJECT_NAME}-secure.tls.certresolver=traefik-resolver"
+      - "traefik.http.middlewares.${PROJECT_NAME}-ratelimit.rateLimit.average=30"
+      - "traefik.http.middlewares.${PROJECT_NAME}-ratelimit.rateLimit.burst=40"
+      - "traefik.http.routers.${PROJECT_NAME}.middlewares=${PROJECT_NAME}-ratelimit"
 
     depends_on:
       - db
@@ -50,8 +50,8 @@ services:
       driver: loki
       options:
         loki-url: http://147.45.106.166:3100/loki/api/v1/push
-        loki-external-labels: job=dockerlogs,owner=dev-megashop-backend,environment=development
-    
+        loki-external-labels: job=dockerlogs,owner=dev-${APP_NAME}-backend,environment=development
+
   celery:
     build: .
     command: celery -A megashop worker --loglevel=info --beat
