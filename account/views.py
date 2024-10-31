@@ -148,6 +148,8 @@ class AccountInfoViewSet(
         response = super().partial_update(request, *args, **kwargs)
         if 200 <= response.status_code < 400 and "email" in request.data:
             user = self.get_object()
+            user.email_confirmed = False
+            user.save()
             return self._send_confirm_email(request, user, request.data["email"])
 
         return response
