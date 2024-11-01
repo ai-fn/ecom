@@ -1,6 +1,8 @@
 stages:
   - test
   - deploy
+  - dev-test
+  - dev-deploy
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -23,6 +25,7 @@ test:
     - backend
   only:
     - main
+
   script:
     - set -e
     - echo "Running tests..."
@@ -38,12 +41,9 @@ test:
       docker compose -f docker-compose-test.yml up --build -d &&
       docker compose -f docker-compose-test.yml exec web python manage.py migrate --settings=megashop.settings.local &&
       docker compose -f docker-compose-test.yml logs web &&
-      docker compose -f docker-compose-test.yml exec web ./wait-for-it.sh elasticsearch:9200 --timeout=120 --strict -- python manage.py test --settings=megashop.settings.local --no-input || exit 1
-      "
+      docker compose -f docker-compose-test.yml exec web ./wait-for-it.sh elasticsearch:9200 --timeout=120 --strict -- python manage.py test --settings=megashop.settings.local --no-input || exit 1"
   after_script:
-    - ssh -F ~/.ssh/shop-backend-config target-shop "
-        docker compose -f ./shop-backend-test/docker-compose-test.yml down
-      "
+    - ssh -F ~/.ssh/shop-backend-config target-shop "docker compose -f ./shop-backend-test/docker-compose-test.yml down"
 
 deploy:
   stage: deploy
@@ -59,6 +59,49 @@ deploy:
       git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
       docker compose -f docker-compose-traefik.yml build &&
       docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
+      docker compose exec web python manage.py migrate --settings=megashop.settings.prod"
+  needs:
+    - test
+
+dev-test:
+  stage: dev-test
+  tags:
+    - backend
+  only:
+    - dev
+
+  script:
+    - echo "Running dev-tests..."
+    - ssh -F ~/.ssh/shop-backend-config target-shop "
+      if [ -d dev-shop-backend-test ]; then
+      cd dev-shop-backend-test && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git;
+      else
+      git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git dev-shop-backend-test && cd dev-shop-backend-test;
+      fi &&
+      mkdir -p ./data/elasticsearch &&
+      sudo chown -R 1000:1000 ./data/elasticsearch &&
+      sudo chmod -R 755 ./data/elasticsearch &&
+      docker compose -f docker-compose-test.yml up --build -d &&
+      docker compose -f docker-compose-test.yml exec web python manage.py migrate --settings=megashop.settings.local &&
+      docker compose -f docker-compose-test.yml logs web &&
+      docker compose -f docker-compose-test.yml exec web ./wait-for-it.sh elasticsearch:9200 --timeout=120 --strict -- python manage.py test --settings=megashop.settings.local --no-input || exit 1"
+  after_script:
+    - ssh -F ~/.ssh/shop-backend-config target-shop "docker compose -f ./dev-shop-backend-test/docker-compose-test.yml down"
+
+dev-deploy:
+  stage: dev-deploy
+  tags:
+    - backend
+  only:
+    - dev
+  script:
+    - set -e
+    - echo "Running dev-deploy..."
+    - ssh -F ~/.ssh/shop-backend-config target-shop "cd dev-shop-backend/ &&
+      docker compose -f docker-compose-traefik.yml down --timeout 30 &&
+      git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
+      docker compose -f docker-compose-traefik.yml build &&
+      docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
       docker compose exec web python manage.py migrate --settings=megashop.settings.local"
   needs:
-      - test
+    - dev-test
