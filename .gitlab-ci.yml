@@ -10,8 +10,6 @@ variables:
 before_script:
   - echo "Configuring SSH..."
   - mkdir -p ~/.ssh/
-  - echo "$SSH_KEY"
-  - echo "$SSH_HOST"
   - echo "$SSH_KEY" > ~/.ssh/gitlab
   - echo "$SSH_KEY" > ~/.ssh/gitlab
   - chmod 600 ~/.ssh/gitlab
