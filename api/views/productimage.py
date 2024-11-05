@@ -21,7 +21,7 @@ from drf_spectacular.utils import (
 PRODUCT_IMAGE_REQUEST_EXAMPLE = {
     "name": "example",
     "thumb_img": "thumb_example.png",
-    "image": "/media/catalog/products/images/example.png",
+    "image": "https://s3.aws.cloud/catalog/products/images/example.png",
     "is_active": True,
 }
 PRODUCT_IMAGE_RESPONSE_EXAMPLE = {

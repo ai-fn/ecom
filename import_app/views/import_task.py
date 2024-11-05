@@ -29,7 +29,7 @@ from shop.models import (
 )
 
 IMPORT_TASK_REQUEST_EXAMPLE = {
-    "file": "/media/catalog/import_files/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.xlsx",
+    "file": "https://s3.aws.cloud/media/catalog/import_files/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.xlsx",
     "user": 1,
     "comment": "Задача на импорт данных",
     "import_setting": IMPORT_SETTING_REQUEST_EXAMPLE,

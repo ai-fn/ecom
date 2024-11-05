@@ -25,24 +25,29 @@ def update_promo_status():
 @shared_task
 def collect_single_feed_xml(city_group_name: str):
     from shop.services import FeedsService
+
     FeedsService.collect_feeds(city_group_name)
     return f"Feeds for {city_group_name} successfully collected"
 
 @shared_task
-def collect_sitemap_xml(cg_name: str):
-    from shop.services import SitemapSerivie
+def collect_sitemap_xml(city_group_name: str, domain: str):
+    from shop.services import SitemapService
     from shop.sitemaps import ProductSitemap, CategorySitemap
 
     sitemaps = {
         "products": ProductSitemap,
         "categories": CategorySitemap,
     }
-    SitemapSerivie.collect(cg_name, sitemaps, save_to_file=True)
+    SitemapService.collect(city_group_name, domain, sitemaps, save_to_file=True)
 
 @shared_task
 def collect_sitemaps():
-    tasks = group(collect_sitemap_xml.s(cg.name) for cg in CityGroup.objects.all())
-    result = tasks.apply_async()
+    tasks = []
+    for cg in CityGroup.objects.filter(main_city__isnull=False, is_active=True):
+        tasks.append(collect_sitemap_xml.s(cg.name, cg.main_city.domain))
+
+    g = group(tasks)
+    result = g.apply_async()
     return result
 
 

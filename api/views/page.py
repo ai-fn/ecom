@@ -27,7 +27,7 @@ PAGE_REQUEST_EXAMPLE = {
                 "velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?",
     "description": "Описание первой страницы",
     "slug": "pervaya-stranitsa",
-    "image": "/media/pages/image1.jpg",
+    "image": "https://s3.aws.cloud/pages/image1.jpg",
 }
 PAGE_RESPONSE_EXAMPLE = {
     "id": 1,

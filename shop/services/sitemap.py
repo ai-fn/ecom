@@ -3,10 +3,14 @@ import os
 from django.conf import settings
 from django.utils import timezone
 from django.utils.http import http_date
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from xml.etree import ElementTree as ET
 
+from account.models import CityGroup
 
-class SitemapSerivie:
+
+class SitemapService:
 
     @classmethod
     def _get_latest_lastmod(cls, current_lastmod, new_lastmod):
@@ -25,7 +29,7 @@ class SitemapSerivie:
         )
 
     @classmethod
-    def collect(cls, cg_name: str, sitemaps: dict, save_to_file: bool = False):
+    def collect(cls, city_group_name: str, domain: str, sitemaps: dict, save_to_file: bool = False):
 
         maps = sitemaps.values()
 
@@ -34,7 +38,8 @@ class SitemapSerivie:
         urls = []
         for site in maps:
             if callable(site):
-                site = site()
+                site = site(domain=domain)
+
             urls.extend(site.get_urls(page=1, site=None, protocol="https"))
             if all_sites_lastmod:
                 site_lastmod = getattr(site, "latest_lastmod", None)
@@ -51,7 +56,7 @@ class SitemapSerivie:
 
         xml = cls._generate_xml(urls)
         if save_to_file:
-            return cls._save_as_xml_file(xml, cg_name)
+            return cls._save_as_xml_file(xml, city_group_name)
 
         return {
             "xml": xml,
@@ -61,16 +66,13 @@ class SitemapSerivie:
     
     @classmethod
     def get_xml_file_path(cls, cg_name: str) -> str:
-        return os.path.join(settings.SITEMAP_PATH, cg_name, "sitemap.xml")
+        return os.path.join(settings.SITEMAP_DIR, cg_name, "sitemap.xml")
 
     @classmethod
-    def _save_as_xml_file(cls, content, domain: str):
+    def _save_as_xml_file(cls, content: str, domain: str):
         path = cls.get_xml_file_path(domain)
-        if not os.path.exists(dn := os.path.dirname(path)):
-            os.makedirs(dn)
 
-        with open(path, "w") as file:
-            file.write(content)
+        default_storage.save(path, content=ContentFile(content.encode('utf-8')))
 
     @classmethod
     def _generate_xml(cls, urls: list):

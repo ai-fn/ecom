@@ -1,13 +1,16 @@
 import os
 import pandas as pd
 
-from django.core.mail import EmailMessage
-from loguru import logger
-
+from io import BytesIO
 from uuid import uuid4
-from django.conf import settings as django_settings
+from loguru import logger
 from typing import Literal
 from celery import shared_task
+
+from django.core.mail import EmailMessage
+from django.core.files.base import ContentFile
+from django.conf import settings as django_settings
+from django.core.files.storage import default_storage
 
 from export_app.services import ExportService
 from export_app.models import ExportTask, ExportTaskStatus
@@ -48,9 +51,8 @@ def export(
         return
 
     task.update_status(ExportTaskStatus.COMPLETED)
-    task.update_result_file(
-        file_path.removeprefix(str(django_settings.MEDIA_ROOT) + "/")
-    )
+    task.update_result_file(file_path)
+
     task.update_ended_at()
     task.save()
 
@@ -60,41 +62,27 @@ def export(
     logger.info(f"Export task ended, file saved to {file_path}")
 
 
-def write_to_file(
-    df: pd.DataFrame, file_type: Literal[".xlsx", ".csv"], export_type: str = None
-) -> str:
-    file_name = "export"
-    directory = os.path.join(django_settings.MEDIA_ROOT, "export_files")
-
-    if export_type is not None:
-        file_name += f"_{export_type}"
-
-    if os.path.isfile(os.path.join(directory, f"{file_name}{file_type}")):
-        file_name += f"_{uuid4()}"
-
-    file_name += file_type
+def write_to_file(df: pd.DataFrame, file_type: Literal[".xlsx", ".csv"]) -> str:
+    buffer = BytesIO()
+    directory = "export_files"
+    file_name = f"export_{uuid4()}{file_type}"
 
     file_path = os.path.join(directory, file_name)
 
-    if file_type == ".xlsx":
-        write_func = df.to_excel
-    else:
-        write_func = df.to_csv
+    write_func =  df.to_excel if file_type == ".xlsx" else df.to_csv
+    write_func(buffer, index=False)
+    buffer.seek(0)
 
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    write_func(file_path, index=False)
+    default_storage.save(name=file_path, content=ContentFile(buffer.read()))
+    buffer.close()
 
     return file_path
 
 
 def send_email_with_attachment(email_to, file_path):
-    subject = "Экспортированные продукты CSV"
-    body = "Пожалуйста, найдите приложенный CSV-файл с экспортированными объектами."
+    subject = "Экспорт объектов"
     email = EmailMessage(
         subject=subject,
-        body=body,
         from_email=django_settings.EMAIL_HOST_USER,
         to=[email_to],
     )

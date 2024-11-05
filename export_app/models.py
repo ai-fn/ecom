@@ -1,17 +1,16 @@
 import os
-from typing import Any
+from loguru import logger
 from django.db import models
+from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
-from django.conf import settings
-from loguru import logger
 
 from account.models import CustomUser, TimeBasedModel
 
 
 def get_default_upload_to(instance: "ExportTask", filename):
-    return settings.MEDIA_ROOT / "export_files" / filename
+    return os.path.join(settings.MEDIA_ROOT, "export_files" , filename)
 
 
 class ExportTaskStatus(models.TextChoices):
@@ -52,6 +51,7 @@ class ExportTask(TimeBasedModel):
     
     def update_result_file(self, path: str):
         self.result_file = path
+
 
     class Meta:
         verbose_name = _("Задача экспорта")

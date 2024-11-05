@@ -26,7 +26,7 @@ product_document_serializer_example = {
     "title": "Dummy Title",
     "article": "Dummy Article",
     "description": "Dummy Description",
-    "search_image": "/media/catalog/products/search_images/search_image1.webp",
+    "search_image": "https://s3.aws.cloud/catalog/products/search_images/search_image1.webp",
     "category_slug": "Dummy Category Slug",
     "slug": "Dummy Slug",
     "price": PRICE_RESPONSE_EXAMPLE,
@@ -39,7 +39,7 @@ category_document_serializer_example = {
     "id": 1,
     "name": "Dummy Name",
     "description": "Dummy Description",
-    "image": "/media/catalog/products/images/test_image_0SFY9TC.jpg",
+    "image": "https://s3.aws.cloud/catalog/products/images/test_image_0SFY9TC.jpg",
     "slug": "Dummy Slug",
 }
 brand_document_serializer_example = {

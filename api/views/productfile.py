@@ -23,7 +23,7 @@ from drf_spectacular.utils import (
 
 
 PRPODUCT_FILE_REQUEST_EXAMPLE = {
-    "file": "/media/catalog/products/documents/20240301_142235.heic",
+    "file": "https://s3.aws.cloud/catalog/products/documents/20240301_142235.heic",
     "name": "Example file",
     "product": 5157,
 }

@@ -1,13 +1,15 @@
-import os
-from django.conf import settings
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample, OpenApiParameter
-from django.http import HttpResponse, FileResponse
-from account.models import CityGroup
-from api.serializers.setting import SettingSerializer
-from shop.models import Product
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+
+from django.http import HttpResponse, FileResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.core.files.storage import default_storage
+
+from shop.models import Product
+from account.models import CityGroup
+from shop.services import FeedsService
+from api.serializers.setting import SettingSerializer
 
 
 @extend_schema(
@@ -68,18 +70,19 @@ class FeedsView(APIView):
     queryset = Product.objects.all()
     serializer_class = SettingSerializer
 
-    @method_decorator(cache_page(120 * 60))
+    # @method_decorator(cache_page(120 * 60))
     def get(self, request):
         city_domain = request.query_params.get("city_domain")
         cg = CityGroup.objects.filter(cities__domain=city_domain).first()
         if not cg:
             return HttpResponse({"City group with provided domain not found."}, status=400)
 
-        file_path = os.path.join(settings.FEEDS_PATH, cg.name, "feeds.xml") 
+        file_path = FeedsService.get_feed_path(cg.name)
 
-        if os.path.exists(file_path):
-            response = FileResponse(open(file_path, 'rb'), content_type='application/xml')
-            response['Content-Disposition'] = 'attachment; filename="feed.xml"'
-            return response
-        else:
+        try:
+            with default_storage.open(file_path, "rb") as file:
+                response = FileResponse(file, content_type='application/xml')
+                response['Content-Disposition'] = 'attachment; filename="feed.xml"'
+                return response
+        except FileNotFoundError:
             return HttpResponse(status=404)

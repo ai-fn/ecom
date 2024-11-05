@@ -12,8 +12,8 @@ SLIDER_IMAGE_REQUEST_EXAMPLE = {
     "title": "test",
     "description": "test",
     "button_text": "test",
-    "image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
-    "tiny_image": "/media/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+    "image": "https://s3.aws.cloud/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+    "tiny_image": "https://s3.aws.cloud/main/sliders/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
     "is_acitve": True,
 }
 SLIDER_IMAGE_RESPONSE_EXAMPLE = {"id": 1, **SLIDER_IMAGE_REQUEST_EXAMPLE}

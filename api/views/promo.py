@@ -21,7 +21,7 @@ PROMO_REQUEST_EXAMPLE = {
     "cities": [1, 2, 3],
     "categories": [1, 2, 3],
     "active_to": "2024-04-05",
-    "image": "/media/promo/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
+    "image": "https://s3.aws.cloud/promo/image-70e50210-8678-4b3a-90f9-3626526c11cb.webp",
     "thumb_img": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAA3ElEQVR4nK2PsUrEQBRF79udl0lIMBACVtnKdlmtbITUgk2+ILD/kEJIma",
 }
 PROMO_RESPONSE_EXAMPLE = {

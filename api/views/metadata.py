@@ -24,7 +24,7 @@ OPEN_GRAPH_META_RESPONSE_EXAMPLE = {
         "siteName": "Кров Маркет",
         "images": [
             {
-                "image": "/media/pages/image-70e50210-8678-4b3a-90f9-3626526c11cb_ZnnxbcK.webp",
+                "image": "https://s3.aws.cloud/pages/image-70e50210-8678-4b3a-90f9-3626526c11cb_ZnnxbcK.webp",
                 "width": 1280,
                 "height": 720,
             }

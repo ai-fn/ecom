@@ -41,7 +41,7 @@ BASE_PRODUCT_RESPONSE = {
     "old_price": 130.00,
     "category_slug": "krovelnye-materialy",
     "brand_slug": "tekhnonikol",
-    "catalog_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
+    "catalog_image": "https://s3.aws.cloud/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp",
     "is_popular": False,
     "is_new": False,
     "in_promo": False,
@@ -123,7 +123,7 @@ RETRIEVE_RESPONSE_EXAMPLE = {
                         "is_selected": False,
                     }
                 ],
-                "category_image": "/media/catalog/products/images/dummy-image.webp",
+                "category_image": "https://s3.aws.cloud/catalog/products/images/dummy-image.webp",
             },
         ],
         "non_visual_group": [

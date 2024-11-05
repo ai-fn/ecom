@@ -17,39 +17,36 @@ Including another URLconf
 
 import debug_toolbar
 
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
-from django.urls import include, path
 from django.conf import settings
+from django.urls import include, path
 from django.conf.urls.static import static
-from django.contrib.sitemaps.views import sitemap
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
 
-from api.views.feeds import FeedsView
-from django.views.decorators.cache import never_cache
-from django.contrib.auth.decorators import login_required
 
+from api.views import FeedsView
 from shop.views import SitemapView
 
-
-@login_required
-def custom_swagger_view(request, *args, **kwargs):
-    return SpectacularSwaggerView.as_view(url_name="schema")(request, *args, **kwargs)
-
-
-@login_required
-def custom_redoc_view(request, *args, **kwargs):
-    return SpectacularRedocView.as_view(url_name="schema")(request, *args, **kwargs)
 
 
 @login_required
 def custom_schema_view(request, *args, **kwargs):
     return SpectacularAPIView.as_view()(request, *args, **kwargs)
 
+@login_required
+def custom_redoc_view(request, *args, **kwargs):
+    return SpectacularRedocView.as_view(url_name="schema")(request, *args, **kwargs)
+
+@login_required
+def custom_swagger_view(request, *args, **kwargs):
+    return SpectacularSwaggerView.as_view(url_name="schema")(request, *args, **kwargs)
 
 urlpatterns = (
     [
@@ -63,8 +60,8 @@ urlpatterns = (
         path("api/swagger/", never_cache(custom_swagger_view), name="swagger-ui"),
         path("custom/sitemap.xml", view=SitemapView.as_view(), name="custom-sitemap"),
     ]
-    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 )
 
 if settings.DEBUG:

@@ -26,7 +26,7 @@ PRODUCT_FOR_NON_IMAGE_GROUP_EXAMPLE = {
 }
 PRODUCT_FOR_IMAGE_GROUP_EXAMPLE = {
     **PRODUCT_FOR_NON_IMAGE_GROUP_EXAMPLE,
-    "catalog_image": "/media/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp"
+    "catalog_image": "https://s3.aws.cloud/catalog/products/catalog-image-97bc8aab-067d-48ec-86b8-3b334dd70b24.webp"
 }
 
 PRODUCT_GROUP_REQUEST_EXAMPLE = {

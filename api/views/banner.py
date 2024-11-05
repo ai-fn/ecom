@@ -12,8 +12,8 @@ BANNER_IMAGE_REQUEST_EXAMPLE = {
     "title": "test",
     "description": "test",
     "button_text": "test",
-    "image": "/media/main/banners/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
-    "tiny_image": "/media/main/banners/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+    "image": "https://s3.aws.cloud/main/banners/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
+    "tiny_image": "https://s3.aws.cloud/main/banners/image-c25b479e-06d4-46a5-a26a-f2094e914383.webp",
     "is_acitve": True,
 }
 BANNER_IMAGE_RESPONSE_EXAMPLE = {"id": 1, **BANNER_IMAGE_REQUEST_EXAMPLE}

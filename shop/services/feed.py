@@ -5,10 +5,12 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.utils import timezone
+from django.core.files.base import ContentFile
 from django.contrib.syndication.views import Feed
+from django.core.files.storage import default_storage
 
-from account.models import City, CityGroup
 from shop.utils import get_base_domain
+from account.models import City, CityGroup
 from shop.models import Category, Product, Setting, SettingChoices
 
 
@@ -18,21 +20,20 @@ class FeedsService(Feed):
     city_group_name = None
 
     @classmethod
-    def collect_feeds(cls, city_group_name: str, xml_filname: str = "feeds.xml"):
+    def collect_feeds(cls, city_group_name: str):
         cls.city_group_name = city_group_name
         products = Product.objects.all()
         categories = Category.objects.values("id", "parent", "name")
         result = cls.item_xml(products, categories, city_group_name)
-        feeds_path = os.path.join(settings.FEEDS_PATH, city_group_name)
+        feeds_path = cls.get_feed_path(city_group_name)
 
-        xml_path = os.path.join(feeds_path, xml_filname)
-        if not os.path.exists(xml_path):
-            os.makedirs(feeds_path, exist_ok=False)
+        default_storage.save(name=feeds_path, content=ContentFile(result.encode('utf-8')))
 
-        with open(xml_path, "w") as file:
-            file.write(result)
-
-        return xml_path
+        return feeds_path
+    
+    @classmethod
+    def get_feed_path(cls, city_group_name: str) -> str:
+        return os.path.join(settings.FEEDS_DIR, city_group_name, "feeds.xml")
 
     @classmethod
     def item_extra_kwargs(cls, item):
