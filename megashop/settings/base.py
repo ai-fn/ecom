@@ -371,3 +371,5 @@ STATICFILES_DIRS = [
 
 STATICFILES_STORAGE = 'megashop.storages.botoS3.StaticStorage'
 DEFAULT_FILE_STORAGE = 'megashop.storages.botoS3.MediaStorage'
+
+APP_NAME = os.getenv("APP_NAME")
