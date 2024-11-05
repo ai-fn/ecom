@@ -11,11 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import re
 from datetime import timedelta
 from pathlib import Path
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from loguru import logger
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -28,16 +28,12 @@ SECRET_KEY = os.getenv("SECRET_KEY") or "dummy_secret_key"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-CSRF_TRUSTED_ORIGINS = ["https://*.127.0.0.1"]
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-# TODO попробовать убрать ALLOW_ALL
-CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(";")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(";")
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(";")
+CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(x) for x in os.getenv("CORS_ALLOWED_ORIGIN_REGEXES", "").split(";")]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
 INTERNAL_IPS = [
     "127.0.0.1",
     "localhost",
