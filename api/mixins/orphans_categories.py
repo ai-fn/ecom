@@ -3,14 +3,9 @@ from shop.models import Category
 
 
 class CategoriesWithProductsMixin:
-    def get_categories_with_products(self, domain: str, instance: Category = None, queryset: QuerySet = None):
-        if all((instance, queryset)):
-            raise ValueError("'instance' and 'queryset' could not be settet together.")
-        elif not any((instance, queryset)):
-            raise ValueError("one of ('instance', 'queryset') must be setted.")
-
-        if instance:
-            queryset = Category.objects.filter(pk=instance.pk)
+    def get_categories_with_products(self, domain: str, queryset: QuerySet = None):
+        if not queryset.exists():
+            return queryset
 
         return queryset.filter(
             pk__in=[
