@@ -32,9 +32,9 @@ test:
     - echo "Running tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d shop-backend-test ]; then 
-        cd shop-backend-test && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git; 
+        cd shop-backend-test && git pull origin main;
       else
-        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
+        git clone --single-branch --branch main https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
       fi &&
       mkdir -p ./data/elasticsearch &&
       sudo chown -R 1000:1000 ./data/elasticsearch &&
@@ -57,7 +57,7 @@ deploy:
     - echo "Running deploy..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
       docker compose -f docker-compose-traefik.yml down --timeout 30 &&
-      git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
+      git pull origin main &&
       docker compose -f docker-compose-traefik.yml build &&
       docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
       docker compose exec web python manage.py migrate --settings=megashop.settings.prod"
@@ -75,9 +75,9 @@ dev-test:
     - echo "Running dev-tests..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "
       if [ -d dev-shop-backend-test ]; then
-      cd dev-shop-backend-test && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git;
+      cd dev-shop-backend-test && git pull origin dev;
       else
-      git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git dev-shop-backend-test && cd dev-shop-backend-test;
+      git clone --single-branch --branch dev https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git dev-shop-backend-test && cd dev-shop-backend-test;
       fi &&
       mkdir -p ./data/elasticsearch &&
       sudo chown -R 1000:1000 ./data/elasticsearch &&
@@ -100,7 +100,7 @@ dev-deploy:
     - echo "Running dev-deploy..."
     - ssh -F ~/.ssh/shop-backend-config target-shop "cd dev-shop-backend/ &&
       docker compose -f docker-compose-traefik.yml down --timeout 30 &&
-      git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git &&
+      git pull origin dev &&
       docker compose -f docker-compose-traefik.yml build &&
       docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
       docker compose exec web python manage.py migrate --settings=megashop.settings.local"
