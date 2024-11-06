@@ -9,6 +9,7 @@ from django.core.mail import EmailMessage
 from django.utils.text import slugify as django_slugify
 
 from shop.models import Promo
+from shop.utils import get_shop_name
 from account.models import CityGroup
 
 
@@ -59,9 +60,8 @@ def collect_feed_xml_files():
 
 
 def send_email_with_attachment(email_to, file_path):
-    subject = "Экспортированные продукты CSV"
-    body = "Пожалуйста, найдите приложенный CSV-файл с экспортированными продуктами."
-    email = EmailMessage(subject, body, settings.EMAIL_HOST_USER, [email_to])
+    subject = f"Экспорт {get_shop_name()}"
+    email = EmailMessage(subject, from_email=settings.EMAIL_HOST_USER, to=[email_to])
     email.attach_file(file_path)
     result = email.send(fail_silently=True)
-    logger.debug(f"CSV file of products was mailed with status: {result}")
+    logger.debug(f"Export File was mailed with status: {result}")

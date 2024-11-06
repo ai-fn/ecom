@@ -12,8 +12,9 @@ from api.serializers import ActiveModelSerializer
 
 from rest_framework.serializers import SerializerMethodField
 
-from shop.models import OpenGraphMeta, Setting, SettingChoices
+from shop.utils import get_shop_name
 from shop.services.metadata_service import MetaDataService
+from shop.models import OpenGraphMeta, Setting, SettingChoices
 
 META_IMAGE_PATH_CACHE_KEY = "META_IMAGE_PATH"
 META_IMAGE_SIZE_REMINING_TIME = getattr(
@@ -113,7 +114,7 @@ class OpenGraphMetaSerializer(ActiveModelSerializer):
             url += data.get("url")
 
         keywords = (data.get("keywords") or "").split(";")
-        site_name = data.get("site_name") or os.environ.get("SHOP_NAME", "site name")
+        site_name = data.get("site_name") or get_shop_name()
 
         if keywords:
             keywords = [x.strip() for x in keywords]

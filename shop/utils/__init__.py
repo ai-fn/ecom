@@ -1,1 +1,4 @@
-from .setting import get_base_domain
+from .setting import (
+    get_base_domain,
+    get_shop_name,
+)

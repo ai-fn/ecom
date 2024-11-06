@@ -9,8 +9,8 @@ from django.core.files.base import ContentFile
 from django.contrib.syndication.views import Feed
 from django.core.files.storage import default_storage
 
-from shop.utils import get_base_domain
 from account.models import City, CityGroup
+from shop.utils import get_base_domain, get_shop_name
 from shop.models import Category, Product, Setting, SettingChoices
 
 
@@ -74,8 +74,8 @@ class FeedsService(Feed):
         name = ET.SubElement(shop, "name")
         company = ET.SubElement(shop, "company")
 
-        if shop_name := Setting.objects.filter(predefined_key=SettingChoices.SHOP_NAME).first():
-            name.text = getattr(shop_name, "value_string")
+        if shop_name := get_shop_name():
+            name.text = shop_name
 
         if company_name := Setting.objects.filter(predefined_key=SettingChoices.COMPANY_NAME).first():
             company.text = getattr(company_name, "value_string")
