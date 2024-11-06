@@ -4,7 +4,7 @@ services:
     image: postgres:14.5
     restart: always
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/db/${POSTGRES_HOST}:/var/lib/postgresql/data
     env_file:
       - .env
     networks:
@@ -55,7 +55,7 @@ services:
     restart: always
     volumes:
       - .:/code
-      - ./data/celerybeat:/var/lib/celerybeat  # Папка для хранения файлов состояния планировщика
+      - ./data/celerybeat:/var/lib/celerybeat
     depends_on:
       - db
       - cache
@@ -77,9 +77,10 @@ services:
     restart: always
     env_file:
       - .env
-    mem_limit: 2g  # Установите лимит памяти, например, в 2 гигабайта
+    mem_limit: 2g
     networks:
       - backend
 
 networks:
   backend:
+    internal: True

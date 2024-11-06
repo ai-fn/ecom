@@ -3,7 +3,7 @@ services:
     image: postgres:14.5
     restart: always
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/db/${POSTGRES_HOST}:/var/lib/postgresql/data
     env_file:
       - .env
     networks:
@@ -34,15 +34,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
-      - "traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=8000"
-      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${BACKEND_HOST}`)"
-      - "traefik.http.routers.${PROJECT_NAME}.entrypoints=http"
-      - "traefik.http.routers.${PROJECT_NAME}-secure.rule=Host(`${BACKEND_HOST}`)"
-      - "traefik.http.routers.${PROJECT_NAME}-secure.entrypoints=https"
-      - "traefik.http.routers.${PROJECT_NAME}-secure.tls.certresolver=traefik-resolver"
-      - "traefik.http.middlewares.${PROJECT_NAME}-ratelimit.rateLimit.average=30"
-      - "traefik.http.middlewares.${PROJECT_NAME}-ratelimit.rateLimit.burst=40"
-      - "traefik.http.routers.${PROJECT_NAME}.middlewares=${PROJECT_NAME}-ratelimit"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8000"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${BACKEND_HOST}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=http"
+      - "traefik.http.routers.${APP_NAME}-secure.rule=Host(`${BACKEND_HOST}`)"
+      - "traefik.http.routers.${APP_NAME}-secure.entrypoints=https"
+      - "traefik.http.routers.${APP_NAME}-secure.tls.certresolver=traefik-resolver"
+      - "traefik.http.middlewares.${APP_NAME}-ratelimit.rateLimit.average=30"
+      - "traefik.http.middlewares.${APP_NAME}-ratelimit.rateLimit.burst=40"
+      - "traefik.http.routers.${APP_NAME}.middlewares=${APP_NAME}-ratelimit"
 
     depends_on:
       - db
@@ -72,7 +72,7 @@ services:
     restart: always
     volumes:
       - .:/code
-      - ./data/celerybeat:/var/lib/celerybeat  # Папка для хранения файлов состояния планировщика
+      - ./data/celerybeat:/var/lib/celerybeat
     env_file:
       - .env
     depends_on:
@@ -108,7 +108,7 @@ services:
     restart: always
     env_file:
       - .env
-    mem_limit: 2g  # Установите лимит памяти, например, в 2 гигабайта
+    mem_limit: 2g
     networks:
       - traefik
       - internal
