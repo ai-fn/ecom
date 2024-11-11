@@ -11,8 +11,8 @@ before_script:
   - echo "Configuring SSH..."
   - mkdir -p ~/.ssh/
   - echo "$SSH_KEY" > ~/.ssh/gitlab
-  - echo "$SSH_KEY" > ~/.ssh/gitlab
   - chmod 600 ~/.ssh/gitlab
+  - touch ${SSH_CONFIG_FILEPATH}
   - echo "Host target-shop" > ${SSH_CONFIG_FILEPATH}
   - echo "  HostName $SSH_HOST" >> ${SSH_CONFIG_FILEPATH}
   - echo "  User $SSH_USER" >> ${SSH_CONFIG_FILEPATH}
