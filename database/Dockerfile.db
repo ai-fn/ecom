@@ -1,0 +1,9 @@
+FROM postgres:14.5
+
+RUN apt-get update && \
+    apt-get install -y cron gpg awscli nano
+
+COPY database/backup.sh /usr/local/bin/backup.sh
+RUN chmod +x /usr/local/bin/backup.sh
+
+CMD ["sh", "-c", "env >> /etc/environment && echo \"$BACKUP_CRON_TASK\" | crontab - && cron && docker-entrypoint.sh postgres"]
