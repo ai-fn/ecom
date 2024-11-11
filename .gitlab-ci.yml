@@ -13,12 +13,12 @@ before_script:
   - echo "$SSH_KEY" > ~/.ssh/gitlab
   - echo "$SSH_KEY" > ~/.ssh/gitlab
   - chmod 600 ~/.ssh/gitlab
-  - echo "Host target-shop" > ~/.ssh/shop-backend-config
-  - echo "  HostName $SSH_HOST" >> ~/.ssh/shop-backend-config
-  - echo "  User $SSH_USER" >> ~/.ssh/shop-backend-config
-  - echo "  IdentityFile ~/.ssh/gitlab" >> ~/.ssh/shop-backend-config
-  - echo "  LogLevel ERROR" >> ~/.ssh/shop-backend-config
-  - echo "  StrictHostKeyChecking no" >> ~/.ssh/shop-backend-config
+  - echo "Host target-shop" > ${SSH_CONFIG_FILEPATH}
+  - echo "  HostName $SSH_HOST" >> ${SSH_CONFIG_FILEPATH}
+  - echo "  User $SSH_USER" >> ${SSH_CONFIG_FILEPATH}
+  - echo "  IdentityFile ~/.ssh/gitlab" >> ${SSH_CONFIG_FILEPATH}
+  - echo "  LogLevel ERROR" >> ${SSH_CONFIG_FILEPATH}
+  - echo "  StrictHostKeyChecking no" >> ${SSH_CONFIG_FILEPATH}
 
 test:
   stage: test
@@ -30,21 +30,21 @@ test:
   script:
     - set -e
     - echo "Running tests..."
-    - ssh -F ~/.ssh/shop-backend-config target-shop "
-      if [ -d shop-backend-test ]; then 
-        cd shop-backend-test && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git main;
+    - ssh -F ${SSH_CONFIG_FILEPATH} target-shop "
+      if [ -d ${MAIN_TEST_DIR} ]; then 
+        cd ${MAIN_TEST_DIR} && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git main;
       else
-        git clone --single-branch --branch main https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git shop-backend-test && cd shop-backend-test; 
+        git clone --single-branch --branch main https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git ${MAIN_TEST_DIR} && cd ${MAIN_TEST_DIR}; 
       fi &&
       mkdir -p ./data/elasticsearch &&
       sudo chown -R 1000:1000 ./data/elasticsearch &&
       sudo chmod -R 755 ./data/elasticsearch &&
-      docker compose -f docker-compose-test.yml up --build -d &&
-      docker compose -f docker-compose-test.yml exec web python manage.py migrate --settings=megashop.settings.local &&
-      docker compose -f docker-compose-test.yml logs web &&
-      docker compose -f docker-compose-test.yml exec web ./wait-for-it.sh elasticsearch:9200 --timeout=120 --strict -- python manage.py test --settings=megashop.settings.local --no-input || exit 1"
+      docker compose -f ${MAIN_TEST_COMPOSE_FILE} up --build -d &&
+      docker compose -f ${MAIN_TEST_COMPOSE_FILE} exec web python manage.py migrate --settings=${DEV_SETTING_MODULE} &&
+      docker compose -f ${MAIN_TEST_COMPOSE_FILE} logs web &&
+      docker compose -f ${MAIN_TEST_COMPOSE_FILE} exec web ./wait-for-it.sh elasticsearch:9200 --timeout=120 --strict -- python manage.py test --settings=${DEV_SETTING_MODULE} --no-input || exit 1"
   after_script:
-    - ssh -F ~/.ssh/shop-backend-config target-shop "docker compose -f ./shop-backend-test/docker-compose-test.yml down"
+    - ssh -F ${SSH_CONFIG_FILEPATH} target-shop "docker compose -f ${MAIN_TEST_DIR}/${MAIN_TEST_COMPOSE_FILE} down"
 
 deploy:
   stage: deploy
@@ -55,12 +55,12 @@ deploy:
   script:
     - set -e
     - echo "Running deploy..."
-    - ssh -F ~/.ssh/shop-backend-config target-shop "cd shop-backend/ &&
-      docker compose -f docker-compose-traefik.yml down --timeout 30 &&
+    - ssh -F ${SSH_CONFIG_FILEPATH} target-shop "cd ${MAIN_DIR} &&
+      docker compose -f ${MAIN_COMPOSE_FILE} down --timeout 30 &&
       git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git main &&
-      docker compose -f docker-compose-traefik.yml build &&
-      docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
-      docker compose exec web python manage.py migrate --settings=megashop.settings.prod"
+      docker compose -f ${MAIN_COMPOSE_FILE} build &&
+      docker compose -f ${MAIN_COMPOSE_FILE} up -d --force-recreate &&
+      docker compose exec web python manage.py migrate --settings=${MAIN_SETTING_MODULE}"
   needs:
     - test
 
@@ -73,21 +73,21 @@ dev-test:
 
   script:
     - echo "Running dev-tests..."
-    - ssh -F ~/.ssh/shop-backend-config target-shop "
-      if [ -d dev-shop-backend-test ]; then
-      cd dev-shop-backend-test && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git dev;
+    - ssh -F ${SSH_CONFIG_FILEPATH} target-shop "
+      if [ -d ${DEV_TEST_DIR} ]; then
+      cd ${DEV_TEST_DIR} && git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git dev;
       else
-      git clone --single-branch --branch dev https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git dev-shop-backend-test && cd dev-shop-backend-test;
+      git clone --single-branch --branch dev https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git ${DEV_TEST_DIR} && cd ${DEV_TEST_DIR};
       fi &&
       mkdir -p ./data/elasticsearch &&
       sudo chown -R 1000:1000 ./data/elasticsearch &&
       sudo chmod -R 755 ./data/elasticsearch &&
-      docker compose -f docker-compose-test.yml up --build -d &&
-      docker compose -f docker-compose-test.yml exec web python manage.py migrate --settings=megashop.settings.local &&
-      docker compose -f docker-compose-test.yml logs web &&
-      docker compose -f docker-compose-test.yml exec web ./wait-for-it.sh elasticsearch:9200 --timeout=120 --strict -- python manage.py test --settings=megashop.settings.local --no-input || exit 1"
+      docker compose -f ${DEV_TEST_COMPOSE_FILE} up --build -d &&
+      docker compose -f ${DEV_TEST_COMPOSE_FILE} exec web python manage.py migrate --settings=${DEV_SETTING_MODULE} &&
+      docker compose -f ${DEV_TEST_COMPOSE_FILE} logs web &&
+      docker compose -f ${DEV_TEST_COMPOSE_FILE} exec web ./wait-for-it.sh elasticsearch:9200 --timeout=120 --strict -- python manage.py test --settings=${DEV_SETTING_MODULE} --no-input || exit 1"
   after_script:
-    - ssh -F ~/.ssh/shop-backend-config target-shop "docker compose -f ./dev-shop-backend-test/docker-compose-test.yml down"
+    - ssh -F ${SSH_CONFIG_FILEPATH} target-shop "docker compose -f ${DEV_TEST_DIR}/${DEV_TEST_COMPOSE_FILE} down"
 
 dev-deploy:
   stage: dev-deploy
@@ -98,11 +98,11 @@ dev-deploy:
   script:
     - set -e
     - echo "Running dev-deploy..."
-    - ssh -F ~/.ssh/shop-backend-config target-shop "cd dev-shop-backend/ &&
-      docker compose -f docker-compose-traefik.yml down --timeout 30 &&
+    - ssh -F ${SSH_CONFIG_FILEPATH} target-shop "cd ${DEV_DIR} &&
+      docker compose -f ${DEV_MAIN_COMPOSE_FILE} down --timeout 30 &&
       git pull https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.altawest.ru/${CI_PROJECT_PATH}.git dev &&
-      docker compose -f docker-compose-traefik.yml build &&
-      docker compose -f docker-compose-traefik.yml up -d --force-recreate &&
-      docker compose exec web python manage.py migrate --settings=megashop.settings.local"
+      docker compose -f ${DEV_MAIN_COMPOSE_FILE} build &&
+      docker compose -f ${DEV_MAIN_COMPOSE_FILE} up -d --force-recreate &&
+      docker compose exec web python manage.py migrate --settings=${DEV_SETTING_MODULE}"
   needs:
     - dev-test
