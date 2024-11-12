@@ -55,9 +55,22 @@ class OrderSerializer(ValidateAddressMixin, ActiveModelSerializer, ValidatePhone
 
 
 class OrderSelectedSerializer(OrderSerializer):
-    cartitem_ids = serializers.PrimaryKeyRelatedField(
-        queryset=CartItem.objects.all(),
-        many=True,
+    cartitem_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=True
     )
     class Meta(OrderSerializer.Meta):
         fields = OrderSerializer.Meta.fields + ["cartitem_ids"]
+    
+    def validate_cartitem_ids(self, value):
+        user = getattr(self.context.get('request'), "user", None)
+
+        existing_ids = set(CartItem.objects.filter(id__in=value, customer=user).values_list('id', flat=True))
+        missing_ids = set(value) - existing_ids
+        
+        if missing_ids:
+            raise serializers.ValidationError({
+                "missing_ids": f"Элементы корзины с указанными id не найдены: {sorted(missing_ids)}"
+            }) 
+        
+        return value
