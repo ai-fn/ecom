@@ -3,7 +3,7 @@ from typing import OrderedDict
 from django.db.models import F
 from rest_framework import serializers
 
-from cart.models import Order, OrderStatus, ProductsInOrder
+from cart.models import CartItem, Order, OrderStatus, ProductsInOrder
 from api.serializers import ProductsInOrderSerializer
 from api.mixins import ValidateAddressMixin, ValidatePhoneNumberMixin
 from api.serializers import ActiveModelSerializer
@@ -55,5 +55,9 @@ class OrderSerializer(ValidateAddressMixin, ActiveModelSerializer, ValidatePhone
 
 
 class OrderSelectedSerializer(OrderSerializer):
+    cartitem_ids = serializers.PrimaryKeyRelatedField(
+        queryset=CartItem.objects.all(),
+        many=True,
+    )
     class Meta(OrderSerializer.Meta):
         fields = OrderSerializer.Meta.fields + ["cartitem_ids"]

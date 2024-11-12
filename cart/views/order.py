@@ -1,4 +1,3 @@
-
 from django.db import transaction
 from django.db.models import F
 from loguru import logger
@@ -19,7 +18,7 @@ from api.serializers import (
     OrderSelectedSerializer,
 )
 from shop.models import Price, ProductFrequenlyBoughtTogether
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view, OpenApiResponse
 from api.views.products_in_order import PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE
 
 
@@ -32,7 +31,7 @@ ORDER_REQUEST_EXAMPLE = {
     "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, 123001, Россия",
 }
 ORDER_SELECTED_ITEMS_REQUEST_EXAMPLE = {
-    "cartitem_ids": [1, 2, 3, 4, 5],
+    "cartitem_ids": [1, 2, 3],
     **ORDER_REQUEST_EXAMPLE,
 }
 ORDER_RESPONSE_EXAMPLE = {
@@ -82,17 +81,29 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
     order_selected=extend_schema(
         description="Заказ выбранных товаров",
         summary="Заказ выбранных товаров",
+        parameters=[
+            OpenApiParameter(
+                name="city_domain",
+                description="Домен города",
+                type=str,
+                required=True,
+                location=OpenApiParameter.QUERY,
+            ),
+        ],
+        responses={201: OpenApiResponse(
+            response=OrderSelectedSerializer,
+            examples=[OpenApiExample(
+                "Пример Ответа",
+                response_only=True,
+                value=ORDER_RESPONSE_EXAMPLE,
+            )],
+        )},
         examples=[
             OpenApiExample(
                 "Пример запроса",
                 request_only=True,
-                value={"cartitem_ids": [1, 2, 3], **ORDER_REQUEST_EXAMPLE},
+                value=ORDER_SELECTED_ITEMS_REQUEST_EXAMPLE,
             ),
-            OpenApiExample(
-                "Response Example",
-                response_only=True,
-                value=ORDER_RESPONSE_EXAMPLE,
-            )
         ],
     ),
     create=extend_schema(
@@ -240,10 +251,10 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
 
     @action(detail=False, methods=["post"], url_path="order-selected")
     def order_selected(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data={**request.data, "customer": request.user.pk})
         if not serializer.is_valid():
             return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         ids = serializer.validated_data.get("cartitem_ids")
 
         cart_items = CartItem.objects.select_related("product").filter(id__in=ids, customer=request.user.pk)
@@ -325,4 +336,3 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
 
             self.bitrix_api.create_lead_for_order(order, city_domain)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
