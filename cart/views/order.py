@@ -16,6 +16,7 @@ from bitrix_app.services import Bitrix24API
 from cart.models import Order, ProductsInOrder, CartItem
 from api.serializers import (
     OrderSerializer,
+    OrderSelectedSerializer,
 )
 from shop.models import Price, ProductFrequenlyBoughtTogether
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
@@ -23,7 +24,16 @@ from api.views.products_in_order import PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE
 
 
 ORDER_REQUEST_EXAMPLE = {
+    "delivery_type": "delivery",
+    "receiver_first_name": "Иван",
+    "receiver_last_name": "Петров",
+    "receiver_phone": "+79996740923",
+    "receiver_email": "example@mail.ru",
     "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, 123001, Россия",
+}
+ORDER_SELECTED_ITEMS_REQUEST_EXAMPLE = {
+    "cartitem_ids": [1, 2, 3, 4, 5],
+    **ORDER_REQUEST_EXAMPLE,
 }
 ORDER_RESPONSE_EXAMPLE = {
     "id": 5,
@@ -200,6 +210,11 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
     permission_classes = [IsAuthenticated]
     bitrix_api = Bitrix24API()
 
+    def get_serializer_class(self):
+        if self.action == "order_selected":
+            return OrderSelectedSerializer
+
+        return super().get_serializer_class()
 
     def get_permissions(self):
         if self.action in ("update", "partial_update", "destroy"):
@@ -225,9 +240,11 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
 
     @action(detail=False, methods=["post"], url_path="order-selected")
     def order_selected(self, request, *args, **kwargs):
-        ids = request.data.get("cartitem_ids")
-        if ids is None:
-            return Response({"detail": "'cartitem_ids' is required"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        ids = serializer.validated_data.get("cartitem_ids")
 
         cart_items = CartItem.objects.select_related("product").filter(id__in=ids, customer=request.user.pk)
         if not cart_items.exists():

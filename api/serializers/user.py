@@ -80,6 +80,10 @@ class UserRegistrationSerializer(ActiveModelSerializer, ValidatePhoneNumberMixin
         user.set_password(validated_data["phone"])
         user.save()
         return user
+    
+    def validate_phone(self, value):
+        self.phone_is_valid(value)
+        return value
 
 
 class UserDetailInfoSerializer(
@@ -101,7 +105,11 @@ class UserDetailInfoSerializer(
             "is_active",
             "email_confirmed"
         )
-    
+
+    def validate_phone(self, value):
+        self.phone_is_valid(value)
+        return value
+
     def validate_email(self, value):
         if self.instance:
             if self.instance.email == value and self.instance.email_confirmed:

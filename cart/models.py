@@ -13,11 +13,42 @@ class OrderStatus(models.TextChoices):
     DELIVERED = 'D', _('Доставлен')
 
 class Order(TimeBasedModel):
+
+    class DeliveryType(models.TextChoices):
+        DELIVERY = "delivery", _("Доставка")
+        PICKUP = "pickup", _("Пункт выдачи")
+
     customer = models.ForeignKey(
         CustomUser,
         related_name="customer",
         on_delete=models.PROTECT,
         verbose_name="Покупатель",
+    )
+    receiver_first_name = models.CharField(
+        _("Имя получателя"),
+        max_length=100,
+    )
+    receiver_last_name = models.CharField(
+        _("Фамилия получателя"),
+        max_length=100,
+    )
+    receiver_phone = models.CharField(
+        verbose_name=_("Номер телефона получателя"),
+        null=True,
+        blank=True,
+        max_length=16,
+        help_text=_("В формате +7xxxxxxxxxx"),
+    )
+    receiver_email = models.EmailField(
+        _("Почта"),
+        help_text=_("Адрес электронной почты получателя"),
+        blank=True,
+        null=True,
+    )
+    delivery_type = models.CharField(
+        _("Тип доставки"),
+        max_length=30,
+        choices=DeliveryType.choices,
     )
     products = models.ManyToManyField(
         Product, verbose_name="Товары", blank=True, through="ProductsInOrder"

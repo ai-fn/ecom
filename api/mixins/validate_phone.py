@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class ValidatePhoneNumberMixin:
 
-    def validate_phone(self, value):
+    def phone_is_valid(self, value):
         phone = value
         try:
             parsed_number = phonenumbers.parse(phone, None)

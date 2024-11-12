@@ -37,7 +37,7 @@ from .product_detail import (
     ProductFileSerializer,
 )
 from .products_in_order import ProductsInOrderSerializer, ProductOrderSerializer
-from .order import OrderSerializer, OrderStatusSerializer
+from .order import OrderSerializer, OrderStatusSerializer, OrderSelectedSerializer
 from .setting import SettingSerializer
 from .category_detail import CategoryDetailSerializer
 from .promo import PromoSerializer

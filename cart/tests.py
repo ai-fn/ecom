@@ -67,6 +67,11 @@ class OrderViewSetTests(APITestCase):
 
         self.client.force_authenticate(user=self.user)
         data = {
+            "delivery_type": "delivery",
+            "receiver_first_name": "Иван",
+            "receiver_last_name": "Петров",
+            "receiver_phone": "+79996740923",
+            "receiver_email": "example@mail.ru",
             "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, Россия"
         }
         response = self.client.post(url, data, format="json")
