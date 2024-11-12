@@ -56,12 +56,13 @@ class OrderSerializer(ValidateAddressMixin, ActiveModelSerializer, ValidatePhone
 
 class OrderSelectedSerializer(OrderSerializer):
     cartitem_ids = serializers.ListField(
+        required=True,
+        write_only=True,
         child=serializers.IntegerField(),
-        required=True
     )
     class Meta(OrderSerializer.Meta):
         fields = OrderSerializer.Meta.fields + ["cartitem_ids"]
-    
+
     def validate_cartitem_ids(self, value):
         user = getattr(self.context.get('request'), "user", None)
 
@@ -74,3 +75,7 @@ class OrderSelectedSerializer(OrderSerializer):
             }) 
         
         return value
+
+    def create(self, validated_data):
+        validated_data.pop("cartitem_ids")
+        return super().create(validated_data)

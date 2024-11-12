@@ -1,6 +1,6 @@
-from django.db import transaction
-from django.db.models import F
 from loguru import logger
+from django.db import DatabaseError
+from django.core.exceptions import ObjectDoesNotExist
 
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 from api.permissions import IsOwnerOrAdminPermission
@@ -12,12 +12,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from bitrix_app.services import Bitrix24API
-from cart.models import Order, ProductsInOrder, CartItem
+from cart.actions import MakeOrderAction
+from cart.models import Order, CartItem
 from api.serializers import (
     OrderSerializer,
     OrderSelectedSerializer,
 )
-from shop.models import Price, ProductFrequenlyBoughtTogether
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view, OpenApiResponse
 from api.views.products_in_order import PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE
 
@@ -219,7 +219,6 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
-    bitrix_api = Bitrix24API()
 
     def get_serializer_class(self):
         if self.action == "order_selected":
@@ -275,9 +274,8 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
 
         return self.make_order(cart_items)
 
-
     def make_order(self, cart_items):
-        total = 0
+    
         city_domain = self.request.query_params.get("city_domain")
         data = dict(self.request.data)
         data["customer"] = self.request.user.pk
@@ -292,47 +290,13 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        with transaction.atomic():
-            order = serializer.save()
-            for item in cart_items:
+        try:
+            order = MakeOrderAction.execute(data, cart_items, city_domain=city_domain, crm_api_class=Bitrix24API)
+        except (ObjectDoesNotExist, DatabaseError) as err:
+            logger.error(str(err))
+            return Response(
+                {"error": str(err)}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-                # Обновляем информацию о том, как часто покупают товар вместе с другими
-                for other_item in cart_items.exclude(product__pk=item.product.pk):
-
-                    friquenly_bought_together, _ = (
-                        ProductFrequenlyBoughtTogether.objects.get_or_create(
-                            product_from=item.product,
-                            product_to=other_item.product,
-                        )
-                    )
-                    friquenly_bought_together.purchase_count = F("purchase_count") + 1
-                    friquenly_bought_together.save(update_fields=["purchase_count"])
-                try:
-                    price = Price.objects.get(
-                        city_group__cities__domain=city_domain, product=item.product
-                    )
-                    prod = ProductsInOrder.objects.create(
-                        order=order,
-                        product=item.product,
-                        quantity=item.quantity,
-                        price=price.price,
-                    )
-                except Exception as err:
-                    logger.error(err)
-                    order.delete()
-                    return Response(
-                        {"error": str(err)}, status=status.HTTP_400_BAD_REQUEST
-                    )
-
-                item.delete()
-                total += prod.price * prod.quantity
-                del prod
-                del price
-
-            order.total = total
-            order.save(update_fields=["total"])
-
-            self.bitrix_api.create_lead_for_order(order, city_domain)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = self.get_serializer(instance=order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
