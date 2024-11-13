@@ -9,6 +9,8 @@ services:
       - ./data/db/backups/${POSTGRES_HOST}:/backups
     env_file:
       - .env
+    networks:
+      - internal
 
   cache:
     image: redis:7.0.4
