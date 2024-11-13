@@ -1,13 +1,14 @@
 services:
   db:
-    image: postgres:14.5
+    build:
+      context: .
+      dockerfile: database/Dockerfile.db
     restart: always
     volumes:
       - ./data/db/${POSTGRES_HOST}:/var/lib/postgresql/data
+      - ./data/db/backups/${POSTGRES_HOST}:/backups
     env_file:
       - .env
-    networks:
-      - internal
 
   cache:
     image: redis:7.0.4
