@@ -5,6 +5,7 @@ from api.serializers import OrderSerializer
 from cart.models import CartItem, Order, ProductsInOrder
 from shop.models import Price, ProductFrequenlyBoughtTogether
 
+from crm_integration.abs import CRMInterface
 
 class MakeOrderAction:
     _serializer_class = OrderSerializer
@@ -15,9 +16,9 @@ class MakeOrderAction:
         cls,
         data,
         cart_items: QuerySet[CartItem],
-        crm_api_class=None,
         city_domain: str = None,
         order_serializer_class=None,
+        crm_api_class: CRMInterface = None,
     ):
         if order_serializer_class is not None:
             cls._serializer_class = order_serializer_class
@@ -64,7 +65,6 @@ class MakeOrderAction:
             order.save(update_fields=["total"])
 
         if cls._crm_api_class is not None:
-            crm = cls._crm_api_class()
-            crm.create_lead_for_order(order, city_domain)
+            cls._crm_api_class.handle_order_creation(order, city_domain)
 
         return order

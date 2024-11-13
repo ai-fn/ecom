@@ -77,8 +77,8 @@ app_name= "api"
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("webhooks/", include("api.webhook_handlers")),
     path("shop/", include(("shop.urls", "shop"), namespace="shop")),
-    path("bitrix-app/", include(("bitrix_app.urls", "bitrix"), namespace="bitrix")),
     path("import-app/", include(("import_app.urls", "import_app"), namespace="import_app")),
     path("export-app/", include(("export_app.urls", "export_app"), namespace="export_app")),
     path("cart/", include("cart.urls", namespace="cart")),

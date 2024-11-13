@@ -2,9 +2,6 @@ import os, json
 from decimal import Decimal
 from typing import Iterable
 
-from django.test import TestCase
-from django.utils.text import slugify
-from unidecode import unidecode
 from shop.models import (
     Product,
     Category,
@@ -61,12 +58,6 @@ class SetupTestData:
                         result.append(price)
         return result
 
-
-    def setup_product(self, title, article, category, **kwargs):
-        p, _ = Product.objects.get_or_create(title=title, article=article, category=category, **kwargs)
-        return p
-
-
     def setup_chars(self):
         result = {"chars": [], "values": []}
         for brand_name in self.data:
@@ -89,7 +80,13 @@ class SetupTestData:
 
         return result
 
-    def setup_price(self, product, city_group_name, price, **kwargs):
+    @classmethod
+    def setup_product(cls, title, article, category, **kwargs):
+        p, _ = Product.objects.get_or_create(title=title, article=article, category=category, **kwargs)
+        return p
+
+    @classmethod
+    def setup_price(cls, product, city_group_name, price, **kwargs):
         if not (cg := kwargs.get("city_group")):
             cg, _ = CityGroup.objects.get_or_create(name=city_group_name)
 
@@ -100,8 +97,9 @@ class SetupTestData:
         p, _ = Price.objects.get_or_create(product=product, city_group=cg, price=price,  **kwargs)
         return p
 
+    @classmethod
     def setup_characteristic(
-        self, name, categories: Iterable[int] = None, **kwargs
+        cls, name, categories: Iterable[int] = None, **kwargs
     ):
         if categories is None:
             categories = ()
@@ -110,7 +108,8 @@ class SetupTestData:
         c.categories.add(*categories)
         return c
 
-    def setup_characteristic_value(self, product, characteristic, value, **kwargs):
+    @classmethod
+    def setup_characteristic_value(cls, product, characteristic, value, **kwargs):
         cv, _ = CharacteristicValue.objects.get_or_create(
             product=product,
             characteristic=characteristic,
@@ -119,28 +118,34 @@ class SetupTestData:
         )
         return cv
 
-    def setup_city_group(self, name, **kwargs):
+    @classmethod
+    def setup_city_group(cls, name, **kwargs):
         cg, _ = CityGroup.objects.get_or_create(name=name, **kwargs)
         return cg
 
-    def setup_city(self, name, city_group: CityGroup = None, **kwargs):
+    @classmethod
+    def setup_city(cls, name, city_group: CityGroup = None, **kwargs):
         c, _ = City.objects.get_or_create(name=name, city_group=city_group, **kwargs)
         return c
 
-    def setup_custom_user(self, username, email, password, **kwargs):
+    @classmethod
+    def setup_custom_user(cls, username, email, password, **kwargs):
         cu, _ = CustomUser.objects.get_or_create(
             username=username, email=email, password=password, **kwargs
         )
         return cu
 
-    def setup_search_history(self, title, user, **kwargs):
+    @classmethod
+    def setup_search_history(cls, title, user, **kwargs):
         sh, _ = SearchHistory.objects.get_or_create(title=title, user=user, **kwargs)
         return sh
 
-    def setup_brand(self, name, **kwargs):
+    @classmethod
+    def setup_brand(cls, name, **kwargs):
         b, _ = Brand.objects.get_or_create(name=name, **kwargs)
         return b
 
-    def setup_category(self, name, **kwargs):
+    @classmethod
+    def setup_category(cls, name, **kwargs):
         c, _ = Category.objects.get_or_create(name=name, **kwargs)
         return c

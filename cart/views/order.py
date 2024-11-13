@@ -1,4 +1,5 @@
 from loguru import logger
+from django.conf import settings
 from django.db import DatabaseError
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -11,7 +12,6 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from bitrix_app.services import Bitrix24API
 from cart.actions import MakeOrderAction
 from cart.models import Order, CartItem
 from api.serializers import (
@@ -20,6 +20,8 @@ from api.serializers import (
 )
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view, OpenApiResponse
 from api.views.products_in_order import PRODUCTS_IN_ORDER_RESPONSE_EXAMPLE
+
+from crm_integration.factories import CRMFactory
 
 
 ORDER_REQUEST_EXAMPLE = {
@@ -291,7 +293,8 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
             )
 
         try:
-            order = MakeOrderAction.execute(data, cart_items, city_domain=city_domain, crm_api_class=Bitrix24API)
+            crm = CRMFactory.get_crm_adapter(settings.BASE_CRM)
+            order = MakeOrderAction.execute(data, cart_items, city_domain=city_domain, crm_api_class=crm)
         except (ObjectDoesNotExist, DatabaseError) as err:
             logger.error(str(err))
             return Response(

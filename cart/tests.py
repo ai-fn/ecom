@@ -1,19 +1,17 @@
 import unittest
 from unittest import mock
-from django.urls import reverse
 
-from loguru import logger
-from rest_framework import status
-
-from account.models import City, CityGroup, CustomUser
-from shop.models import Category, Brand, Price
-from cart.models import Order, Product, CartItem, ProductsInOrder
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+
 from rest_framework import status
+from shop.models import Category, Brand, Price
+from account.models import City, CityGroup, CustomUser
+
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
-from cart.models import CartItem
+
+from cart.models import Order, Product, CartItem, ProductsInOrder
 
 User = get_user_model()
 
@@ -53,17 +51,18 @@ class OrderViewSetTests(APITestCase):
         self.cart_item = CartItem.objects.create(
             customer=self.user, quantity=1, product_id=self.prod1.id
         )
+        self.order_data = {
+            "delivery_type": "delivery",
+            "receiver_first_name": "Иван",
+            "receiver_last_name": "Петров",
+            "receiver_phone": "+79996740923",
+            "receiver_email": "example@mail.ru",
+            "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, Россия",
+        }
 
-    @mock.patch('bitrix_app.services.Bitrix24API.create_lead_for_order')
-    def test_create_order_from_cart(self, mock_create_lead_for_order):
-        mock_create_lead_for_order.return_value = {'result': {'ID': '12345'}}, 200
+    def test_create_order(self):
 
-        query_params = {"city_domain": "voronezh.domain.com"}
-        url = (
-            reverse("api:cart:orders-list")
-            + "?"
-            + "&".join([f"{key}={value}" for key, value in query_params.items()])
-        )
+        url = self.get_order_url("voronezh.domain.com")
 
         self.client.force_authenticate(user=self.user)
         data = {
@@ -72,17 +71,12 @@ class OrderViewSetTests(APITestCase):
             "receiver_last_name": "Петров",
             "receiver_phone": "+79996740923",
             "receiver_email": "example@mail.ru",
-            "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, Россия"
+            "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, Россия",
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        query_params = {"city_domain": "moskva.domain.com"}
-        url = (
-            reverse("api:cart:orders-list")
-            + "?"
-            + "&".join([f"{key}={value}" for key, value in query_params.items()])
-        )
+        url = self.get_order_url(self.city.domain)
 
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -90,14 +84,38 @@ class OrderViewSetTests(APITestCase):
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(ProductsInOrder.objects.count(), 1)
         self.assertEqual(CartItem.objects.filter(customer=self.user).count(), 0)
+
+    def authenticate_user(self):
+        self.client.force_authenticate(user=self.user)
+
+    def get_order_url(self, city_domain):
+        return reverse("api:cart:orders-list") + f"?city_domain={city_domain}"
+
+    def test_order_creation_fails_due_to_missing_price(self):
+
+        self.authenticate_user()
+        url = self.get_order_url("voronezh.domain.com")
+
+        response = self.client.post(url, self.order_data, format="json")
+
+        self.assertIn("error", response.json())
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_order_creation_succeeds_for_valid_data(self):
+
+        self.authenticate_user()
+        url = self.get_order_url("moskva.domain.com")
+
+        response = self.client.post(url, self.order_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(ProductsInOrder.objects.count(), 1)
+        self.assertEqual(CartItem.objects.filter(customer=self.user).count(), 0)
+
         order = Order.objects.first()
-        
-        mock_create_lead_for_order.assert_called_once_with(order, query_params["city_domain"])
-        
-        lead_response, status_code = mock_create_lead_for_order.return_value
-        self.assertEqual(status_code, 200)
-        self.assertIn('result', lead_response)
-        self.assertIn('ID', lead_response['result'])
+        self.assertEqual(order.customer, self.user)
+        self.assertEqual(order.delivery_type, self.order_data["delivery_type"])
 
 
 class CartCountViewTests(APITestCase):
@@ -127,12 +145,13 @@ class CartCountViewTests(APITestCase):
             article="2093801",
         )
 
-
         self.cart_url = reverse("api:cart:cart-count")
 
         self.cart_items = [
             CartItem.objects.create(product=self.prod, customer=self.user, quantity=10),
-            CartItem.objects.create(product=self.prod_2, customer=self.user, quantity=20),
+            CartItem.objects.create(
+                product=self.prod_2, customer=self.user, quantity=20
+            ),
         ]
 
     def get_token(self, user):

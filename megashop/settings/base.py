@@ -64,13 +64,13 @@ INSTALLED_APPS = [
     "blog.apps.BlogConfig",
     "shop.apps.ShopConfig",
     "cart.apps.CartConfig",
-    "bitrix_app.apps.BitrixAppConfig",
     "import_app.apps.ImportAppConfig",
     "export_app.apps.ExportAppConfig",
-    "mptt",  # Древовидное меню
-    "debug_toolbar",  # Дебаг тулбар
+    "mptt",
+    "debug_toolbar",
     "api.apps.ApiConfig",
     "storages",
+    "crm_integration",
 ]
 
 IMPORT_EXPORT_APPS = [
@@ -79,7 +79,6 @@ IMPORT_EXPORT_APPS = [
     "cart",
     "blog",
     "account",
-    "bitrix_app",
     "import_app",
     "export_app",
 ]

@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class BitrixAppConfig(AppConfig):
+class CrmIntegrationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'bitrix_app'
+    name = 'crm_integration'
