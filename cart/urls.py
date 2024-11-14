@@ -3,11 +3,12 @@ from django.urls import path, include
 from rest_framework import routers
 
 from cart import views
-from .views import CartItemViewSet, OrderViewSet
+from cart.views import CartItemViewSet, OrderViewSet, PickupPointViewSet
 
 router = routers.DefaultRouter()
 router.register(r"cart", CartItemViewSet, basename="cart")
 router.register(r"orders", OrderViewSet, basename="orders")
+router.register(r"pickup-points", PickupPointViewSet, basename="pickup_points")
 
 app_name = "cart"
 

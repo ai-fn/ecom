@@ -121,3 +121,25 @@ class CartItem(TimeBasedModel):
         verbose_name = "Продукт в корзине пользователя"
         verbose_name_plural = "Продукт в корзине пользователя"
         unique_together = (("customer", "product"), )
+
+
+class PickupPoint(TimeBasedModel):
+    address = models.CharField(_("Адрес"), max_length=512, unique=True)
+    coord_x = models.DecimalField(
+        _("X координата"),
+        max_digits=9,
+        decimal_places=6,
+    )
+    coord_y = models.DecimalField(
+        _("Y координата"),
+        max_digits=9,
+        decimal_places=6,
+    )
+
+    class Meta:
+        verbose_name = _("Пункт выдачи")
+        verbose_name_plural = _("Пункты выдачи")
+        unique_together = (("coord_x", "coord_y"),)
+    
+    def __str__(self) -> str:
+        return f"Пункт выдачи #{self.id}"
