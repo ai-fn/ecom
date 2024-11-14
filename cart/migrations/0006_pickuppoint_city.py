@@ -8,18 +8,19 @@ from django.db import migrations, models
 def set_cities(apps, schema_editor):
     City = apps.get_model("account", "City")
     PickupPoint = apps.get_model("cart", "PickupPoint")
-    default_city = City.objects.get(name=settings.DEFAULT_CITY_NAME)
+    if PickupPoint.objects.exists():
+        default_city = City.objects.get(name=settings.DEFAULT_CITY_NAME)
 
-    for pp in PickupPoint.objects.all():
-        pp.city = default_city
-        pp.save()
+        for pp in PickupPoint.objects.all():
+            pp.city = default_city
+            pp.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('account', '0009_alter_citygroup_options'),
-        ('cart', '0007_auto_20241114_1303'),
+        ('cart', '0005_pickuppoint'),
     ]
 
     operations = [
