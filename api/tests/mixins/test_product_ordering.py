@@ -17,8 +17,13 @@ class ProductSortingTestCase(TestCase):
             last_name="Иванов",
             email="testuser@example.com"
         )
-        self.city = City.get_default_city()
-        self.city_group = CityGroup.get_default_city_group()
+
+        self.city = City.objects.create(name="dummy_city_name", domain="dummy_city_domain")
+        self.city_group = CityGroup.objects.create(name="dummy_city_group")
+        self.city_group.main_city = self.city
+        self.city_group.cities.add(self.city)
+        self.city_group.save()
+
         self.products = [
             Product.objects.create(
                 title="product1",
@@ -87,9 +92,9 @@ class ProductSortingTestCase(TestCase):
         self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'price', 'city_domain': self.city.domain}})
         sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
         sorted_products = list(sorted_queryset)
-        self.assertEqual(sorted_products[0].slug, "product2")
-        self.assertEqual(sorted_products[1].slug, "product1")
-        self.assertEqual(sorted_products[2].slug, "product3")
+        self.assertEqual(sorted_products[0].slug, self.products[1].slug)
+        self.assertEqual(sorted_products[1].slug, self.products[0].slug)
+        self.assertEqual(sorted_products[2].slug, self.products[2].slug)
         self.assertEqual(len(sorted_products), Product.objects.count())
 
     def test_sort_by_price_without_city_domain(self):
@@ -102,18 +107,18 @@ class ProductSortingTestCase(TestCase):
         self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'rating'}})
         sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
         sorted_products = list(sorted_queryset)
-        self.assertEqual(sorted_products[0].slug, "product3")
-        self.assertEqual(sorted_products[1].slug, "product1")
-        self.assertEqual(sorted_products[2].slug, "product2")
+        self.assertEqual(sorted_products[0].slug, self.products[2].slug)
+        self.assertEqual(sorted_products[1].slug, self.products[0].slug)
+        self.assertEqual(sorted_products[2].slug, self.products[1].slug)
         self.assertEqual(len(sorted_products), Product.objects.count())
 
     def test_sort_by_in_promo_with_city_domain(self):
         self.sorting.request = type('Request', (object,), {'query_params': {'order_by': '-in_promo', 'city_domain': self.city.domain}})
         sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
         sorted_products = list(sorted_queryset)
-        self.assertEqual(sorted_products[0].slug, "product3")
-        self.assertEqual(sorted_products[1].slug, "product2")
-        self.assertEqual(sorted_products[2].slug, "product1")
+        self.assertEqual(sorted_products[0].slug, self.products[2].slug)
+        self.assertEqual(sorted_products[1].slug, self.products[1].slug)
+        self.assertEqual(sorted_products[2].slug, self.products[0].slug)
         self.assertEqual(len(sorted_products), Product.objects.count())
 
     def test_sort_by_in_promo_without_city_domain(self):
@@ -126,9 +131,9 @@ class ProductSortingTestCase(TestCase):
         self.sorting.request = type('Request', (object,), {'query_params': {'order_by': 'recommend'}})
         sorted_queryset = self.sorting.sorted_queryset(Product.objects.all())
         sorted_products = list(sorted_queryset)
-        self.assertEqual(sorted_products[0].slug, "product3")
-        self.assertEqual(sorted_products[1].slug, "product2")
-        self.assertEqual(sorted_products[2].slug, "product1")
+        self.assertEqual(sorted_products[0].slug, self.products[2].slug)
+        self.assertEqual(sorted_products[1].slug, self.products[1].slug)
+        self.assertEqual(sorted_products[2].slug, self.products[0].slug)
         self.assertEqual(len(sorted_products), Product.objects.count())
 
     def test_sort_by_invalid_field(self):

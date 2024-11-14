@@ -22,8 +22,8 @@ class OrderViewSetTests(APITestCase):
         self.user = CustomUser.objects.create(
             email="dummy@gmail.com", password="dummy", username="dummy-users"
         )
-        self.city_group = CityGroup.objects.create(name="Москва")
-        self.city = City.objects.create(name="Москва", domain="moskva.domain.com")
+        self.city_group = CityGroup.objects.create(name="dummy_citygroup_name")
+        self.city = City.objects.create(name="dummy_city_name", domain="moskva.domain.com")
         self.city_group.cities.add(self.city)
 
         self.category = Category.objects.create(name="dummy category", order=1)
