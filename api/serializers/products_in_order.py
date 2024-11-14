@@ -16,8 +16,9 @@ class ProductOrderSerializer(ActiveModelSerializer):
             "category_slug",
             "catalog_image",
             "slug",
+            "in_stock",
         ]
-    
+
     def to_representation(self, instance):
         if not hasattr(instance, "category_slug"):
             instance.category_slug = instance.category.slug
