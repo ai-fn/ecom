@@ -8,7 +8,7 @@ from django.db import migrations, models
 def set_cities(apps, schema_editor):
     City = apps.get_model("account", "City")
     PickupPoint = apps.get_model("cart", "PickupPoint")
-    default_city, _ = City.objects.get_or_create(name=settings.DEFAULT_CITY_NAME)
+    default_city = City.objects.get(name=settings.DEFAULT_CITY_NAME)
 
     for pp in PickupPoint.objects.all():
         pp.city = default_city
@@ -19,21 +19,21 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('account', '0009_alter_citygroup_options'),
-        ('cart', '0005_pickuppoint'),
+        ('cart', '0007_auto_20241114_1303'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='pickuppoint',
             name='city',
-            field=models.ForeignKey(default='', on_delete=django.db.models.deletion.PROTECT, to='account.city', verbose_name='Город', null=True),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='account.city', verbose_name='Город', null=True),
             preserve_default=False,
         ),
         migrations.RunPython(set_cities, migrations.RunPython.noop),
         migrations.AlterField(
             model_name='pickuppoint',
             name='city',
-            field=models.ForeignKey(default='', on_delete=django.db.models.deletion.PROTECT, to='account.city', verbose_name='Город'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='account.city', verbose_name='Город'),
             preserve_default=False,
         ),
     ]
