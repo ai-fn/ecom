@@ -6,7 +6,7 @@ from django.db import migrations, models
 def set_added_fields(apps, schema_editor):
     Order = apps.get_model('cart', 'Order')
     for order in Order.objects.all():
-        order.delivery_type = Order.DeliveryType.DELIVERY
+        order.delivery_type = "delivery"
         order.receiver_email = getattr(order.customer.email, "Почта не указана")
         order.receiver_first_name = getattr(order.customer.receiver_first_name, "Имя получателя не указано")
         order.receiver_last_name = getattr(order.customer.receiver_last_name, "Фамилия получателя не указана")
