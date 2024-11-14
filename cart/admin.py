@@ -37,6 +37,7 @@ class PickupPointAdmin(ActiveAdminMixin, admin.ModelAdmin):
         "address",
         "coord_x",
         "coord_y",
+        "city",
         "created_at",
         "is_active",
     )

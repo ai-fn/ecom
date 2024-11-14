@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from cart.models import PickupPoint
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import PickupPointSerializer, PickupPointDetailSerializer
-from drf_spectacular.utils import OpenApiResponse, OpenApiExample, extend_schema_view, extend_schema
+from drf_spectacular.utils import OpenApiResponse, OpenApiExample, OpenApiParameter, extend_schema_view, extend_schema
 
 
 PICKUP_POINT_REQUEST = {
@@ -41,6 +41,12 @@ PICKUP_POINT_RESPONSE = {
                 value=PICKUP_POINT_RESPONSE,
             )],
         )},
+        parameters=[OpenApiParameter(
+            "city_domain",
+            type=str,
+            required=True,
+            description="Домен города",
+        )],
     ),
     retrieve=extend_schema(
         summary="Получение информации о конкретном пункте выдачи",
@@ -114,8 +120,12 @@ PICKUP_POINT_RESPONSE = {
 class PickupPointViewSet(ModelViewSet):
     pagination_class = None
     queryset = PickupPoint.objects.all()
-    permission_classes = [IsAuthenticated, ReadOnlyOrAdminPermission]
     serializer_class = PickupPointSerializer
+    permission_classes = [IsAuthenticated, ReadOnlyOrAdminPermission]
+
+    def initial(self, request, *args, **kwargs):
+        self.domain = request.query_params.get("city_domain")
+        return super().initial(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.method.lower() != "get":
@@ -125,7 +135,7 @@ class PickupPointViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if self.request.user.is_staff:
+        if self.request.user.is_staff or self.request.user.is_superuser:
             return queryset
 
-        return queryset.filter(is_active=True)
+        return queryset.filter(is_active=True, city__domain=self.domain)

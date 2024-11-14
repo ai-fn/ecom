@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
-from account.models import CustomUser, TimeBasedModel
+from account.models import City, CustomUser, TimeBasedModel
 from shop.models import Product
 
 
@@ -134,6 +134,11 @@ class PickupPoint(TimeBasedModel):
         _("Y координата"),
         max_digits=9,
         decimal_places=6,
+    )
+    city = models.ForeignKey(
+        City,
+        on_delete=models.PROTECT,
+        verbose_name=_("Город")
     )
 
     class Meta:
