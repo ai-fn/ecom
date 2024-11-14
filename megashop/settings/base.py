@@ -86,7 +86,7 @@ IMPORT_EXPORT_APPS = [
 AUTH_USER_MODEL = "account.CustomUser"
 
 BASE_CRM = "bitrix24"
-CMR_ADAPTERS = {
+CRM_ADAPTERS = {
     "bitrix24": "crm_integration.crm_adapters.bitrix.BitrixAPI"
 }
 
