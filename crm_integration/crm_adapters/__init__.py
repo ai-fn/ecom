@@ -1,1 +1,1 @@
-from . import *
+from .bitrix import BitrixAPI
