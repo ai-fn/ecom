@@ -17,6 +17,9 @@ calls/
 results.sql
 ssl/live
 venv
+logs/
+data/
+ssl/
 data/db/
 ssl/.updated-options-ssl-nginx-conf-digest.txt
 ssl/.updated-ssl-dhparams-pem-digest.txt

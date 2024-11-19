@@ -104,6 +104,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "api.middlewares.LogRequestMiddleware",
 ]
 
 ROOT_URLCONF = "megashop.urls"
