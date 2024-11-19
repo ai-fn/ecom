@@ -12,6 +12,12 @@ class LogRequestMiddleware:
         logger.add(log_path, rotation="500 MB", level="INFO", format="{time} {level} {message}")
 
     def __call__(self, request):
+        exclude_logs_paths = (
+            "/metrics",
+        )
+        if request.path in exclude_logs_paths:
+            return self.get_response(request)
+
         ip = self.get_client_ip(request)
         timestamp = now().strftime('%Y-%m-%d %H:%M:%S')
 
