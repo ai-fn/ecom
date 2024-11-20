@@ -35,7 +35,7 @@ class AccountInfoViewSetTest(APITestCase):
         self.viewset = AccountInfoViewSet()
 
     def test_retrieve_user_info(self):
-        url = reverse('account:account-retrieve')
+        url = reverse('api:account:account-retrieve')
         response = send_request(self.client.get, url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data['email'], self.user.email)
@@ -43,7 +43,7 @@ class AccountInfoViewSetTest(APITestCase):
 
     
     def test_partial_update_user_email(self):
-        url = reverse('account:account-patch')
+        url = reverse('api:account:account-patch')
         response = send_request(self.client.patch, url, {'email': self.new_email})
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.user.refresh_from_db()
@@ -58,7 +58,7 @@ class AccountInfoViewSetTest(APITestCase):
         }):
             self.test_partial_update_user_email()
 
-        url = reverse('account:account-post')
+        url = reverse('api:account:account-post')
         code = self.viewset._get_code(self.new_email)
         self.assertIsNotNone(code)
 
@@ -68,7 +68,7 @@ class AccountInfoViewSetTest(APITestCase):
         self.assertTrue(self.user.email_confirmed)
 
     def test_resend_verify_email(self):
-        url = reverse('account:account-post_resend')
+        url = reverse('api:account:account-post_resend')
         response = send_request(self.client.get, url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data['message'], "Message sent successfully")
@@ -79,7 +79,7 @@ class AccountInfoViewSetTest(APITestCase):
         self.assertIn("code", cached_data)
 
     def test_partial_update_existing_confirmed_email(self):
-        url = reverse('account:account-patch')
+        url = reverse('api:account:account-patch')
         self.user.email_confirmed = True
         self.user.save()
         response = send_request(self.client.patch, url, {'email': self.user.email})
@@ -93,7 +93,7 @@ class AccountInfoViewSetTest(APITestCase):
     })
     def test_verify_email_with_invalid_code(self):
         self.test_partial_update_user_email()
-        url = reverse('account:account-post')
+        url = reverse('api:account:account-post')
         code = 'invalid'
 
         response = send_request(self.client.post, url, {'code': code})
@@ -116,7 +116,7 @@ class AccountInfoViewSetTest(APITestCase):
         refresh = RefreshToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(refresh.access_token))
 
-        url = reverse('account:account-post_resend')
+        url = reverse('api:account:account-post_resend')
         response = send_request(self.client.get, url)
 
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)

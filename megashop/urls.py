@@ -30,9 +30,9 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 
-from api.views import FeedsView
-from shop.views import SitemapView
 
 
 
@@ -53,12 +53,9 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("api/", include("api.urls")),
         path("", include("django_prometheus.urls")),
-        path("feeds.xml/", FeedsView.as_view(), name="product_feed"),
-        path("account/", include("account.urls", namespace="account")),
         path("api/redoc/", never_cache(custom_redoc_view), name="redoc"),
         path("api/schema/", never_cache(custom_schema_view), name="schema"),
         path("api/swagger/", never_cache(custom_swagger_view), name="swagger-ui"),
-        path("custom/sitemap.xml", view=SitemapView.as_view(), name="custom-sitemap"),
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
