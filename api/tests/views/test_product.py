@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.test import TestCase
 from shop.models import Price, Product
-from api.test_utils import SetupTestData
+from api.test_utils import SetupTestData, send_request
 
 from shop.utils.setting import get_base_domain
 
@@ -23,7 +23,7 @@ class TestProductViewSet(TestCase):
 
     def test_list_view(self):
         path = reverse("api:products-list")
-        response = self.client.get(path).json()
+        response = send_request(self.client.get, path).json()
 
         self.assertIn("count", response)
         self.assertIn("next", response)
@@ -39,7 +39,7 @@ class TestProductViewSet(TestCase):
     def test_list_view_with_domain_without_prices(self):
         path = reverse("api:products-list")
         params = {"city_domain": self.c.domain}
-        response = self.client.get(path, params).json()
+        response = send_request(self.client.get, path, params).json()
         self.assertEqual(response["results"]["products"], [])
 
     def test_list_views_with_domain_with_prices(self):
@@ -53,7 +53,7 @@ class TestProductViewSet(TestCase):
                 "old_price": f"{price.old_price:.2f}" if price.old_price else None,
             }
 
-        response = self.client.get(path, params).json()
+        response = send_request(self.client.get, path, params).json()
         self.assertEqual(response["count"], len(self.products))
         response_products = response["results"]["products"]
         for i in range(len(response["results"]["products"])):
@@ -63,7 +63,7 @@ class TestProductViewSet(TestCase):
 
     def test_popular_products_view(self):
         path = reverse("api:products-popular-products")
-        response = self.client.get(path).json()
+        response = send_request(self.client.get, path).json()
         self.assertIn("count", response)
         self.assertIn("next", response)
         self.assertIn("previous", response)
@@ -74,7 +74,7 @@ class TestProductViewSet(TestCase):
         path = reverse("api:products-popular-products")
         params = {"city_domain": self.c.domain}
 
-        response = self.client.get(path, params).json()
+        response = send_request(self.client.get, path, params).json()
         self.assertEqual(response["results"], [])
         self.assertIsNone(response["previous"])
         self.assertIsNone(response["next"])
@@ -92,7 +92,7 @@ class TestProductViewSet(TestCase):
                 "old_price": f"{price.old_price:.2f}" if price.old_price else None,
             }
 
-        response = self.client.get(path, params).json()
+        response = send_request(self.client.get, path, params).json()
         self.assertEqual(expected_count, response["count"])
 
         for i in range(len(response["results"])):

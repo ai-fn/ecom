@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase, APIRequestFactory, force_authentica
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework.request import Request
+from api.test_utils import send_request
 from cart.models import Order, ProductsInOrder
 from shop.models import Review, Product, Brand, Category
 from api.serializers import ReviewSerializer
@@ -69,7 +70,7 @@ class ReviewSerializerTestCase(APITestCase):
         }
 
         self.client.force_authenticate(user=other_user)
-        response  = self.client.post(reverse('api:review-list'), data, format='json')
+        response  = send_request(self.client.post, reverse('api:review-list'), data, format='json')
         self.assertEqual(response.status_code, 400)
 
         error_message = response.data['non_field_errors'][0]
@@ -82,7 +83,7 @@ class ReviewSerializerTestCase(APITestCase):
             'rating': 5,
             'review': 'Trying to review without user'
         }
-        response = self.client.post(reverse('api:review-list'), data, format='json')
+        response = send_request(self.client.post, reverse('api:review-list'), data, format='json')
 
         self.assertEqual(response.status_code, 401)
 

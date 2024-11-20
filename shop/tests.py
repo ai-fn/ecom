@@ -1,6 +1,7 @@
 import unittest
 from django.test import TestCase
 from rest_framework import test
+from api.test_utils import send_request
 from shop.models import Product, Category, Brand
 from django.urls import reverse
 
@@ -31,7 +32,7 @@ class TestProductModel(TestCase):
 
         queryset = Product.objects.exclude(pk=self.prod.pk)
         self.prod.similar_products.add(*queryset.values_list("pk", flat=True))
-        response = self.client.get(path).json()
+        response = send_request(self.client.get, path).json()
         similar_prods = response.get("results", set())
 
         self.assertEqual(len(similar_prods), len(self.prod.similar_products.all()))

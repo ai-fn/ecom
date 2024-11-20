@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
+from api.test_utils import send_request
 from shop.models import Category, Brand, Price
 from account.models import City, CityGroup, CustomUser
 
@@ -73,12 +74,12 @@ class OrderViewSetTests(APITestCase):
             "receiver_email": "example@mail.ru",
             "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, Россия",
         }
-        response = self.client.post(url, data, format="json")
+        response = send_request(self.client.post, url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         url = self.get_order_url(self.city.domain)
 
-        response = self.client.post(url, data, format="json")
+        response = send_request(self.client.post, url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Order.objects.count(), 1)
@@ -96,7 +97,7 @@ class OrderViewSetTests(APITestCase):
         self.authenticate_user()
         url = self.get_order_url("voronezh.domain.com")
 
-        response = self.client.post(url, self.order_data, format="json")
+        response = send_request(self.client.post, url, self.order_data, format="json")
 
         self.assertIn("error", response.json())
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -106,7 +107,7 @@ class OrderViewSetTests(APITestCase):
         self.authenticate_user()
         url = self.get_order_url("moskva.domain.com")
 
-        response = self.client.post(url, self.order_data, format="json")
+        response = send_request(self.client.post, url, self.order_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Order.objects.count(), 1)
@@ -162,13 +163,13 @@ class CartCountViewTests(APITestCase):
         token = self.get_token(self.user)
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
 
-        response = self.client.get(self.cart_url)
+        response = send_request(self.client.get, self.cart_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["count"], 30)
 
     def test_get_cart_count_unauthenticated(self):
-        response = self.client.get(self.cart_url)
+        response = send_request(self.client.get, self.cart_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 

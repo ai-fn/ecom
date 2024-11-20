@@ -1,4 +1,5 @@
 from django.test import TestCase
+from api.test_utils import send_request
 from shop.models import CustomUser
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -13,7 +14,7 @@ class TokenTestCase(TestCase):
         )
 
     def test_token_obtain_pair(self):
-        response = self.client.post(
+        response = send_request(self.client.post, 
             "/api/token/", {"username": "testuser", "password": "testpassword"}
         )
 
@@ -23,13 +24,13 @@ class TokenTestCase(TestCase):
 
     def test_token_refresh(self):
         refresh = RefreshToken.for_user(self.user)
-        response = self.client.post("/api/token/refresh/", {"refresh": str(refresh)})
+        response = send_request(self.client.post, "/api/token/refresh/", {"refresh": str(refresh)})
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("access", response.data)
 
     def test_invalid_token_obtain_pair(self):
-        response = self.client.post(
+        response = send_request(self.client.post, 
             "/api/token/", {"username": "invaliduser", "password": "invalidpassword"}
         )
 

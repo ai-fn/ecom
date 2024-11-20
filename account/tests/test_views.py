@@ -9,6 +9,7 @@ from django.core.cache import cache
 
 
 from account.views import AccountInfoViewSet
+from api.test_utils import send_request
 
 User = get_user_model()
 
@@ -35,7 +36,7 @@ class AccountInfoViewSetTest(APITestCase):
 
     def test_retrieve_user_info(self):
         url = reverse('account:account-retrieve')
-        response = self.client.get(url)
+        response = send_request(self.client.get, url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data['email'], self.user.email)
         self.assertEqual(response.data['phone'], self.user.phone)
@@ -43,7 +44,7 @@ class AccountInfoViewSetTest(APITestCase):
     
     def test_partial_update_user_email(self):
         url = reverse('account:account-patch')
-        response = self.client.patch(url, {'email': self.new_email})
+        response = send_request(self.client.patch, url, {'email': self.new_email})
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.user.refresh_from_db()
         self.assertEqual(self.user.email, self.new_email)
@@ -61,14 +62,14 @@ class AccountInfoViewSetTest(APITestCase):
         code = self.viewset._get_code(self.new_email)
         self.assertIsNotNone(code)
 
-        response = self.client.post(url, {'code': code.get("code")})
+        response = send_request(self.client.post, url, {'code': code.get("code")})
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.user.refresh_from_db()
         self.assertTrue(self.user.email_confirmed)
 
     def test_resend_verify_email(self):
         url = reverse('account:account-post_resend')
-        response = self.client.get(url)
+        response = send_request(self.client.get, url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data['message'], "Message sent successfully")
 
@@ -81,7 +82,7 @@ class AccountInfoViewSetTest(APITestCase):
         url = reverse('account:account-patch')
         self.user.email_confirmed = True
         self.user.save()
-        response = self.client.patch(url, {'email': self.user.email})
+        response = send_request(self.client.patch, url, {'email': self.user.email})
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
         self.assertEqual(str(response.data["email"][0]), 'Provided email already confirmed')
 
@@ -95,7 +96,7 @@ class AccountInfoViewSetTest(APITestCase):
         url = reverse('account:account-post')
         code = 'invalid'
 
-        response = self.client.post(url, {'code': code})
+        response = send_request(self.client.post, url, {'code': code})
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
         self.user.refresh_from_db()
         self.assertFalse(self.user.email_confirmed)
@@ -116,7 +117,7 @@ class AccountInfoViewSetTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(refresh.access_token))
 
         url = reverse('account:account-post_resend')
-        response = self.client.get(url)
+        response = send_request(self.client.get, url)
 
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['detail'], 'email is required')
