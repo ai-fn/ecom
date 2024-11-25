@@ -221,6 +221,19 @@ class Product(ThumbModel):
         null=True,
     )
 
+    package_length = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Длина упаковки (см)", blank=True, null=True,
+    )
+    package_width = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Ширина упаковки (см)", blank=True, null=True,
+    )
+    package_height = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Высота упаковки (см)", blank=True, null=True,
+    )
+    package_weight = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Вес упаковки (кг)", blank=True, null=True,
+    )
+
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
@@ -232,7 +245,6 @@ class Product(ThumbModel):
         ]
         ordering = ("-priority", "title", "-created_at")
 
-
     def save(self, *args, **kwargs) -> None:
         if not self.slug:
             if not self.id:
@@ -243,7 +255,6 @@ class Product(ThumbModel):
             return super().save(update_fields=["slug"])
 
         return super().save(*args, **kwargs)
-
 
     def __str__(self):
         return self.title

@@ -58,8 +58,12 @@ class ProductDetailSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModel
             "groups",
             "rating",
             "unit",
+            "package_weight",
+            "package_length",
+            "package_width",
+            "package_height",
         ]
-    
+
     def create(self, validated_data):
         images_data: list[dict] = validated_data.pop("images", [])
         product = Product.objects.create(**validated_data)
