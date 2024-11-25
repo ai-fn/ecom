@@ -92,7 +92,7 @@ class Category(MPTTModel, ThumbModel):
 
     class MPTTMeta:
         order_insertion_by = ["name"]
-    
+
 
 class Brand(TimeBasedModel):
     class Meta:
@@ -204,9 +204,22 @@ class Product(ThumbModel):
         max_length=128,
         unique=True,
     )
-    unavailable_in = models.ManyToManyField(City, related_query_name="product", verbose_name=_("Недоступен в городах"), blank=True)
+    unavailable_in = models.ManyToManyField(
+        City,
+        related_query_name="product",
+        verbose_name=_("Недоступен в городах"),
+        blank=True,
+    )
     opengraph_metadata = GenericRelation("OpenGraphMeta", related_query_name="product")
     itemset_element = GenericRelation("ItemSetElement", related_query_name="products")
+
+    unit = models.CharField(
+        max_length=10,
+        default="шт.",
+        verbose_name="Единица измерения",
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Товар"

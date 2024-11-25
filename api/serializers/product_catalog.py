@@ -79,6 +79,7 @@ class ProductCatalogSerializer(ActiveModelSerializer):
             "cart_quantity",
             "is_popular",
             "is_new",
+            "unit",
             "in_promo",
             "rating",
             "reviews_count",

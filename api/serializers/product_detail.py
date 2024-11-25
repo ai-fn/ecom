@@ -57,6 +57,7 @@ class ProductDetailSerializer(RatingMixin, SerializerGetPricesMixin, ActiveModel
             "files",
             "groups",
             "rating",
+            "unit",
         ]
     
     def create(self, validated_data):
