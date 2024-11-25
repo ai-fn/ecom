@@ -10,7 +10,7 @@ from django.utils.text import slugify as django_slugify
 
 from shop.models import Promo
 from shop.utils import get_shop_name
-from account.models import CityGroup
+from account.models import City
 
 
 def custom_slugify(value):
@@ -24,14 +24,14 @@ def update_promo_status():
     expired_promos.update(is_active=False)
 
 @shared_task
-def collect_single_feed_xml(city_group_name: str):
+def collect_single_feed_xml(city_name: str):
     from shop.services import FeedsService
 
-    FeedsService.collect_feeds(city_group_name)
-    return f"Feeds for {city_group_name} successfully collected"
+    FeedsService.collect_feeds(city_name)
+    return f"Feeds for {city_name} successfully collected"
 
 @shared_task
-def collect_sitemap_xml(city_group_name: str, domain: str):
+def collect_sitemap_xml(city_name: str, domain: str):
     from shop.services import SitemapService
     from shop.sitemaps import ProductSitemap, CategorySitemap
 
@@ -39,13 +39,13 @@ def collect_sitemap_xml(city_group_name: str, domain: str):
         "products": ProductSitemap,
         "categories": CategorySitemap,
     }
-    SitemapService.collect(city_group_name, domain, sitemaps, save_to_file=True)
+    SitemapService.collect(city_name, domain, sitemaps, save_to_file=True)
 
 @shared_task
 def collect_sitemaps():
     tasks = []
-    for cg in CityGroup.objects.filter(main_city__isnull=False, is_active=True):
-        tasks.append(collect_sitemap_xml.s(cg.name, cg.main_city.domain))
+    for c in City.objects.filter(is_active=True):
+        tasks.append(collect_sitemap_xml.s(c.name, c.domain))
 
     g = group(tasks)
     result = g.apply_async()
@@ -54,7 +54,7 @@ def collect_sitemaps():
 
 @shared_task
 def collect_feed_xml_files():
-    tasks = group(collect_single_feed_xml.s(cg.name) for cg in CityGroup.objects.all())
+    tasks = group(collect_single_feed_xml.s(c.name) for c in City.objects.all())
     result = tasks.apply_async()
     return result
 

@@ -65,11 +65,7 @@ class SitemapView(APIView):
         if not c:
             return HttpResponse(status=404)
 
-        cg_name = getattr(c.city_group, "name", None)
-        if not cg_name:
-            return HttpResponse(status=404)
-
-        path = SitemapService.get_xml_file_path(cg_name)
+        path = SitemapService.get_xml_file_path(c.name)
         try:
             with default_storage.open(path, "rb") as file:
                 response = FileResponse(file, content_type="application/xml")

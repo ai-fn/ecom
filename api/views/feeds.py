@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse, FileResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.core.files.storage import default_storage
 
 from shop.models import Product
-from account.models import CityGroup
+from account.models import City
 from shop.services import FeedsService
 from api.serializers.setting import SettingSerializer
 
@@ -73,11 +73,11 @@ class FeedsView(APIView):
     # @method_decorator(cache_page(120 * 60))
     def get(self, request):
         city_domain = request.query_params.get("city_domain")
-        cg = CityGroup.objects.filter(cities__domain=city_domain).first()
-        if not cg:
-            return HttpResponse({"City group with provided domain not found."}, status=400)
+        c = City.objects.filter(domain=city_domain).first()
+        if not c:
+            return JsonResponse({"error": "City with provided domain not found."}, status=400)
 
-        file_path = FeedsService.get_feed_path(cg.name)
+        file_path = FeedsService.get_feed_path(c.name)
 
         try:
             with default_storage.open(file_path, "rb") as file:

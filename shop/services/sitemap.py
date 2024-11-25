@@ -29,7 +29,7 @@ class SitemapService:
         )
 
     @classmethod
-    def collect(cls, city_group_name: str, domain: str, sitemaps: dict, save_to_file: bool = False):
+    def collect(cls, city_name: str, domain: str, sitemaps: dict, save_to_file: bool = False):
 
         maps = sitemaps.values()
 
@@ -56,7 +56,7 @@ class SitemapService:
 
         xml = cls._generate_xml(urls)
         if save_to_file:
-            return cls._save_as_xml_file(xml, city_group_name)
+            return cls._save_as_xml_file(xml, city_name)
 
         return {
             "xml": xml,

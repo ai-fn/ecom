@@ -65,7 +65,7 @@ class FeedsService(Feed):
         return data
 
     @classmethod
-    def item_xml(cls, products, categories, city_group_name):
+    def item_xml(cls, products, categories, city_name):
         yml_catalog = ET.Element(
             "yml_catalog", date=timezone.localtime(timezone.now()).date().isoformat()
         )
@@ -83,10 +83,10 @@ class FeedsService(Feed):
         url = ET.SubElement(shop, "url")
 
         base_url = f"{cls.schema}://"
-        cg = CityGroup.objects.filter(name=city_group_name).first()
-        if all((cg is not None, cg.main_city is not None)):
-            city_domain = getattr(cg.main_city, "domain", None) or City.get_default_city().domain
-            base_url = f"{cls.schema}://{city_domain}/"
+        city = City.objects.filter(name=city_name).first()
+
+        if city is not None:
+            base_url = f"{cls.schema}://{city.domain}/"
         else:
             base_domain = get_base_domain() or City.get_default_city().domain
             base_url = f"{cls.schema}://{base_domain}/"
