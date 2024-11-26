@@ -140,6 +140,13 @@ class PickupPoint(TimeBasedModel):
         on_delete=models.PROTECT,
         verbose_name=_("Город")
     )
+    phone = models.CharField(
+        verbose_name=_("Номер телефона"),
+        null=True,
+        blank=True,
+        max_length=16,
+        help_text=_("В формате +7xxxxxxxxxx")
+    )
 
     class Meta:
         verbose_name = _("Пункт выдачи")
@@ -148,3 +155,30 @@ class PickupPoint(TimeBasedModel):
     
     def __str__(self) -> str:
         return f"Пункт выдачи #{self.id}"
+
+
+class PickupPointSchedule(TimeBasedModel):
+
+    schedule = models.CharField(_("График работы"), max_length=256)
+    title = models.CharField(_("Заголовок"), max_length=128, blank=True, null=True)
+    order = models.PositiveIntegerField(
+        _("Порядковый номер"), default=0, blank=True, null=True
+    )
+    pickup_point = models.ForeignKey(
+        PickupPoint,
+        on_delete=models.CASCADE,
+        verbose_name=_("Пункт выдачи"),
+        related_name="schedules",
+    )
+
+    class Meta:
+        verbose_name = _("График работы пункта выдачи")
+        verbose_name_plural = _("Графики работы пунктов выдачи")
+        ordering = ("pickup_point", "order", "-created_at")
+        indexes = [
+            models.Index(fields=["title"], name="schedule_title_idx"),
+            models.Index(fields=["schedule"], name="schedule_schedule_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"#{self.id} График работы пункта выдачи '{self.pickup_point.pk}'"

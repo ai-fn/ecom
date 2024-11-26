@@ -59,4 +59,4 @@ from .feedback import FeedbackSerializer
 from .page import PageSerializer
 from .item_set import ItemSetSerializer, ItemSetElementSerializer
 from .category_tag import CategoryTagSerializer, CategoryTagDetailSerializer
-from .pickup_point import PickupPointSerializer, PickupPointDetailSerializer
+from .pickup_point import PickupPointSerializer, PickupPointDetailSerializer, PickupPointScheduleSerializer

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CartItem, Order, ProductsInOrder, PickupPoint
+from .models import CartItem, Order, PickupPointSchedule, ProductsInOrder, PickupPoint
 from api.mixins import ActiveAdminMixin
 
 
@@ -51,4 +51,17 @@ class CartAdmin(ActiveAdminMixin, admin.ModelAdmin):
         "product",
         "quantity",
     )
-    
+
+
+@admin.register(PickupPointSchedule)
+class SheduleAdmin(ActiveAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "id",
+        "title",
+        "order",
+        "pickup_point",
+        "schedule",
+    )
+    list_filter = (
+        "pickup_point",
+    )

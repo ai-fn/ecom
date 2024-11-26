@@ -1,7 +1,8 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from cart.models import PickupPoint
+from api.serializers.pickup_point import PickupPointScheduleSerializer
+from cart.models import PickupPoint, PickupPointSchedule
 from api.permissions import ReadOnlyOrAdminPermission
 from api.serializers import PickupPointSerializer, PickupPointDetailSerializer
 from drf_spectacular.utils import OpenApiResponse, OpenApiExample, OpenApiParameter, extend_schema_view, extend_schema
@@ -11,6 +12,7 @@ PICKUP_POINT_REQUEST = {
     "coord_x": 48.8566,
     "coord_y": 2.3522,
     "is_active": True,
+    "phone": "+79836845612",
     "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, 123001, Россия",
 }
 PICKUP_POINT_DETAIL_RESPONSE = {
@@ -26,6 +28,8 @@ PICKUP_POINT_RESPONSE = {
     "id": 1,
     "coordinate": [48.8566, 2.3522],
     "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, 123001, Россия",
+    "phone": "+79836845612",
+    "worktime": ["пн-вс 08:00–18:00", "без выходных"],
 }
 
 @extend_schema(tags=["cart"])
@@ -139,3 +143,131 @@ class PickupPointViewSet(ModelViewSet):
             return queryset
 
         return queryset.filter(is_active=True, city__domain=self.domain)
+
+
+SСHEDULE_REQUEST = {
+    "schedule": "dummy shedule",
+    "title": "dummy title",
+    "order": 1,
+    "pickup_point": 1,
+}
+SСHEDULE_RESPONSE = {
+    "id": 1,
+    **SСHEDULE_REQUEST,
+}
+SСHEDULE_PARTIAL_UPDATE_REQUEST = {
+    k: v for k, v in list(SСHEDULE_REQUEST.items())[:2]
+}
+@extend_schema_view(
+    list=extend_schema(
+        summary="Получение информации о графиках работы магазинов",
+        description="Получение информации о графиках работы магазинов",
+        responses={
+            200: OpenApiResponse(
+                response=PickupPointScheduleSerializer(many=True),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        response_only=True,
+                        value=SСHEDULE_RESPONSE,
+                    ),
+                ]
+            )
+        },
+    ),
+    retrieve=extend_schema(
+        summary="Получение информации о конкретном графике работы магазина",
+        description="Получение информации о конкретном графике работы магазина",
+        responses={
+            200: OpenApiResponse(
+                response=PickupPointScheduleSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        response_only=True,
+                        value=SСHEDULE_RESPONSE,
+                    ),
+                ]
+            )
+        },
+    ),
+    create=extend_schema(
+        summary="Добавление информации о графике работы магазина",
+        description="Добавление информации о графике работы магазина",
+        responses={
+            200: OpenApiResponse(
+                response=PickupPointScheduleSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        response_only=True,
+                        value=SСHEDULE_RESPONSE,
+                    ),
+                ]
+            )
+        },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                response_only=True,
+                value=SСHEDULE_REQUEST,
+            ),
+        ],
+    ),
+    update=extend_schema(
+        summary="Изменение информации о графике работы магазина",
+        description="Изменение информации о графике работы магазина",
+        responses={
+            200: OpenApiResponse(
+                response=PickupPointScheduleSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        response_only=True,
+                        value=SСHEDULE_RESPONSE,
+                    ),
+                ]
+            )
+        },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                response_only=True,
+                value=SСHEDULE_REQUEST,
+            ),
+        ],
+    ),
+    partial_update=extend_schema(
+        summary="Частичное изменение информации о графике работы магазина",
+        description="Частичное изменение информации о графике работы магазина",
+        responses={
+            200: OpenApiResponse(
+                response=PickupPointScheduleSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        response_only=True,
+                        value=SСHEDULE_RESPONSE,
+                    ),
+                ]
+            )
+        },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                response_only=True,
+                value=SСHEDULE_PARTIAL_UPDATE_REQUEST,
+            ),
+        ],
+    ),
+    destroy=extend_schema(
+        summary="Удаление информации о графике работы магазина",
+        description="Удаление информации о графике работы магазина",
+        responses={204: None},
+    ),
+)
+@extend_schema(tags=["Cart"])
+class PickupPoinctScheduleViewSet(ModelViewSet):
+    queryset = PickupPointSchedule.objects.all()
+    serializer_class = PickupPointScheduleSerializer
+    permission_classes = [ReadOnlyOrAdminPermission]
