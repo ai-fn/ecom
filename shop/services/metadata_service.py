@@ -6,16 +6,21 @@ from pymorphy2 import MorphAnalyzer
 from shop.models import OpenGraphMeta
 from account.models import City, CityGroup
 
-
 _morph = MorphAnalyzer()
 
 
-def _inflect_phrase(phrase, case):
+def _inflect_phrase(phrase: str, case: str) -> str:
+    """
+    Склоняет фразу в заданный падеж.
+
+    :param phrase: Фраза для склонения.
+    :param case: Падеж ("nomn", "gent", "datv", "accs", "ablt", "loct").
+    :return: Склоненная фраза.
+    """
     words = phrase.split()
     inflected_words = []
 
     for idx, word in enumerate(words):
-
         parsed = _morph.parse(word)[0]
         inflected_word = parsed.inflect({case})
 
@@ -29,11 +34,18 @@ def _inflect_phrase(phrase, case):
 
 
 class MetaDataService:
+    """
+    Сервис для формирования мета-тегов и обработки данных для OpenGraph.
+    """
 
     @staticmethod
     def get_obj_by_slug(slug: str, content_type: str) -> OpenGraphMeta:
         """
-        Получение метаданных по слагу
+        Получение объекта OpenGraphMeta по слагу.
+
+        :param slug: Слаг объекта.
+        :param content_type: Тип контента (имя модели).
+        :return: Объект OpenGraphMeta.
         """
         tp = ContentType.objects.get(model=content_type)
         model = tp.model_class()
@@ -47,12 +59,12 @@ class MetaDataService:
         return meta
 
     @staticmethod
-    def _correct_ending(number):
+    def _correct_ending(number: int) -> str:
         """
         Возвращает слово с правильным окончанием в зависимости от числа.
 
-        :param number: Число (например, 1, 2, 5, 21 и т.д.)
-        :return: Слово с правильным окончанием
+        :param number: Число.
+        :return: Слово с правильным окончанием.
         """
         if number % 10 == 1 and number % 100 != 11:
             return f"{number} товар"
@@ -69,6 +81,15 @@ class MetaDataService:
         fields: Iterable[Literal["title", "description", "keywords"]],
         city_domain: str = None,
     ) -> Dict[str, str]:
+        """
+        Формирует мета-теги на основе шаблона OpenGraphMeta и данных экземпляра.
+
+        :param meta_obj: Объект OpenGraphMeta.
+        :param instance: Экземпляр модели.
+        :param fields: Поля мета-тегов для формирования.
+        :param city_domain: Домен города.
+        :return: Словарь сформированных мета-тегов.
+        """
         city = cls._get_city(city_domain)
         city_group_name = cls._get_city_group_name(city)
 
@@ -77,9 +98,7 @@ class MetaDataService:
             values = cls._get_default_meta_values(meta_obj, fields)
 
         object_name = cls._get_object_name(instance)
-        price_value, products_count = cls._get_price_and_count(
-            instance, city_group_name
-        )
+        price_value, products_count = cls._get_price_and_count(instance, city_group_name)
 
         kwargs = cls._prepare_kwargs(
             object_name, price_value, city, city_group_name, products_count
@@ -90,22 +109,35 @@ class MetaDataService:
 
     @classmethod
     def _get_city(cls, city_domain: str) -> City:
-        return (
-            City.objects.filter(domain=city_domain).first() or City.get_default_city()
-        )
+        """
+        Возвращает объект City по домену или город по умолчанию.
+
+        :param city_domain: Домен города.
+        :return: Объект City.
+        """
+        return City.objects.filter(domain=city_domain).first() or City.get_default_city()
 
     @classmethod
     def _get_city_group_name(cls, city: City) -> str:
-        return (
-            city.city_group.name
-            if city.city_group
-            else CityGroup.get_default_city_group().name
-        )
+        """
+        Возвращает название группы города.
+
+        :param city: Объект City.
+        :return: Название группы города.
+        """
+        return city.city_group.name if city.city_group else CityGroup.get_default_city_group().name
 
     @classmethod
     def _get_meta_values(
         cls, meta_obj: OpenGraphMeta, fields: Iterable[str]
     ) -> Dict[str, Any]:
+        """
+        Возвращает значения мета-тегов из объекта OpenGraphMeta.
+
+        :param meta_obj: Объект OpenGraphMeta.
+        :param fields: Поля для получения.
+        :return: Словарь значений мета-тегов.
+        """
         return {
             field: getattr(meta_obj, field, None)
             for field in fields
@@ -116,10 +148,17 @@ class MetaDataService:
     def _get_default_meta_values(
         cls, meta_obj: OpenGraphMeta, fields: Iterable[str]
     ) -> Dict[str, Any]:
+        """
+        Возвращает значения мета-тегов из шаблона по умолчанию.
+
+        :param meta_obj: Объект OpenGraphMeta.
+        :param fields: Поля для получения.
+        :return: Словарь значений мета-тегов.
+        """
         default_meta_obj = meta_obj.get_default_template()
         if default_meta_obj is None:
             raise FileNotFoundError(
-                f"Template for object '{meta_obj.get_content_object()}' not found."
+                f"Шаблон для объекта '{meta_obj.get_content_object()}' не найден."
             )
 
         return {
@@ -130,10 +169,23 @@ class MetaDataService:
 
     @classmethod
     def _get_object_name(cls, instance) -> str:
+        """
+        Возвращает название объекта.
+
+        :param instance: Экземпляр модели.
+        :return: Название объекта.
+        """
         return getattr(instance, "title", None) or getattr(instance, "name", None)
 
     @classmethod
     def _get_price_and_count(cls, instance, city_group_name: str) -> tuple[Any, int]:
+        """
+        Получает минимальную цену и количество товаров для объекта.
+
+        :param instance: Экземпляр модели.
+        :param city_group_name: Название группы городов.
+        :return: Кортеж (минимальная цена, количество товаров).
+        """
         if instance._meta.model_name == "product":
             price_value = (
                 instance.prices.filter(city_group__name=city_group_name)
@@ -174,6 +226,16 @@ class MetaDataService:
         city_group_name: str,
         products_count: int,
     ) -> Dict[str, Any]:
+        """
+        Подготавливает параметры для форматирования мета-тегов.
+
+        :param object_name: Название объекта.
+        :param price_value: Цена.
+        :param city: Объект City.
+        :param city_group_name: Название группы города.
+        :param products_count: Количество товаров.
+        :return: Словарь параметров.
+        """
         count_str = cls._correct_ending(products_count)
         price = int(price_value) if price_value is not None else "--"
 
@@ -195,4 +257,11 @@ class MetaDataService:
     def _format_values(
         cls, values: Dict[str, Any], kwargs: Dict[str, Any]
     ) -> Dict[str, str]:
+        """
+        Форматирует значения мета-тегов с использованием параметров.
+
+        :param values: Словарь значений мета-тегов.
+        :param kwargs: Словарь параметров для форматирования.
+        :return: Словарь отформатированных мета-тегов.
+        """
         return {field: value.format(**kwargs) for field, value in values.items()}

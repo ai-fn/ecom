@@ -55,7 +55,7 @@ class SitemapView(APIView):
     permission_classes = [AllowAny]
     serializer_class = SettingSerializer
 
-    # @method_decorator(cache_page(120 * 60))
+    @method_decorator(cache_page(120 * 60))
     def get(self, request):
         domain = request.query_params.get("domain")
         if not domain:  

@@ -7,16 +7,22 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from xml.etree import ElementTree as ET
 
-from account.models import CityGroup
-
 
 class SitemapService:
+    """
+    Сервис для генерации и сохранения XML-карты сайта (sitemap.xml).
+    """
 
     @classmethod
-    def _get_latest_lastmod(cls, current_lastmod, new_lastmod):
+    def _get_latest_lastmod(
+        cls, current_lastmod: datetime.datetime, new_lastmod: datetime.datetime
+    ) -> datetime.datetime:
         """
-        Returns the latest `lastmod` where `lastmod` can be either a date or a
-        datetime.
+        Возвращает самое последнее значение `lastmod` из двух переданных дат.
+
+        :param current_lastmod: Текущая дата последнего изменения.
+        :param new_lastmod: Новая дата последнего изменения.
+        :return: Самая поздняя из двух дат.
         """
         if not isinstance(new_lastmod, datetime.datetime):
             new_lastmod = datetime.datetime.combine(new_lastmod, datetime.time.min)
@@ -29,13 +35,23 @@ class SitemapService:
         )
 
     @classmethod
-    def collect(cls, city_name: str, domain: str, sitemaps: dict, save_to_file: bool = False):
+    def collect(
+        cls, city_name: str, domain: str, sitemaps: dict, save_to_file: bool = False
+    ) -> dict | str:
+        """
+        Генерирует XML-карту сайта и, при необходимости, сохраняет её в файл.
 
+        :param city_name: Название города.
+        :param domain: Домен сайта.
+        :param sitemaps: Словарь с картами сайта.
+        :param save_to_file: Флаг сохранения карты сайта в файл.
+        :return: XML-карта сайта или путь к файлу с картой сайта.
+        """
         maps = sitemaps.values()
-
         lastmod = None
         all_sites_lastmod = True
         urls = []
+
         for site in maps:
             if callable(site):
                 site = site(domain=domain)
@@ -47,12 +63,10 @@ class SitemapService:
                     lastmod = cls._get_latest_lastmod(lastmod, site_lastmod)
                 else:
                     all_sites_lastmod = False
-        if all_sites_lastmod:
-            headers = (
-                {"Last-Modified": http_date(lastmod.timestamp())} if lastmod else None
-            )
-        else:
-            headers = None
+
+        headers = (
+            {"Last-Modified": http_date(lastmod.timestamp())} if lastmod else None
+        ) if all_sites_lastmod else None
 
         xml = cls._generate_xml(urls)
         if save_to_file:
@@ -63,19 +77,38 @@ class SitemapService:
             "headers": headers,
             "content_type": "application/xml",
         }
-    
+
     @classmethod
     def get_xml_file_path(cls, cg_name: str) -> str:
+        """
+        Возвращает путь к файлу карты сайта.
+
+        :param cg_name: Название группы городов.
+        :return: Путь к файлу карты сайта.
+        """
         return os.path.join(settings.SITEMAP_DIR, cg_name, "sitemap.xml")
 
     @classmethod
-    def _save_as_xml_file(cls, content: str, domain: str):
-        path = cls.get_xml_file_path(domain)
+    def _save_as_xml_file(cls, content: str, domain: str) -> str:
+        """
+        Сохраняет XML-карту сайта в файл.
 
-        default_storage.save(path, content=ContentFile(content.encode('utf-8')))
+        :param content: XML-карта сайта.
+        :param domain: Домен сайта.
+        :return: Путь к сохраненному файлу.
+        """
+        path = cls.get_xml_file_path(domain)
+        default_storage.save(path, content=ContentFile(content.encode("utf-8")))
+        return path
 
     @classmethod
-    def _generate_xml(cls, urls: list):
+    def _generate_xml(cls, urls: list) -> str:
+        """
+        Генерирует XML-карту сайта на основе списка URL.
+
+        :param urls: Список URL для карты сайта.
+        :return: XML-карта сайта в виде строки.
+        """
         sitemap = ET.Element(
             "urlset",
             {
@@ -83,10 +116,12 @@ class SitemapService:
                 "xmlns:xhtml": "http://www.w3.org/1999/xhtml",
             },
         )
+
         for url in urls:
             url_el = ET.SubElement(sitemap, "url")
             loc = ET.SubElement(url_el, "loc")
             loc.text = url.get("location")
+
             if val := url.get("lastmod"):
                 el = ET.SubElement(url_el, "lastmod")
                 el.text = val.strftime("%Y-%m-%d")

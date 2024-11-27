@@ -122,12 +122,23 @@ PICKUP_POINT_RESPONSE = {
     ),
 )
 class PickupPointViewSet(ModelViewSet):
+    """
+    ViewSet для управления пунктами выдачи.
+    """
+
     pagination_class = None
     queryset = PickupPoint.objects.all()
     serializer_class = PickupPointSerializer
     permission_classes = [IsAuthenticated, ReadOnlyOrAdminPermission]
 
     def initial(self, request, *args, **kwargs):
+        """
+        Инициализирует объект ViewSet и сохраняет домен города из параметров запроса.
+
+        :param request: HTTP-запрос.
+        :return: Результат родительского метода `initial`.
+        """
+
         self.domain = request.query_params.get("city_domain")
         return super().initial(request, *args, **kwargs)
 

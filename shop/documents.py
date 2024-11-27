@@ -1,12 +1,15 @@
 from django.db.models import Avg
 from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
-from elasticsearch_dsl import InnerDoc
 from .models import Category, Product, Brand
 
 
 @registry.register_document
 class CategoryDocument(Document):
+    """
+    Elasticsearch документ для индексации категорий.
+    """
+
     id = fields.IntegerField(attr="id")
     products_exist = fields.BooleanField()
 
@@ -31,7 +34,13 @@ class CategoryDocument(Document):
             "is_visible",
         ]
 
-    def prepare_products_exist(self, instance):
+    def prepare_products_exist(self, instance: Category) -> bool:
+        """
+        Проверяет наличие активных товаров с ценами в категории.
+
+        :param instance: Экземпляр категории.
+        :return: True, если товары существуют, иначе False.
+        """
         return instance.products.filter(
             is_active=True,
             prices__isnull=False,
@@ -40,6 +49,9 @@ class CategoryDocument(Document):
 
 @registry.register_document
 class ProductDocument(Document):
+    """
+    Elasticsearch документ для индексации товаров.
+    """
 
     id = fields.IntegerField(attr="id")
     category = fields.ObjectField(
@@ -58,15 +70,26 @@ class ProductDocument(Document):
     )
     rating = fields.FloatField()
 
-    def prepare_rating(self, instanse):
+    def prepare_rating(self, instance: Product) -> float:
+        """
+        Подготовка рейтинга для индексации.
+
+        :param instance: Экземпляр продукта.
+        :return: Округленный средний рейтинг.
+        """
         value = (
-            instanse.reviews.aggregate(average_rating=Avg("rating"))["average_rating"]
+            instance.reviews.aggregate(average_rating=Avg("rating"))["average_rating"]
             or 0.0
         )
         return round(value, 1)
 
-    def prepare_prices(self, instance):
-        """Метод для извлечения цен из связи M2M"""
+    def prepare_prices(self, instance: Product) -> list[dict]:
+        """
+        Подготовка цен для индексации.
+
+        :param instance: Экземпляр продукта.
+        :return: Список словарей с ценами.
+        """
         return [
             {
                 "amount": price.price,
@@ -101,6 +124,10 @@ class ProductDocument(Document):
 
 @registry.register_document
 class BrandDocument(Document):
+    """
+    Elasticsearch документ для индексации брендов.
+    """
+
     id = fields.IntegerField(attr="id")
 
     class Index:

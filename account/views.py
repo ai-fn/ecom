@@ -104,6 +104,18 @@ class AccountInfoViewSet(
 
     @action(methods=["post"], detail=False)
     def verify_email(self, request, *args, **kwargs):
+        """
+        Подтверждает email пользователя.
+
+        Проверяет код подтверждения, полученный из запроса, с сохраненным в кэше.
+        Если код действителен, email пользователя помечается как подтвержденный.
+
+        :param request: HTTP-запрос, содержащий данные пользователя.
+        :type request: HttpRequest
+        :return: Ответ с сообщением о статусе подтверждения.
+        :rtype: Response
+        """
+
         code = self.request.data.get("code")
         email = self.request.user.email
 
@@ -128,6 +140,15 @@ class AccountInfoViewSet(
 
     @action(methods=["get"], detail=False)
     def resend_verify_email(self, request, *args, **kwargs):
+        """
+        Повторно отправляет код подтверждения на email пользователя.
+
+        :param request: HTTP-запрос, содержащий данные пользователя.
+        :type request: HttpRequest
+        :return: Ответ с результатом отправки кода.
+        :rtype: Response
+        """
+
         email = request.user.email
         if not email:
             return Response(
@@ -137,12 +158,26 @@ class AccountInfoViewSet(
         return self._send_confirm_email(request, request.user, email)
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Получает информацию о текущем пользователе.
+
+        :param request: HTTP-запрос.
+        :type request: HttpRequest
+        :return: Ответ с данными пользователя.
+        :rtype: Response
+        """
+
         self.kwargs["pk"] = request.user.pk
         return super().retrieve(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         """
         Частичное изменение информации о пользователе.
+        :param request: HTTP-запрос с данными для обновления.
+        :type request: HttpRequest
+        :return: Ответ с результатом обновления данных.
+        :rtype: Response
+
         """
         self.kwargs["pk"] = request.user.pk
         response = super().partial_update(request, *args, **kwargs)

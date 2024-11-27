@@ -1,14 +1,16 @@
 from typing import Dict, List, Tuple
-from django.db import models
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist
-
-from loguru import logger
 import pandas as pd
+from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
+from django.db import models
+from django.core.exceptions import FieldDoesNotExist
+from loguru import logger
 
 
 class ExportService:
+    """
+    Сервис для экспорта данных из моделей Django в DataFrame.
+    """
 
     @staticmethod
     def create_dataframe(model_fields: Dict[str, list]) -> pd.DataFrame:
@@ -16,7 +18,9 @@ class ExportService:
         Создает DataFrame из данных моделей Django.
 
         :param model_fields: Словарь, где ключи - имена моделей, а значения - списки полей для извлечения.
+        :type model_fields: Dict[str, list]
         :return: DataFrame, содержащий данные моделей.
+        :rtype: pd.DataFrame
         :raises ValueError: Если указанные модели не найдены.
         """
         cts = ContentType.objects.filter(
@@ -53,7 +57,9 @@ class ExportService:
 
                 for field_name in m2m_fields:
                     key = f"{ct.name}_{field_name}"
-                    append_data = ', '.join([str(x) for x in getattr(obj, field_name).values_list("pk", flat=True)])
+                    append_data = ', '.join(
+                        [str(x) for x in getattr(obj, field_name).values_list("pk", flat=True)]
+                    )
                     data.setdefault(key, []).append(append_data)
 
         df = pd.DataFrame({k: pd.Series(v) for k, v in data.items()})
@@ -65,8 +71,11 @@ class ExportService:
         Разделяет список полей модели на обычные и m2m поля.
 
         :param model: Модель Django, для которой нужно разделить поля.
+        :type model: models.Model
         :param field_names: Список имен полей модели.
+        :type field_names: List[str]
         :return: Кортеж, содержащий два списка: обычные поля и m2m поля.
+        :rtype: Tuple[List[str], List[str]]
         """
         reg_fields, m2m_fields = [], []
         for field_name in field_names:
@@ -76,9 +85,9 @@ class ExportService:
                 logger.error(str(e))
                 continue
 
-            if type(field) in (models.ManyToManyField, models.ManyToOneRel, models.ManyToManyRel):
+            if isinstance(field, (models.ManyToManyField, models.ManyToOneRel, models.ManyToManyRel)):
                 m2m_fields.append(field_name)
             else:
                 reg_fields.append(field_name)
-        
+
         return reg_fields, m2m_fields

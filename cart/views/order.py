@@ -217,57 +217,89 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
 )
 @extend_schema(tags=["Order"])
 class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
+    """
+    ViewSet для управления заказами.
+    """
 
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
+        """
+        Возвращает класс сериализатора в зависимости от действия.
+
+        :return: Класс сериализатора.
+        """
         if self.action == "order_selected":
             return OrderSelectedSerializer
 
         return super().get_serializer_class()
 
     def get_permissions(self):
+        """
+        Устанавливает разрешения в зависимости от действия.
+
+        :return: Список разрешений.
+        """
         if self.action in ("update", "partial_update", "destroy"):
-            return [IsAdminUser]
+            return [IsAdminUser()]
         elif self.action == "retrieve":
             self.permission_classes.append(IsOwnerOrAdminPermission)
 
         return super().get_permissions()
 
-
     def get_queryset(self):
+        """
+        Возвращает QuerySet для текущего действия.
+
+        :return: QuerySet.
+        """
         if self.action == "list":
             return super().get_queryset().filter(customer=self.request.user)
 
         return super().get_queryset()
 
-
     @action(detail=False, methods=["get"], url_path="active-orders")
     def active_orders(self, request, *args, **kwargs):
+        """
+        Возвращает список активных заказов пользователя.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с данными активных заказов.
+        """
         self.queryset = self.get_queryset().exclude(status="DELIVERED")
         return super().list(request, *args, **kwargs)
 
-
     @action(detail=False, methods=["post"], url_path="order-selected")
     def order_selected(self, request, *args, **kwargs):
+        """
+        Создает заказ из выбранных элементов корзины.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с созданным заказом или ошибкой.
+        """
         serializer = self.get_serializer(data={**request.data, "customer": request.user.pk})
         if not serializer.is_valid():
-            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"errors": serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
         ids = serializer.validated_data.get("cartitem_ids")
 
         cart_items = CartItem.objects.select_related("product").filter(id__in=ids, customer=request.user.pk)
         if not cart_items.exists():
             return Response(
-                {"error": "Элементы корзины с указанными id не найдены."}, status=status.HTTP_404_NOT_FOUND
+                {"error": "Элементы корзины с указанными id не найдены."}, status=HTTP_404_NOT_FOUND
             )
 
         return self.make_order(cart_items)
 
     def create(self, request, *args, **kwargs):
+        """
+        Создает заказ из всех элементов корзины пользователя.
 
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с созданным заказом или ошибкой.
+        """
         cart_items = CartItem.objects.select_related("product").filter(customer=request.user.pk)
         if not cart_items.exists():
             return Response(
@@ -277,7 +309,12 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
         return self.make_order(cart_items)
 
     def make_order(self, cart_items):
-    
+        """
+        Создает заказ на основе переданных элементов корзины.
+
+        :param cart_items: QuerySet элементов корзины.
+        :return: Ответ с созданным заказом или ошибкой.
+        """
         city_domain = self.request.query_params.get("city_domain")
         data = dict(self.request.data)
         data["customer"] = self.request.user.pk

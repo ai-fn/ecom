@@ -13,11 +13,8 @@ class ExportTaskSerializer(ModelSerializer):
 
     class Meta:
         model = ExportTask
-        exclude = [
-            "created_at",
-            "updated_at",
-        ]
-    
+        exclude = ["created_at", "updated_at"]
+
     def __init__(self, instance=None, data=empty, **kwargs):
         super().__init__(instance, data, **kwargs)
         self.fields["settings"] = ExportSettingsSerializer(context=self.context)
@@ -27,7 +24,7 @@ class ExportTaskSerializer(ModelSerializer):
 
         if isinstance(instance, OrderedDict):
             data["result_file"] = instance["result_file"].url if instance["result_file"] else None
-            
+
             settings_data = self.initial_data.get("settings")
             if settings_data:
                 stngs_serializer = ExportSettingsSerializer(data=settings_data)
@@ -37,10 +34,12 @@ class ExportTaskSerializer(ModelSerializer):
                     data["settings"] = None
             else:
                 data["settings"] = None
-
         else:
             data["result_file"] = instance.result_file.url if instance.result_file else None
-            data["settings"] = ExportSettingsSerializer(instance=instance.settings).data if instance.settings else None
+            data["settings"] = (
+                ExportSettingsSerializer(instance=instance.settings).data
+                if instance.settings else None
+            )
 
         return data
 
@@ -54,7 +53,7 @@ class ExportTaskSerializer(ModelSerializer):
 
     def save(self, **kwargs):
         if not self.context.get("save_settings"):
-            self.validated_data.pop("settings")
+            self.validated_data.pop("settings", None)
 
         return super().save(**kwargs)
 

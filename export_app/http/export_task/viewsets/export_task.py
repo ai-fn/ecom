@@ -247,6 +247,10 @@ start_export_responses = {
 )
 @extend_schema(tags=["Export App"])
 class ExportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+    """
+    ViewSet для управления задачами экспорта.
+    """
+
     serializer_class = ExportTaskSerializer
     queryset = ExportTask.objects.all()
     permission_classes = [IsAdminUser]
@@ -257,14 +261,26 @@ class ExportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelV
         return context
 
     @action(detail=False, methods=["GET"], url_path="allowed-models")
-    def get_allowed_models(self, request, *args, **kwargs):
+    def get_allowed_models(self, request, *args, **kwargs) -> Response:
+        """
+        Возвращает список моделей, разрешенных для экспорта.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с разрешенными моделями.
+        """
         result = ContentType.objects.filter(
             app_label__in=settings.IMPORT_EXPORT_APPS
         ).values_list("model", flat=True)
         return Response({"result": result}, status=HTTP_200_OK)
 
     @action(detail=False, methods=["GET"], url_path="model-fields")
-    def get_allowed_model_fields(self, request, *args, **kwargs):
+    def get_allowed_model_fields(self, request, *args, **kwargs) -> Response:
+        """
+        Возвращает поля указанной модели.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с полями модели.
+        """
         model_name = request.query_params.get("model")
         if not model_name:
             return Response(
@@ -275,23 +291,27 @@ class ExportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelV
             app_label__in=settings.IMPORT_EXPORT_APPS, model=model_name
         ).first()
         if not ct:
-            return Response({"detail": f"Model with name '{model_name}' not found."})
+            return Response({"detail": f"Model with name '{model_name}' not found."}, status=HTTP_400_BAD_REQUEST)
 
         result = [field.name for field in ct.model_class()._meta.get_fields()]
-
         return Response({"result": result}, status=HTTP_200_OK)
 
     def start(self, request, instance=None) -> Response:
+        """
+        Запускает задачу экспорта.
+
+        :param request: Объект HTTP-запроса.
+        :param instance: Экземпляр задачи экспорта (если существует).
+        :return: Ответ с сообщением о начале экспорта.
+        """
         file_type = request.query_params.get("file_type", ".xlsx")
 
         if file_type not in (".xlsx", ".csv"):
             return Response(
-                {
-                    "error": f"Invalid file type: expected (.xlsx, .csv), got ({file_type})"
-                },
+                {"error": f"Invalid file type: expected (.xlsx, .csv), got ({file_type})"},
                 status=HTTP_400_BAD_REQUEST,
             )
-        
+
         task_settings = None
         mail_to = request.query_params.get("mail_to")
 
@@ -305,24 +325,22 @@ class ExportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelV
             task_settings = serializer.validated_data.get("settings")
             if not task_settings:
                 return Response(
-                    {"error": "Could not start export without settigns"},
+                    {"error": "Could not start export without settings"},
                     status=HTTP_400_BAD_REQUEST,
                 )
 
             instance = serializer.save()
             serializer_data = self.get_serializer(instance=instance).data
-            settings_data = serializer.initial_data['settings']
+            settings_data = serializer.initial_data["settings"]
             data = {**serializer_data, "settings": settings_data}
         else:
-
             settings = getattr(instance, "settings", None)
-            if not task_settings:
+            if not settings:
                 return Response(
-                    {"error": "Could not start export without settigns"},
+                    {"error": "Could not start export without settings"},
                     status=HTTP_400_BAD_REQUEST,
                 )
             task_settings = settings.name
-
             data = self.get_serializer(instance=instance).data
 
         export.delay(data, file_type, mail_to)
@@ -333,41 +351,45 @@ class ExportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelV
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(
-                name="save_settings",
-                type=bool,
-                default=False,
-            )
+            OpenApiParameter(name="save_settings", type=bool, default=False),
         ],
     )
     @action(detail=False, methods=["POST"], url_path="start-export")
-    def start_export(self, request, *args, **kwargs):
+    def start_export(self, request, *args, **kwargs) -> Response:
+        """
+        Запускает новую задачу экспорта.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с сообщением о начале экспорта.
+        """
         response = self.start(request)
         return response
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(
-                name="save_settings",
-                type=bool,
-                default=False,
-            )
+            OpenApiParameter(name="save_settings", type=bool, default=False),
         ],
     )
     @action(detail=True, methods=["POST"], url_path="start-export")
-    def start_export_obj(self, request, *args, **kwargs):
+    def start_export_obj(self, request, *args, **kwargs) -> Response:
+        """
+        Запускает экспорт существующей задачи.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с сообщением о начале экспорта.
+        """
         task = self.get_object()
         response = self.start(request, instance=task)
         return response
 
     @action(detail=False, methods=["GET"], url_path="get-all")
-    def get_all(self, request, *args, **kwargs):
+    def get_all(self, request, *args, **kwargs) -> Response:
+        """
+        Возвращает все разрешенные модели и их поля.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с моделями и их полями.
+        """
         cts = ContentType.objects.filter(app_label__in=settings.IMPORT_EXPORT_APPS)
-        data = dict()
-        for ct in cts:
-            model = ct.model_class()
-            if model is not None:
-
-                data[ct.model] = [field.name for field in model._meta.get_fields()]
-
+        data = {ct.model: [field.name for field in ct.model_class()._meta.get_fields()] for ct in cts if ct.model_class()}
         return Response({"result": data}, status=HTTP_200_OK)

@@ -19,6 +19,10 @@ from api.serializers.phone import PhoneSerializer
 
 
 class SendCodeBaseAction(GenerateCodeMixin):
+    """
+    Базовый класс для отправки и подтверждения кода подтверждения (например, по телефону).
+    """
+
     link: str = None
     api_key: str = None
     kwargs = dict()
@@ -31,16 +35,47 @@ class SendCodeBaseAction(GenerateCodeMixin):
     remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
 
     def _get_code_cache_key(self, salt: str) -> str:
+        """
+        Формирует ключ для кэша на основе переданного salt.
+
+        :param salt: Уникальная строка для формирования ключа.
+        :return: Строка ключа для кэша.
+        """
+
         prefix = getattr(settings, "CONFIRM_CODE_PREFIX", "CONFIRM_CODE_PREFIX")
         return f"{prefix}_{salt}"
 
     def _invalidate_cache(self, salt):
+        """
+        Удаляет запись из кэша по заданному salt.
+
+        :param salt: Уникальная строка, использованная при формировании ключа.
+        """
+
         cache.delete(self._get_code_cache_key(salt))
 
     def _send_message(self, request, code: str, cache_key: str) -> bool:
+        """
+        Метод для отправки сообщения с кодом подтверждения.
+        Должен быть реализован в подклассе.
+
+        :param request: HTTP-запрос.
+        :param code: Сгенерированный код подтверждения.
+        :param cache_key: Ключ кэша, связанный с этим кодом.
+        :return: Возвращает True, если сообщение успешно отправлено, иначе False.
+        """
+
         raise NotImplementedError("Method must be implemented!")
 
     def _is_code_valid(self, code: str, cache_salt: str):
+        """
+        Проверяет, действителен ли предоставленный код подтверждения.
+
+        :param code: Код подтверждения, введенный пользователем.
+        :param cache_salt: Уникальная строка для поиска кэша.
+        :return: Кортеж (bool, str), где bool указывает на валидность кода, 
+                 а str содержит сообщение о результате проверки.
+        """
 
         cached_key = self._get_code_cache_key(cache_salt)
         cached_data = cache.get(cached_key)
@@ -55,6 +90,15 @@ class SendCodeBaseAction(GenerateCodeMixin):
         return True, "Valid code"
 
     def verify(self, code: str, cache_salt: str) -> AbstractUser | None:
+        """
+        Подтверждает код и возвращает пользователя, если код валиден.
+        Если пользователя нет, создаёт его.
+
+        :param code: Введённый код подтверждения.
+        :param cache_salt: Уникальная строка для поиска кэша.
+        :return: Кортеж (пользователь, сообщение).
+        """
+
         user = None
         is_valid, message = self._is_code_valid(code, cache_salt)
         if is_valid:
@@ -86,6 +130,13 @@ class SendCodeBaseAction(GenerateCodeMixin):
         return user, message
 
     def execute(self, request):
+        """
+        Основной метод для выполнения действия отправки кода подтверждения.
+
+        :param request: HTTP-запрос.
+        :return: HTTP-ответ с результатом операции.
+        """
+
         serializer_instance = self.serializer_class(data=request.data)
         if not serializer_instance.is_valid():
             return Response(
@@ -121,6 +172,14 @@ class SendCodeBaseAction(GenerateCodeMixin):
         return Response({"error": "Failed"}, status=status.HTTP_400_BAD_REQUEST)
 
     def _set_cache(self, salt: str, code: str):
+        """
+        Устанавливает данные в кэш с кодом подтверждения и временем истечения.
+
+        :param salt: Уникальная строка для формирования ключа кэша.
+        :param code: Сгенерированный код подтверждения.
+        :return: Время истечения кэша.
+        """
+
         et = time.time() + self.remaining_time
         cache.set(
             self._get_code_cache_key(salt),

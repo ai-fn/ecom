@@ -7,6 +7,12 @@ from api.mixins import GeneralSearchMixin
 
 
 class ProductFilter(GeneralSearchMixin, filters.FilterSet):
+    """
+    Фильтр-сет для модели Product.
+
+    Позволяет фильтровать товары по цене, бренду, категории, характеристикам и строковому поиску.
+    """
+
     price_lte = filters.NumberFilter(field_name="prices__price", lookup_expr="lte")
     price_gte = filters.NumberFilter(field_name="prices__price", lookup_expr="gte")
     brand_slug = filters.CharFilter(method="filter_brand_slug")
@@ -27,6 +33,17 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         city_domain: str = None,
         view=None,
     ):
+        """
+        Инициализация фильтра.
+
+        :param data: Данные для фильтрации.
+        :param queryset: Набор данных для фильтрации.
+        :param request: HTTP-запрос.
+        :param prefix: Префикс для параметров фильтрации.
+        :param city_domain: Доменный регион для фильтрации.
+        :param view: Связанный ViewSet.
+        """
+
         super().__init__(data, queryset, request=request, prefix=prefix)
         self.city_domain = city_domain
         self.view = view
@@ -44,6 +61,10 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
 
     @property
     def chars(self):
+        """
+        Возвращает характеристики для фильтрации.
+        """
+
         if not getattr(self, "_chars", None):
             self._chars = self._get_chars()
 
@@ -51,6 +72,10 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
 
     @property
     def brands(self):
+        """
+        Возвращает бренды для фильтрации.
+        """
+
         if not getattr(self, "_brands", None):
             self._brands = self._get_brands()
 
@@ -58,12 +83,20 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
 
     @property
     def count(self):
+        """
+        Возвращает количество отфильтрованных объектов.
+        """
+
         if not getattr(self, "_count", None):
             self._count = self.qs.count()
 
         return self._count
 
     def filter_brand_slug(self, queryset, name, value):
+        """
+        Фильтрует товары по слагу бренда.
+        """
+
         queryset = queryset.filter(brand__slug=value)
         if not all((self.data.get("category"), self.data.get("search`"))):
             self._chars = self._get_chars(queryset)
@@ -71,12 +104,22 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset
 
     def filter_brand(self, queryset, name, value):
+        """
+        Фильтрует товары по нескольким слагам брендов.
+        """
+
         brand_slugs = value.split(",")
         queryset = queryset.filter(brand__slug__in=brand_slugs)
 
         return queryset
 
     def filter_queryset(self, queryset):
+        """
+        Применяет фильтры к QuerySet.
+
+        Также выполняет агрегаты для минимальной и максимальной цены.
+        """
+
         for name, value in self.form.cleaned_data.items():
             if name not in ("price_lte", "price_gte") and value is not None:
                 queryset = self.filters[name].filter(queryset, value)
@@ -93,6 +136,10 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset
 
     def apply_price_filters(self, queryset):
+        """
+        Применяет фильтры по цене.
+        """
+
         gte_data = self.data.get("price_gte")
         lte_data = self.data.get("price_lte")
         price_filter = Q()
@@ -105,6 +152,10 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset.filter(price_filter)
 
     def filter_search(self, queryset, name, value):
+        """
+        Выполняет полнотекстовый поиск по товарам.
+        """
+
         ordering = self.request.query_params.get("order_by")
         page = int(self.request.query_params.get("page", 1))
 
@@ -128,12 +179,20 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset
 
     def _get_brands(self, queryset: QuerySet = None):
+        """
+        Получает уникальные бренды из QuerySet.
+        """
+
         if queryset is None:
             queryset = self.qs
 
         return queryset.values_list("brand", flat=True).distinct()
 
     def _get_chars(self, queryset: QuerySet = None):
+        """
+        Получает доступные характеристики для товаров в QuerySet.
+        """
+
         if queryset is None:
             queryset = self.qs
 
@@ -159,6 +218,10 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return result
 
     def filter_category(self, queryset, name, value):
+        """
+        Фильтрует товары по категории и дочерним категориям.
+        """
+
         q = Q()
         category_slugs = set(map(lambda x: x.strip(), value.split(",")))
         for ctg in Category.objects.filter(slug__in=category_slugs):
@@ -179,6 +242,10 @@ class ProductFilter(GeneralSearchMixin, filters.FilterSet):
         return queryset
 
     def filter_characteristics(self, queryset, name, value):
+        """
+        Фильтрует товары по значениям характеристик.
+        """
+
         char_slugs = {}
         if value:
             filters = value.split(",")

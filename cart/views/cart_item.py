@@ -243,25 +243,45 @@ class CartItemViewSet(
     IntegrityErrorHandlingMixin,
     ModelViewSet,
 ):
+    """
+    ViewSet для управления элементами корзины.
+    """
+
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> Response:
+        """
+        Возвращает список элементов корзины для текущего пользователя с аннотированными ценами.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с данными корзины.
+        """
         queryset = self.annotate_queryset(
             self.filter_queryset(self.get_queryset()),
             prefix="product__",
             fields=["prices"],
         )
         serializer = self.get_serializer(queryset, many=True).data
-        return Response(serializer, status=status.HTTP_200_OK)
+        return Response(serializer, status=HTTP_200_OK)
 
-    def get_serializer_context(self):
+    def get_serializer_context(self) -> dict:
+        """
+        Дополняет контекст сериализатора параметрами запроса.
+
+        :return: Дополненный контекст сериализатора.
+        """
         context = super().get_serializer_context()
         context["city_domain"] = self.request.query_params.get("city_domain")
         return context
 
     def get_serializer_class(self):
+        """
+        Определяет класс сериализатора в зависимости от действия.
+
+        :return: Класс сериализатора.
+        """
         if self.action == "cartitems_detail":
             return ProductDetailSerializer
         elif self.action in ("partial_update", "get_simple_prods"):
@@ -270,37 +290,62 @@ class CartItemViewSet(
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
+        """
+        Устанавливает текущего пользователя в качестве владельца элемента корзины при создании.
+
+        :param serializer: Сериализатор элемента корзины.
+        """
         serializer.save(customer=self.request.user)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        """
+        Возвращает элементы корзины текущего пользователя.
 
+        :return: QuerySet элементов корзины.
+        """
+        queryset = super().get_queryset()
         return queryset.filter(customer=self.request.user)
 
     @action(methods=["delete"], detail=False)
-    def delete_cart(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+    def delete_cart(self, request, *args, **kwargs) -> Response:
+        """
+        Удаляет все элементы корзины текущего пользователя.
 
+        :param request: Объект HTTP-запроса.
+        :return: Ответ об успешном удалении.
+        """
+        queryset = self.get_queryset()
         if queryset.exists():
             queryset.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=["get"])
-    def get_simple_prods(self, request, *args, **kwargs):
+    def get_simple_prods(self, request, *args, **kwargs) -> Response:
+        """
+        Возвращает упрощенные данные о продуктах в корзине.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с данными продуктов.
+        """
         queryset = self.get_queryset()
         if queryset.exists():
             serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=HTTP_200_OK)
 
         return Response(
             {"error": "Cart items for provided user not found"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    def create(self, request, *args, **kwargs):
-        existing_cart_items = self.get_queryset()
+    def create(self, request, *args, **kwargs) -> Response:
+        """
+        Создает или обновляет элементы корзины для текущего пользователя.
 
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с обновленными данными корзины.
+        """
+        existing_cart_items = self.get_queryset()
         existing_cart_dict = {item.product.id: item for item in existing_cart_items}
 
         quantity_dict = defaultdict(int)
@@ -332,12 +377,24 @@ class CartItemViewSet(
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["get"])
-    def cartitems_detail(self, request, *args, **kwargs):
+    def cartitems_detail(self, request, *args, **kwargs) -> Response:
+        """
+        Возвращает детализированные данные о продуктах в корзине.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с детализированными данными.
+        """
         id_lists = list(self.get_queryset().values_list("product", flat=True))
         self.queryset = Product.objects.filter(id__in=id_lists)
         return super().list(request, *args, **kwargs)
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request, *args, **kwargs) -> Response:
+        """
+        Обновляет количество продукта в корзине.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с обновленными данными.
+        """
         product_id = kwargs.get("pk")
         product = get_object_or_404(Product, id=product_id)
         cart_item = get_object_or_404(CartItem, product=product, customer=request.user)
@@ -345,9 +402,14 @@ class CartItemViewSet(
         return super().partial_update(request, *args, **kwargs)
 
     @action(detail=True, methods=["delete"])
-    def delete_by_prod(self, request, *args, **kwargs):
-        pk = kwargs.get("pk")
+    def delete_by_prod(self, request, *args, **kwargs) -> Response:
+        """
+        Удаляет элемент корзины по идентификатору продукта.
 
+        :param request: Объект HTTP-запроса.
+        :return: Ответ об успешном удалении.
+        """
+        pk = kwargs.get("pk")
         product = get_object_or_404(Product, pk=pk)
         cart_item = get_object_or_404(CartItem, product=product, customer=request.user)
 
@@ -357,6 +419,9 @@ class CartItemViewSet(
 
 @extend_schema(tags=["Cart"])
 class CartCountView(APIView):
+    """
+    Представление для получения общего количества товаров в корзине текущего пользователя.
+    """
 
     permission_classes = [IsAuthenticated]
     serializer_class = CartItemSerializer
@@ -376,6 +441,14 @@ class CartCountView(APIView):
         ],
     )
     def get(self, request):
+        """
+        Возвращает общее количество товаров в корзине пользователя.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с количеством товаров или сообщением об отсутствии товаров.
+        :rtype: Response
+        """
+
         queryset = CartItem.objects.filter(customer=request.user)
         if queryset.exists():
             return Response(

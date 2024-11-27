@@ -1,14 +1,10 @@
-from django.db.models import Case, IntegerField, When, Value
-from typing import Iterable, Dict, Any
+from typing import Iterable, Dict, Any, List
+from django.db.models import Case, IntegerField, When, Value, QuerySet
 from elasticsearch_dsl import Search, connections, Q
 from loguru import logger
 from django.core.cache import cache
 
-from shop.documents import (
-    BrandDocument,
-    CategoryDocument,
-    ProductDocument,
-)
+from shop.documents import BrandDocument, CategoryDocument, ProductDocument
 from shop.models import SearchHistory
 from api.serializers import (
     ProductDocumentSerializer,
@@ -18,6 +14,13 @@ from api.serializers import (
 
 
 class GeneralSearchMixin:
+    """
+    Mixin для выполнения общего поиска в Elasticsearch.
+
+    Позволяет искать по индексам продуктов, категорий и брендов с поддержкой фильтрации,
+    сортировки и постраничного вывода.
+    """
+
     def g_search(
         self,
         query: str,
@@ -27,6 +30,18 @@ class GeneralSearchMixin:
         per_page: int = 32,
         ordering: str = None,
     ) -> Dict[str, Any]:
+        """
+        Выполняет поиск по Elasticsearch.
+
+        :param query: Строка запроса для поиска.
+        :param domain: Домен для фильтрации результатов.
+        :param exclude_: Индексы, которые нужно исключить из поиска.
+        :param page: Номер страницы для постраничного вывода.
+        :param per_page: Количество результатов на странице.
+        :param ordering: Поле для сортировки результатов.
+        :return: Словарь с категоризированными результатами и общее количество найденных записей.
+        :rtype: Dict[str, Any]
+        """
         if self.request.user.is_authenticated:
             SearchHistory.objects.get_or_create(title=query, user=self.request.user)
 
@@ -39,7 +54,6 @@ class GeneralSearchMixin:
                 "model": ProductDocument.Django.model,
                 "serializer": ProductDocumentSerializer,
                 "queries": Q(
-                    # "match_all",
                     "bool",
                     must=[
                         Q("match", prices__cg_domain=domain),
@@ -47,9 +61,15 @@ class GeneralSearchMixin:
                     ],
                     should=(
                         Q("term", article={"value": query, "boost": 5.0}),
-                        Q("fuzzy", title={"value": query, "fuzziness": "AUTO", "boost": 5.0}),
+                        Q(
+                            "fuzzy",
+                            title={"value": query, "fuzziness": "AUTO", "boost": 5.0},
+                        ),
                         Q("wildcard", title={"value": f"*{query}*", "boost": 2.5}),
-                        Q("wildcard", description={"value": f"*{query}*", "boost": 1.5}),
+                        Q(
+                            "wildcard",
+                            description={"value": f"*{query}*", "boost": 1.5},
+                        ),
                         Q("match_phrase", title=query),
                         Q("match_phrase", description=query),
                     ),
@@ -68,7 +88,10 @@ class GeneralSearchMixin:
                     ],
                     should=(
                         Q("term", name={"value": query, "boost": 4.0}),
-                        Q("fuzzy", name={"value": query, "fuzziness": "AUTO", "boost": 4.0}),
+                        Q(
+                            "fuzzy",
+                            name={"value": query, "fuzziness": "AUTO", "boost": 4.0},
+                        ),
                         Q("wildcard", name={"value": f"*{query}*", "boost": 2.7}),
                         Q("match", name=query),
                         Q("match_phrase", name=query),
@@ -84,7 +107,10 @@ class GeneralSearchMixin:
                     must=[Q("term", _index=BrandDocument._index._name)],
                     should=[
                         Q("term", name={"value": query, "boost": 3.0}),
-                        Q("fuzzy", name={"value": query, "fuzziness": "AUTO", "boost": 3.0}),
+                        Q(
+                            "fuzzy",
+                            name={"value": query, "fuzziness": "AUTO", "boost": 3.0},
+                        ),
                         Q("wildcard", name={"value": f"*{query}*", "boost": 2.6}),
                         Q("match_phrase", name=query),
                     ],
@@ -125,7 +151,15 @@ class GeneralSearchMixin:
         total_size = response.hits.total.value
         return categorized_results, total_size
 
-    def sort_config(self, search, ordering):
+    def sort_config(self, search: Search, ordering: str) -> Search:
+        """
+        Конфигурирует сортировку для запроса поиска.
+
+        :param search: Объект поиска Elasticsearch.
+        :param ordering: Поле для сортировки.
+        :return: Конфигурированный объект поиска.
+        :rtype: Search
+        """
         if ordering.startswith("-"):
             sort_order = "desc"
             ordering = ordering[1:]
@@ -145,7 +179,18 @@ class GeneralSearchMixin:
             {"priority": {"order": "desc"}},
         )
 
-    def categorize_results(self, response, indexes, domain) -> Dict[str, Any]:
+    def categorize_results(
+        self, response: Search, indexes: Dict[str, Any], domain: str
+    ) -> Dict[str, Any]:
+        """
+        Категоризирует результаты поиска по индексам.
+
+        :param response: Ответ Elasticsearch.
+        :param indexes: Информация об индексах.
+        :param domain: Домен для фильтрации результатов.
+        :return: Словарь с категоризированными результатами.
+        :rtype: Dict[str, Any]
+        """
         categorized_results = dict()
         hits = {index_name: list() for index_name in indexes}
 
@@ -163,11 +208,25 @@ class GeneralSearchMixin:
 
         return categorized_results
 
-    def process_index(self, indexes, index, hits, categorized_results):
+    def process_index(
+        self,
+        indexes: Dict[str, Any],
+        index: str,
+        hits: List[Any],
+        categorized_results: Dict[str, Any],
+    ) -> None:
+        """
+        Обрабатывает результаты поиска для конкретного индекса.
+
+        :param indexes: Информация об индексах.
+        :param index: Имя индекса.
+        :param hits: Результаты поиска для индекса.
+        :param categorized_results: Словарь для записи категоризированных результатов.
+        """
         ids = [hit.id for hit in hits]
         model = indexes[index]["model"]
         serializer = indexes[index]["serializer"]
-        queryset = (
+        queryset: QuerySet = (
             model.objects.filter(pk__in=ids)
             .annotate(
                 score_order=Case(

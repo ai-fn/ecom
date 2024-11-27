@@ -243,19 +243,27 @@ IMPORT_TASK_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(IMPORT_TASK_
     ),
 )
 class ImportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+    """
+    ViewSet для управления задачами импорта.
+    """
+
     queryset = ImportTask.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = ImportTaskSerializer
 
-
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context["save_settings"] = self.request.query_params.get("save_settings", "false").lower() == "true"
-        return context 
-
+        return context
 
     @action(detail=True, methods=["GET"], url_path="get-columns")
     def get_columns(self, request, *args, **kwargs):
+        """
+        Возвращает список столбцов файла, связанного с задачей импорта.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с именами столбцов или ошибкой.
+        """
         instance = self.get_object()
         try:
             columns = ImportTaskService.get_columns(instance)
@@ -264,38 +272,51 @@ class ImportTaskViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelV
 
         return Response(columns, status=HTTP_200_OK)
 
-
     @action(detail=False, methods=["GET"], url_path="get-all-fields")
     def get_all_fields(self, request, *args, **kwargs):
+        """
+        Возвращает все доступные поля для моделей, поддерживающих импорт.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ со списком полей для каждой модели.
+        """
         models = (Product, Category, Brand, Price, Characteristic, CharacteristicValue)
         fields = {
-            model._meta.model_name: (el.name for el in model._meta.get_fields())
+            model._meta.model_name: [el.name for el in model._meta.get_fields()]
             for model in models
         }
 
         return Response({"fields": fields}, status=HTTP_200_OK)
 
-
     @action(detail=True, methods=["POST"], url_path="start-import")
     def start_import(self, request, *args, **kwargs):
+        """
+        Запускает процесс импорта для указанной задачи.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с сообщением о запуске импорта или ошибкой.
+        """
         instance = self.get_object()
 
         import_settings = request.data.get("import_setting")
         replace_existing_m2m = request.query_params.get("replace_existing_m2m", "true").lower() == "true"
 
         if not import_settings:
-            return Response({"error": "Could not start import witout import settings."}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Could not start import without import settings."},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
-        setting_serializer = self.get_serializer(instance=instance, data={"import_setting": import_settings})
+        setting_serializer = self.get_serializer(
+            instance=instance, data={"import_setting": import_settings}
+        )
         if not setting_serializer.is_valid():
             return Response(setting_serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         data = setting_serializer.data
 
         handle_file_task.delay(data, replace_existing_m2m)
-        message = f"import started with settigs: '{import_settings}'"
+        message = f"Import started with settings: '{import_settings}'"
 
         logger.info(message)
-        return Response(
-            {"detail": message} ,status=HTTP_200_OK,
-        )
+        return Response({"detail": message}, status=HTTP_200_OK)

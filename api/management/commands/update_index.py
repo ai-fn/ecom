@@ -4,11 +4,25 @@ from django.core.management.base import CommandError
 
 
 class Command(BaseCommand):
+    """
+    Django management команда для автоматической перестройки индексов Elasticsearch без интерактивного подтверждения.
+
+    Использует команду `search_index --rebuild` для удаления и пересоздания индексов.
+    """
+
     help = 'Rebuild Elasticsearch indexes without interactive confirmation'
 
     def handle(self, *args, **options):
+        """
+        Выполняет перестройку индексов Elasticsearch.
+
+        :param args: Дополнительные позиционные аргументы.
+        :param options: Дополнительные именованные аргументы.
+        :raises CommandError: В случае ошибки выполнения команды `search_index --rebuild`.
+        """
+
         try:
-            # Run the `search_index --rebuild` command in a subprocess and simulate 'yes' input
+            # Запускает команду `search_index --rebuild` в дочернем процессе и передает подтверждение 'y'.
             result = subprocess.run(
                 ['python', 'manage.py', 'search_index', '--rebuild'],
                 input='y', text=True, capture_output=True, check=True

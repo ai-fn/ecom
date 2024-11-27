@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-
 from io import BytesIO
 from uuid import uuid4
 from loguru import logger
@@ -20,6 +19,16 @@ from export_app.models import ExportTask, ExportTaskStatus
 def export(
     task_data: dict, file_type: Literal[".xlsx", ".csv"] = ".xlsx", email_to: str = None
 ):
+    """
+    Асинхронная задача для выполнения экспорта данных.
+
+    :param task_data: Данные задачи экспорта.
+    :type task_data: dict
+    :param file_type: Тип файла для сохранения экспорта (".xlsx" или ".csv").
+    :type file_type: Literal[".xlsx", ".csv"]
+    :param email_to: Email для отправки файла экспорта. Если не указан, файл только сохраняется.
+    :type email_to: str, optional
+    """
     task = ExportTask.objects.get(id=task_data.get("id"))
     settings: dict = task_data.get("settings")
     if not settings:
@@ -43,7 +52,7 @@ def export(
     try:
         file_path = write_to_file(df, file_type)
     except Exception as e:
-        logger.error(f"Error while save export data into file: {str(e)}")
+        logger.error(f"Error while saving export data into file: {str(e)}")
         task.update_errors(str(e))
         task.update_status(ExportTaskStatus.FAILED)
         task.update_ended_at()
@@ -63,13 +72,23 @@ def export(
 
 
 def write_to_file(df: pd.DataFrame, file_type: Literal[".xlsx", ".csv"]) -> str:
+    """
+    Сохраняет данные DataFrame в файл указанного типа.
+
+    :param df: DataFrame с данными для экспорта.
+    :type df: pd.DataFrame
+    :param file_type: Тип файла для сохранения (".xlsx" или ".csv").
+    :type file_type: Literal[".xlsx", ".csv"]
+    :return: Путь к сохраненному файлу.
+    :rtype: str
+    """
     buffer = BytesIO()
     directory = "export_files"
     file_name = f"export_{uuid4()}{file_type}"
 
     file_path = os.path.join(directory, file_name)
 
-    write_func =  df.to_excel if file_type == ".xlsx" else df.to_csv
+    write_func = df.to_excel if file_type == ".xlsx" else df.to_csv
     write_func(buffer, index=False)
     buffer.seek(0)
 
@@ -79,7 +98,15 @@ def write_to_file(df: pd.DataFrame, file_type: Literal[".xlsx", ".csv"]) -> str:
     return file_path
 
 
-def send_email_with_attachment(email_to, file_path):
+def send_email_with_attachment(email_to: str, file_path: str):
+    """
+    Отправляет файл экспорта на указанный email.
+
+    :param email_to: Email-адрес получателя.
+    :type email_to: str
+    :param file_path: Путь к файлу, который нужно отправить.
+    :type file_path: str
+    """
     subject = "Экспорт объектов"
     email = EmailMessage(
         subject=subject,
@@ -88,4 +115,4 @@ def send_email_with_attachment(email_to, file_path):
     )
     email.attach_file(file_path)
     result = email.send(fail_silently=True)
-    logger.debug(f"CSV file of products was mailed with status: {result}")
+    logger.debug(f"Export file was emailed with status: {result}")

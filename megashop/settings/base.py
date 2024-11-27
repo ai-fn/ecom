@@ -101,9 +101,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",  # Дебаг тулбар
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Статические файлы
-    "shop.middlewares.SubdomainMiddleware",  # middleware на получение 3 субдомена
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 

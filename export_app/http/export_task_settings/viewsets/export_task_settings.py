@@ -148,6 +148,10 @@ from export_app.http.export_task_settings.examples import *
     tags=["Export App"],
 )
 class ExportSettingsViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, ModelViewSet):
+    """
+    ViewSet для управления настройками экспорта.
+    """
+
     serializer_class = ExportSettingsSerializer
     queryset = ExportSettings.objects.all()
     permission_classes = [IsAdminUser]
@@ -156,16 +160,21 @@ class ExportSettingsViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, Mo
         context = super().get_serializer_context()
         if save_settings := self.request.query_params.get("save_settings"):
             context["save_settings"] = save_settings
-
         return context
 
     def get_serializer_class(self):
         if self.action == "get_names":
             return SimplifiedSettingsSerializer
         return super().get_serializer_class()
-    
+
     @action(detail=False, methods=["get"], url_path="get-names")
-    def get_names(self, request, *args, **kwargs):
+    def get_names(self, request, *args, **kwargs) -> Response:
+        """
+        Возвращает список доступных настроек экспорта с их именами, идентификаторами и slug.
+
+        :param request: Объект HTTP-запроса.
+        :return: Ответ с данными доступных настроек.
+        """
         queryset = self.get_queryset().values("id", "name", "slug").order_by("name")
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
