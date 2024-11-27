@@ -29,3 +29,4 @@ ssl/renewal/
 ssl/ssl-dhparams.pem
 .env
 data/elasticsearch
+.cz.json

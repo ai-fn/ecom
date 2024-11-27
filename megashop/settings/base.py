@@ -14,6 +14,7 @@ import os
 import re
 from datetime import timedelta
 from pathlib import Path
+from megashop import __version__
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
@@ -245,10 +246,11 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Megashop Project API",
     "DESCRIPTION": "Api For Megashop",
-    "VERSION": "1.0.0",
+    "VERSION": __version__,
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
