@@ -1,8 +1,9 @@
 from api.models import ApiKey
+from django.conf import settings
 
 
 def send_request(func, *args, headers: dict = None, **kwargs):
-    host = "localhost:8000"
+    host = ",".join(settings.ALLOWED_HOSTS)
 
     if not headers:
         headers = dict()
@@ -14,6 +15,10 @@ def send_request(func, *args, headers: dict = None, **kwargs):
         api_key._set_api_key()
         api_key.save()
 
-    headers["Host"] = host
+    try:
+        headers["Host"] = settings.ALLOWED_HOSTS[0]
+    except IndexError:
+        pass
+
     headers["X-Api-Key"] = api_key.key
     return func(*args, headers=headers, **kwargs)
