@@ -30,7 +30,6 @@ STORE_RESPONSE = {
     "name": "dummy name",
     "city": 1,
     "address": "dummy address",
-    "coordinates": [34.1235124, 54.6435124],
     "schedules": ["dummy schedule", "dummy schedule"],
     "is_active": True,
 }

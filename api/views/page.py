@@ -15,9 +15,9 @@ from rest_framework.viewsets import ModelViewSet
 
 from account.models import Store
 from account.views import STORE_RESPONSE
-from api.serializers import PageSerializer, StoreSerializer
 from api.permissions import ReadOnlyOrAdminPermission
 from shop.models import Page, Setting, SettingChoices
+from api.serializers import PageSerializer, StoreSerializer
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
 
 
@@ -25,6 +25,13 @@ CONTACT_INFO_RESPONSE = {
     "client_assist_phone": "+78005553535",
     "description": "dummy description",
     "stores": [STORE_RESPONSE],
+    "city_name": "dummy name",
+    "coordinates": [
+        {
+            "id": 1,
+            "coordinate": [34.52342, 64.63234],
+        }
+    ]
 }
 PAGE_REQUEST_EXAMPLE = {
     "title": "Первая страница",
@@ -233,17 +240,23 @@ class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespons
         """
         Кастомное действие для получения информации страницы 'Контактная информация'.
         """
-
         contact_setting = Setting.objects.filter(predefined_key=SettingChoices.CONTACT_INFO).first()
         if not contact_setting:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         data = json.loads(contact_setting.value_string)
-        stores = Store.objects.filter(city__domain=self.city_domain)
-        stores_data = StoreSerializer(stores, many=True).data
-
         if not isinstance(data, dict):
             raise ValueError(f"'CONTACT_INFO' setting must be json object.")
+        
+        stores = Store.objects.filter(city__domain=self.city_domain)
+        if stores.exists():
+            data["stores"] = StoreSerializer(stores, many=True).data
+            data["city_name"] = stores.first().city.name
 
-        data["stores"] = stores_data
+        coordinates = []
+        for idx, v in enumerate(stores, start=1):
+            coordinates.append({"id": idx, "coordinate": [float(v.latitude), float(v.longitude)]})
+
+        data["coordinates"] = coordinates
+
         return Response(data, status=status.HTTP_200_OK)
