@@ -34,10 +34,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='schedule',
-            index=models.Index(fields=['title'], name='schedule_title_idx'),
+            index=models.Index(fields=['title'], name='str_schedule_title_idx'),
         ),
         migrations.AddIndex(
             model_name='schedule',
-            index=models.Index(fields=['schedule'], name='schedule_schedule_idx'),
+            index=models.Index(fields=['schedule'], name='str_schedule_schedule_idx'),
         ),
     ]
