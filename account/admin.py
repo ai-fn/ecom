@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.core.signals import setting_changed
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
-from account.models import City, CityGroup, CustomUser, Store, Schedule
+from account.models import City, CityGroup, CustomUser
 from api.mixins import ValidatePhoneNumberMixin, ActiveAdminMixin
 
 
@@ -84,11 +85,13 @@ class CityAdmin(ActiveAdminMixin, admin.ModelAdmin):
         "name",
         "city_group",
         "domain",
+        "address",
         "population",
     )
     search_fields = (
         "name",
         "domain",
+        "address",
     )
 
 
@@ -100,30 +103,4 @@ class CityGroupAdmin(ActiveAdminMixin, admin.ModelAdmin):
     )
     search_fields = (
         "name",
-    )
-
-
-@admin.register(Store)
-class StoreAdmin(ActiveAdminMixin, admin.ModelAdmin):
-    list_display = (
-        "id",
-        "name",
-        "address",
-        "phone",
-    )
-    list_filter = (
-        "city",
-    )
-
-@admin.register(Schedule)
-class SheduleAdmin(ActiveAdminMixin, admin.ModelAdmin):
-    list_display = (
-        "id",
-        "title",
-        "order",
-        "store",
-        "schedule",
-    )
-    list_filter = (
-        "store",
     )

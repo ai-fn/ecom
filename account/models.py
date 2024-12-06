@@ -31,10 +31,10 @@ class TimeBasedModel(models.Model):
             order = getattr(self, "order", None)
             if not order:
                 order_value = (
-                    self._meta.model.objects.order_by("order")
+                    self._meta.model.objects
+                    .order_by("order")
                     .values_list("order", flat=True)
-                    .last()
-                    or 0
+                    .last() or 0
                 ) + 1
                 setattr(self, "order", order_value)
 
@@ -43,6 +43,7 @@ class TimeBasedModel(models.Model):
                     update_fields = {*update_fields, "order"}
 
         return update_fields
+
 
     def _set_slug(self: models.Model, update_fields=None):
         if hasattr(self, "slug"):
@@ -74,6 +75,26 @@ class City(TimeBasedModel):
         null=True,
         unique=True,
     )
+    address = models.CharField(
+        max_length=256,
+        verbose_name="Адрес",
+        null=True,
+        blank=True,
+    )
+    number = models.BigIntegerField(
+        verbose_name="Номер телефона",
+        default=0,
+    )
+    how_to_get_office = models.CharField(
+        verbose_name="Как добраться до офиса",
+        null=True,
+        blank=True,
+        max_length=512,
+    )
+    schedule = models.TextField(
+        verbose_name="График работы",
+        default="Отсутствует",
+    )
     population = models.PositiveBigIntegerField(
         verbose_name="Численность населения", default=0
     )
@@ -93,16 +114,18 @@ class City(TimeBasedModel):
         indexes = [
             models.Index(fields=["name"], name="city_name_idx"),
             models.Index(fields=["domain"], name="city_domain_idx"),
+            models.Index(fields=["address"], name="city_address_idx"),
         ]
 
     def __str__(self):
         return self.name
-
+    
     def save(self, *args, **kwargs):
         if not self.domain:
             self.domain = f'{slugify(unidecode(self.name))}.{get_base_domain()}'
 
         return super().save(*args, **kwargs)
+
 
     @staticmethod
     def get_default_city() -> "City":
@@ -149,7 +172,7 @@ class CityGroup(TimeBasedModel):
         if not cached_data:
             cg = CityGroup.objects.filter(cities__domain=domain).first()
             cached_data = cg.main_city.domain if cg and cg.main_city else None
-            cache.set(key, cached_data, timeout=60 * 60 * 24)
+            cache.set(key, cached_data, timeout=60*60*24)
 
         return cached_data
 
@@ -162,29 +185,20 @@ class CityGroup(TimeBasedModel):
             cg.save()
 
         return cg
-
+    
     @staticmethod
     def get_default_city_group_pk() -> int:
         return CityGroup.get_default_city_group().pk
 
 
 class CustomUser(AbstractUser):
-    first_name = models.CharField(_("Имя"), max_length=35, blank=True, null=True)
-    last_name = models.CharField(_("Фамилия "), max_length=35, blank=True, null=True)
-    email = models.EmailField(
-        _("Почта"),
-        help_text=_("Адрес электронной почты"),
-        unique=True,
-        blank=True,
-        null=True,
+    first_name = models.CharField(
+        _("Имя"), max_length=35, blank=True, null=True
     )
+    last_name = models.CharField(_("Фамилия "), max_length=35, blank=True, null=True)
+    email = models.EmailField(_("Почта"), help_text=_("Адрес электронной почты"), unique=True, blank=True, null=True)
     phone = models.CharField(
-        verbose_name=_("Номер телефона"),
-        null=True,
-        blank=True,
-        unique=True,
-        max_length=16,
-        help_text=_("В формате +7xxxxxxxxxx"),
+        verbose_name=_("Номер телефона"), null=True, blank=True, unique=True, max_length=16, help_text=_("In format +7xxxxxxxxxx")
     )
     address = models.CharField(_("Адрес"), max_length=1024, null=True, blank=True)
     is_customer = models.BooleanField(
@@ -216,69 +230,3 @@ class CustomUser(AbstractUser):
         else:
             self.is_active = False
             self.save(update_fields=["is_active", "first_name"])
-
-
-class Store(TimeBasedModel):
-
-    name = models.CharField(
-        _("Название"),
-    )
-    city = models.ForeignKey(
-        City,
-        on_delete=models.CASCADE,
-        verbose_name=_("Город"),
-        related_name="stores",
-    )
-    address = models.CharField(
-        max_length=256,
-        verbose_name="Адрес",
-        null=True,
-        blank=True,
-    )
-    phone = models.CharField(
-        verbose_name=_("Номер телефона"),
-        null=True,
-        blank=True,
-        unique=True,
-        max_length=16,
-        help_text=_("В формате +7xxxxxxxxxx"),
-    )
-
-    class Meta:
-        verbose_name = _("Магазин")
-        verbose_name_plural = _("Магазины")
-        ordering = ("city", "-created_at")
-        indexes = [
-            models.Index(fields=["address"], name="store_address_idx"),
-            models.Index(fields=["name"], name="store_name_idx"),
-        ]
-
-    def __str__(self) -> str:
-        return f"Магазин {self.name}"
-
-
-class Schedule(TimeBasedModel):
-
-    schedule = models.CharField(_("График работы"), max_length=256)
-    title = models.CharField(_("Заголовок"), max_length=128, blank=True, null=True)
-    order = models.PositiveIntegerField(
-        _("Порядковый номер"), default=0, blank=True, null=True
-    )
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.CASCADE,
-        verbose_name=_("График работы"),
-        related_name="schedules",
-    )
-
-    class Meta:
-        verbose_name = _("График работы")
-        verbose_name_plural = _("Графики работы")
-        ordering = ("store", "-created_at")
-        indexes = [
-            models.Index(fields=["title"], name="schedule_title_idx"),
-            models.Index(fields=["schedule"], name="schedule_schedule_idx"),
-        ]
-
-    def __str__(self) -> str:
-        return f"#{self.id} График работы '{self.store.name}'"
