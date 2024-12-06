@@ -529,7 +529,6 @@ class SettingChoices(models.TextChoices):
     OPEN_GRAPH_META_IMAGE = "openGraphMeta_image", _("Путь до openGraphMeta изображения от корня директории сайта")
     DEFAULT_META_KEYWORDS_TEMPLATE = "default_meta_keywords_template", _("Шаблон по умолчанию для ключевых слов метаданных")
     DEFAULT_META_DESCRIPTION_TEMPLATE = "default_meta_description_template", _("Шаблон по умолчанию для описания метаданных")
-    CONTACT_INFO = "contact_info", _("Контент для страницы 'Контактная информация'")
     # TODO добавить настройки платежных систем
     # TODO добавить доступность прямой оплаты
     # TODO включение CMS режима
@@ -553,8 +552,8 @@ class Setting(TimeBasedModel):
         max_length=50,
         default=SettingsTypeChoices.BOOLEAN,
     )
-    value_string = models.TextField(
-        verbose_name="Строковое значение", max_length=1024, null=True, blank=True
+    value_string = models.CharField(
+        verbose_name="Строковое значение", max_length=255, null=True, blank=True
     )
     value_boolean = models.BooleanField(
         verbose_name="Логическое значение", null=True, blank=True

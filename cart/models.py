@@ -176,8 +176,8 @@ class PickupPointSchedule(TimeBasedModel):
         verbose_name_plural = _("Графики работы пунктов выдачи")
         ordering = ("pickup_point", "order", "-created_at")
         indexes = [
-            models.Index(fields=["title"], name="pp_schedule_title_idx"),
-            models.Index(fields=["schedule"], name="pp_schedule_schedule_idx"),
+            models.Index(fields=["title"], name="schedule_title_idx"),
+            models.Index(fields=["schedule"], name="schedule_schedule_idx"),
         ]
 
     def __str__(self) -> str:

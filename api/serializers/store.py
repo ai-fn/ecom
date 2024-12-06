@@ -1,28 +1,23 @@
-from account.models import Store
 from api.serializers import ActiveModelSerializer
 from api.serializers.phone import PhoneSerializer
-from rest_framework.serializers import SerializerMethodField, DecimalField
+from account.models import Store
+from rest_framework.serializers import SerializerMethodField
+
 
 
 class StoreSerializer(ActiveModelSerializer, PhoneSerializer):
     schedules = SerializerMethodField()
-    coordinates = SerializerMethodField()
-
 
     class Meta:
-        model = Store
+        model =  Store
         fields = [
             "id",
             "name",
             "phone",
             "address",
-            "schedules",
-            "coordinates",
+            "schedules"
         ]
-
-    def get_coordinates(self, obj: Store) -> list[float, float]:
-        return [float(obj.latitude), float(obj.longitude)]
-
+    
     def get_schedules(self, obj: Store) -> list[str | None]:
         schedules = obj.schedules.filter(is_active=True)
         return [x.schedule for x in schedules]

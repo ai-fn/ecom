@@ -243,17 +243,6 @@ class Store(TimeBasedModel):
         max_length=16,
         help_text=_("В формате +7xxxxxxxxxx"),
     )
-    latitude = models.DecimalField(
-        _("Широта"),
-        max_digits=9,
-        decimal_places=6,
-    )
-    longitude = models.DecimalField(
-        _("Долгота"),
-        max_digits=9,
-        decimal_places=6,
-    )
-    
 
     class Meta:
         verbose_name = _("Магазин")

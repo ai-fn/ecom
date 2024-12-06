@@ -8,9 +8,9 @@ from api.permissions import UserInfoPermission, ReadOnlyOrAdminPermission
 from account.models import CustomUser, Schedule, Store
 
 from rest_framework import viewsets, mixins
+from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiExample, OpenApiResponse
@@ -21,18 +21,11 @@ STORE_REQUEST = {
     "name": "dummy name",
     "city": 1,
     "address": "dummy address",
-    "latitude": 34.1235124,
-    "longitude": 34.1235124,
 }
 STORE_RESPONSE = {
     "id": 1,
-    "phone": "+79997856743",
-    "name": "dummy name",
-    "city": 1,
-    "address": "dummy address",
-    "coordinates": [34.1235124, 54.6435124],
+    **STORE_REQUEST,
     "schedules": ["dummy schedule", "dummy schedule"],
-    "is_active": True,
 }
 STORE_PARTIAL_UPDATE_REQUEST = {
     k: v for k, v in list(STORE_REQUEST.items())[:2]
@@ -336,8 +329,6 @@ class StoreViewSet(viewsets.ModelViewSet):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
     permission_classes = [ReadOnlyOrAdminPermission]
-
-
 @extend_schema_view(
     list=extend_schema(
         summary="Получение информации о графиках работы магазинов",
