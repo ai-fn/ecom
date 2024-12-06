@@ -1,3 +1,4 @@
+import json
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -7,15 +8,24 @@ from drf_spectacular.utils import (
 )
 
 
+from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from account.models import Store
+from account.views import STORE_RESPONSE
+from api.serializers import PageSerializer, StoreSerializer
 from api.permissions import ReadOnlyOrAdminPermission
+from shop.models import Page, Setting, SettingChoices
 from api.mixins import ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse
-from api.serializers import PageSerializer
-from shop.models import Page
 
 
+CONTACT_INFO_RESPONSE = {
+    "client_assist_phone": "+78005553535",
+    "description": "dummy description",
+    "stores": [STORE_RESPONSE],
+}
 PAGE_REQUEST_EXAMPLE = {
     "title": "Первая страница",
     "h1_tag": "dummy_h1_tag",
@@ -168,12 +178,30 @@ PAGE_PARTIAL_UPDATE_REQUEST_EXAMPLE = {k: v for k, v in list(PAGE_REQUEST_EXAMPL
             )
         }
     ),
+    get_contact_info=extend_schema(
+        summary="",
+        description="",
+        responses={
+            200: OpenApiResponse(
+                response=PageSerializer(),
+                examples=[
+                    OpenApiExample(
+                        "Пример успешного ответа",
+                        value=CONTACT_INFO_RESPONSE,
+                    )
+                ]
+            ),
+        },
+    ),
 )
 class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheResponse, ModelViewSet):
     queryset = Page.objects.all()
     permission_classes = [ReadOnlyOrAdminPermission]
     serializer_class = PageSerializer
 
+    def initial(self, request, *args, **kwargs):
+        self.city_domain = request.query_params.get("city_domain")
+        return super().initial(request, *args, **kwargs)
 
     def get_serializer_context(self):
         data = super().get_serializer_context()
@@ -199,3 +227,23 @@ class PageViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespons
         self.lookup_field = self.lookup_url_kwarg = "slug"
         self.kwargs[self.lookup_field] = slug
         return super().retrieve(request, *args, **kwargs)
+    
+    @action(detail=False, methods=["get"], url_path="contact-info")
+    def get_contact_info(self, request, *args, **kwargs):
+        """
+        Кастомное действие для получения информации страницы 'Контактная информация'.
+        """
+
+        contact_setting = Setting.objects.filter(predefined_key=SettingChoices.CONTACT_INFO).first()
+        if not contact_setting:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        data = json.loads(contact_setting.value_string)
+        stores = Store.objects.filter(city__domain=self.city_domain)
+        stores_data = StoreSerializer(stores, many=True).data
+
+        if not isinstance(data, dict):
+            raise ValueError(f"'CONTACT_INFO' setting must be json object.")
+
+        data["stores"] = stores_data
+        return Response(data, status=status.HTTP_200_OK)
