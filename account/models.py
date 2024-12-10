@@ -207,7 +207,7 @@ class CustomUser(AbstractUser):
         ]
 
     def __str__(self) -> str:
-        return f"CustomUser({self.phone})"
+        return f"Пользователь {self.username}"
 
     def delete(self, *args):
 
