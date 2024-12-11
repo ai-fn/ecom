@@ -131,9 +131,6 @@ WSGI_APPLICATION = "megashop.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DB_NAMES = ("test", "default")
-USE_TEST_DB = os.getenv("USE_TEST_DB", "0") == "1"
-
 # PORTS SETTINGS
 
 POSTGRES_PORT = 5432
@@ -153,17 +150,9 @@ POSTGRES_USER = os.getenv("POSTGRES_USER", "default_user")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "default_password")
 
 DATABASES = {
-    DB_NAMES[not USE_TEST_DB]: {
+    "default": {
         "ENGINE": "django_prometheus.db.backends.postgresql",
         "NAME": POSTGRES_NAME,
-        "USER": POSTGRES_USER,
-        "PASSWORD": POSTGRES_PASSWORD,
-        "HOST": POSTGRES_HOST,
-        "PORT": POSTGRES_PORT,
-    },
-    DB_NAMES[USE_TEST_DB]: {
-        "ENGINE": "django_prometheus.db.backends.postgresql",
-        "NAME": "test_" + POSTGRES_NAME,
         "USER": POSTGRES_USER,
         "PASSWORD": POSTGRES_PASSWORD,
         "HOST": POSTGRES_HOST,

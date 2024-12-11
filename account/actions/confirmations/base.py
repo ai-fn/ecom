@@ -2,11 +2,11 @@ import time
 
 from loguru import logger
 
+from django.db.models import Q
 from django.conf import settings
 from django.core.cache import cache
-from django.contrib.auth.models import AbstractUser
-from django.db.models import Q
 from django.db.utils import IntegrityError
+from django.contrib.auth.models import AbstractUser
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -113,10 +113,8 @@ class SendCodeBaseAction(GenerateCodeMixin):
 
             user = CustomUser.objects.filter(q).first()
             if not user:
-                user = CustomUser.objects.create(**fields, is_active=True)
-                user.set_password(lookup_value)
-                user.save()
-            
+                user = self._create_user(lookup_value, **fields, is_active=True, is_customer=True)
+
             if getattr(user, self.lookup_field, None) != lookup_value:
                 try:
                     setattr(user, self.lookup_field, lookup_value)
@@ -191,3 +189,10 @@ class SendCodeBaseAction(GenerateCodeMixin):
             timeout=self.code_lifetime,
         )
         return et
+
+    def _create_user(self, unique_field: str, **kwargs) -> CustomUser:
+        user = CustomUser(**kwargs)
+        user.set_password(unique_field)
+        user.save()
+
+        return user

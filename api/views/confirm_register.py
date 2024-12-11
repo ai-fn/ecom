@@ -1,9 +1,6 @@
 from account.models import CustomUser
 from account.actions import SendCodeToEmailAction
 
-from django.conf import settings
-from django.core.cache import cache
-
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,17 +10,14 @@ from rest_framework.permissions import AllowAny
 from api.serializers._jwt import MyTokenObtainPairSerializer
 from api.serializers.confirm_code import ConfirmCodeSerializer
 
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter
+from drf_spectacular.utils import OpenApiExample
 from drf_spectacular.utils import extend_schema, extend_schema_view
-
-code_lifetime = int(getattr(settings, "CONFIRM_CODE_LIFE_TIME", 60 * 30))
-remaining_time = int(getattr(settings, "CONFIRM_CODE_REMAINING_TIME", 60 * 2))
 
 
 @extend_schema_view(
     send_code=extend_schema(
         tags=["Account"],
-        description=f"Отпарвка сообщения c кодом. Кэширование запроса на {code_lifetime} секунд.",
+        description=f"Отпарвка сообщения c кодом.",
         summary="Отпарвка сообщения c кодом",
         examples=[
             OpenApiExample(

@@ -126,13 +126,7 @@ ORDER_PARTIAL_UPDATE_REQUEST_EXAMPLE = {
             OpenApiExample(
                 name="Create Request Example",
                 request_only=True,
-                value={
-                    "region": "Воронежская область",
-                    "district": "Лискинский район",
-                    "city_name": "Воронеж",
-                    "street": "ул. Садовая",
-                    "house": "101Б",
-                },
+                value=ORDER_REQUEST_EXAMPLE,
                 description="Пример запроса на создание нового заказа в Swagger UI",
                 summary="Пример запроса на создание нового заказа",
                 media_type="application/json",
@@ -330,7 +324,7 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
             )
 
         try:
-            crm = CRMFactory.get_crm_adapter(settings.BASE_CRM)
+            crm = CRMFactory.get_adapter(settings.BASE_CRM)
             order = MakeOrderAction.execute(data, cart_items, city_domain=city_domain, crm_api_class=crm)
         except (ObjectDoesNotExist, DatabaseError) as err:
             logger.error(str(err))

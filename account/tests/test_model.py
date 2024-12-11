@@ -85,7 +85,7 @@ class CustomUserModelTest(TestCase):
         self.assertFalse(self.user.is_active)
 
     def test_user_str(self):
-        self.assertEqual(str(self.user), "CustomUser(+71234567890)")
+        self.assertEqual(str(self.user), "Пользователь testuser")
 
     def test_user_indexes(self):
         indexes = [index.name for index in CustomUser._meta.indexes]
