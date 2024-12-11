@@ -24,7 +24,9 @@ class OrderViewSetTests(APITestCase):
             email="dummy@gmail.com", password="dummy", username="dummy-users"
         )
         self.city_group = CityGroup.objects.create(name="dummy_citygroup_name")
-        self.city = City.objects.create(name="dummy_city_name", domain="moskva.domain.com")
+        self.city = City.objects.create(
+            name="dummy_city_name", domain="moskva.domain.com"
+        )
         self.city_group.cities.add(self.city)
 
         self.category = Category.objects.create(name="dummy category", order=1)
@@ -52,39 +54,50 @@ class OrderViewSetTests(APITestCase):
         self.cart_item = CartItem.objects.create(
             customer=self.user, quantity=1, product_id=self.prod1.id
         )
+
+        self.order_address = "улица Шишкова, Северный, Коминтерновский район, Воронеж, городской округ Воронеж, Воронежская область, Центральный федеральный округ, 394068, Россия"
         self.order_data = {
             "delivery_type": "delivery",
             "receiver_first_name": "Иван",
             "receiver_last_name": "Петров",
             "receiver_phone": "+79996740923",
             "receiver_email": "example@mail.ru",
-            "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, Россия",
+            "address": self.order_address,
         }
 
-    def test_create_order(self):
+    @mock.patch("crm_integration.tasks.create_order_in_crm_task.delay")
+    def test_create_order(self, mock_task):
 
         url = self.get_order_url("voronezh.domain.com")
 
         self.client.force_authenticate(user=self.user)
-        data = {
-            "delivery_type": "delivery",
-            "receiver_first_name": "Иван",
-            "receiver_last_name": "Петров",
-            "receiver_phone": "+79996740923",
-            "receiver_email": "example@mail.ru",
-            "address": "Патриаршие пруды, 48, Пресненский район, Москва, Центральный федеральный округ, Россия",
-        }
-        response = send_request(self.client.post, url, data, format="json")
+        response = send_request(self.client.post, url, self.order_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         url = self.get_order_url(self.city.domain)
 
-        response = send_request(self.client.post, url, data, format="json")
+        response = send_request(self.client.post, url, self.order_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(ProductsInOrder.objects.count(), 1)
         self.assertEqual(CartItem.objects.filter(customer=self.user).count(), 0)
+
+        order = Order.objects.filter(customer=self.user).last()
+        mock_task.assert_called_once()
+
+        # Извлекаем фактические аргументы вызова
+        called_args = mock_task.call_args[0][0]  # Первый аргумент первого вызова
+        check_data = {"id": order.id, "customer": self.user.pk, **self.order_data}
+        for k, v in check_data.items():
+            self.assertEqual(called_args[k], v)
+
+        self.assertIn("domain", called_args)
+
+        # Для данных, которые невозможно проверить точно, используем ANY
+        self.assertIsInstance(called_args.get("created_at"), (str, type(None)))
+
 
     def authenticate_user(self):
         self.client.force_authenticate(user=self.user)
@@ -92,7 +105,9 @@ class OrderViewSetTests(APITestCase):
     def get_order_url(self, city_domain):
         return reverse("api:cart:orders-list") + f"?city_domain={city_domain}"
 
-    def test_order_creation_fails_due_to_missing_price(self):
+    @mock.patch("api.mixins.validate_address.ValidateAddressMixin.validate_address")
+    def test_order_creation_fails_due_to_missing_price(self, mock_validate_address):
+        mock_validate_address.return_value = self.order_address
 
         self.authenticate_user()
         url = self.get_order_url("voronezh.domain.com")
@@ -102,7 +117,12 @@ class OrderViewSetTests(APITestCase):
         self.assertIn("error", response.json())
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_order_creation_succeeds_for_valid_data(self):
+    @mock.patch("crm_integration.tasks.create_order_in_crm_task.delay")
+    @mock.patch("api.mixins.validate_address.ValidateAddressMixin.validate_address")
+    def test_order_creation_succeeds_for_valid_data(
+        self, mock_validate_address, mock_task
+    ):
+        mock_validate_address.return_value = self.order_address
 
         self.authenticate_user()
         url = self.get_order_url("moskva.domain.com")
@@ -113,11 +133,22 @@ class OrderViewSetTests(APITestCase):
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(ProductsInOrder.objects.count(), 1)
         self.assertEqual(CartItem.objects.filter(customer=self.user).count(), 0)
+        mock_task.assert_called_once()
 
-        order = Order.objects.first()
+        order = Order.objects.filter(customer=self.user).last()
         self.assertEqual(order.customer, self.user)
         self.assertEqual(order.delivery_type, self.order_data["delivery_type"])
 
+        # Извлекаем фактические аргументы вызова
+        called_args = mock_task.call_args[0][0]  # Первый аргумент первого вызова
+        check_data = {"id": order.id, "customer": self.user.pk, **self.order_data}
+        for k, v in check_data.items():
+            self.assertEqual(called_args[k], v)
+
+        self.assertIn("domain", called_args)
+
+        # Для данных, которые невозможно проверить точно, используем ANY
+        self.assertIsInstance(called_args.get("created_at"), (str, type(None)))
 
 class CartCountViewTests(APITestCase):
 
