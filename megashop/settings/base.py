@@ -86,10 +86,7 @@ IMPORT_EXPORT_APPS = [
 
 AUTH_USER_MODEL = "account.CustomUser"
 
-BASE_CRM = "bitrix24"
-CRM_ADAPTERS = {
-    "bitrix24": "crm_integration.crm_adapters.bitrix.BitrixAPI"
-}
+BASE_CRM = os.getenv("BASE_CRM")
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",

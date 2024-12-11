@@ -5,7 +5,8 @@ from api.serializers import OrderSerializer
 from cart.models import CartItem, Order, ProductsInOrder
 from shop.models import Price, ProductFrequenlyBoughtTogether
 
-from crm_integration.abs import CRMInterface
+from crm_integration.adapters import OrderCRMAdapter
+from crm_integration.tasks import create_order_in_crm_task
 
 
 class MakeOrderAction:
@@ -23,7 +24,7 @@ class MakeOrderAction:
         cart_items: QuerySet[CartItem],
         city_domain: str = None,
         order_serializer_class=None,
-        crm_api_class: CRMInterface = None,
+        crm_api_class: OrderCRMAdapter = None,
     ) -> Order:
         """
         Выполняет процесс создания заказа.
@@ -88,6 +89,8 @@ class MakeOrderAction:
 
         # Интеграция с CRM, если указана
         if cls._crm_api_class is not None:
-            cls._crm_api_class.handle_order_creation(order, city_domain)
+            order_data = OrderSerializer(instance=order).data
+            order_data["domain"] = city_domain
+            create_order_in_crm_task.delay(order_data)
 
         return order
