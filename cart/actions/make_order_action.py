@@ -81,6 +81,7 @@ class MakeOrderAction:
             order.save(update_fields=["total"])
 
         order_data = OrderSerializer(instance=order).data
+        order_data["domain"] = city_domain
         create_order_in_crm_task.delay(order_data)
 
         return order
