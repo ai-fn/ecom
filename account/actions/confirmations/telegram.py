@@ -15,7 +15,6 @@ class SendCodeToTelegramAction(SendCodeBaseAction):
     и идентификатор чата, которые должны быть указаны в настройках Django.
     """
 
-    api_key = getattr(settings, "SMS_RU_TOKEN")
     bot_token = getattr(settings, "TG_BOT_TOKEN")
     chat_id = getattr(settings, "CHAT_ID")
     link = f"https://api.telegram.org/bot{bot_token}/sendMessage"

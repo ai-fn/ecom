@@ -1,3 +1,4 @@
+import json
 import time
 
 from loguru import logger
@@ -135,7 +136,15 @@ class SendCodeBaseAction(GenerateCodeMixin):
         :return: HTTP-ответ с результатом операции.
         """
 
-        serializer_instance = self.serializer_class(data=request.data)
+        if request.content_type == "application/json":
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.POST
+
+        serializer_instance = self.serializer_class(data=data)
         if not serializer_instance.is_valid():
             return Response(
                 serializer_instance.errors, status=status.HTTP_400_BAD_REQUEST
@@ -194,5 +203,4 @@ class SendCodeBaseAction(GenerateCodeMixin):
         user = CustomUser(**kwargs)
         user.set_password(unique_field)
         user.save()
-
         return user
