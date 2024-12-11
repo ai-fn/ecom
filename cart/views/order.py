@@ -324,8 +324,7 @@ class OrderViewSet(ActiveQuerysetMixin, IntegrityErrorHandlingMixin, CacheRespon
             )
 
         try:
-            crm = CRMFactory.get_adapter(settings.BASE_CRM)
-            order = MakeOrderAction.execute(data, cart_items, city_domain=city_domain, crm_api_class=crm)
+            order = MakeOrderAction.execute(data, cart_items, city_domain=city_domain)
         except (ObjectDoesNotExist, DatabaseError) as err:
             logger.error(str(err))
             return Response(

@@ -3,10 +3,8 @@ from django.db.models import F, QuerySet
 
 from api.serializers import OrderSerializer
 from cart.models import CartItem, Order, ProductsInOrder
-from shop.models import Price, ProductFrequenlyBoughtTogether
-
-from crm_integration.adapters import OrderCRMAdapter
 from crm_integration.tasks import create_order_in_crm_task
+from shop.models import Price, ProductFrequenlyBoughtTogether
 
 
 class MakeOrderAction:
@@ -15,7 +13,6 @@ class MakeOrderAction:
     """
 
     _serializer_class = OrderSerializer
-    _crm_api_class = None
 
     @classmethod
     def execute(
@@ -24,7 +21,6 @@ class MakeOrderAction:
         cart_items: QuerySet[CartItem],
         city_domain: str = None,
         order_serializer_class=None,
-        crm_api_class: OrderCRMAdapter = None,
     ) -> Order:
         """
         Выполняет процесс создания заказа.
@@ -45,9 +41,6 @@ class MakeOrderAction:
         """
         if order_serializer_class is not None:
             cls._serializer_class = order_serializer_class
-
-        if crm_api_class is not None:
-            cls._crm_api_class = crm_api_class
 
         serializer = cls._serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
@@ -87,10 +80,7 @@ class MakeOrderAction:
             order.total = total
             order.save(update_fields=["total"])
 
-        # Интеграция с CRM, если указана
-        if cls._crm_api_class is not None:
-            order_data = OrderSerializer(instance=order).data
-            order_data["domain"] = city_domain
-            create_order_in_crm_task.delay(order_data)
+        order_data = OrderSerializer(instance=order).data
+        create_order_in_crm_task.delay(order_data)
 
         return order
