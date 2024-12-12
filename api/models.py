@@ -1,15 +1,13 @@
 import re
-import hashlib
-from time import time
 
 from datetime import timedelta
 
 from django.db import models
-from django.conf import settings
 from django.core.cache import cache
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _
 from account.models import TimeBasedModel
+from django.contrib.auth.hashers import make_password, check_password
+from django.utils.translation import gettext_lazy as _
 
 
 class ApiKey(TimeBasedModel):
@@ -62,10 +60,27 @@ class ApiKey(TimeBasedModel):
                 return True
 
         return False
-    
-    def _set_api_key(self) -> "ApiKey":
-        self.key = hashlib.sha256(f"{settings.SECRET_KEY}{time()}{self.client_id}".encode()).hexdigest()
+
+    def set_api_key(self, raw_key: str) -> "ApiKey":
+        self.key = self._generate_key(raw_key)
         return self
+
+    def _check_key(self, raw_key: str) -> bool:
+        return check_password(raw_key, self.key)
+
+    @classmethod
+    def find_by_raw_key(cls, raw_key: str):
+        """
+        Ищет объект ApiKey, соответствующий переданному "сырому" ключу.
+        """
+        for api_key in cls.objects.all():
+            if api_key._check_key(raw_key):
+                return api_key
+        return None
+
+    @classmethod
+    def _generate_key(cls, raw_key: str) -> str:
+        return make_password(raw_key)
 
     @classmethod
     def get_cache_key(cls, key: str) -> str:

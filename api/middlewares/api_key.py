@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 class ApiKeyMiddleware:
 
-    _CACHE_EXPIRATION_TIME = 60 * 15
+    _CACHE_EXPIRATION_TIME = 60 * 1
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -27,17 +27,14 @@ class ApiKeyMiddleware:
         return self.get_response(request)
 
     def _validate_request(self, request: HttpRequest) -> tuple[str, bool]:
-        provided_key = request.headers.get("X-Api-Key")
-        if not provided_key:
+        raw_key = request.headers.get("X-Api-Key")
+        if not raw_key:
             return "Api ключ не предоставлен.", False
 
-        cache_key = ApiKey.get_cache_key(provided_key)
+        cache_key = ApiKey.get_cache_key(raw_key)
         cached_result = cache.get(cache_key)
         if not cached_result:
-            try:
-                key = ApiKey.objects.get(key=provided_key)
-            except ApiKey.DoesNotExist:
-                key = None
+            key = ApiKey.find_by_raw_key(raw_key)
 
             ip = request.META.get("REMOTE_ADDR")
             host = request.headers.get('Host')
